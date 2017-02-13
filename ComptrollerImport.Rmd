@@ -228,9 +228,6 @@ RFdata$SourceFiscalYear<-2016
 RFdata<-ComptrollerMelt(RFdata)
 RFdata<-ComptrollerVariableRename(RFdata)
 write.csv(RFdata,"RF.csv")
-OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(RFdata))
-
-
 
 
 ```
