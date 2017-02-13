@@ -1,6 +1,6 @@
 
-Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
-# Path<-"D:\\Users\\Greg Sanders\\Documents\\Development\\R-scripts-and-data\\"
+# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+Path<-"D:\\Users\\Greg Sanders\\Documents\\Development\\R-scripts-and-data\\"
 
 
 source(paste(Path,"lookups.r",sep=""))

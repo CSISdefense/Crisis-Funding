@@ -1,0 +1,113 @@
+SourceFiscalYear,GAOprogramName,CurrentTotalAcquisitionCost,BaseLineTotalAcquisitionCost,PercentChangeInTotalAcquisitionCostFromBaseline,PercentChangeInTotalAcquisitionCostInPast2Years,PercentChangeInTotalAcquisitionCostInPast5Years,CSISshorthand,Minimum,TRL2008,TRL2010,Notes,DevelopmentStart,DevelopmentStartYear,TRL2012assignedYear,TRL2012assignedYear,TRL2012assignedStage,DemonstratesAllCriticalTechnologiesInARelevantEnvironment,DemonstrateAllCriticalTechnologiesInARealisticEnvironment,CompletePreliminaryDesignReview,ReleaseAtLeast90percentOfDesignDrawings,TestAsystemLevelIntegratedPrototype,DemonstrateCriticalProcessesAreInControl,DemonstrateCriticalProcessOnApilotProductionLine,TestAproductionRepresenativePrototype
+2011,Advanced Extremely High Frequency (AEHF) Satellite,"$14,083 ","$6,370 ",121.10%,7.40%,106.60%,AEHF,0.7,1,,,0.7,2001,,,,,,,,,,,
+2011,Advanced Threat Infrared Countermeasure/Common Missile Warning System (ATIRCM/CMWS),"$4,853 ","$3,414 ",42.20%,1.70%,-11.60%,ATIRCM/CMWS,0.3,1,,,0.3,1995,,,,,,,,,,,
+2011,AGM-88E Advanced Anti-Radiation Guided Missile (AARGM),"$1,902 ","$1,601 ",18.80%,2.70%,20.70%,AGM-88E,0.5,,1,,0.5,2003,,,,T,T,T,T,T,F,T,T
+2011,AH-64D Longbow Apache,"$14,773 ","$6,132 ",140.90%,0.30%,34.80%,LONGBOW APACHE,0.5,0.5,1,,,,,,,,,,,,,,
+2011,AIM-120 Advanced Medium Range Air-to-Air Missile (AMRAAM),"$23,582 ","$10,931 ",115.70%,-2.80%,38.20%,AMRAAM,,,,,,,,,,,,,,,,,
+2011,AIM-9X/Air-to-Air Missile,"$3,750 ","$3,144 ",19.30%,2.90%,12.50%,AIM-9X,,,,,,,,,,,,,,,,,
+2011,Airborne and Maritime/Fixed Station Joint Tactical Radio System (AMF JTRS),"$8,221 ","$8,154 ",0.80%,-1.40%,0.80%,AMF JTRS,,,,,,,,,,T,F,T,T,T,N/A,N/A,N/A
+2011,Airborne Signals Intelligence Payload (ASIP) – Baseline,$554 ,$347 ,59.50%,-0.10%,NA,ASIP,0.5,,1,,0.5,2002,,,,,,,,,,,
+2011,Apache Block IIIA (AB3A),"$10,737 ","$7,242 ",48.30%,0.00%,48.30%,AB3 APACHE Block III,,,,,,,,,,T,T,T,T,T,F,T,T
+2011,Apache Block IIIB New Build,"$2,215 ","$2,370 ",-6.50%,-6.50%,-6.50%,AB3B NEW BUILD,,,,,,,,,,,,,,,,,
+2011,Army Integrated Air & Missile Defense (Army IAMD),"$5,529 ","$5,029 ",9.90%,9.90%,9.90%,IAMD,,,,,,,,,,T,F,T,N/A,N/A,N/A,N/A,N/A
+2011,"B-2 Extremely High Frequency SATCOM Capability, Increment 1",$625 ,$710 ,-11.90%,-0.40%,-11.90%,B-2 EHF Increment I,0.6,0.6,,,,,,,,T,T,T,T,T,N/A,N/A,N/A
+2011,B-2 Radar Modernization Program (RMP),"$1,284 ","$1,339 ",-4.10%,-3.10%,2.30%,B-2 RMP,0.8,1,,,0.8,2004,,,,,,,,,,,
+2011,Black Hawk (UH-60M),"$25,169 ","$12,970 ",94.10%,13.00%,19.90%,UH-60M Black Hawk Upgrade,,,,,,,,,,,,,,,,,
+2011,Block IV Tomahawk (Tactical Tomahawk),"$6,943 ","$2,116 ",228.10%,-0.10%,54.80%,TACTICAL TOMAHAWK,,,,,,,,,,,,,,,,,
+2011,Broad Area Maritime Surveillance (BAMS) Unmanned Aircraft System (UAS),"$13,052 ","$12,848 ",1.60%,-1.30%,1.60%,BAMS,,,,No data available/not assessed,,,,,,T,T,T,T,F,N/A,N/A,N/A
+2011,C-130 Avionics Modernization Program (AMP),"$6,204 ","$4,132 ",50.10%,1.00%,25.70%,C-130AMP,0.9,1,,,0.9,2001,,,,T,T,T,T,T,N/A,T,T
+2011,C-130J Hercules,"$15,397 ",$949 ,1522.50%,-1.00%,79.50%,C-130J,1,1,,,,,,,,,,,,,,,
+2011,C-27J Spartan,"$2,260 ","$3,912 ",-42.20%,13.20%,-42.20%,JCA,1,1,,,,,,,,,,,,,,,
+2011,C-5 Avionics Modernization Program (AMP),"$1,282 ","$1,103 ",16.20%,-4.30%,30.10%,C-5 AMP,1,1,,,,,,,,,,,,,,,
+2011,C-5 Reliability Enhancement and Reengining Program (RERP),"$7,442 ","$10,905 ",-31.80%,-0.20%,-29.30%,C-5 RERP,1,1,,,,,,,,,,,,,,,
+2011,CH-47F Improved Cargo Helicopter (CH-47F),"$14,475 ","$3,220 ",349.60%,5.40%,16.00%,CH-47F,,,,,,,,,,,,,,,,,
+2011,CH-53K - Heavy Lift Replacement,"$22,440 ","$16,557 ",35.50%,0.90%,35.60%,CH-53K,,0.1,,,,,,,,T,F,T,T,F,N/A,N/A,N/A
+2011,Chemical Demilitarization-Assembled Chemical Weapons Alternatives (Chem Demil-ACWA),"$10,173 ","$2,642 ",285.00%,26.20%,118.30%,CHEM DEMIL-ACWA,,,,,,,,,,,,,,,,,
+2011,Chemical Demilitarization-U.S. Army Chemical Materials Agency (Chem Demil-CMA),"$27,743 ","$15,542 ",78.50%,-4.00%,-3.00%,CHEM DEMIL-CMA,,,,,,,,,,,,,,,,,
+2011,Cobra Judy Replacement (CJR),"$1,825 ","$1,631 ",11.90%,0.10%,12.60%,COBRA JUDY REPLACEMENT,,,,,,,,,,,,,,,,,
+2011,Cooperative Engagement Capability (CEC),"$5,209 ","$2,943 ",77.00%,1.40%,2.50%,CEC,,,,,,,,,,,,,,,,,
+2011,CVN 78 Class,"$33,994 ","$35,574 ",-4.40%,-2.00%,4.00%,CVN 78,,,,,,,,,,F,F,T,T,N/A,N/A,N/A,N/A
+2011,DDG 1000 Destroyer,"$20,986 ","$34,800 ",-39.70%,4.40%,-41.70%,DDG 1000,0.1,0.5,,,0.1,2004,,,,T,F,T,T,N/A,N/A,N/A,N/A
+2011,DDG 51 Destroyer,"$101,819 ","$15,186 ",570.50%,6.30%,29.30%,DDG 51,,,,,,,,,,,,,,,,,
+2011,E-2D Advanced Hawkeye (E-2D AHE),"$17,747 ","$14,752 ",20.30%,-1.90%,19.90%,E-2D AHE,0.3,0.6,1,,0.3,2003,,,,T,T,T,T,T,N/A,T,T
+2011,EA-18G Growler,"$11,411 ","$8,976 ",27.10%,-3.10%,22.70%,EA-18G,0.3,0.7,1,,0.3,2003,,,,,,,,,,,
+2011,Expeditionary Fighting Vehicle (EFV),"$3,705 ","$9,157 ",-59.50%,-74.00%,-69.70%,EFV,0.8,1,,,0.8,2000,,,,,,,,,,,
+2011,F/A-18E/F Super Hornet,"$57,805 ","$81,732 ",-29.30%,4.30%,12.50%,F/A-18E/F,,,,,,,,,,,,,,,,,
+2011,F-22 Raptor,"$79,152 ","$91,291 ",-13.30%,0.80%,6.10%,F-22,0.3,0.6,,,0.5,2003,0.3,2006,design review,,,,,,,,
+2011,F-35 Lightning II (Joint Strike Fighter),"$326,535 ","$213,708 ",52.80%,13.40%,34.10%,F-35,,,,,,,,,,F,F,T,T,T,F,T,T
+2011,Family of Advanced Beyond Line-of-Sight Terminals (FAB-T),"$4,503 ","$3,188 ",41.20%,12.90%,41.20%,FAB-T,0.5,0.5,0.8,,,,,,,T,T,T,T,T,N/A,N/A,N/A
+2011,Family of Medium Tactical Vehicles (FMTV),"$20,048 ","$10,447 ",91.90%,-7.30%,13.70%,FMTV,,,,,,,,,,,,,,,,,
+2011,Force XXI Battle Command Brigade and Below (FBCB2),"$4,147 ","$2,827 ",46.70%,-0.70%,51.80%,FBCB2,,,,,,,,,,,,,,,,,
+2011,Global Broadcast Service (GBS),"$1,152 ",$576 ,100.00%,1.40%,32.70%,GBS,,,,,,,,,,,,,,,,,
+2011,Global Hawk (RQ-4A/B),"$13,992 ","$5,392 ",159.50%,1.50%,68.40%,RQ-4 GLOBAL HAWK,,,,,,,,,,T,T,T,T,N/A,T,T,T
+2011,Global Positioning System (GPS) III,"$4,332 ","$3,941 ",9.90%,3.10%,9.90%,GPS IIIA,,,,,,,,,,T,N/A,T,T,F,T,F,F
+2011,Guided Multiple Launch Rocket System (GMLRS),"$5,827 ","$1,768 ",229.50%,-0.40%,-57.50%,GMLRS,,,,,,,,,,,,,,,,,
+2011,H-1 Upgrades (4BW/4BN),"$12,557 ","$3,627 ",246.30%,4.30%,55.50%,H-1 Upgrades,,,,Not assessed,,,,,,,,,,,,,
+2011,HC/MC-130 Recapitalization Program,"$13,091 ","$8,364 ",56.50%,56.50%,56.50%,HC/MC-130 RECAP,,,,,,,,,,T,T,T,T,N/A,T,F,IN/A
+2011,High Mobility Artillery Rocket System (HIMARS),"$2,130 ","$4,361 ",-51.20%,-1.30%,-35.80%,HIMARS,,,,,,,,,,,,,,,,,
+2011,Increment 1 Early-Infantry Brigade Combat Team,"$1,277 ","$3,235 ",-60.50%,-59.10%,-60.50%,E-IBCT,,,,,,,,,,,,,,,,,
+2011,Integrated Defensive Electronic Countermeasures (IDECM),"$2,379 ","$2,177 ",23.30%,17.10%,23.30%,IDECM,,,,,,,,,,,,,,,,,
+2011,Integrated Defensive Electronic Countermeasures (IDECM) Blocks 2/3,"$1,558 ","$1,483 ",5.00%,0.20%,5.00%,IDECM Split,,,,,,,,,,,,,,,,,
+2011,Integrated Defensive Electronic Countermeasures (IDECM) Block 4,$822 ,$694 ,18.30%,16.90%,18.30%,IDECM Split,,,,,,,,,,T,T,T,T,T,N/A,N/A,N/A
+2011,Joint Air-to-Surface Standoff Missile (JASSM),"$7,509 ","$2,318 ",224.00%,2.70%,49.90%,JASSM,1,1,,,,,,,,,,,,,,,
+2011,Joint Direct Attack Munition,"$6,578 ","$3,419 ",92.40%,1.60%,11.60%,JDAM,,,,,,,,,,,,,,,,,
+2011,Joint High Speed Vessel (JHSV),"$3,674 ","$3,636 ",1.00%,-1.30%,1.00%,JHSV,1,,1,Not assessed,,,,,,T,T,T,T,N/A,N/A,N/A,N/A
+2011,Joint Land Attack Cruise Missile Defense Elevated Netted Sensor System (JLENS),"$7,858 ","$6,666 ",17.90%,4.90%,15.30%,JLENS,0.1,0.1,0.8,,,,,,,T,F,T,T,T,N/A,N/A,N/A
+2011,Joint Mine Resistant Ambush Protected (MRAP),"$41,585 ","$23,136 ",79.70%,12.60%,79.70%,Joint MRAP,,,,,,,,,,,,,,,,,
+2011,Joint Precision Approach and Landing System (JPALS),$983 ,"$1,012 ",-2.90%,-0.30%,-2.90%,JPALS,0.5,,0.5,,,,,,,T,F,T,T,F,N/A,N/A,N/A
+2011,Joint Primary Aircraft Training System (JPATS),"$5,724 ","$3,725 ",53.70%,-3.00%,-0.30%,JPATS,,,,,,,,,,,,,,,,,
+2011,Joint Standoff Weapon (JSOW),"$5,589 ","$7,947 ",-55.40%,6.00%,19.10%,JSOW,,,,,,,,,,,,,,,,,
+2011,Joint Standoff Weapon (JSOW) Baseline,"$2,269 ","$2,856 ",-20.60%,1.30%,1.30%,JSOW Split,,,,,,,,,,,,,,,,,
+2011,Joint Standoff Weapon (JSOW) Unitary,"$3,321 ","$5,091 ",-34.80%,4.70%,17.80%,JSOW Split,,,,,,,,,,,,,,,,,
+2011,Joint Tactical Radio System (JTRS) Ground Mobile Radios (GMR),"$16,414 ","$17,422 ",-5.80%,1.90%,0.60%,JTRS GMR,0.8,0.8,,,,,,,,F,F,T,T,T,F,F,T
+2011,"Joint Tactical Radio System (JTRS) Handheld, Manpack, and Small Form Fit (HMS)","$5,382 ","$10,037 ",-46.40%,10.80%,-47.40%,JTRS HMS,0.3,0.6,,,0.3,2004,0.5,2007,,,,,,,,,
+2011,Joint Tactical Radio System (JTRS) Network Enterprise Domain (NED),"$2,073 ",$981 ,111.40%,2.40%,7.40%,JTRS NED,0.5,,0.5,,,,,,,,,,,,,,
+2011,KC-130J,"$9,389 ","$9,485 ",-1.00%,-1.00%,-1.00%,KC-130J,,,,,,,,,,,,,,,,,
+2011,Large Aircraft Infrared Countermeasures (LAIRCM),$459 ,$403 ,13.80%,-0.50%,13.80%,LAIRCM,,,,,,,,,,,,,,,,,
+2011,Lewis and Clark Class (T-AKE) Dry Cargo/Ammunition Ship,"$6,605 ","$5,283 ",25.00%,-1.20%,37.00%,T-AKE,,,,,,,,,,,,,,,,,
+2011,LHA Replacement Amphibious Assault Ship,"$10,095 ","$3,180 ",217.40%,55.70%,217.40%,LHA Replacement,1,1,,,,,,,,T,T,T,F,N/A,N/A,N/A,N/A
+2011,"Light Utility Helicopter (LUH), UH-72A Lakota","$2,000 ","$1,811 ",10.40%,0.10%,10.60%,LUH,1,1,,,,,,,,,,,,,,,
+2011,Littoral Combat Ship (LCS),"$32,868 ","$2,244 ",NA,NA,NA,LCS,0.5,0.8,0.9,".5 at development start (2004), mission modules separate",0.5,2004,,,,T,F,T,T,N/A,N/A,N/A,N/A
+2011,LPD 17 Amphibious Transport Dock,"$18,674 ","$11,712 ",59.40%,0.20%,38.10%,LPD 17,,,,,,,,,,,,,,,,,
+2011,M982 155mm Precision Guided Extended Range Artillery Projectile (Excalibur),"$1,813 ","$4,776 ",-62.00%,-26.70%,-19.20%,EXCALIBUR,1,1,,,,,,,,T,T,T,T,T,N/A,N/A,N/A
+2011,MH-60R Multi-Mission Helicopter,"$14,703 ","$5,536 ",165.60%,1.00%,24.20%,MH-60R,,,,,,,,,,,,,,,,,
+2011,MH-60S Fleet Combat Support Helicopter,"$8,417 ","$3,508 ",139.90%,-0.30%,2.20%,MH-60S,,,,,,,,,,,,,,,,,
+2011,Mobile User Objective System (MUOS),"$6,978 ","$6,721 ",3.80%,0.70%,17.50%,MUOS,0.9,1,,,0.9,2004,,,,,,,,,,,
+2011,MQ-1C UAS Gray Eagle,"$5,159 ","$1,015 ",408.20%,2.00%,159.90%,MQ-1C GRAY EAGLE,,,,,,,,,,T,F,T,T,T,F,T,T
+2011,Multifunctional Information Distribution System (MIDS),"$3,024 ","$1,304 ",131.80%,1.40%,19.70%,MIDS JTRS,0.5,0.5,1,,,,,,,,,,,,,,
+2011,Multi-Platform Radar Technology Insertion Program (MP-RTIP),"$1,427 ","$1,796 ",-20.60%,3.10%,-17.70%,MP RTIP,0.9,0.9,,,,,,,,,,,,,,,
+2011,National Airspace System (NAS),"$1,658 ",$868 ,90.90%,2.20%,5.60%,NAS,,,,,,,,,,,,,,,,,
+2011,National Polar-orbiting Operational Environmental Satellite System (NPOESS),"$7,272 ","$6,683 ",8.80%,13.60%,-47.30%,NPOESS,0.1,0.6,0.8,,,,0.1,,Program Start,,,,,,,,
+2011,Navstar Global Positioning System (GPS),"$9,110 ","$7,206 ",74.80%,-29.70%,-2.10%,NAVSTAR GPS,1,1,,,,,,,,,,,,,,,
+2011,Navstar Global Positioning System (GPS) Space & Control,"$7,602 ","$6,217 ",22.30%,1.70%,1.00%,NAVSTAR GPS SPLIT,,,,,,,,,,,,,,,,,
+2011,Navstar Global Positioning System (GPS) User Equipment,"$1,508 ",$989 ,52.50%,-31.40%,-3.10%,NAVSTAR GPS SPLIT,,,,,,,,,,,,,,,,,
+2011,Navy Multiband Terminal,"$1,881 ","$2,321 ",-19.00%,-7.60%,-19.00%,NMT,0.2,,0.5,,,,0.2,2003,Program Start,T,T,T,T,T,F,T,T
+2011,P-8A Poseidon,"$32,969 ","$31,034 ",6.20%,0.40%,8.70%,P-8A,0.5,0.9,0.5,,,,0.8,,Program Start,T,T,T,T,T,T,T,T
+2011,Patriot Advanced Capability-3 (PAC-3),"$11,581 ","$5,213 ",122.20%,6.00%,14.10%,PATRIOT PAC-3,,,,,,,,,,,,,,,,,
+2011,PATRIOT/Medium Extended Air Defense System (MEADS) Combined Aggregate Program (CAP),"$11,310 ","$26,650 ",-73.70%,-80.20%,-70.30%,PATRIOT/MEADS CAP,0.1,0.6,1,,0.1,2004,,,,,,,,,,,
+2011,PATRIOT/Medium Extended Air Defense System (MEADS) Combined Aggregate Program (CAP) Fire Unit,"$3,373 ","$19,363 ",-82.60%,-82.10%,-82.10%,PATRIOT/MEADS CAP SPLIT,,,,,,,,,,,,,,,,,
+2011,PATRIOT/Medium Extended Air Defense System (MEADS) Combined Aggregate Program (CAP) Missile,"$7,937 ","$7,287 ",8.90%,1.90%,11.80%,PATRIOT/MEADS CAP SPLIT,,,,,,,,,,,,,,,,,
+2011,Reaper Unmanned Aircraft System (UAS),"$11,892 ","$2,637 ",351.00%,5.20%,351.00%,MQ-9 REAPER,,,,,,,,,,T,T,T,T,F,N/A,N/A,N/A
+2011,Remote Minehunting System,"$1,414 ","$1,442 ",-1.90%,9.20%,-1.90%,RMS,,,,,,,,,,,,,,,,,
+2011,Sea Launched Ballistic Missile - UGM 133A Trident II (D-5) Missile,"$53,232 ","$51,724 ",2.90%,2.00%,4.90%,TRIDENT II,,,,,,,,,,,,,,,,,
+2011,Small Diameter Bomb (SDB) Increment II,"$4,696 ","$4,702 ",-0.10%,-0.10%,-0.10%,SDB II,,,,,,,,,,T,F,T,T,F,N/A,N/A,N/A
+2011,Space Based Infrared System (SBIRS) High Program,"$18,339 ","$4,597 ",299.00%,13.20%,61.60%,SBIRS,1,1,,,,,,,,T,N/A,T,T,N/A,IN/A,F,N/A
+2011,Space Based Space Surveillance (SBSS) Block 10,$972 ,$872 ,11.40%,3.80%,11.40%,SBSS B10,,,1,,,2003,,,,,,,,,,,
+2011,Standard Missile-6 (SM-6) Extended Range Active Missile (ERAM),"$6,297 ","$5,700 ",10.50%,1.20%,13.80%,SM-6,0.8,,1,,0.8,2004,,,,T,T,T,T,T,F,T,T
+2011,Stryker Family of Vehicles (Stryker),"$18,213 ","$8,033 ",126.70%,11.10%,47.40%,STRYKER,,,,,,,,,,,,,,,,,
+2011,V-22 Joint Services Advanced Vertical Lift Aircraft (OSPREY),"$57,211 ","$40,099 ",42.70%,0.50%,5.20%,V-22,1,1,,,,,,,,,,,,,,,
+2011,Vertical Take-off and Landing Tactical Unmanned Aerial Vehicle (VTUAV),"$2,615 ","$2,615 ",0.00%,4.30%,0.00%,VTUAV,1,,1,,,,,,,T,T,T,T,T,IN/A,T,T
+2011,Virginia Class Submarine (SSN 774),"$83,746 ","$60,449 ",38.50%,0.40%,-6.00%,SSN 774,0.3,,0.3,not assessed in 2008,,,,,,,,,,,,,
+2011,Warfighter Information Network-Tactical (WIN-T) Increment 1,"$4,505 ","$4,087 ",10.20%,10.80%,10.20%,WIN-T Increment 1,,,,not assessed,,,,,,,,,,,,,
+2011,Warfighter Information Network-Tactical (WIN-T) Increment 2,"$6,053 ","$3,708 ",63.20%,25.70%,63.20%,WIN-T Increment 2,0.6,,1,,,,0.6,,DpD Design Review,T,T,T,IN/A,T,F,T,T
+2011,Warfighter Information Network-Tactical (WIN-T) Increment 3,"$13,871 ","$16,368 ",-15.30%,0.80%,-15.30%,WIN-T Increment 3,,,,,,,,,,T,F,T,N/A,N/A,N/A,N/A,N/A
+2011,Wideband Global SATCOM (WGS),"$3,674 ","$1,194 ",207.80%,1.70%,67.80%,WGS,1,1,,,,,,,,,,,,,,,
+2011,AESA,,,,,,AESA,0.5,0.8,,,0.5,2005,,,,,,,,,,,
+2011,CVN 21,,,,,,CVN 21,0.3,0.5,0.6,,0.3,2004,,,,,,,,,,,
+2011,EELV,,,,,,EELV,,,,Not assessed,,,,,,,,,,,,,
+2011,ERM,,,,,,ERM,0.2,0.7,,,0.2,1996,,,,,,,,,,,
+2011,SDB I,,,,,,SDB I,0.5,0.5,,,,,,,,,,,,,,,
+2011,Sky Warrior,,,,,,Sky Warrior,0.5,0.8,,,0.5,2005,,,,,,,,,,,
+2011,SM-2,,,,,,SM-2,,,,,,,,,,,,,,,,,
+2011,TSAT,,,,,,TSAT,1,1,,,,,,,,,,,,,,,
+2011,VH-71,,,,,,VH-71,0.5,0.8,,.5 at development start/production decision (2005),0.5,2005,,,,,,,,,,,

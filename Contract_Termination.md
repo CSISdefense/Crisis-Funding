@@ -1,15 +1,14 @@
 # ContractTermination
 Greg Sanders  
-Friday, March 20, 2015  
+Wednesday, February 8, 2017  
 
 Is Terminated exploration
 ============================================================================
 
 
 ```r
-setwd("K:\\Development\\Defense")
-
-Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+Path<-"D:\\Users\\Greg Sanders\\Documents\\Development\\R-scripts-and-data\\"
+# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 source(paste(Path,"lookups.r",sep=""))
 ```
 
@@ -75,38 +74,8 @@ require(Hmisc)
 ```
 
 ```
-## Loading required package: lattice
-```
-
-```
-## Loading required package: survival
-```
-
-```
-## Loading required package: Formula
-```
-
-```
-## 
-## Attaching package: 'Hmisc'
-```
-
-```
-## The following object is masked _by_ '.GlobalEnv':
-## 
-##     subplot
-```
-
-```
-## The following objects are masked from 'package:plyr':
-## 
-##     is.discrete, summarize
-```
-
-```
-## The following objects are masked from 'package:base':
-## 
-##     format.pval, round.POSIXt, trunc.POSIXt, units
+## Warning in library(package, lib.loc = lib.loc, character.only = TRUE,
+## logical.return = TRUE, : there is no package called 'Hmisc'
 ```
 
 ```r

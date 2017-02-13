@@ -1,0 +1,134 @@
+"","SourceFiscalYear","AccountDSI","AccountTitle","Organization","BudgetActivity","BudgetActivityTitle","AGtitle","LineNumber","LineNumber","SAG","SAGtitle","Classified","FiscalYear","OriginType","ActualTotal","EnactedTotal","EnactedType","PBtotal","PBtype"
+"1",2016,"493001A","Working Capital Fund, Army","ARMY","01","Working Capital Fund","Army Arsenals Initiative","010","010","100","Industrial Operations","U",2014,"Total",150000,NA,NA,NA,NA
+"2",2016,"493001A","Working Capital Fund, Army","ARMY","04","Supply Management - Army","Army Supply Management","020","020","400","Supply Management - Army","U",2014,"Total",78646,NA,NA,NA,NA
+"3",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","U",2014,"Total",9724,NA,NA,NA,NA
+"4",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0120","T-AKE","U",2014,"Total",86,NA,NA,NA,NA
+"5",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","0401","MPF MLP","U",2014,"Total",186231,NA,NA,NA,NA
+"6",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","040","040","5000","Post Delivery and Outfitting","U",2014,"Total",30080,NA,NA,NA,NA
+"7",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0200","National Def Sealift Vessel","U",2014,"Total",25881,NA,NA,NA,NA
+"8",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0220","LG Med Spd Ro/Ro Maintenance","U",2014,"Total",97816,NA,NA,NA,NA
+"9",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0230","DoD Mobilization Alterations","U",2014,"Total",60703,NA,NA,NA,NA
+"10",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","080","080","0250","TAH Maintenance","U",2014,"Total",19809,NA,NA,NA,NA
+"11",2016,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","090","090","0900","Research And Development","U",2014,"Total",31072,NA,NA,NA,NA
+"12",2016,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","100","100","0500","Ready Reserve Force","U",2014,"Total",300014,NA,NA,NA,NA
+"13",2016,"493003F","Working Capital Fund, Air Force","AF","20","Undistributed","Working Capital Fund","010","010","110","Supplies and Materials","U",2014,"Total",133719,NA,NA,NA,NA
+"14",2016,"493003F","Working Capital Fund, Air Force","AF","20","Undistributed","Working Capital Fund","020","020","ES17","Transportation of Fallen Heroes","U",2014,"Total",10000,NA,NA,NA,NA
+"15",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","06","Energy Management - Defense","Working Capital Fund Support","010","010","010","Energy Management - Def","U",2014,"Total",84978,NA,NA,NA,NA
+"16",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","08","Supply Chain Management - Defense","Working Capital Fund Support","020","020","010","Supply Chain Management - Def","U",2014,"Total",93128,NA,NA,NA,NA
+"17",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","030","030","ES08","Defense Logistics Agency (DLA)","U",2014,"Total",0,NA,NA,NA,NA
+"18",2016,"493004D","Working Capital Fund, DECA","DECA","01","Commissary Resale Stocks","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","U",2014,"Total",1278366,NA,NA,NA,NA
+"19",2016,"493004D","Working Capital Fund, DECA","DECA","02","Commissary Operations","Working Capital Fund Support","020","020","ES12","Working Capital Fund, DECA","U",2014,"Total",0,NA,NA,NA,NA
+"20",2016,"493001A","Working Capital Fund, Army","ARMY","01","Working Capital Fund","Army Arsenals Initiative","010","010","100","Industrial Operations","U",2015,"Base",NA,NA,225000,NA,NA
+"21",2016,"493001A","Working Capital Fund, Army","ARMY","04","Supply Management - Army","Army Supply Management","020","020","400","Supply Management - Army","U",2015,"Base",NA,NA,13727,NA,NA
+"22",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","U",2015,"Base",NA,NA,0,NA,NA
+"23",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0120","T-AKE","U",2015,"Base",NA,NA,0,NA,NA
+"24",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","0401","MPF MLP","U",2015,"Base",NA,NA,0,NA,NA
+"25",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","040","040","5000","Post Delivery and Outfitting","U",2015,"Base",NA,NA,17300,NA,NA
+"26",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0200","National Def Sealift Vessel","U",2015,"Base",NA,NA,0,NA,NA
+"27",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0220","LG Med Spd Ro/Ro Maintenance","U",2015,"Base",NA,NA,105900,NA,NA
+"28",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0230","DoD Mobilization Alterations","U",2015,"Base",NA,NA,19000,NA,NA
+"29",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","080","080","0250","TAH Maintenance","U",2015,"Base",NA,NA,27200,NA,NA
+"30",2016,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","090","090","0900","Research And Development","U",2015,"Base",NA,NA,24417,NA,NA
+"31",2016,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","100","100","0500","Ready Reserve Force","U",2015,"Base",NA,NA,291195,NA,NA
+"32",2016,"493003F","Working Capital Fund, Air Force","AF","20","Undistributed","Working Capital Fund","010","010","110","Supplies and Materials","U",2015,"Base",NA,NA,61717,NA,NA
+"33",2016,"493003F","Working Capital Fund, Air Force","AF","20","Undistributed","Working Capital Fund","020","020","ES17","Transportation of Fallen Heroes","U",2015,"Base",NA,NA,0,NA,NA
+"34",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","06","Energy Management - Defense","Working Capital Fund Support","010","010","010","Energy Management - Def","U",2015,"Base",NA,NA,0,NA,NA
+"35",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","08","Supply Chain Management - Defense","Working Capital Fund Support","020","020","010","Supply Chain Management - Def","U",2015,"Base",NA,NA,44293,NA,NA
+"36",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","030","030","ES08","Defense Logistics Agency (DLA)","U",2015,"Base",NA,NA,0,NA,NA
+"37",2016,"493004D","Working Capital Fund, DECA","DECA","01","Commissary Resale Stocks","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","U",2015,"Base",NA,NA,0,NA,NA
+"38",2016,"493004D","Working Capital Fund, DECA","DECA","02","Commissary Operations","Working Capital Fund Support","020","020","ES12","Working Capital Fund, DECA","U",2015,"Base",NA,NA,1304731,NA,NA
+"39",2016,"493001A","Working Capital Fund, Army","ARMY","01","Working Capital Fund","Army Arsenals Initiative","010","010","100","Industrial Operations","U",2015,"OCO",NA,NA,0,NA,NA
+"40",2016,"493001A","Working Capital Fund, Army","ARMY","04","Supply Management - Army","Army Supply Management","020","020","400","Supply Management - Army","U",2015,"OCO",NA,NA,0,NA,NA
+"41",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","U",2015,"OCO",NA,NA,0,NA,NA
+"42",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0120","T-AKE","U",2015,"OCO",NA,NA,0,NA,NA
+"43",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","0401","MPF MLP","U",2015,"OCO",NA,NA,0,NA,NA
+"44",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","040","040","5000","Post Delivery and Outfitting","U",2015,"OCO",NA,NA,0,NA,NA
+"45",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0200","National Def Sealift Vessel","U",2015,"OCO",NA,NA,0,NA,NA
+"46",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0220","LG Med Spd Ro/Ro Maintenance","U",2015,"OCO",NA,NA,0,NA,NA
+"47",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0230","DoD Mobilization Alterations","U",2015,"OCO",NA,NA,0,NA,NA
+"48",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","080","080","0250","TAH Maintenance","U",2015,"OCO",NA,NA,0,NA,NA
+"49",2016,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","090","090","0900","Research And Development","U",2015,"OCO",NA,NA,0,NA,NA
+"50",2016,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","100","100","0500","Ready Reserve Force","U",2015,"OCO",NA,NA,0,NA,NA
+"51",2016,"493003F","Working Capital Fund, Air Force","AF","20","Undistributed","Working Capital Fund","010","010","110","Supplies and Materials","U",2015,"OCO",NA,NA,0,NA,NA
+"52",2016,"493003F","Working Capital Fund, Air Force","AF","20","Undistributed","Working Capital Fund","020","020","ES17","Transportation of Fallen Heroes","U",2015,"OCO",NA,NA,5000,NA,NA
+"53",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","06","Energy Management - Defense","Working Capital Fund Support","010","010","010","Energy Management - Def","U",2015,"OCO",NA,NA,47000,NA,NA
+"54",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","08","Supply Chain Management - Defense","Working Capital Fund Support","020","020","010","Supply Chain Management - Def","U",2015,"OCO",NA,NA,39350,NA,NA
+"55",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","030","030","ES08","Defense Logistics Agency (DLA)","U",2015,"OCO",NA,NA,0,NA,NA
+"56",2016,"493004D","Working Capital Fund, DECA","DECA","01","Commissary Resale Stocks","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","U",2015,"OCO",NA,NA,0,NA,NA
+"57",2016,"493004D","Working Capital Fund, DECA","DECA","02","Commissary Operations","Working Capital Fund Support","020","020","ES12","Working Capital Fund, DECA","U",2015,"OCO",NA,NA,0,NA,NA
+"58",2016,"493001A","Working Capital Fund, Army","ARMY","01","Working Capital Fund","Army Arsenals Initiative","010","010","100","Industrial Operations","U",2015,"Total",NA,225000,NA,NA,NA
+"59",2016,"493001A","Working Capital Fund, Army","ARMY","04","Supply Management - Army","Army Supply Management","020","020","400","Supply Management - Army","U",2015,"Total",NA,13727,NA,NA,NA
+"60",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","U",2015,"Total",NA,0,NA,NA,NA
+"61",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0120","T-AKE","U",2015,"Total",NA,0,NA,NA,NA
+"62",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","0401","MPF MLP","U",2015,"Total",NA,0,NA,NA,NA
+"63",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","040","040","5000","Post Delivery and Outfitting","U",2015,"Total",NA,17300,NA,NA,NA
+"64",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0200","National Def Sealift Vessel","U",2015,"Total",NA,0,NA,NA,NA
+"65",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0220","LG Med Spd Ro/Ro Maintenance","U",2015,"Total",NA,105900,NA,NA,NA
+"66",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0230","DoD Mobilization Alterations","U",2015,"Total",NA,19000,NA,NA,NA
+"67",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","080","080","0250","TAH Maintenance","U",2015,"Total",NA,27200,NA,NA,NA
+"68",2016,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","090","090","0900","Research And Development","U",2015,"Total",NA,24417,NA,NA,NA
+"69",2016,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","100","100","0500","Ready Reserve Force","U",2015,"Total",NA,291195,NA,NA,NA
+"70",2016,"493003F","Working Capital Fund, Air Force","AF","20","Undistributed","Working Capital Fund","010","010","110","Supplies and Materials","U",2015,"Total",NA,61717,NA,NA,NA
+"71",2016,"493003F","Working Capital Fund, Air Force","AF","20","Undistributed","Working Capital Fund","020","020","ES17","Transportation of Fallen Heroes","U",2015,"Total",NA,5000,NA,NA,NA
+"72",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","06","Energy Management - Defense","Working Capital Fund Support","010","010","010","Energy Management - Def","U",2015,"Total",NA,47000,NA,NA,NA
+"73",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","08","Supply Chain Management - Defense","Working Capital Fund Support","020","020","010","Supply Chain Management - Def","U",2015,"Total",NA,83643,NA,NA,NA
+"74",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","030","030","ES08","Defense Logistics Agency (DLA)","U",2015,"Total",NA,0,NA,NA,NA
+"75",2016,"493004D","Working Capital Fund, DECA","DECA","01","Commissary Resale Stocks","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","U",2015,"Total",NA,0,NA,NA,NA
+"76",2016,"493004D","Working Capital Fund, DECA","DECA","02","Commissary Operations","Working Capital Fund Support","020","020","ES12","Working Capital Fund, DECA","U",2015,"Total",NA,1304731,NA,NA,NA
+"77",2016,"493001A","Working Capital Fund, Army","ARMY","01","Working Capital Fund","Army Arsenals Initiative","010","010","100","Industrial Operations","U",2016,"Base",NA,NA,NA,NA,0
+"78",2016,"493001A","Working Capital Fund, Army","ARMY","04","Supply Management - Army","Army Supply Management","020","020","400","Supply Management - Army","U",2016,"Base",NA,NA,NA,NA,50432
+"79",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","U",2016,"Base",NA,NA,NA,NA,0
+"80",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0120","T-AKE","U",2016,"Base",NA,NA,NA,NA,0
+"81",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","0401","MPF MLP","U",2016,"Base",NA,NA,NA,NA,0
+"82",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","040","040","5000","Post Delivery and Outfitting","U",2016,"Base",NA,NA,NA,NA,15456
+"83",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0200","National Def Sealift Vessel","U",2016,"Base",NA,NA,NA,NA,0
+"84",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0220","LG Med Spd Ro/Ro Maintenance","U",2016,"Base",NA,NA,NA,NA,124493
+"85",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0230","DoD Mobilization Alterations","U",2016,"Base",NA,NA,NA,NA,8243
+"86",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","080","080","0250","TAH Maintenance","U",2016,"Base",NA,NA,NA,NA,27784
+"87",2016,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","090","090","0900","Research And Development","U",2016,"Base",NA,NA,NA,NA,25197
+"88",2016,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","100","100","0500","Ready Reserve Force","U",2016,"Base",NA,NA,NA,NA,272991
+"89",2016,"493003F","Working Capital Fund, Air Force","AF","20","Undistributed","Working Capital Fund","010","010","110","Supplies and Materials","U",2016,"Base",NA,NA,NA,NA,62898
+"90",2016,"493003F","Working Capital Fund, Air Force","AF","20","Undistributed","Working Capital Fund","020","020","ES17","Transportation of Fallen Heroes","U",2016,"Base",NA,NA,NA,NA,0
+"91",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","06","Energy Management - Defense","Working Capital Fund Support","010","010","010","Energy Management - Def","U",2016,"Base",NA,NA,NA,NA,0
+"92",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","08","Supply Chain Management - Defense","Working Capital Fund Support","020","020","010","Supply Chain Management - Def","U",2016,"Base",NA,NA,NA,NA,0
+"93",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","030","030","ES08","Defense Logistics Agency (DLA)","U",2016,"Base",NA,NA,NA,NA,45084
+"94",2016,"493004D","Working Capital Fund, DECA","DECA","01","Commissary Resale Stocks","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","U",2016,"Base",NA,NA,NA,NA,0
+"95",2016,"493004D","Working Capital Fund, DECA","DECA","02","Commissary Operations","Working Capital Fund Support","020","020","ES12","Working Capital Fund, DECA","U",2016,"Base",NA,NA,NA,NA,1154154
+"96",2016,"493001A","Working Capital Fund, Army","ARMY","01","Working Capital Fund","Army Arsenals Initiative","010","010","100","Industrial Operations","U",2016,"OCO",NA,NA,NA,NA,0
+"97",2016,"493001A","Working Capital Fund, Army","ARMY","04","Supply Management - Army","Army Supply Management","020","020","400","Supply Management - Army","U",2016,"OCO",NA,NA,NA,NA,0
+"98",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","U",2016,"OCO",NA,NA,NA,NA,0
+"99",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0120","T-AKE","U",2016,"OCO",NA,NA,NA,NA,0
+"100",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","0401","MPF MLP","U",2016,"OCO",NA,NA,NA,NA,0
+"101",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","040","040","5000","Post Delivery and Outfitting","U",2016,"OCO",NA,NA,NA,NA,0
+"102",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0200","National Def Sealift Vessel","U",2016,"OCO",NA,NA,NA,NA,0
+"103",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0220","LG Med Spd Ro/Ro Maintenance","U",2016,"OCO",NA,NA,NA,NA,0
+"104",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0230","DoD Mobilization Alterations","U",2016,"OCO",NA,NA,NA,NA,0
+"105",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","080","080","0250","TAH Maintenance","U",2016,"OCO",NA,NA,NA,NA,0
+"106",2016,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","090","090","0900","Research And Development","U",2016,"OCO",NA,NA,NA,NA,0
+"107",2016,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","100","100","0500","Ready Reserve Force","U",2016,"OCO",NA,NA,NA,NA,0
+"108",2016,"493003F","Working Capital Fund, Air Force","AF","20","Undistributed","Working Capital Fund","010","010","110","Supplies and Materials","U",2016,"OCO",NA,NA,NA,NA,0
+"109",2016,"493003F","Working Capital Fund, Air Force","AF","20","Undistributed","Working Capital Fund","020","020","ES17","Transportation of Fallen Heroes","U",2016,"OCO",NA,NA,NA,NA,2500
+"110",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","06","Energy Management - Defense","Working Capital Fund Support","010","010","010","Energy Management - Def","U",2016,"OCO",NA,NA,NA,NA,0
+"111",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","08","Supply Chain Management - Defense","Working Capital Fund Support","020","020","010","Supply Chain Management - Def","U",2016,"OCO",NA,NA,NA,NA,0
+"112",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","030","030","ES08","Defense Logistics Agency (DLA)","U",2016,"OCO",NA,NA,NA,NA,86350
+"113",2016,"493004D","Working Capital Fund, DECA","DECA","01","Commissary Resale Stocks","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","U",2016,"OCO",NA,NA,NA,NA,0
+"114",2016,"493004D","Working Capital Fund, DECA","DECA","02","Commissary Operations","Working Capital Fund Support","020","020","ES12","Working Capital Fund, DECA","U",2016,"OCO",NA,NA,NA,NA,0
+"115",2016,"493001A","Working Capital Fund, Army","ARMY","01","Working Capital Fund","Army Arsenals Initiative","010","010","100","Industrial Operations","U",2016,"Total",NA,NA,NA,0,NA
+"116",2016,"493001A","Working Capital Fund, Army","ARMY","04","Supply Management - Army","Army Supply Management","020","020","400","Supply Management - Army","U",2016,"Total",NA,NA,NA,50432,NA
+"117",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","U",2016,"Total",NA,NA,NA,0,NA
+"118",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0120","T-AKE","U",2016,"Total",NA,NA,NA,0,NA
+"119",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","0401","MPF MLP","U",2016,"Total",NA,NA,NA,0,NA
+"120",2016,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","040","040","5000","Post Delivery and Outfitting","U",2016,"Total",NA,NA,NA,15456,NA
+"121",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0200","National Def Sealift Vessel","U",2016,"Total",NA,NA,NA,0,NA
+"122",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0220","LG Med Spd Ro/Ro Maintenance","U",2016,"Total",NA,NA,NA,124493,NA
+"123",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0230","DoD Mobilization Alterations","U",2016,"Total",NA,NA,NA,8243,NA
+"124",2016,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","080","080","0250","TAH Maintenance","U",2016,"Total",NA,NA,NA,27784,NA
+"125",2016,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","090","090","0900","Research And Development","U",2016,"Total",NA,NA,NA,25197,NA
+"126",2016,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","100","100","0500","Ready Reserve Force","U",2016,"Total",NA,NA,NA,272991,NA
+"127",2016,"493003F","Working Capital Fund, Air Force","AF","20","Undistributed","Working Capital Fund","010","010","110","Supplies and Materials","U",2016,"Total",NA,NA,NA,62898,NA
+"128",2016,"493003F","Working Capital Fund, Air Force","AF","20","Undistributed","Working Capital Fund","020","020","ES17","Transportation of Fallen Heroes","U",2016,"Total",NA,NA,NA,2500,NA
+"129",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","06","Energy Management - Defense","Working Capital Fund Support","010","010","010","Energy Management - Def","U",2016,"Total",NA,NA,NA,0,NA
+"130",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","08","Supply Chain Management - Defense","Working Capital Fund Support","020","020","010","Supply Chain Management - Def","U",2016,"Total",NA,NA,NA,0,NA
+"131",2016,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","030","030","ES08","Defense Logistics Agency (DLA)","U",2016,"Total",NA,NA,NA,131434,NA
+"132",2016,"493004D","Working Capital Fund, DECA","DECA","01","Commissary Resale Stocks","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","U",2016,"Total",NA,NA,NA,0,NA
+"133",2016,"493004D","Working Capital Fund, DECA","DECA","02","Commissary Operations","Working Capital Fund Support","020","020","ES12","Working Capital Fund, DECA","U",2016,"Total",NA,NA,NA,1154154,NA

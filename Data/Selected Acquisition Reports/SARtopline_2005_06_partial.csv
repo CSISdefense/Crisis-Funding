@@ -1,0 +1,2 @@
+SARdate,Component,SARprogram,BaselineYear,BaseLineType,BaselineEstimateBaselineYear,BaselineEstimateThenYear,BaselineEstimateQuantity,ChangesToDateBaselineYear,ChangesToDateThenYear,ChangesToDateQuantity,CurrentEstimateBaselineYear,CurrentEstimateThenYear,CurrentEstimateQuantity,PrecntChangeToDateAdjustedForQuantityConstant,PrecntChangeToDateAdjustedForQuantityThenYear
+6/1/2005,AIR FORCE,TSAT,2002,DE,15547,17661,6,422,1259,0,15969,18921,6,3%,7%

@@ -1,7 +1,7 @@
 ---
 title: "ContractTermination"
 author: "Greg Sanders"
-date: "Friday, March 20, 2015"
+date: "Wednesday, February 8, 2017"
 output:
   html_document:
     keep_md: yes
@@ -12,9 +12,9 @@ Is Terminated exploration
 
 ```{r InputFiles, echo = TRUE}
 
-setwd("K:\\Development\\Defense")
 
-Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+Path<-"D:\\Users\\Greg Sanders\\Documents\\Development\\R-scripts-and-data\\"
+# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep=""))
 source("ContractCleanup.r")

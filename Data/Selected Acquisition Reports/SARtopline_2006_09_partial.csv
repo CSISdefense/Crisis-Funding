@@ -1,0 +1,2 @@
+SARdate,Component,SARprogram,BaselineYear,BaseLineType,BaselineEstimateBaselineYear,BaselineEstimateThenYear,BaselineEstimateQuantity,ChangesToDateBaselineYear,ChangesToDateThenYear,ChangesToDateQuantity,CurrentEstimateBaselineYear,CurrentEstimateThenYear,CurrentEstimateQuantity,PrecntChangeToDateAdjustedForQuantityConstant,PrecntChangeToDateAdjustedForQuantityThenYear
+9/1/2006,ARMY,LAND WARRIOR,2003,DE,"2,451.50","2,844.40","15,985",738.5,"1,209.80","8,864","3,190.00","4,054.20","24,849",-53%,-57%

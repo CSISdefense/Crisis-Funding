@@ -1,0 +1,2 @@
+SARdate,Component,SARprogram,BaselineYear,BaseLineType,BaselineEstimateBaselineYear,BaselineEstimateThenYear,BaselineEstimateQuantity,ChangesToDateBaselineYear,ChangesToDateThenYear,ChangesToDateQuantity,CurrentEstimateBaselineYear,CurrentEstimateThenYear,CurrentEstimateQuantity,PrecntChangeToDateAdjustedForQuantityConstant,PrecntChangeToDateAdjustedForQuantityThenYear
+6/1/2008,ARMY,ARH,2005,DE,3149,3569,368,2111,2768,144,5260,6337,512,36%,42%
