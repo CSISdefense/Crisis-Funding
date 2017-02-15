@@ -1,29 +1,157 @@
----
-title: "ChangeOrders"
-author: "Greg Sanders"
-date: "Wednesday, February 8, 2017"
-output:
-  html_document:
-    keep_md: yes
---- 
+# ChangeOrders
+Greg Sanders  
+Wednesday, February 8, 2017  
 
 Costly Change Orders (Refined by NPS Study on Crisis-Funded Contracts)
 ============================================================================
 
 
 
-```{r Setup, echo = TRUE}
+
+```r
 Path<-"D:\\Users\\Greg Sanders\\Documents\\Development\\R-scripts-and-data\\"
 # Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 source(paste(Path,"lookups.r",sep=""))
+```
+
+```
+## Loading required package: stringr
+```
+
+```
+## Loading required package: plyr
+```
+
+```r
 source(paste(Path,"helper.r",sep=""))
+```
+
+```
+## Loading required package: ggplot2
+```
+
+```
+## Loading required package: grid
+```
+
+```
+## Loading required package: scales
+```
+
+```
+## Loading required package: reshape2
+```
+
+```
+## Loading required package: lubridate
+```
+
+```
+## 
+## Attaching package: 'lubridate'
+```
+
+```
+## The following object is masked from 'package:plyr':
+## 
+##     here
+```
+
+```
+## The following object is masked from 'package:base':
+## 
+##     date
+```
+
+```r
 source("ContractCleanup.r")
 
 require(ggplot2)
 require(scales)
 require(Hmisc)
+```
+
+```
+## Loading required package: Hmisc
+```
+
+```
+## Loading required package: lattice
+```
+
+```
+## Loading required package: survival
+```
+
+```
+## Loading required package: Formula
+```
+
+```
+## 
+## Attaching package: 'Hmisc'
+```
+
+```
+## The following object is masked _by_ '.GlobalEnv':
+## 
+##     subplot
+```
+
+```
+## The following objects are masked from 'package:plyr':
+## 
+##     is.discrete, summarize
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     format.pval, round.POSIXt, trunc.POSIXt, units
+```
+
+```r
 require(plyr)
 require(quantreg)
+```
+
+```
+## Loading required package: quantreg
+```
+
+```
+## Loading required package: SparseM
+```
+
+```
+## 
+## Attaching package: 'SparseM'
+```
+
+```
+## The following object is masked from 'package:base':
+## 
+##     backsolve
+```
+
+```
+## 
+## Attaching package: 'quantreg'
+```
+
+```
+## The following object is masked from 'package:Hmisc':
+## 
+##     latex
+```
+
+```
+## The following object is masked from 'package:survival':
+## 
+##     untangle.specials
+```
+
+```r
 Coloration<-read.csv(
     paste(Path,"Lookups\\","lookup_coloration.csv",sep=""),
     header=TRUE, sep=",", na.strings="", dec=".", strip.white=TRUE, 
@@ -38,7 +166,6 @@ Coloration<-ddply(Coloration
                       else {rgb(max(R),max(G),max(B),max=255)}
                       )
                   )
-
 ```
 
 
@@ -58,7 +185,8 @@ There are also multiple modifications captured in FPDS that this current study w
 
 In addition, there are a number of other modifications that may be undertaken based on changes on the government or vendor side that are not included in this analysis. 
 
-```{r ReadInData, echo = TRUE}
+
+```r
 CompleteModelAndDetail  <- read.csv(
     paste("LargeDatasets\\defense_contract_CSIScontractID_detail.csv", sep = ""),
     header = TRUE, sep = ",", dec = ".", strip.white = TRUE, 
@@ -142,14 +270,12 @@ CompleteModelAndDetail$pNewWork3Sig<-round(
   CompleteModelAndDetail$pNewWorkUnmodifiedBaseAndAll,3)
 CompleteModelAndDetail$pChange3Sig<-round(
   CompleteModelAndDetail$pChangeOrderUnmodifiedBaseAndAll,3)
-
-
 ```
 
 **A histogram of the data** showing the distribution of the number of change orders each year from 2007.
 
-```{r DataFrameChangeOrders, echo = TRUE, fig.width=4.5,fig.height=6}
-  
+
+```r
   NChgCeil<-ddply(CompleteModelAndDetail,
                .(SumOfisChangeOrder,
                  StartFiscalYear,
@@ -166,11 +292,10 @@ NChgCeil<-ddply(NChgCeil,
 
 NChgCeil$pTotalObligation<-NChgCeil$Action.Obligation/sum(NChgCeil$Action.Obligation,na.rm=TRUE)
 NChgCeil$pTotalContract<-NChgCeil$ContractCount/sum(NChgCeil$ContractCount,na.rm=TRUE)
-
 ```
 
-```{r ChangeOrderGraphs}
 
+```r
 ggplot(
   data = subset(NChgCeil,SumOfisChangeOrder>0),
   aes_string(x = "SumOfisChangeOrder")
@@ -178,43 +303,75 @@ ggplot(
     facet_grid( Ceil ~ .,
                 scales = "free_y",
                 space = "free_y") + scale_y_continuous(expand = c(0,50)) +scale_x_continuous(limits=c(0,10))
+```
 
+```
+## Warning: `geom_bar()` no longer has a `binwidth` parameter. Please use
+## `geom_histogram()` instead.
+```
 
+```
+## Warning: Removed 794 rows containing non-finite values (stat_bin).
+```
 
+![](Contract_CeilingBreaches_files/figure-html/ChangeOrderGraphs-1.png)<!-- -->
+
+```r
 ggplot(
   data = subset(NChgCeil,SumOfisChangeOrder>0),
   aes_string(x = "Ceil",weight="ContractCount"),
   main="Number of Contracts with Change Orders\nBy Initial Contract Ceiling")+ 
   geom_bar()+
     scale_x_discrete("Initial Cost Ceiling (Current $ Value)")+scale_y_continuous("Number of Contracts with Change Orders")+theme(axis.text.x=element_text(angle=90))
+```
 
+![](Contract_CeilingBreaches_files/figure-html/ChangeOrderGraphs-2.png)<!-- -->
 
+```r
 ggplot(
   data = subset(NChgCeil,SumOfisChangeOrder>0),
   aes_string(x = "Ceil",weight="pContractByCeil"),
   main="Percentage of Contracts going to Contracts with Change Orders\nBy Initial Contract Ceiling")+ geom_bar()+ scale_y_continuous("Percent of Contracts with Change Orders", labels=percent)+
     scale_x_discrete("Initial Cost Ceiling (Current $ Value)")+theme(axis.text.x=element_text(angle=90))
+```
 
+![](Contract_CeilingBreaches_files/figure-html/ChangeOrderGraphs-3.png)<!-- -->
 
+```r
 ggplot(
   data =subset(NChgCeil,SumOfisChangeOrder>0),
   aes_string(x = "Ceil",weight="pObligationByCeil"),
   main="Percentage of Contract Obligations going to Contracts with Change Orders\nBy Initial Contract Ceiling"
   )+ geom_bar()+ scale_y_continuous("Percent of Obligations in Cost Ceiling Category", labels=percent)+
     scale_x_discrete("Initial Cost Ceiling (Current $ Value)")+theme(axis.text.x=element_text(angle=90))
+```
 
+![](Contract_CeilingBreaches_files/figure-html/ChangeOrderGraphs-4.png)<!-- -->
 
+```r
 ggplot(
   data = subset(NChgCeil,SumOfisChangeOrder>0),
   aes_string(x = "Ceil",weight="Action.Obligation")
   )+ geom_bar()+
     scale_x_discrete("Initial Cost Ceiling (Current $ Value)")+scale_y_continuous("Total Obligated Value of Contracts with Change Orders")+theme(axis.text.x=element_text(angle=90))
+```
 
+![](Contract_CeilingBreaches_files/figure-html/ChangeOrderGraphs-5.png)<!-- -->
 
-
+```r
 sum(subset(NChgCeil,SumOfisChangeOrder>0)$pTotalObligation)
-sum(subset(NChgCeil,SumOfisChangeOrder>0)$pTotalContract)
+```
 
+```
+## [1] 0.3954099
+```
+
+```r
+sum(subset(NChgCeil,SumOfisChangeOrder>0)$pTotalContract)
+```
+
+```
+## [1] 0.02841951
 ```
 
 ## Costly Change Orders Potential Change Cost 
@@ -236,8 +393,8 @@ The % Growth in Base and All Options Value Amount form Change Orders is calculat
 **A histogram of the data** showing the distribution of the initial amount of the specific change order 
 
 
-```{r DataFrameCeilingBreachSumamry}
 
+```r
 pChgCeil<-ddply(CompleteModelAndDetail,
              .(pChange3Sig,
                StartFiscalYear,
@@ -281,13 +438,10 @@ pChgCeil$CRai <- cut2(
                                               0.001,
                                               0.15)
     )
-
-
-
 ```
 
-```{r CeilingBreachGraphs}
 
+```r
 ggplot(
   data = pChgCeil,
   aes_string(x = "pChange3Sig",
@@ -302,10 +456,27 @@ ggplot(
                        limits=c(-1.25,1.25), labels=percent)+
     theme(axis.text.x=element_text(angle=90,size=1))+
   geom_vline(data=pChgCeilAverage,aes(xintercept=mean),color="red")
+```
 
+```
+## Warning: Removed 10128 rows containing non-finite values (stat_bin).
+```
 
+```
+## Warning: Transformation introduced infinite values in continuous y-axis
+```
 
+```
+## Warning: Removed 221 rows containing missing values (geom_bar).
+```
 
+```
+## Warning: Removed 2 rows containing missing values (geom_vline).
+```
+
+![](Contract_CeilingBreaches_files/figure-html/CeilingBreachGraphs-1.png)<!-- -->
+
+```r
 # ggplot(
 #   data = subset(pChgCeil,is.numeric(pChange3Sig)&is.finite(pChange3Sig)),
 #   aes_string(y = "pChange3Sig")
@@ -322,6 +493,143 @@ ggplot(
      scale_y_continuous(
        "Cost-Ceiling-Raising Change Orders Percent (Current $ Value)",
                        limits=c(-0.05,0.05), labels=percent)
+```
+
+```
+## Warning: Removed 42319 rows containing non-finite values (stat_ydensity).
+```
+
+```
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+
+## Warning in density.default(x, weights = w, bw = bw, adjust = adjust, kernel
+## = kernel, : sum(weights) != 1 -- will not get true density
+```
+
+![](Contract_CeilingBreaches_files/figure-html/CeilingBreachGraphs-2.png)<!-- -->
+
+```r
     # theme(axis.text.x=element_text(angle=90,size=1))
 
 
@@ -337,6 +645,15 @@ ggplot(
      scale_y_continuous(
        "Cost-Ceiling-Raising Change Orders Percent (Current $ Value)",
                        limits=c(-0.05,0.05), labels=percent)
+```
+
+```
+## Warning: Removed 42319 rows containing non-finite values (stat_boxplot).
+```
+
+![](Contract_CeilingBreaches_files/figure-html/CeilingBreachGraphs-3.png)<!-- -->
+
+```r
     # theme(axis.text.x=element_text(angle=90,size=1))
 
 
@@ -354,8 +671,15 @@ ggplot(
                        limits=c(-1.25,1.25), labels=percent)+
   scale_y_continuous()+
   facet_wrap("StartFiscalYear")
+```
 
+```
+## Warning: Removed 10097 rows containing non-finite values (stat_bin).
+```
 
+![](Contract_CeilingBreaches_files/figure-html/CeilingBreachGraphs-4.png)<!-- -->
+
+```r
 # Percent of Contracts breakdown by Ceiling
 ggplot(
   data = subset(pChgCeil,pChange3Sig!=0),
@@ -364,14 +688,45 @@ ggplot(
 #     scale_x_continuous("Percentage of Cost-Ceiling-Raising Change Orders by\nInitial Cost Ceiling (Current $ Value)")
     scale_y_continuous("Percent of Contracts", labels=percent)+
         facet_grid( . ~ Ceil )+scale_x_continuous("Extent of Ceiling Breach in 5% Increments",limits=c(-0.5,1), labels=percent)+theme(axis.text.x=element_text(angle=90),legend.position="bottom")+scale_fill_discrete(name="Extent of Ceiling Breach")
+```
 
+```
+## Warning: Removed 19065 rows containing non-finite values (stat_bin).
+```
 
+![](Contract_CeilingBreaches_files/figure-html/CeilingBreachGraphs-5.png)<!-- -->
 
+```r
 tapply(pChgCeil$pChange3Sig, pChgCeil$Ceil, summary)
+```
 
+```
+## $`75m+`
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  -3.313   0.003   0.048   1.135   0.154 790.700 
+## 
+## $`10m - <75m`
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+## -8.2840 -0.0070  0.0730  0.3392  0.2480 61.1900 
+## 
+## $`1m - <10m`
+##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+##   -75.600    -0.052     0.142     5.106     0.474 28500.000 
+## 
+## $`100k - <1m`
+##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+##    -109.2      -0.1       0.2     189.4       0.7 2316000.0 
+## 
+## $`15k - <100k`
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+##  -1291.0     -0.3      0.2     23.2      0.8 354500.0 
+## 
+## $`0 - <15k`
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+##   -60650        0        0     2497        1 20440000       26
+```
 
-
-
+```r
 #Percent of obligations breakdown
 ggplot(
   data = subset(pChgCeil,pChange3Sig!=0),
@@ -383,21 +738,73 @@ ggplot(
     scale_x_continuous("Extent of Ceiling Breach \n(Percent Change in Current $ Value in 1% Increments)",labels=percent,limits=c(-0.5,1))+
     coord_cartesian(xlim=c(-0.5,1))+ theme(axis.text.x=element_text(angle=90),legend.position="bottom")+
     scale_fill_discrete(name="Extent of Ceiling Breach")
+```
 
+```
+## Warning: `geom_bar()` no longer has a `binwidth` parameter. Please use
+## `geom_histogram()` instead.
+```
 
+```
+## Warning: Removed 19065 rows containing non-finite values (stat_bin).
+```
+
+![](Contract_CeilingBreaches_files/figure-html/CeilingBreachGraphs-6.png)<!-- -->
+
+```r
 tapply(pChgCeil$CRai, pChgCeil$Ceil, summary)
+```
 
+```
+## $`75m+`
+## [-6.06e+04,-1.00e-03) [-1.00e-03, 1.00e-03) [ 1.00e-03, 1.50e-01) 
+##                   170                    21                   437 
+## [ 1.50e-01, 2.04e+07] 
+##                   217 
+## 
+## $`10m - <75m`
+## [-6.06e+04,-1.00e-03) [-1.00e-03, 1.00e-03) [ 1.00e-03, 1.50e-01) 
+##                   680                    26                   935 
+## [ 1.50e-01, 2.04e+07] 
+##                   900 
+## 
+## $`1m - <10m`
+## [-6.06e+04,-1.00e-03) [-1.00e-03, 1.00e-03) [ 1.00e-03, 1.50e-01) 
+##                  2098                    30                  1270 
+## [ 1.50e-01, 2.04e+07] 
+##                  3280 
+## 
+## $`100k - <1m`
+## [-6.06e+04,-1.00e-03) [-1.00e-03, 1.00e-03) [ 1.00e-03, 1.50e-01) 
+##                  4328                    34                  1334 
+## [ 1.50e-01, 2.04e+07] 
+##                  6646 
+## 
+## $`15k - <100k`
+## [-6.06e+04,-1.00e-03) [-1.00e-03, 1.00e-03) [ 1.00e-03, 1.50e-01) 
+##                  6618                    30                  1337 
+## [ 1.50e-01, 2.04e+07] 
+##                  8388 
+## 
+## $`0 - <15k`
+## [-6.06e+04,-1.00e-03) [-1.00e-03, 1.00e-03) [ 1.00e-03, 1.50e-01) 
+##                  6728                    35                  1340 
+## [ 1.50e-01, 2.04e+07]                  NA's 
+##                 10673                    26
+```
 
+```r
 sum(subset(pChgCeil,pChange3Sig>0)$pTotalObligation)
+```
 
-
-
+```
+## [1] 0.2615659
 ```
 
 
 
-```{r SpecialResearch}
 
+```r
 # BreachSummary<-ddply(CompleteModelAndDetail,
 #                      .(Ceil,
 #                        pChange3Sig,
@@ -414,13 +821,11 @@ sum(subset(pChgCeil,pChange3Sig>0)$pTotalObligation)
 # ddply(pChgCeil,.(Term,CRai),
 #                      summarise,
 #                      pTotalObligation=sum(pTotalObligation))
-
-
 ```
 
 
-```{r Quantile}
 
+```r
 df.QCrai<-ddply(subset(CompleteModelAndDetail,
                                         !is.na(Dur) & 
                !is.na(Ceil) &
@@ -481,7 +886,11 @@ ggplot(df.QCrai,
        aes(x=StartFiscalYear,y=pCRai,color=Quantile))+
   geom_line()+
   facet_grid(Ceil~Dur)
+```
 
+![](Contract_CeilingBreaches_files/figure-html/Quantile-1.png)<!-- -->
+
+```r
 ggplot(subset(df.QCrai,
                 !Quantile %in% c("X99")),
        aes(x=StartFiscalYear,y=pCRai,color=Quantile))+
@@ -490,7 +899,11 @@ ggplot(subset(df.QCrai,
              scales="free_y",
              space="free_y")+
   scale_y_continuous(labels=percent)
+```
 
+![](Contract_CeilingBreaches_files/figure-html/Quantile-2.png)<!-- -->
+
+```r
 #Test to see which percentiles register at all.
 df.ecdf<-ddply(CompleteModelAndDetail,
       .(Ceil,
@@ -507,7 +920,8 @@ df.ecdf<-ddply(CompleteModelAndDetail,
 ```
 
 
-```{r QuantileSimpleDur}
+
+```r
 df.QCrai.SDur<-ddply(subset(CompleteModelAndDetail,
                                         !is.na(Dur.Simple) & 
                !is.na(Ceil.Big) &
@@ -615,6 +1029,11 @@ CRaiOutput<-ggplot(subset(df.QCrai.SDur,
   theme(legend.position="bottom") #, position=pd
 
 CRaiOutput
+```
+
+![](Contract_CeilingBreaches_files/figure-html/QuantileSimpleDur-1.png)<!-- -->
+
+```r
 ggsave("CRaiOutput.png",
        CRaiOutput,
        width=8,
@@ -633,7 +1052,11 @@ ggplot(subset(df.QCrai.SDur,
              scales="free_y",
              space="free_y")+
   scale_y_continuous(labels=percent)
+```
 
+![](Contract_CeilingBreaches_files/figure-html/QuantileSimpleDur-2.png)<!-- -->
+
+```r
 #Test to see which percentiles register at all.
 df.ecdf<-ddply(CompleteModelAndDetail,
       .(Ceil.Big,
@@ -661,11 +1084,11 @@ DurBoundary<-subset(CompleteModelAndDetail,Ceil=="75m+"&
          StartFiscalYear==2013&
          UnmodifiedCurrentCompletionDate<as.Date("2015-09-30")
          )
-
 ```
 
 
-```{r NewWorkQuantileSimpleDur}
+
+```r
 df.QNWork.SDur<-ddply(subset(CompleteModelAndDetail,
                                         !is.na(Dur.Simple) & 
                !is.na(Ceil.Big) &
@@ -773,8 +1196,11 @@ NWorkOutput<-ggplot(subset(df.QNWork.SDur,
   theme(legend.position="bottom") #, position=pd
 
 NWorkOutput
+```
 
+![](Contract_CeilingBreaches_files/figure-html/NewWorkQuantileSimpleDur-1.png)<!-- -->
 
+```r
 ggplot(subset(df.QNWork.SDur,
                 # !Quantile %in% c("99th Percentile")
                 !Ceil.Big %in% c("15k - <100k","0 - <15k")
@@ -787,7 +1213,11 @@ ggplot(subset(df.QNWork.SDur,
              scales="free_y",
              space="free_y")+
   scale_y_continuous(labels=percent)
+```
 
+![](Contract_CeilingBreaches_files/figure-html/NewWorkQuantileSimpleDur-2.png)<!-- -->
+
+```r
 #Test to see which percentiles register at all.
 df.ecdf<-ddply(CompleteModelAndDetail,
       .(Ceil.Big,
@@ -815,5 +1245,4 @@ DurBoundary<-subset(CompleteModelAndDetail,Ceil=="75m+"&
          StartFiscalYear==2013&
          UnmodifiedCurrentCompletionDate<as.Date("2015-09-30")
          )
-
 ```
