@@ -13,20 +13,12 @@ require(scales)
 require(XLConnect)
 require(reshape2)
 
-# Path<-"K:/2007-01 PROFESSIONAL SERVICES/R scripts and data/"
-Path<-"D:/Users/Greg Sanders/Documents/Development/R-scripts-and-data/"
+Path<-"K:/2007-01 PROFESSIONAL SERVICES/R scripts and data/"
+# Path<-"D:/Users/Greg Sanders/Documents/Development/R-scripts-and-data/"
 source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep=""))
 
 
-Coloration<-read.csv(
-  paste(Path,"Lookups/","Lookup_coloration.csv",sep=""),
-  header=TRUE, sep=",", na.strings="NA", dec=".", strip.white=TRUE, 
-  stringsAsFactors=FALSE
-)
-
-#Clear out lines from the coloration CSV where no variable is listed.
-Coloration<-subset(Coloration, variable!="")
 SourceFolderList<-c("FY2015","FY2016","FY2017")
 
 ComptrollerMelt<-function(dfComptroller){
@@ -188,10 +180,10 @@ for(sfy in SourceFolderList){
   
   colnames(MilPersData)[colnames(MilPersData)=="Account"]<-"AccountDSI"
   colnames(MilPersData)
-  MilPersData$SourceFiscalYear<-as.numeric(subset(sfy,3,7))#Drop the FY from FY20XX
+  MilPersData$SourceFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
   MilPersData<-ComptrollerMelt(MilPersData)
   MilPersData<-ComptrollerVariableRename(MilPersData)
-  write.csv(MilPersData,"MilPers.csv")
+  write.csv(MilPersData,file.path("Data","MilPers.csv"))
 }
 
 ```
@@ -209,7 +201,7 @@ colnames(OnMdata)
 OnMdata$SourceFiscalYear<-2016
 OnMdata<-ComptrollerMelt(OnMdata)
 OnMdata<-ComptrollerVariableRename(OnMdata)
-write.csv(OnMdata,"OnM.csv")
+write.csv(OnMdata,file.path("Data","OnM.csv"))
 
 
 
@@ -227,7 +219,7 @@ colnames(RFdata)
 RFdata$SourceFiscalYear<-2016
 RFdata<-ComptrollerMelt(RFdata)
 RFdata<-ComptrollerVariableRename(RFdata)
-write.csv(RFdata,"RF.csv")
+write.csv(RFdata,file.path("Data","RF.csv"))
 
 
 ```
@@ -253,10 +245,10 @@ colnames(ProcData)
 ProcData$SourceFiscalYear<-2016
 ProcData<-ComptrollerMelt(ProcData)
 ProcData<-ComptrollerVariableRename(ProcData)
-write.csv(ProcData,"Proc.csv")
+write.csv(ProcData,file.path("Data","Proc.csv"))
 
 
-ProcurementsqlColumns<-c(	"ID"  ,
+ProcurementsqlColumns<-c("ID"  ,
                           "SourceFiscalYear"  ,
                           "AccountDSI"  ,
                           "TreasuryAgencyCode"  ,
@@ -296,7 +288,8 @@ ProcData[,Missing]<-NA
 
 ProcData<-ProcData[,ProcurementsqlColumns]
 
-write.csv(ProcData,paste("Data\\","P1_2016_Consolidated.csv",sep=""), 
+
+write.csv(ProcData,file.path("Data","P1_2016_Consolidated.csv"), 
           row.names=FALSE,
           na="")
 str(ProcData)
@@ -322,7 +315,7 @@ colnames(RDTEdata)
 RDTEdata$SourceFiscalYear<-2016
 RDTEdata<-ComptrollerMelt(RDTEdata)
 RDTEdata<-ComptrollerVariableRename(RDTEdata)
-write.csv(RDTEdata,"RDTE.csv")
+write.csv(RDTEdata,file.path("Data","RDTE.csv"))
 
 
 

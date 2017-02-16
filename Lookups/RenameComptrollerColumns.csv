@@ -8,6 +8,7 @@ OCO.Enacted.Amount,Comptroller,OCO_App,EnactedType,OCO
 OCO.Enacted.Amount..,Comptroller,OCO_App,EnactedType,OCO
 Total.Enacted.Quantity,Comptroller,Quant_App,EnactedTotalQuantity,Total
 Total.Enacted.Amount,Comptroller,App,EnactedTotal,Total
+Total.Enacted..,Comptroller,App,EnactedTotal,Total
 Base.Quantity,Comptroller,Quant_Base_PB,QuantPBtype,Base
 Base.Amount,Comptroller,Base_PB,PBtype,Base
 OCO.Quantity,Comptroller,Quant_OCO_PB,QuantPBtype,OCO
@@ -23,6 +24,8 @@ Base,Comptroller,Base_PB,PBtype,Base
 OCO,Comptroller,OCO_PB,PBtype,OCO
 Total,Comptroller,PB,PBtotal,Total
 Total..,Comptroller,PB,PBtotal,Total
+BSA..Title,Comptroller,PB,PBtotal,Total
+...BLI,Comptroller,PB,PBtotal,Total
 CR.Quant,Harrison,Quant_CR,QuantSpecialType,Total
 CR.OCO.Quant,Harrison,Quant_CR_OCO,QuantSpecialType,OCO
 Quant,Harrison,Quant_Actual,QuantActualTotal,Total
