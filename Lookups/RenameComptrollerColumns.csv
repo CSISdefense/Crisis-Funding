@@ -24,8 +24,6 @@ Base,Comptroller,Base_PB,PBtype,Base
 OCO,Comptroller,OCO_PB,PBtype,OCO
 Total,Comptroller,PB,PBtotal,Total
 Total..,Comptroller,PB,PBtotal,Total
-BSA..Title,Comptroller,PB,PBtotal,Total
-...BLI,Comptroller,PB,PBtotal,Total
 CR.Quant,Harrison,Quant_CR,QuantSpecialType,Total
 CR.OCO.Quant,Harrison,Quant_CR_OCO,QuantSpecialType,OCO
 Quant,Harrison,Quant_Actual,QuantActualTotal,Total
