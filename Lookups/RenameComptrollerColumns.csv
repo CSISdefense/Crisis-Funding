@@ -1,13 +1,13 @@
 variable,SourceColumn,AllColumns,Consolidate,OriginType
 .Base...OCO..Quantity,Comptroller,Quant_Actual,QuantActualTotal,Total
-.Base...OCO..Amount,Comptroller,Actual,ActualTotal,Total
+.Base...OCO..Amount…,Comptroller,Actual,ActualTotal,Total
 Base.Enacted.Quantity,Comptroller,Quant_Base_App,QuantEnactedType,Base
 Base.Enacted.Amount,Comptroller,Base_App,EnactedType,Base
 OCO.Enacted.Quantity,Comptroller,Quant_OCO_App,QuantEnactedType,OCO
 OCO.Enacted.Amount,Comptroller,OCO_App,EnactedType,OCO
 OCO.Enacted.Amount..,Comptroller,OCO_App,EnactedType,OCO
 Total.Enacted.Quantity,Comptroller,Quant_App,EnactedTotalQuantity,Total
-Total.Enacted.Amount,Comptroller,App,EnactedTotal,Total
+Total.Enacted.Amount..,Comptroller,App,EnactedTotal,Total
 Total.Enacted..,Comptroller,App,EnactedTotal,Total
 Base.Quantity,Comptroller,Quant_Base_PB,QuantPBtype,Base
 Base.Amount,Comptroller,Base_PB,PBtype,Base
