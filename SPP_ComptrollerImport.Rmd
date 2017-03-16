@@ -14,6 +14,7 @@ require(scales)
 require(XLConnect)
 #require(reshape2)
 require(data.table)
+require(openxlsx)
 
 Path<-"K:/2007-01 PROFESSIONAL SERVICES/R scripts and data/"
 # Path<-"D:/Users/Greg Sanders/Documents/Development/R-scripts-and-data/"
@@ -66,7 +67,9 @@ ComptrollerMelt<-function(dfComptroller){
              "BudgetType", 
              "FiscalYear",
              "SubActivity", 
+             # "sheet", 
              "sheet", 
+
              "SourceType",
              "OriginType"
        
@@ -139,7 +142,7 @@ ComptrollerVariableRename<-function(dfComptroller){
              "FiscalYear",
              "SourceType", 
     
-             "sheet", 
+             # "sheet", 
   
              "OriginType"
           
@@ -215,7 +218,7 @@ for(sfy in SourceFolderList){
 ##Operation and Maintenance Programs (0-1)
 ```{r OnM}
 # Load workbook o1
-OnMXLS <- loadWorkbook(file.path("Data","FY2011","o1.xls"))
+OnMXLS <- openxlsx::loadWorkbook(file.path("Data","FY2011","o1.xls"))
 OnMdata <- readWorksheet(OnMXLS, sheet = 1, header =TRUE,startRow=2)
 OnMdata<-standardize_variable_names(Path,OnMdata)
 
@@ -429,6 +432,10 @@ colnames(MilConData)
 MilConData$SourceFiscalYear<-2016
 
 MilConData<-ComptrollerMelt(MilConData)
+
+MilConData$value = as.numeric(MilConData$value)
+MilConData$AccountDSI = as.numeric(MilConData$AccountDSI)
+
 MilConData<-ComptrollerVariableRename(MilConData)
 write.csv(MilConData,file.path("Data","MilCon(2016).csv"))
 
