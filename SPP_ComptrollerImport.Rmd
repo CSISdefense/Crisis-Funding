@@ -68,6 +68,8 @@ ComptrollerMelt<-function(dfComptroller){
              "FiscalYear",
              "SubActivity", 
              # "sheet", 
+             "sheet", 
+
              "SourceType",
              "OriginType"
        
@@ -430,8 +432,10 @@ colnames(MilConData)
 MilConData$SourceFiscalYear<-2016
 
 MilConData<-ComptrollerMelt(MilConData)
+
 MilConData$value = as.numeric(MilConData$value)
 MilConData$AccountDSI = as.numeric(MilConData$AccountDSI)
+
 MilConData<-ComptrollerVariableRename(MilConData)
 write.csv(MilConData,file.path("Data","MilCon(2016).csv"))
 
