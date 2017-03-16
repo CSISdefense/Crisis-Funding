@@ -12,8 +12,9 @@ require(ggplot2)
 require(scales)
 # options(java.parameters = "-Xmx8g")
 require(XLConnect)
-require(reshape2)
+#require(reshape2)
 require(data.table)
+require(openxlsx)
 
 Path<-"K:/2007-01 PROFESSIONAL SERVICES/R scripts and data/"
 # Path<-"D:/Users/Greg Sanders/Documents/Development/R-scripts-and-data/"
@@ -66,14 +67,14 @@ ComptrollerMelt<-function(dfComptroller){
              "BudgetType", 
              "FiscalYear",
              "SubActivity", 
-             "sheet", 
-             "SourceType"
+             # "sheet", 
+             "SourceType",
+             "OriginType"
        
   )
   
   varlist<-varlist[varlist %in% colnames(dfComptroller) ]
-  cat(varlist)
-  melt(dfComptroller,
+  data.table::melt(dfComptroller,
        id.vars=varlist
   )
   
@@ -139,7 +140,7 @@ ComptrollerVariableRename<-function(dfComptroller){
              "FiscalYear",
              "SourceType", 
     
-             "sheet", 
+             # "sheet", 
   
              "OriginType"
           
@@ -215,7 +216,7 @@ for(sfy in SourceFolderList){
 ##Operation and Maintenance Programs (0-1)
 ```{r OnM}
 # Load workbook o1
-OnMXLS <- loadWorkbook(file.path("Data","FY2011","o1.xls"))
+OnMXLS <- openxlsx::loadWorkbook(file.path("Data","FY2011","o1.xls"))
 OnMdata <- readWorksheet(OnMXLS, sheet = 1, header =TRUE,startRow=2)
 OnMdata<-standardize_variable_names(Path,OnMdata)
 
@@ -405,18 +406,32 @@ sheetlist$OriginType[sheetlist$variable=="" & sheetlist$Count==2]<-"Base"
 sheetlist<-sheetlist[,c("FiscalYear","variable", "OriginType")]
 MilConData<-join(MilConData,sheetlist)
 # MilConData <- MilConData[-grep("variable", colnames(MilConData))]
-MilConData$SourceType<-'Base'
-MilConDataOCO <- readWorksheet(MilConXLS, sheet = "FY 2016", header=TRUE, startRow=2)
-MilConDataOCO$SourceType<-'OCO'
-MilConData<-rbindlist(list(MilConData,MilConDataOCO), fill = TRUE) 
-rm(MilConDataOCO)
+
+########## Removed this because I suspect you don't want it to do what
+########## it is doing.  Which is read the FY 2016 sheet, flag all those
+########## entries as SourceType <- "OCO" (I doubt they are), and
+########## bind them onto MilConData (which already contained 2016). -LCL
+# ------------------------------------------------------------------------
+# MilConData$SourceType<-'Base'
+# MilConDataOCO <- readWorksheet(MilConXLS, sheet = "FY 2016", header=TRUE, startRow=2)
+# MilConDataOCO$SourceType<-'OCO'
+# MilConData<-rbindlist(list(MilConData,MilConDataOCO), fill = TRUE) 
+# rm(MilConDataOCO)
+
+# ------------------------------------------------------------------------
+
+# added: drop a duplicative column that chokes the melt function
+MilConData <- MilConData[,names(MilConData) != "variable"]
+
 
 MilConData<-standardize_variable_names(Path,MilConData)
 colnames(MilConData)[colnames(MilConData)=="Account"]<-"AccountDSI"
 colnames(MilConData)
 MilConData$SourceFiscalYear<-2016
+
 MilConData<-ComptrollerMelt(MilConData)
-# MilConData$variable = as.numeric(MilConData$variable)
+MilConData$value = as.numeric(MilConData$value)
+MilConData$AccountDSI = as.numeric(MilConData$AccountDSI)
 MilConData<-ComptrollerVariableRename(MilConData)
 write.csv(MilConData,file.path("Data","MilCon(2016).csv"))
 
