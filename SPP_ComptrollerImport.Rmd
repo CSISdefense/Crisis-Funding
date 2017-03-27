@@ -24,6 +24,7 @@ source(paste(Path,"helper.r",sep=""))
 SourceFolderList<-c("FY2011","FY2012","FY2013", "FY2014","FY2015","FY2016","FY2017")
 
 
+
 ComptrollerMelt<-function(dfComptroller){
   varlist<-c("SourceFiscalYear",
              "AccountDSI",
@@ -61,12 +62,11 @@ ComptrollerMelt<-function(dfComptroller){
              "SAG.Title", 
              "IncludeInTOA",
              "AddOrNonAdd",
-             "IncludeInTOA",
              "Classified",
              "BudgetType", 
              "FiscalYear",
              "SubActivity", 
-      "ComptrollerVariable",
+      # "ComptrollerVariable",
           "Project.Title", 
           "Treasury.Agency", 
              "SourceType",
@@ -137,8 +137,7 @@ ComptrollerVariableRename<-function(dfComptroller){
              "SAGtitle",
              "SAG.Title", 
              "IncludeInTOA",
-             "AddOrNonAdd", 
-             "IncludeInTOA",
+             "AddOrNonAdd",
              "Classified",
              "BudgetType",
              "FiscalYear",
@@ -203,8 +202,8 @@ ComptrollerOCObyAccount<-function(dfComptroller){
 ```{r MilPers}
 # Load workbook MilPers
 for(sfy in SourceFolderList){
-  MilPersXLS <- XLConnect::loadWorkbook(file.path("Data","FY2011","m1.xls"))
-  MilPersData <- readWorksheet(MilPersXLS, sheet = "M1 2011 Pres Bud", header=TRUE,startRow=2)
+  MilPersXLS <- XLConnect::loadWorkbook(file.path("Data",sfy,"m1a.xlsx"))
+  MilPersData <- readWorksheet(MilPersXLS, sheet = 1, header=TRUE,startRow=2)
   MilPersData<-standardize_variable_names(Path,MilPersData)
   
   colnames(MilPersData)[colnames(MilPersData)=="Account"]<-"AccountDSI"
@@ -212,7 +211,7 @@ for(sfy in SourceFolderList){
   MilPersData$SourceFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
   MilPersData<-ComptrollerMelt(MilPersData)
   MilPersData<-ComptrollerVariableRename(MilPersData)
-  write.csv(MilPersData,file.path("Data","MilPers(2011).csv"))
+  write.csv(MilPersData,file.path("Data","MilPers(2017).csv"))
 }
 
 ```
@@ -221,20 +220,20 @@ for(sfy in SourceFolderList){
 ##Operation and Maintenance Programs (0-1)
 ```{r OnM}
 # Load workbook o1
-OnMXLS <- XLConnect::loadWorkbook(file.path("Data","FY2011","o1.xls"))
+OnMXLS <- XLConnect::loadWorkbook(file.path("Data","FY2017","o1.xlsx"))
 OnMdata <- readWorksheet(OnMXLS, sheet = 1, header =TRUE,startRow=2)
 OnMdata<-standardize_variable_names(Path,OnMdata)
 
 colnames(OnMdata)[colnames(OnMdata)=="Account"]<-"AccountDSI"
 colnames(OnMdata)
-OnMdata$SourceFiscalYear<-2011
+OnMdata$SourceFiscalYear<-2017
 OnMdata<-ComptrollerMelt(OnMdata)
 
 OnMdata$value = as.numeric(OnMdata$value)
 
 OnMdata<-ComptrollerVariableRename(OnMdata)
 
-write.csv(OnMdata,file.path("Data","OnM(2011).csv"))
+write.csv(OnMdata,file.path("Data","OnM(2017).csv"))
 
 
 
