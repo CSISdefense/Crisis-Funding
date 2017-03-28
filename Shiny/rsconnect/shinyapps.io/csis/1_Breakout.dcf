@@ -1,0 +1,9 @@
+name: 1_Breakout
+account: csis
+server: shinyapps.io
+appId: 114630
+bundleId: 518045
+url: https://csis.shinyapps.io/1_Breakout/
+when: 1469717139.23099
+asMultiple: FALSE
+asStatic: FALSE
