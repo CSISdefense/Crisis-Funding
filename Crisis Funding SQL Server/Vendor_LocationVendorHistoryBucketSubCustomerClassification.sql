@@ -16,14 +16,14 @@ AS
 SELECT 
 C.fiscal_year
 --,getdate() AS Query_Run_Date
---, ISNULL(CAgency.Customer, CAgency.AgencyIDtext) AS ContractingCustomer
---	, CAgency.SubCustomer as ContractingSubCustomer
---	, COALESCE(FAgency.Customer, FAgency.AgencyIDText, CAgency.Customer, CAgency.AGENCYIDText) as FundingAgency
---	, COALESCE(FAgency.SubCustomer, FAgency.AgencyIDText, CAgency.SubCustomer, CAgency.AGENCYIDText) as FundingSubAgency
---	,originiso.[USAID region] as OriginUSAIDregion
---	,vendoriso.[USAID region] as VendorUSAIDregion
---	,placeiso.[USAID region] as PlaceUSAIDregion
---	,coalesce(placeiso.[USAID region],vendoriso.[USAID region], originiso.[USAID region]) as GuessUSAIDregion
+, ISNULL(CAgency.Customer, CAgency.AgencyIDtext) AS ContractingCustomer
+	, CAgency.SubCustomer as ContractingSubCustomer
+	, COALESCE(FAgency.Customer, FAgency.AgencyIDText, CAgency.Customer, CAgency.AGENCYIDText) as FundingAgency
+	, COALESCE(FAgency.SubCustomer, FAgency.AgencyIDText, CAgency.SubCustomer, CAgency.AGENCYIDText) as FundingSubAgency
+	,originiso.[USAID region] as OriginUSAIDregion
+	,vendoriso.[USAID region] as VendorUSAIDregion
+	,placeiso.[USAID region] as PlaceUSAIDregion
+	,coalesce(placeiso.[USAID region],vendoriso.[USAID region], originiso.[USAID region]) as GuessUSAIDregion
 ,case 
 			when PlaceCountryCode.IsInternational=0 
 				and coalesce(parent.isforeign,VendorCountryCode.IsInternational,OriginCountryCode.IsInternational) = 0
@@ -67,6 +67,7 @@ C.fiscal_year
 ,c.organizationaltype
 ,PlaceCountryCode.IsInternational as PlaceIsInternational
 ,PlaceCountryCode.Country3LetterCodeText as PlaceCountryText
+,PlaceISO.CrisisFundingTheater
 ,OriginCountryCode.IsInternational as OriginIsInternational
 ,OriginCountryCode.Country3LetterCodeText as OriginCountryText
 ,VendorCountryCode.IsInternational as VendorIsInternational
