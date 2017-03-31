@@ -28,7 +28,7 @@ When you click the **Knit** button a document will be generated that includes bo
 
 ```{r Import}
 # read in data    
-ZipFile<-unz(file.path("Data","budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.zip"),
+ZipFile<-unz(file.path("Data","Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.zip"),
              "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.csv")
 FullData <- read.csv(ZipFile,
                      na.strings="NULL")
@@ -37,6 +37,16 @@ rm(ZipFile)
 FullData<-apply_lookups(Path,FullData)
 FullData<-subset(FullData, year(Fiscal.Year)>=2000)
 
+
+# read in data    
+ZipFile<-unz(file.path("Data","budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.zip"),
+             "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.csv")
+PSCdata <- read.csv(ZipFile,
+                     na.strings="NULL")
+rm(ZipFile)
+
+PSCdata<-apply_lookups(Path,PSCdata)
+PSCdata<-subset(PSCdata, year(Fiscal.Year)>=2000)
 
 ```
 
