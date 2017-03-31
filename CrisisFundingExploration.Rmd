@@ -9,11 +9,14 @@ output: html_document
 
 library(plyr)
 library(dplyr)
-
+library(reshape2)
+library(diigtheme1)
 Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
 source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep=""))
+
+diigtheme1:::diiggraph()
 
 ```
 
@@ -43,6 +46,9 @@ You can also embed plots, for example:
 
 ```{r NIA, echo=FALSE}
 
+
+
+
 NIAdata<-ddply(FullData,.(Fiscal.Year,
                  ContractingCustomer,
                  nationalinterestactioncodeText,
@@ -52,12 +58,54 @@ NIAdata<-ddply(FullData,.(Fiscal.Year,
                plyr::summarise,
                Obligation.2015=sum(Obligation.2015))
 
-ggplot(NIAdata,
+NIAcrisisData<-subset(NIAdata,!is.na(NIAcrisisFunding))
+
+ggplot(ddply(NIAcrisisData,.(Fiscal.Year,
+                 ContractingCustomer,
+                 NIAcrisisFunding
+                 ),
+               plyr::summarise,
+               Obligation.2015=sum(Obligation.2015)),
        aes(y=Obligation.2015,
             x=Fiscal.Year,
-            color=ContractingCustomer))+geom_line(stat="bin")+facet_wrap( ~ NIAcrisisFunding)
+            color=ContractingCustomer,
+           group=ContractingCustomer))+geom_line()+facet_wrap( ~ NIAcrisisFunding)
 
 
+ggplot(ddply(NIAcrisisData,.(Fiscal.Year,
+                 ContractingCustomer,
+                 nationalinterestactioncodeText
+                 ),
+               plyr::summarise,
+               Obligation.2015=sum(Obligation.2015)),
+       aes(y=Obligation.2015,
+            x=Fiscal.Year,
+            color=ContractingCustomer,
+           group=ContractingCustomer))+geom_line()+facet_wrap( ~ nationalinterestactioncodeText)
+
+
+write.csv(ddply(NIAcrisisData,.(
+                 NIAcrisisFunding,
+                 nationalinterestactioncodeText
+                 ),
+               plyr::summarise,
+               Obligation.2015=sum(Obligation.2015),
+               MinOfFiscalYear=min(Fiscal.Year),
+               MaxOfFiscalYear=max(Fiscal.Year))
+          ,file.path("Output","nationalinterestactioncodeSummary.csv"))
+
+
+write.csv(dcast(ddply(FullData,.(
+                PlaceCountryText,
+                 nationalinterestactioncodeText
+                 ),
+               plyr::summarise,
+               Obligation.2015=sum(Obligation.2015),
+               MinOfFiscalYear=min(Fiscal.Year),
+               MaxOfFiscalYear=max(Fiscal.Year))
+            ,"PlaceCountryText ~ nationalinterestactioncodeText"
+            ,value.var="Obligation.2015")
+          ,file.path("Output","nationalinterestactioncodeCountry.csv"))
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
