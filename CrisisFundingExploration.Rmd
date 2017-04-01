@@ -29,7 +29,7 @@ When you click the **Knit** button a document will be generated that includes bo
 ```{r Import}
 # read in data    
 ZipFile<-unz(file.path("Data","Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.zip"),
-             "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.csv")
+             "Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.csv")
 FullData <- read.csv(ZipFile,
                      na.strings="NULL")
 rm(ZipFile)
@@ -39,8 +39,8 @@ FullData<-subset(FullData, year(Fiscal.Year)>=2000)
 
 
 # read in data    
-ZipFile<-unz(file.path("Data","budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.zip"),
-             "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.csv")
+ZipFile<-unz(file.path("Data","Budget.SP_CrisisFundingExploration_ProductOrServiceCode.zip"),
+             "Budget.SP_CrisisFundingExploration_ProductOrServiceCode.csv")
 PSCdata <- read.csv(ZipFile,
                      na.strings="NULL")
 rm(ZipFile)
@@ -120,3 +120,68 @@ write.csv(dcast(ddply(FullData,.(
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+##PSC
+```{r PSC}
+
+PSCdata$OCOobligation.2015<-0
+PSCdata$OCOobligation.2015[PSCdata$IsOCOcrisisFunding==1 & !is.na(PSCdata$IsOCOcrisisFunding)]<-
+  PSCdata$Obligation.2015[PSCdata$IsOCOcrisisFunding==1 & !is.na(PSCdata$IsOCOcrisisFunding)]
+PSCscore<-ddply(PSCdata,
+                .(ProductOrServiceArea,
+                  ProductOrServiceCode,
+                  ProductOrServiceCodeText),
+                plyr::summarise,
+                Total=sum(Obligation.2015),
+                OCO=sum(OCOobligation.2015))
+PSCscore$OCOrate<-PSCscore$OCO/PSCscore$Total
+
+write.csv(PSCscore,file.path("Output","PSC_OCObreakdown.csv"))
+
+RateCutoffHigh<-0.25
+RateCutoffLow<-0.1
+BillionsCutoff<-1
+
+
+
+#All Thresholds are met
+PSCupdates<-UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',3,
+                  PSCscore$ProductOrServiceCode[PSCscore$OCOrate>=RateCutoffHigh & PSCscore$OCO>=BillionsCutoff])
+
+#HighRate Cutoff alone is met
+PSCupdates<-rbind(PSCupdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',2,
+                  PSCscore$ProductOrServiceCode[PSCscore$OCOrate>=RateCutoffHigh & PSCscore$OCO<BillionsCutoff])
+)
+
+#Low Rate Cutoff alone is met along with billions cutoff
+PSCupdates<-rbind(PSCupdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',2,
+                  PSCscore$ProductOrServiceCode[PSCscore$OCOrate>=RateCutoffLow & PSCscore$OCOrate<RateCutoffHigh &
+                                                PSCscore$OCO>=BillionsCutoff])
+)
+
+#Low Rate Cutoff exclusive or billions cutoff is met
+PSCupdates<-rbind(PSCupdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',1,
+                  PSCscore$ProductOrServiceCode[xor(PSCscore$OCOrate>=RateCutoffLow,PSCscore$OCO>=BillionsCutoff)&
+                                                  PSCscore$OCOrate<RateCutoffHigh 
+                                                ])
+)
+
+#Negative score for PSCcodes with no OCO spending and significant $s
+PSCupdates<-rbind(PSCupdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',-1,
+                  PSCscore$ProductOrServiceCode[PSCscore$OCOrate==0 & PSCscore$Total>=BillionsCutoff
+                                                ])
+)
+
+
+#No criteria, goosd or bad, met
+PSCupdates<-rbind(PSCupdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',0,
+                  PSCscore$ProductOrServiceCode[PSCscore$OCOrate<RateCutoffLow & PSCscore$OCO<BillionsCutoff
+                                                & (PSCscore$OCOrate>0 | PSCscore$Total<BillionsCutoff)
+                                                ])
+)
+
+write(PSCupdates,file.path("Output","PSCupdateList.txt"))
+
+
+```
