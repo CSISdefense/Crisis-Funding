@@ -315,6 +315,7 @@ for(sfy in SourceFolderList){
   #We should probably check more than one field just to be safe
   MilConData<-subset(MilConData,!is.na(FiscalYear))
   
+  MilConData$AccountDSI<-paste(MilConData$Account,MilConData$MilDeptDW,sep='')
   #Why is there a FiscalYear
   sheetlist<-unique(data.frame(FiscalYear=MilConData$FiscalYear,
                                variable=MilConData$variable))
@@ -410,6 +411,20 @@ sheetlist$OriginType<-as.character(sheetlist$variable)
 
 ```
 
+##Summing Greenbook by OMBbureauCode
+```{r Greenbook}
+
+debug(ComptrollerGreenbook)
+GreenbookSum<-ComptrollerGreenbook("Military Personnel",MilPersCrossYear)
+GreenbookSum<-rbind.fill(GreenbookSum,ComptrollerGreenbook("Operations & Maintenance",OnMcrossYear))
+GreenbookSum<-rbind.fill(GreenbookSum,ComptrollerGreenbook("Revolving Funds",RFcrossYear))
+GreenbookSum<-rbind.fill(GreenbookSum,ComptrollerGreenbook("Procurement",ProcCrossYear))
+GreenbookSum<-rbind.fill(GreenbookSum,ComptrollerGreenbook("RDT&E",RDTEcrossYear))
+GreenbookSum<-rbind.fill(GreenbookSum,ComptrollerGreenbook("Military Construction",MilConCrossYear))
+write.csv(GreenbookSum,file.path("Output","Greenbook.csv"))
+```
+
+##Summing OCO by Account
 ```{r OCOsum}
 
 

@@ -417,6 +417,7 @@ for(sfy in SourceFolderList){
   #We should probably check more than one field just to be safe
   MilConData&lt;-subset(MilConData,!is.na(FiscalYear))
   
+  MilConData$AccountDSI&lt;-paste(MilConData$Account,MilConData$MilDeptDW,sep='')
   #Why is there a FiscalYear
   sheetlist&lt;-unique(data.frame(FiscalYear=MilConData$FiscalYear,
                                variable=MilConData$variable))
@@ -515,11 +516,18 @@ sheetlist$OriginType&lt;-as.character(sheetlist$variable)
                      row.names=FALSE,
             na=&quot;&quot;
   )</code></pre>
-<pre class="r"><code># OCOsum&lt;-ComptrollerOCObyAccount(MilPersData)
-# OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(OnMdata))
-# OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(RFdata))
-# OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(ProcData))
-# OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(RDTEdata))</code></pre>
+<pre class="r"><code>OCOsum&lt;-ComptrollerOCObyAccount(MilPersCrossYear)</code></pre>
+<pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
+<pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(OnMcrossYear))</code></pre>
+<pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
+<pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(RFcrossYear))</code></pre>
+<pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
+<pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(ProcCrossYear))</code></pre>
+<pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
+<pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(RDTEcrossYear))</code></pre>
+<pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
+<pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(MilConCrossYear))</code></pre>
+<pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
 </div>
 
 

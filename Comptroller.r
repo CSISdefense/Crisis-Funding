@@ -178,6 +178,30 @@ ComptrollerOCObyAccount<-function(dfComptroller){
   dfComptroller
 }
 
+
+ComptrollerGreenbook<-function(OMBbureau,dfComptroller){
+  dfComptroller$OMBbureau<-OMBbureau
+  dfComptroller<-ddply(dfComptroller,
+                       .(OMBbureau,
+                         SourceFiscalYear,
+                         FiscalYear,
+                         OriginType),
+                       plyr::summarise,
+                       EnactedType=sum(EnactedType,na.rm=TRUE)
+  )
+  dfComptroller<-subset(dfComptroller,!is.na(EnactedType)&EnactedType>0)
+  dfComptroller<-reshape2::dcast(dfComptroller,
+                                 OMBbureau +
+                                   SourceFiscalYear +
+                                   FiscalYear ~
+                                   OriginType,
+                                 sum,
+                                 fill=NA_real_ )
+  # dfComptroller$pOCO=dfComptroller$OCO/(dfComptroller$OCO+dfComptroller$Base)
+  dfComptroller
+}
+
+
 ComptrollerLoadWorkbook<-function(sfy,fileprefix){
   if(file.exists(file.path("Data",sfy,paste(fileprefix,"1a.xlsx",sep="")))){
     ReturnXLS <- XLConnect::loadWorkbook(file.path("Data",sfy,paste(fileprefix,"1a.xlsx",sep="")))
