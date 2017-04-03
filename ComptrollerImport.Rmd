@@ -37,6 +37,7 @@ SourceFolderList<-c("FY2012","FY2013", "FY2014","FY2015","FY2016","FY2017")#"FY2
 ##Military Personnel Programs (M-1)
 ```{r MilPers}
 # Load workbook MilPers
+MilPersCrossYear<-NULL
 for(sfy in SourceFolderList){
   NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
   MilPersXLS <- ComptrollerLoadWorkbook(sfy,"m")
@@ -53,7 +54,14 @@ for(sfy in SourceFolderList){
                      row.names=FALSE,
             na=""
   )
+  MilPersCrossYear<-rbind.fill(MilPersCrossYear,MilPersData)
+  
 }
+  write.csv(MilPersCrossYear,file.path("Output","MilPersCrossYear.csv",sep=""),
+                     row.names=FALSE,
+            na=""
+  )
+
 
 ```
 
@@ -61,6 +69,7 @@ for(sfy in SourceFolderList){
 ##Operation and Maintenance Programs (0-1)
 ```{r OnM}
 # Load workbook o1
+OnMcrossYear<-NULL
 for(sfy in SourceFolderList){
   NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
 
@@ -80,8 +89,13 @@ for(sfy in SourceFolderList){
   OnMdata<-ComptrollerVariableRename(OnMdata)
   
   write.csv(OnMdata,file.path("Data",sfy,"Output",paste("OnM(",NumericFiscalYear,").csv",sep="")))
+  OnMcrossYear<-rbind.fill(OnMcrossYear,OnMdata)
   
 }
+  write.csv(OnMcrossYear,file.path("Output","OnMcrossYear.csv",sep=""),
+                     row.names=FALSE,
+            na=""
+  )
 
 ```
 
@@ -89,6 +103,7 @@ for(sfy in SourceFolderList){
 
 ```{r RevolvingFunds}
 # Load workbook RF
+RFcrossYear<-NULL
 for(sfy in SourceFolderList){
   NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
 
@@ -103,24 +118,23 @@ for(sfy in SourceFolderList){
   RFdata<-ComptrollerVariableRename(RFdata)
   
   write.csv(RFdata,file.path("Data",sfy,"Output",paste("RF(",NumericFiscalYear,").csv",sep="")))
+    RFcrossYear<-rbind.fill(RFcrossYear,RFdata)
   
 }  
+
+  write.csv(RFcrossYear,file.path("Output","RFcrossYear.csv",sep=""),
+                     row.names=FALSE,
+            na=""
+  )
+  
 
 ```
 
 ##Procurement Programs Reserve Components (P-1R)
 
 ```{r Procurement}
-# # debug(create_procedural_graphs
-# Procurement <- read.xlsx2("./Data/p1_FY2017.xlsx", 
-#                             sheetName = "Exhibit P-1",
-#                             startRow=2)
-# 
-# Procurement$SourceFiscalYear<-2017
-# Procurement<-standardize_variable_names(Path,Procurement)
-# colnames(Procurement)[colnames(Procurement)=="Account"]<-"AccountDSI"
 
-
+ProcCrossYear<-NULL
 for(sfy in SourceFolderList){
   NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
   
@@ -183,7 +197,16 @@ for(sfy in SourceFolderList){
             row.names=FALSE,
             na="")
   # str(ProcData)
+
+  ProcCrossYear<-rbind.fill(ProcCrossYear,ProcData)
+  
 }
+  write.csv(ProcCrossYear,file.path("Output","ProcCrossYear.csv",sep=""),
+                     row.names=FALSE,
+            na=""
+  )
+
+
 ```
 ##Research Development, Test & Evaluation Programs (R-1)
 
@@ -195,7 +218,7 @@ for(sfy in SourceFolderList){
 #                             startRow=2)
 # 
 # RnD$SourceFiscalYear<-2017
-
+RDTEcrossYear<-NULL
 
 for(sfy in SourceFolderList){
   NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
@@ -245,13 +268,22 @@ for(sfy in SourceFolderList){
   Missing<-RDTEsqlColumns[!RDTEsqlColumns %in% colnames(RDTEdata)]
   RDTEdata[,Missing]<-NA
   RDTEdata<-RDTEdata[,RDTEsqlColumns]
+
+      RDTEcrossYear<-rbind.fill(RDTEcrossYear,RDTEdata)
+  
 }
+  write.csv(RDTEcrossYear,file.path("Output","RDTEcrossYear.csv",sep=""),
+                     row.names=FALSE,
+            na=""
+  )
+
+
 ```
 
 ##Military Construction, Family Housing, and Base Realignment and Closure Program (C-1)  
 ```{r MilCon}
 
-
+MilConCrossYear<-NULL
 
 for(sfy in SourceFolderList){
   NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
@@ -368,15 +400,23 @@ sheetlist$OriginType<-as.character(sheetlist$variable)
 
     write.csv(MilConData,file.path("Data",sfy,"Output",paste("MilCon(",NumericFiscalYear,").csv",sep="")))
   
+      MilConCrossYear<-rbind.fill(MilConCrossYear,MilConData)
+  
 }
-
+  write.csv(MilConCrossYear,file.path("Output","MilConCrossYear.csv",sep=""),
+                     row.names=FALSE,
+            na=""
+  )
 
 ```
 
 ```{r OCOsum}
-# OCOsum<-ComptrollerOCObyAccount(MilPersData)
-# OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(OnMdata))
-# OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(RFdata))
-# OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(ProcData))
-# OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(RDTEdata))
+
+
+OCOsum<-ComptrollerOCObyAccount(MilPersCrossYear)
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(OnMcrossYear))
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(RFcrossYear))
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(ProcCrossYear))
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(RDTEcrossYear))
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(MilConCrossYear))
 ```

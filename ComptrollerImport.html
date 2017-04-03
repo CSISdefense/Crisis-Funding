@@ -127,6 +127,7 @@ $(document).ready(function () {
 <div id="military-personnel-programs-m-1" class="section level2">
 <h2>Military Personnel Programs (M-1)</h2>
 <pre class="r"><code># Load workbook MilPers
+MilPersCrossYear&lt;-NULL
 for(sfy in SourceFolderList){
   NumericFiscalYear&lt;-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
   MilPersXLS &lt;- ComptrollerLoadWorkbook(sfy,&quot;m&quot;)
@@ -143,6 +144,8 @@ for(sfy in SourceFolderList){
                      row.names=FALSE,
             na=&quot;&quot;
   )
+  MilPersCrossYear&lt;-rbind.fill(MilPersCrossYear,MilPersData)
+  
 }</code></pre>
 <pre><code>## Joining by: variable
 ## Joining by: variable
@@ -150,10 +153,15 @@ for(sfy in SourceFolderList){
 ## Joining by: variable
 ## Joining by: variable
 ## Joining by: variable</code></pre>
+<pre class="r"><code>  write.csv(MilPersCrossYear,file.path(&quot;Output&quot;,&quot;MilPersCrossYear.csv&quot;,sep=&quot;&quot;),
+                     row.names=FALSE,
+            na=&quot;&quot;
+  )</code></pre>
 </div>
 <div id="operation-and-maintenance-programs-0-1" class="section level2">
 <h2>Operation and Maintenance Programs (0-1)</h2>
 <pre class="r"><code># Load workbook o1
+OnMcrossYear&lt;-NULL
 for(sfy in SourceFolderList){
   NumericFiscalYear&lt;-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
 
@@ -173,6 +181,7 @@ for(sfy in SourceFolderList){
   OnMdata&lt;-ComptrollerVariableRename(OnMdata)
   
   write.csv(OnMdata,file.path(&quot;Data&quot;,sfy,&quot;Output&quot;,paste(&quot;OnM(&quot;,NumericFiscalYear,&quot;).csv&quot;,sep=&quot;&quot;)))
+  OnMcrossYear&lt;-rbind.fill(OnMcrossYear,OnMdata)
   
 }</code></pre>
 <pre><code>## Joining by: variable</code></pre>
@@ -184,10 +193,15 @@ for(sfy in SourceFolderList){
 <pre><code>## Warning: NAs introduced by coercion</code></pre>
 <pre><code>## Warning in ComptrollerVariableRename(OnMdata): NAs introduced by coercion</code></pre>
 <pre><code>## Joining by: variable</code></pre>
+<pre class="r"><code>  write.csv(OnMcrossYear,file.path(&quot;Output&quot;,&quot;OnMcrossYear.csv&quot;,sep=&quot;&quot;),
+                     row.names=FALSE,
+            na=&quot;&quot;
+  )</code></pre>
 </div>
 <div id="revolving-and-management-fund-rf-1" class="section level2">
 <h2>Revolving and Management Fund (RF-1)</h2>
 <pre class="r"><code># Load workbook RF
+RFcrossYear&lt;-NULL
 for(sfy in SourceFolderList){
   NumericFiscalYear&lt;-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
 
@@ -202,6 +216,7 @@ for(sfy in SourceFolderList){
   RFdata&lt;-ComptrollerVariableRename(RFdata)
   
   write.csv(RFdata,file.path(&quot;Data&quot;,sfy,&quot;Output&quot;,paste(&quot;RF(&quot;,NumericFiscalYear,&quot;).csv&quot;,sep=&quot;&quot;)))
+    RFcrossYear&lt;-rbind.fill(RFcrossYear,RFdata)
   
 }  </code></pre>
 <pre><code>## Joining by: variable
@@ -210,19 +225,14 @@ for(sfy in SourceFolderList){
 ## Joining by: variable
 ## Joining by: variable
 ## Joining by: variable</code></pre>
+<pre class="r"><code>  write.csv(RFcrossYear,file.path(&quot;Output&quot;,&quot;RFcrossYear.csv&quot;,sep=&quot;&quot;),
+                     row.names=FALSE,
+            na=&quot;&quot;
+  )</code></pre>
 </div>
 <div id="procurement-programs-reserve-components-p-1r" class="section level2">
 <h2>Procurement Programs Reserve Components (P-1R)</h2>
-<pre class="r"><code># # debug(create_procedural_graphs
-# Procurement &lt;- read.xlsx2(&quot;./Data/p1_FY2017.xlsx&quot;, 
-#                             sheetName = &quot;Exhibit P-1&quot;,
-#                             startRow=2)
-# 
-# Procurement$SourceFiscalYear&lt;-2017
-# Procurement&lt;-standardize_variable_names(Path,Procurement)
-# colnames(Procurement)[colnames(Procurement)==&quot;Account&quot;]&lt;-&quot;AccountDSI&quot;
-
-
+<pre class="r"><code>ProcCrossYear&lt;-NULL
 for(sfy in SourceFolderList){
   NumericFiscalYear&lt;-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
   
@@ -285,6 +295,9 @@ for(sfy in SourceFolderList){
             row.names=FALSE,
             na=&quot;&quot;)
   # str(ProcData)
+
+  ProcCrossYear&lt;-rbind.fill(ProcCrossYear,ProcData)
+  
 }</code></pre>
 <pre><code>## Joining by: variable
 ## Joining by: variable
@@ -292,6 +305,10 @@ for(sfy in SourceFolderList){
 ## Joining by: variable
 ## Joining by: variable
 ## Joining by: variable</code></pre>
+<pre class="r"><code>  write.csv(ProcCrossYear,file.path(&quot;Output&quot;,&quot;ProcCrossYear.csv&quot;,sep=&quot;&quot;),
+                     row.names=FALSE,
+            na=&quot;&quot;
+  )</code></pre>
 </div>
 <div id="research-development-test-evaluation-programs-r-1" class="section level2">
 <h2>Research Development, Test &amp; Evaluation Programs (R-1)</h2>
@@ -301,7 +318,7 @@ for(sfy in SourceFolderList){
 #                             startRow=2)
 # 
 # RnD$SourceFiscalYear&lt;-2017
-
+RDTEcrossYear&lt;-NULL
 
 for(sfy in SourceFolderList){
   NumericFiscalYear&lt;-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
@@ -351,6 +368,9 @@ for(sfy in SourceFolderList){
   Missing&lt;-RDTEsqlColumns[!RDTEsqlColumns %in% colnames(RDTEdata)]
   RDTEdata[,Missing]&lt;-NA
   RDTEdata&lt;-RDTEdata[,RDTEsqlColumns]
+
+      RDTEcrossYear&lt;-rbind.fill(RDTEcrossYear,RDTEdata)
+  
 }</code></pre>
 <pre><code>## Joining by: variable
 ## Joining by: variable
@@ -358,10 +378,16 @@ for(sfy in SourceFolderList){
 ## Joining by: variable
 ## Joining by: variable
 ## Joining by: variable</code></pre>
+<pre class="r"><code>  write.csv(RDTEcrossYear,file.path(&quot;Output&quot;,&quot;RDTEcrossYear.csv&quot;,sep=&quot;&quot;),
+                     row.names=FALSE,
+            na=&quot;&quot;
+  )</code></pre>
 </div>
 <div id="military-construction-family-housing-and-base-realignment-and-closure-program-c-1" class="section level2">
 <h2>Military Construction, Family Housing, and Base Realignment and Closure Program (C-1)</h2>
-<pre class="r"><code>for(sfy in SourceFolderList){
+<pre class="r"><code>MilConCrossYear&lt;-NULL
+
+for(sfy in SourceFolderList){
   NumericFiscalYear&lt;-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
   
   # library(data.table)
@@ -476,6 +502,8 @@ sheetlist$OriginType&lt;-as.character(sheetlist$variable)
 
     write.csv(MilConData,file.path(&quot;Data&quot;,sfy,&quot;Output&quot;,paste(&quot;MilCon(&quot;,NumericFiscalYear,&quot;).csv&quot;,sep=&quot;&quot;)))
   
+      MilConCrossYear&lt;-rbind.fill(MilConCrossYear,MilConData)
+  
 }</code></pre>
 <pre><code>## Joining by: variable, OriginType
 ## Joining by: variable, OriginType
@@ -483,6 +511,10 @@ sheetlist$OriginType&lt;-as.character(sheetlist$variable)
 ## Joining by: variable, OriginType
 ## Joining by: variable, OriginType
 ## Joining by: variable, OriginType</code></pre>
+<pre class="r"><code>  write.csv(MilConCrossYear,file.path(&quot;Output&quot;,&quot;MilConCrossYear.csv&quot;,sep=&quot;&quot;),
+                     row.names=FALSE,
+            na=&quot;&quot;
+  )</code></pre>
 <pre class="r"><code># OCOsum&lt;-ComptrollerOCObyAccount(MilPersData)
 # OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(OnMdata))
 # OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(RFdata))
