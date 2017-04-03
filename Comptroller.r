@@ -174,7 +174,7 @@ ComptrollerVariableRename<-function(dfComptroller){
   dfComptroller
 }
 
-ComptrollerOCObyAccount<-function(dfComptroller){
+ComptrollerOCObyAccount<-function(OMBbureau,dfComptroller){
   dfComptroller<-ddply(dfComptroller,
                        .(AccountDSI,
                          AccountTitle,
@@ -195,6 +195,8 @@ ComptrollerOCObyAccount<-function(dfComptroller){
                                    OriginType,
                                  sum, 
                                  fill=NA_real_ )
+  dfComptroller$OMBbureau<-OMBbureau
+  if(OMBbureau=="Military Construction") dfComptroller$OCO[is.na(dfComptroller$OCO)]<-0
   dfComptroller$pOCO=dfComptroller$OCO/(dfComptroller$OCO+dfComptroller$Base)
   dfComptroller
 }

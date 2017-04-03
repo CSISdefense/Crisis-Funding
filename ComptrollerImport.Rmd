@@ -399,6 +399,8 @@ sheetlist$OriginType<-as.character(sheetlist$variable)
   MilConData<-ComptrollerVariableRename(MilConData)
   # write.csv(MilConData,file.path("Data","MilCon(2011).csv"))
 
+  #Standardize this more later, but for now it captures the two study years, 2012 and 2015, w/ data
+  MilConData<-subset(MilConData,BudgetMetric=="TOAamount")
     write.csv(MilConData,file.path("Data",sfy,"Output",paste("MilCon(",NumericFiscalYear,").csv",sep="")))
   
       MilConCrossYear<-rbind.fill(MilConCrossYear,MilConData)
@@ -428,10 +430,16 @@ write.csv(GreenbookSum,file.path("Output","Greenbook.csv"))
 ```{r OCOsum}
 
 
-OCOsum<-ComptrollerOCObyAccount(MilPersCrossYear)
-OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(OnMcrossYear))
-OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(RFcrossYear))
-OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(ProcCrossYear))
-OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(RDTEcrossYear))
-OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(MilConCrossYear))
+OCOsum<-ComptrollerOCObyAccount("Military Personnel",MilPersCrossYear)
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount("Operations & Maintenance",OnMcrossYear))
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount("Revolving Funds",RFcrossYear))
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount("Procurement",ProcCrossYear))
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount("RDT&E",RDTEcrossYear))
+MilConGapfiller<-MilConCrossYear
+MilConGapfiller$EnactedType[!is.na(MilConGapfiller$EnactedTotal) & is.na(MilConGapfiller$EnactedType)]<-
+  MilConGapfiller$EnactedTotal[!is.na(MilConGapfiller$EnactedTotal) & is.na(MilConGapfiller$EnactedType)]
+MilConGapfiller$OriginType[!is.na(MilConGapfiller$EnactedTotal) & !is.na(MilConGapfiller$EnactedType)]<-"Base"
+
+
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount("Military Construction",MilConGapfiller))
 ```

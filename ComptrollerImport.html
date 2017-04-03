@@ -501,6 +501,8 @@ sheetlist$OriginType&lt;-as.character(sheetlist$variable)
   MilConData&lt;-ComptrollerVariableRename(MilConData)
   # write.csv(MilConData,file.path(&quot;Data&quot;,&quot;MilCon(2011).csv&quot;))
 
+  #Standardize this more later, but for now it captures the two study years, 2012 and 2015, w/ data
+  MilConData&lt;-subset(MilConData,BudgetMetric==&quot;TOAamount&quot;)
     write.csv(MilConData,file.path(&quot;Data&quot;,sfy,&quot;Output&quot;,paste(&quot;MilCon(&quot;,NumericFiscalYear,&quot;).csv&quot;,sep=&quot;&quot;)))
   
       MilConCrossYear&lt;-rbind.fill(MilConCrossYear,MilConData)
@@ -536,17 +538,23 @@ GreenbookSum&lt;-ComptrollerGreenbook(&quot;Military Personnel&quot;,MilPersCros
 </div>
 <div id="summing-oco-by-account" class="section level2">
 <h2>Summing OCO by Account</h2>
-<pre class="r"><code>OCOsum&lt;-ComptrollerOCObyAccount(MilPersCrossYear)</code></pre>
+<pre class="r"><code>OCOsum&lt;-ComptrollerOCObyAccount(&quot;Military Personnel&quot;,MilPersCrossYear)</code></pre>
 <pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
-<pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(OnMcrossYear))</code></pre>
+<pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(&quot;Operations &amp; Maintenance&quot;,OnMcrossYear))</code></pre>
 <pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
-<pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(RFcrossYear))</code></pre>
+<pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(&quot;Revolving Funds&quot;,RFcrossYear))</code></pre>
 <pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
-<pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(ProcCrossYear))</code></pre>
+<pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(&quot;Procurement&quot;,ProcCrossYear))</code></pre>
 <pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
-<pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(RDTEcrossYear))</code></pre>
+<pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(&quot;RDT&amp;E&quot;,RDTEcrossYear))</code></pre>
 <pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
-<pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(MilConCrossYear))</code></pre>
+<pre class="r"><code>MilConGapfiller&lt;-MilConCrossYear
+MilConGapfiller$EnactedType[!is.na(MilConGapfiller$EnactedTotal) &amp; is.na(MilConGapfiller$EnactedType)]&lt;-
+  MilConGapfiller$EnactedTotal[!is.na(MilConGapfiller$EnactedTotal) &amp; is.na(MilConGapfiller$EnactedType)]
+MilConGapfiller$OriginType[!is.na(MilConGapfiller$EnactedTotal) &amp; !is.na(MilConGapfiller$EnactedType)]&lt;-&quot;Base&quot;
+
+
+OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(&quot;Military Construction&quot;,MilConGapfiller))</code></pre>
 <pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
 </div>
 
