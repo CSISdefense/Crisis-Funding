@@ -240,8 +240,9 @@ for(sfy in SourceFolderList){
 # Load workbook o1
 for(sfy in SourceFolderList){
   NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
+
+    OnMXLS <- ComptrollerLoadWorkbook(sfy,"o")
   
-  OnMXLS <- XLConnect::loadWorkbook(file.path("Data",sfy,"o1.xlsx"))
   OnMdata <- readWorksheet(OnMXLS, sheet = 1, header =TRUE,startRow=2)
   OnMdata<-standardize_variable_names(Path,OnMdata)
   
@@ -267,9 +268,10 @@ for(sfy in SourceFolderList){
 # Load workbook RF
 for(sfy in SourceFolderList){
   NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
+
+    RFXLS <- ComptrollerLoadWorkbook(sfy,"rf")
   
   
-  RFXLS <- loadWorkbook(file.path("Data",sfy,"rf1.xls"))
   RFdata <- readWorksheet(RFXLS, sheet = 1, header =TRUE, startRow=2)
   RFdata<-standardize_variable_names(Path,RFdata)
   colnames(RFdata)[colnames(RFdata)=="Account"]<-"AccountDSI"
@@ -278,7 +280,7 @@ for(sfy in SourceFolderList){
   RFdata<-ComptrollerMelt(RFdata)
   RFdata<-ComptrollerVariableRename(RFdata)
   
-  write.csv(RFdata,file.path("Data",sfy,"Output",paste("OnM(",NumericFiscalYear,").csv",sep="")))
+  write.csv(RFdata,file.path("Data",sfy,"Output",paste("RF(",NumericFiscalYear,").csv",sep="")))
   
 }  
 

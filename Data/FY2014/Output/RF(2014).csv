@@ -1,183 +1,183 @@
-"","SourceFiscalYear","AccountDSI","AccountTitle","Organization","BudgetActivity","BudgetActivityTitle","AGtitle","LineNumber","LineNumber","SAG","SAG.Title","IncludeInTOA","IncludeInTOA","Classified","FiscalYear","OriginType","ActualTotal","EnactedTotal","EnactedType","PBtotal","PBtype"
-"1",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Working Capital Fund","010","010","200","Prepositioned War Reserve Stocks","Y","Y","U",2012,"Total",155194,NA,NA,NA,NA
-"2",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2012,"Total",0,NA,NA,NA,NA
-"3",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","Y","Y","U",2012,"Total",73798,NA,NA,NA,NA
-"4",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0401","MPF MLP","Y","Y","U",2012,"Total",1146616,NA,NA,NA,NA
-"5",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","5000","Post Delivery and Outfitting","Y","Y","U",2012,"Total",-422165,NA,NA,NA,NA
-"6",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","040","040","0200","National Def Sealift Vessel","Y","Y","U",2012,"Total",313422,NA,NA,NA,NA
-"7",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0220","LG Med Spd Ro/Ro Maintenance","Y","Y","U",2012,"Total",0,NA,NA,NA,NA
-"8",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0230","DoD Mobilization Alterations","Y","Y","U",2012,"Total",0,NA,NA,NA,NA
-"9",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0250","TAH Maintenance","Y","Y","U",2012,"Total",0,NA,NA,NA,NA
-"10",2014,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","080","080","0900","Research And Development","Y","Y","U",2012,"Total",50632,NA,NA,NA,NA
-"11",2014,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","090","090","0500","Ready Reserve Force","Y","Y","U",2012,"Total",309577,NA,NA,NA,NA
-"12",2014,"4557N","National Defense Sealift Fund","NAVY","20","Undistributed","Undistributed","100","100","CR","Adj to Match Continuing Resolution","Y","Y","U",2012,"Total",0,NA,NA,NA,NA
-"13",2014,"493002N","Working Capital Fund, Navy","NAVY","20","Undistributed","Undistributed","010","010","UNDD","Undistributed","Y","Y","U",2012,"Total",0,NA,NA,NA,NA
-"14",2014,"493003F","Working Capital Fund, Air Force","AF","10","Transportation","Working Capital Fund","010","010","220","C-17 CLS Engine Repair","Y","Y","U",2012,"Total",0,NA,NA,NA,NA
-"15",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","020","020","200","Transportation Fallen Heroes","Y","Y","U",2012,"Total",0,NA,NA,NA,NA
-"16",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","030","030","ES17","Fuel Costs","Y","Y","U",2012,"Total",77372,NA,NA,NA,NA
-"17",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Undistributed","040","040","CR","Adj to Match Continuing Resolution","Y","Y","U",2012,"Total",0,NA,NA,NA,NA
-"18",2014,"493003F","Working Capital Fund, Air Force","AF","21","Supply MGMT","Working Capital Fund","050","050","111","Supplies and Materials (Medical/Dental)","Y","Y","U",2012,"Total",0,NA,NA,NA,NA
-"19",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","010","010","ES08","Defense Logistics Agency (DLA)","Y","Y","U",2012,"Total",400627,NA,NA,NA,NA
-"20",2014,"493005D","Working Capital Fund, Defense-Wide","DEFW","20","DLA Working Capital Funds","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2012,"Total",0,NA,NA,NA,NA
-"21",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Undistributed","030","030","CR","Adj to Match Continuing Resolution","Y","Y","U",2012,"Total",0,NA,NA,NA,NA
-"22",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","Y","Y","U",2012,"Total",1376830,NA,NA,NA,NA
-"23",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2012,"Total",0,NA,NA,NA,NA
-"24",2014,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2012,"Total",NA,NA,NA,NA,NA
-"25",2014,"*  Reflects the FY 2013 President's Budget with an undistributed adjustment to match the Annualized Continuing Resolution funding level",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2012,"Total",NA,NA,NA,NA,NA
-"26",2014,"   by appropriation.",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2012,"Total",NA,NA,NA,NA,NA
-"27",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Working Capital Fund","010","010","200","Prepositioned War Reserve Stocks","Y","Y","U",2013,"Base",NA,NA,60037,NA,NA
-"28",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"Base",NA,NA,41777,NA,NA
-"29",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","Y","Y","U",2013,"Base",NA,NA,0,NA,NA
-"30",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0401","MPF MLP","Y","Y","U",2013,"Base",NA,NA,38000,NA,NA
-"31",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","5000","Post Delivery and Outfitting","Y","Y","U",2013,"Base",NA,NA,39386,NA,NA
-"32",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","040","040","0200","National Def Sealift Vessel","Y","Y","U",2013,"Base",NA,NA,0,NA,NA
-"33",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0220","LG Med Spd Ro/Ro Maintenance","Y","Y","U",2013,"Base",NA,NA,128819,NA,NA
-"34",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0230","DoD Mobilization Alterations","Y","Y","U",2013,"Base",NA,NA,26598,NA,NA
-"35",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0250","TAH Maintenance","Y","Y","U",2013,"Base",NA,NA,29199,NA,NA
-"36",2014,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","080","080","0900","Research And Development","Y","Y","U",2013,"Base",NA,NA,42811,NA,NA
-"37",2014,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","090","090","0500","Ready Reserve Force","Y","Y","U",2013,"Base",NA,NA,303323,NA,NA
-"38",2014,"4557N","National Defense Sealift Fund","NAVY","20","Undistributed","Undistributed","100","100","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"Base",NA,NA,499118,NA,NA
-"39",2014,"493002N","Working Capital Fund, Navy","NAVY","20","Undistributed","Undistributed","010","010","UNDD","Undistributed","Y","Y","U",2013,"Base",NA,NA,24200,NA,NA
-"40",2014,"493003F","Working Capital Fund, Air Force","AF","10","Transportation","Working Capital Fund","010","010","220","C-17 CLS Engine Repair","Y","Y","U",2013,"Base",NA,NA,0,NA,NA
-"41",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","020","020","200","Transportation Fallen Heroes","Y","Y","U",2013,"Base",NA,NA,0,NA,NA
-"42",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","030","030","ES17","Fuel Costs","Y","Y","U",2013,"Base",NA,NA,0,NA,NA
-"43",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Undistributed","040","040","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"Base",NA,NA,20319,NA,NA
-"44",2014,"493003F","Working Capital Fund, Air Force","AF","21","Supply MGMT","Working Capital Fund","050","050","111","Supplies and Materials (Medical/Dental)","Y","Y","U",2013,"Base",NA,NA,45452,NA,NA
-"45",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","010","010","ES08","Defense Logistics Agency (DLA)","Y","Y","U",2013,"Base",NA,NA,39135,NA,NA
-"46",2014,"493005D","Working Capital Fund, Defense-Wide","DEFW","20","DLA Working Capital Funds","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"Base",NA,NA,194,NA,NA
-"47",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Undistributed","030","030","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"Base",NA,NA,-7521,NA,NA
-"48",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","Y","Y","U",2013,"Base",NA,NA,1371560,NA,NA
-"49",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"Base",NA,NA,13696,NA,NA
-"50",2014,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"Base",NA,NA,NA,NA,NA
-"51",2014,"*  Reflects the FY 2013 President's Budget with an undistributed adjustment to match the Annualized Continuing Resolution funding level",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"Base",NA,NA,NA,NA,NA
-"52",2014,"   by appropriation.",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"Base",NA,NA,NA,NA,NA
-"53",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Working Capital Fund","010","010","200","Prepositioned War Reserve Stocks","Y","Y","U",2013,"OCO",NA,NA,42600,NA,NA
-"54",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"55",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"56",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0401","MPF MLP","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"57",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","5000","Post Delivery and Outfitting","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"58",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","040","040","0200","National Def Sealift Vessel","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"59",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0220","LG Med Spd Ro/Ro Maintenance","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"60",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0230","DoD Mobilization Alterations","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"61",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0250","TAH Maintenance","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"62",2014,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","080","080","0900","Research And Development","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"63",2014,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","090","090","0500","Ready Reserve Force","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"64",2014,"4557N","National Defense Sealift Fund","NAVY","20","Undistributed","Undistributed","100","100","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"65",2014,"493002N","Working Capital Fund, Navy","NAVY","20","Undistributed","Undistributed","010","010","UNDD","Undistributed","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"66",2014,"493003F","Working Capital Fund, Air Force","AF","10","Transportation","Working Capital Fund","010","010","220","C-17 CLS Engine Repair","Y","Y","U",2013,"OCO",NA,NA,230400,NA,NA
-"67",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","020","020","200","Transportation Fallen Heroes","Y","Y","U",2013,"OCO",NA,NA,10000,NA,NA
-"68",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","030","030","ES17","Fuel Costs","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"69",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Undistributed","040","040","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"70",2014,"493003F","Working Capital Fund, Air Force","AF","21","Supply MGMT","Working Capital Fund","050","050","111","Supplies and Materials (Medical/Dental)","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"71",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","010","010","ES08","Defense Logistics Agency (DLA)","Y","Y","U",2013,"OCO",NA,NA,220364,NA,NA
-"72",2014,"493005D","Working Capital Fund, Defense-Wide","DEFW","20","DLA Working Capital Funds","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"73",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Undistributed","030","030","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"74",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"75",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"OCO",NA,NA,0,NA,NA
-"76",2014,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"OCO",NA,NA,NA,NA,NA
-"77",2014,"*  Reflects the FY 2013 President's Budget with an undistributed adjustment to match the Annualized Continuing Resolution funding level",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"OCO",NA,NA,NA,NA,NA
-"78",2014,"   by appropriation.",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"OCO",NA,NA,NA,NA,NA
-"79",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Working Capital Fund","010","010","200","Prepositioned War Reserve Stocks","Y","Y","U",2013,"Total",NA,102637,NA,NA,NA
-"80",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"Total",NA,41777,NA,NA,NA
-"81",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","Y","Y","U",2013,"Total",NA,0,NA,NA,NA
-"82",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0401","MPF MLP","Y","Y","U",2013,"Total",NA,38000,NA,NA,NA
-"83",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","5000","Post Delivery and Outfitting","Y","Y","U",2013,"Total",NA,39386,NA,NA,NA
-"84",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","040","040","0200","National Def Sealift Vessel","Y","Y","U",2013,"Total",NA,0,NA,NA,NA
-"85",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0220","LG Med Spd Ro/Ro Maintenance","Y","Y","U",2013,"Total",NA,128819,NA,NA,NA
-"86",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0230","DoD Mobilization Alterations","Y","Y","U",2013,"Total",NA,26598,NA,NA,NA
-"87",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0250","TAH Maintenance","Y","Y","U",2013,"Total",NA,29199,NA,NA,NA
-"88",2014,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","080","080","0900","Research And Development","Y","Y","U",2013,"Total",NA,42811,NA,NA,NA
-"89",2014,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","090","090","0500","Ready Reserve Force","Y","Y","U",2013,"Total",NA,303323,NA,NA,NA
-"90",2014,"4557N","National Defense Sealift Fund","NAVY","20","Undistributed","Undistributed","100","100","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"Total",NA,499118,NA,NA,NA
-"91",2014,"493002N","Working Capital Fund, Navy","NAVY","20","Undistributed","Undistributed","010","010","UNDD","Undistributed","Y","Y","U",2013,"Total",NA,24200,NA,NA,NA
-"92",2014,"493003F","Working Capital Fund, Air Force","AF","10","Transportation","Working Capital Fund","010","010","220","C-17 CLS Engine Repair","Y","Y","U",2013,"Total",NA,230400,NA,NA,NA
-"93",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","020","020","200","Transportation Fallen Heroes","Y","Y","U",2013,"Total",NA,10000,NA,NA,NA
-"94",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","030","030","ES17","Fuel Costs","Y","Y","U",2013,"Total",NA,0,NA,NA,NA
-"95",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Undistributed","040","040","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"Total",NA,20319,NA,NA,NA
-"96",2014,"493003F","Working Capital Fund, Air Force","AF","21","Supply MGMT","Working Capital Fund","050","050","111","Supplies and Materials (Medical/Dental)","Y","Y","U",2013,"Total",NA,45452,NA,NA,NA
-"97",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","010","010","ES08","Defense Logistics Agency (DLA)","Y","Y","U",2013,"Total",NA,259499,NA,NA,NA
-"98",2014,"493005D","Working Capital Fund, Defense-Wide","DEFW","20","DLA Working Capital Funds","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"Total",NA,194,NA,NA,NA
-"99",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Undistributed","030","030","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"Total",NA,-7521,NA,NA,NA
-"100",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","Y","Y","U",2013,"Total",NA,1371560,NA,NA,NA
-"101",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2013,"Total",NA,13696,NA,NA,NA
-"102",2014,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"Total",NA,NA,NA,NA,NA
-"103",2014,"*  Reflects the FY 2013 President's Budget with an undistributed adjustment to match the Annualized Continuing Resolution funding level",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"Total",NA,NA,NA,NA,NA
-"104",2014,"   by appropriation.",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"Total",NA,NA,NA,NA,NA
-"105",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Working Capital Fund","010","010","200","Prepositioned War Reserve Stocks","Y","Y","U",2014,"Base",NA,NA,NA,NA,25158
-"106",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"Base",NA,NA,NA,NA,0
-"107",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","Y","Y","U",2014,"Base",NA,NA,NA,NA,0
-"108",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0401","MPF MLP","Y","Y","U",2014,"Base",NA,NA,NA,NA,134917
-"109",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","5000","Post Delivery and Outfitting","Y","Y","U",2014,"Base",NA,NA,NA,NA,43404
-"110",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","040","040","0200","National Def Sealift Vessel","Y","Y","U",2014,"Base",NA,NA,NA,NA,0
-"111",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0220","LG Med Spd Ro/Ro Maintenance","Y","Y","U",2014,"Base",NA,NA,NA,NA,116784
-"112",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0230","DoD Mobilization Alterations","Y","Y","U",2014,"Base",NA,NA,NA,NA,60703
-"113",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0250","TAH Maintenance","Y","Y","U",2014,"Base",NA,NA,NA,NA,19809
-"114",2014,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","080","080","0900","Research And Development","Y","Y","U",2014,"Base",NA,NA,NA,NA,56058
-"115",2014,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","090","090","0500","Ready Reserve Force","Y","Y","U",2014,"Base",NA,NA,NA,NA,299025
-"116",2014,"4557N","National Defense Sealift Fund","NAVY","20","Undistributed","Undistributed","100","100","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"Base",NA,NA,NA,NA,0
-"117",2014,"493002N","Working Capital Fund, Navy","NAVY","20","Undistributed","Undistributed","010","010","UNDD","Undistributed","Y","Y","U",2014,"Base",NA,NA,NA,NA,0
-"118",2014,"493003F","Working Capital Fund, Air Force","AF","10","Transportation","Working Capital Fund","010","010","220","C-17 CLS Engine Repair","Y","Y","U",2014,"Base",NA,NA,NA,NA,0
-"119",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","020","020","200","Transportation Fallen Heroes","Y","Y","U",2014,"Base",NA,NA,NA,NA,0
-"120",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","030","030","ES17","Fuel Costs","Y","Y","U",2014,"Base",NA,NA,NA,NA,61731
-"121",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Undistributed","040","040","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"Base",NA,NA,NA,NA,0
-"122",2014,"493003F","Working Capital Fund, Air Force","AF","21","Supply MGMT","Working Capital Fund","050","050","111","Supplies and Materials (Medical/Dental)","Y","Y","U",2014,"Base",NA,NA,NA,NA,0
-"123",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","010","010","ES08","Defense Logistics Agency (DLA)","Y","Y","U",2014,"Base",NA,NA,NA,NA,46428
-"124",2014,"493005D","Working Capital Fund, Defense-Wide","DEFW","20","DLA Working Capital Funds","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"Base",NA,NA,NA,NA,0
-"125",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Undistributed","030","030","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"Base",NA,NA,NA,NA,0
-"126",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","Y","Y","U",2014,"Base",NA,NA,NA,NA,1413001
-"127",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"Base",NA,NA,NA,NA,0
-"128",2014,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"Base",NA,NA,NA,NA,NA
-"129",2014,"*  Reflects the FY 2013 President's Budget with an undistributed adjustment to match the Annualized Continuing Resolution funding level",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"Base",NA,NA,NA,NA,NA
-"130",2014,"   by appropriation.",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"Base",NA,NA,NA,NA,NA
-"131",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Working Capital Fund","010","010","200","Prepositioned War Reserve Stocks","Y","Y","U",2014,"OCO",NA,NA,NA,NA,44732
-"132",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"133",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"134",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0401","MPF MLP","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"135",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","5000","Post Delivery and Outfitting","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"136",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","040","040","0200","National Def Sealift Vessel","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"137",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0220","LG Med Spd Ro/Ro Maintenance","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"138",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0230","DoD Mobilization Alterations","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"139",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0250","TAH Maintenance","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"140",2014,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","080","080","0900","Research And Development","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"141",2014,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","090","090","0500","Ready Reserve Force","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"142",2014,"4557N","National Defense Sealift Fund","NAVY","20","Undistributed","Undistributed","100","100","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"143",2014,"493002N","Working Capital Fund, Navy","NAVY","20","Undistributed","Undistributed","010","010","UNDD","Undistributed","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"144",2014,"493003F","Working Capital Fund, Air Force","AF","10","Transportation","Working Capital Fund","010","010","220","C-17 CLS Engine Repair","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"145",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","020","020","200","Transportation Fallen Heroes","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"146",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","030","030","ES17","Fuel Costs","Y","Y","U",2014,"OCO",NA,NA,NA,NA,88500
-"147",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Undistributed","040","040","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"148",2014,"493003F","Working Capital Fund, Air Force","AF","21","Supply MGMT","Working Capital Fund","050","050","111","Supplies and Materials (Medical/Dental)","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"149",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","010","010","ES08","Defense Logistics Agency (DLA)","Y","Y","U",2014,"OCO",NA,NA,NA,NA,131678
-"150",2014,"493005D","Working Capital Fund, Defense-Wide","DEFW","20","DLA Working Capital Funds","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"151",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Undistributed","030","030","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"152",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"153",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"OCO",NA,NA,NA,NA,0
-"154",2014,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"OCO",NA,NA,NA,NA,NA
-"155",2014,"*  Reflects the FY 2013 President's Budget with an undistributed adjustment to match the Annualized Continuing Resolution funding level",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"OCO",NA,NA,NA,NA,NA
-"156",2014,"   by appropriation.",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"OCO",NA,NA,NA,NA,NA
-"157",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Working Capital Fund","010","010","200","Prepositioned War Reserve Stocks","Y","Y","U",2014,"Total",NA,NA,NA,69890,NA
-"158",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"Total",NA,NA,NA,0,NA
-"159",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","Y","Y","U",2014,"Total",NA,NA,NA,0,NA
-"160",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0401","MPF MLP","Y","Y","U",2014,"Total",NA,NA,NA,134917,NA
-"161",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","5000","Post Delivery and Outfitting","Y","Y","U",2014,"Total",NA,NA,NA,43404,NA
-"162",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","040","040","0200","National Def Sealift Vessel","Y","Y","U",2014,"Total",NA,NA,NA,0,NA
-"163",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0220","LG Med Spd Ro/Ro Maintenance","Y","Y","U",2014,"Total",NA,NA,NA,116784,NA
-"164",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0230","DoD Mobilization Alterations","Y","Y","U",2014,"Total",NA,NA,NA,60703,NA
-"165",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0250","TAH Maintenance","Y","Y","U",2014,"Total",NA,NA,NA,19809,NA
-"166",2014,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","080","080","0900","Research And Development","Y","Y","U",2014,"Total",NA,NA,NA,56058,NA
-"167",2014,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","090","090","0500","Ready Reserve Force","Y","Y","U",2014,"Total",NA,NA,NA,299025,NA
-"168",2014,"4557N","National Defense Sealift Fund","NAVY","20","Undistributed","Undistributed","100","100","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"Total",NA,NA,NA,0,NA
-"169",2014,"493002N","Working Capital Fund, Navy","NAVY","20","Undistributed","Undistributed","010","010","UNDD","Undistributed","Y","Y","U",2014,"Total",NA,NA,NA,0,NA
-"170",2014,"493003F","Working Capital Fund, Air Force","AF","10","Transportation","Working Capital Fund","010","010","220","C-17 CLS Engine Repair","Y","Y","U",2014,"Total",NA,NA,NA,0,NA
-"171",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","020","020","200","Transportation Fallen Heroes","Y","Y","U",2014,"Total",NA,NA,NA,0,NA
-"172",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","030","030","ES17","Fuel Costs","Y","Y","U",2014,"Total",NA,NA,NA,150231,NA
-"173",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Undistributed","040","040","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"Total",NA,NA,NA,0,NA
-"174",2014,"493003F","Working Capital Fund, Air Force","AF","21","Supply MGMT","Working Capital Fund","050","050","111","Supplies and Materials (Medical/Dental)","Y","Y","U",2014,"Total",NA,NA,NA,0,NA
-"175",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","010","010","ES08","Defense Logistics Agency (DLA)","Y","Y","U",2014,"Total",NA,NA,NA,178106,NA
-"176",2014,"493005D","Working Capital Fund, Defense-Wide","DEFW","20","DLA Working Capital Funds","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"Total",NA,NA,NA,0,NA
-"177",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Undistributed","030","030","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"Total",NA,NA,NA,0,NA
-"178",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","Y","Y","U",2014,"Total",NA,NA,NA,1413001,NA
-"179",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","Y","U",2014,"Total",NA,NA,NA,0,NA
-"180",2014,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"Total",NA,NA,NA,NA,NA
-"181",2014,"*  Reflects the FY 2013 President's Budget with an undistributed adjustment to match the Annualized Continuing Resolution funding level",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"Total",NA,NA,NA,NA,NA
-"182",2014,"   by appropriation.",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"Total",NA,NA,NA,NA,NA
+"","SourceFiscalYear","AccountDSI","AccountTitle","Organization","BudgetActivity","BudgetActivityTitle","AGtitle","LineNumber","LineNumber","SAG","SAG.Title","IncludeInTOA","Classified","FiscalYear","OriginType","ActualTotal","EnactedTotal","EnactedType","PBtotal","PBtype"
+"1",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Working Capital Fund","010","010","200","Prepositioned War Reserve Stocks","Y","U",2012,"Total",155194,NA,NA,NA,NA
+"2",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2012,"Total",0,NA,NA,NA,NA
+"3",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","Y","U",2012,"Total",73798,NA,NA,NA,NA
+"4",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0401","MPF MLP","Y","U",2012,"Total",1146616,NA,NA,NA,NA
+"5",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","5000","Post Delivery and Outfitting","Y","U",2012,"Total",-422165,NA,NA,NA,NA
+"6",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","040","040","0200","National Def Sealift Vessel","Y","U",2012,"Total",313422,NA,NA,NA,NA
+"7",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0220","LG Med Spd Ro/Ro Maintenance","Y","U",2012,"Total",0,NA,NA,NA,NA
+"8",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0230","DoD Mobilization Alterations","Y","U",2012,"Total",0,NA,NA,NA,NA
+"9",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0250","TAH Maintenance","Y","U",2012,"Total",0,NA,NA,NA,NA
+"10",2014,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","080","080","0900","Research And Development","Y","U",2012,"Total",50632,NA,NA,NA,NA
+"11",2014,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","090","090","0500","Ready Reserve Force","Y","U",2012,"Total",309577,NA,NA,NA,NA
+"12",2014,"4557N","National Defense Sealift Fund","NAVY","20","Undistributed","Undistributed","100","100","CR","Adj to Match Continuing Resolution","Y","U",2012,"Total",0,NA,NA,NA,NA
+"13",2014,"493002N","Working Capital Fund, Navy","NAVY","20","Undistributed","Undistributed","010","010","UNDD","Undistributed","Y","U",2012,"Total",0,NA,NA,NA,NA
+"14",2014,"493003F","Working Capital Fund, Air Force","AF","10","Transportation","Working Capital Fund","010","010","220","C-17 CLS Engine Repair","Y","U",2012,"Total",0,NA,NA,NA,NA
+"15",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","020","020","200","Transportation Fallen Heroes","Y","U",2012,"Total",0,NA,NA,NA,NA
+"16",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","030","030","ES17","Fuel Costs","Y","U",2012,"Total",77372,NA,NA,NA,NA
+"17",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Undistributed","040","040","CR","Adj to Match Continuing Resolution","Y","U",2012,"Total",0,NA,NA,NA,NA
+"18",2014,"493003F","Working Capital Fund, Air Force","AF","21","Supply MGMT","Working Capital Fund","050","050","111","Supplies and Materials (Medical/Dental)","Y","U",2012,"Total",0,NA,NA,NA,NA
+"19",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","010","010","ES08","Defense Logistics Agency (DLA)","Y","U",2012,"Total",400627,NA,NA,NA,NA
+"20",2014,"493005D","Working Capital Fund, Defense-Wide","DEFW","20","DLA Working Capital Funds","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2012,"Total",0,NA,NA,NA,NA
+"21",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Undistributed","030","030","CR","Adj to Match Continuing Resolution","Y","U",2012,"Total",0,NA,NA,NA,NA
+"22",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","Y","U",2012,"Total",1376830,NA,NA,NA,NA
+"23",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2012,"Total",0,NA,NA,NA,NA
+"24",2014,"",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2012,"Total",NA,NA,NA,NA,NA
+"25",2014,"*  Reflects the FY 2013 President's Budget with an undistributed adjustment to match the Annualized Continuing Resolution funding level",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2012,"Total",NA,NA,NA,NA,NA
+"26",2014,"   by appropriation.",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2012,"Total",NA,NA,NA,NA,NA
+"27",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Working Capital Fund","010","010","200","Prepositioned War Reserve Stocks","Y","U",2013,"Base",NA,NA,60037,NA,NA
+"28",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2013,"Base",NA,NA,41777,NA,NA
+"29",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","Y","U",2013,"Base",NA,NA,0,NA,NA
+"30",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0401","MPF MLP","Y","U",2013,"Base",NA,NA,38000,NA,NA
+"31",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","5000","Post Delivery and Outfitting","Y","U",2013,"Base",NA,NA,39386,NA,NA
+"32",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","040","040","0200","National Def Sealift Vessel","Y","U",2013,"Base",NA,NA,0,NA,NA
+"33",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0220","LG Med Spd Ro/Ro Maintenance","Y","U",2013,"Base",NA,NA,128819,NA,NA
+"34",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0230","DoD Mobilization Alterations","Y","U",2013,"Base",NA,NA,26598,NA,NA
+"35",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0250","TAH Maintenance","Y","U",2013,"Base",NA,NA,29199,NA,NA
+"36",2014,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","080","080","0900","Research And Development","Y","U",2013,"Base",NA,NA,42811,NA,NA
+"37",2014,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","090","090","0500","Ready Reserve Force","Y","U",2013,"Base",NA,NA,303323,NA,NA
+"38",2014,"4557N","National Defense Sealift Fund","NAVY","20","Undistributed","Undistributed","100","100","CR","Adj to Match Continuing Resolution","Y","U",2013,"Base",NA,NA,499118,NA,NA
+"39",2014,"493002N","Working Capital Fund, Navy","NAVY","20","Undistributed","Undistributed","010","010","UNDD","Undistributed","Y","U",2013,"Base",NA,NA,24200,NA,NA
+"40",2014,"493003F","Working Capital Fund, Air Force","AF","10","Transportation","Working Capital Fund","010","010","220","C-17 CLS Engine Repair","Y","U",2013,"Base",NA,NA,0,NA,NA
+"41",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","020","020","200","Transportation Fallen Heroes","Y","U",2013,"Base",NA,NA,0,NA,NA
+"42",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","030","030","ES17","Fuel Costs","Y","U",2013,"Base",NA,NA,0,NA,NA
+"43",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Undistributed","040","040","CR","Adj to Match Continuing Resolution","Y","U",2013,"Base",NA,NA,20319,NA,NA
+"44",2014,"493003F","Working Capital Fund, Air Force","AF","21","Supply MGMT","Working Capital Fund","050","050","111","Supplies and Materials (Medical/Dental)","Y","U",2013,"Base",NA,NA,45452,NA,NA
+"45",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","010","010","ES08","Defense Logistics Agency (DLA)","Y","U",2013,"Base",NA,NA,39135,NA,NA
+"46",2014,"493005D","Working Capital Fund, Defense-Wide","DEFW","20","DLA Working Capital Funds","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2013,"Base",NA,NA,194,NA,NA
+"47",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Undistributed","030","030","CR","Adj to Match Continuing Resolution","Y","U",2013,"Base",NA,NA,-7521,NA,NA
+"48",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","Y","U",2013,"Base",NA,NA,1371560,NA,NA
+"49",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2013,"Base",NA,NA,13696,NA,NA
+"50",2014,"",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"Base",NA,NA,NA,NA,NA
+"51",2014,"*  Reflects the FY 2013 President's Budget with an undistributed adjustment to match the Annualized Continuing Resolution funding level",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"Base",NA,NA,NA,NA,NA
+"52",2014,"   by appropriation.",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"Base",NA,NA,NA,NA,NA
+"53",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Working Capital Fund","010","010","200","Prepositioned War Reserve Stocks","Y","U",2013,"OCO",NA,NA,42600,NA,NA
+"54",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"55",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"56",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0401","MPF MLP","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"57",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","5000","Post Delivery and Outfitting","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"58",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","040","040","0200","National Def Sealift Vessel","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"59",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0220","LG Med Spd Ro/Ro Maintenance","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"60",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0230","DoD Mobilization Alterations","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"61",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0250","TAH Maintenance","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"62",2014,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","080","080","0900","Research And Development","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"63",2014,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","090","090","0500","Ready Reserve Force","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"64",2014,"4557N","National Defense Sealift Fund","NAVY","20","Undistributed","Undistributed","100","100","CR","Adj to Match Continuing Resolution","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"65",2014,"493002N","Working Capital Fund, Navy","NAVY","20","Undistributed","Undistributed","010","010","UNDD","Undistributed","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"66",2014,"493003F","Working Capital Fund, Air Force","AF","10","Transportation","Working Capital Fund","010","010","220","C-17 CLS Engine Repair","Y","U",2013,"OCO",NA,NA,230400,NA,NA
+"67",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","020","020","200","Transportation Fallen Heroes","Y","U",2013,"OCO",NA,NA,10000,NA,NA
+"68",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","030","030","ES17","Fuel Costs","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"69",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Undistributed","040","040","CR","Adj to Match Continuing Resolution","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"70",2014,"493003F","Working Capital Fund, Air Force","AF","21","Supply MGMT","Working Capital Fund","050","050","111","Supplies and Materials (Medical/Dental)","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"71",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","010","010","ES08","Defense Logistics Agency (DLA)","Y","U",2013,"OCO",NA,NA,220364,NA,NA
+"72",2014,"493005D","Working Capital Fund, Defense-Wide","DEFW","20","DLA Working Capital Funds","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"73",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Undistributed","030","030","CR","Adj to Match Continuing Resolution","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"74",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"75",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2013,"OCO",NA,NA,0,NA,NA
+"76",2014,"",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"OCO",NA,NA,NA,NA,NA
+"77",2014,"*  Reflects the FY 2013 President's Budget with an undistributed adjustment to match the Annualized Continuing Resolution funding level",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"OCO",NA,NA,NA,NA,NA
+"78",2014,"   by appropriation.",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"OCO",NA,NA,NA,NA,NA
+"79",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Working Capital Fund","010","010","200","Prepositioned War Reserve Stocks","Y","U",2013,"Total",NA,102637,NA,NA,NA
+"80",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2013,"Total",NA,41777,NA,NA,NA
+"81",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","Y","U",2013,"Total",NA,0,NA,NA,NA
+"82",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0401","MPF MLP","Y","U",2013,"Total",NA,38000,NA,NA,NA
+"83",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","5000","Post Delivery and Outfitting","Y","U",2013,"Total",NA,39386,NA,NA,NA
+"84",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","040","040","0200","National Def Sealift Vessel","Y","U",2013,"Total",NA,0,NA,NA,NA
+"85",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0220","LG Med Spd Ro/Ro Maintenance","Y","U",2013,"Total",NA,128819,NA,NA,NA
+"86",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0230","DoD Mobilization Alterations","Y","U",2013,"Total",NA,26598,NA,NA,NA
+"87",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0250","TAH Maintenance","Y","U",2013,"Total",NA,29199,NA,NA,NA
+"88",2014,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","080","080","0900","Research And Development","Y","U",2013,"Total",NA,42811,NA,NA,NA
+"89",2014,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","090","090","0500","Ready Reserve Force","Y","U",2013,"Total",NA,303323,NA,NA,NA
+"90",2014,"4557N","National Defense Sealift Fund","NAVY","20","Undistributed","Undistributed","100","100","CR","Adj to Match Continuing Resolution","Y","U",2013,"Total",NA,499118,NA,NA,NA
+"91",2014,"493002N","Working Capital Fund, Navy","NAVY","20","Undistributed","Undistributed","010","010","UNDD","Undistributed","Y","U",2013,"Total",NA,24200,NA,NA,NA
+"92",2014,"493003F","Working Capital Fund, Air Force","AF","10","Transportation","Working Capital Fund","010","010","220","C-17 CLS Engine Repair","Y","U",2013,"Total",NA,230400,NA,NA,NA
+"93",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","020","020","200","Transportation Fallen Heroes","Y","U",2013,"Total",NA,10000,NA,NA,NA
+"94",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","030","030","ES17","Fuel Costs","Y","U",2013,"Total",NA,0,NA,NA,NA
+"95",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Undistributed","040","040","CR","Adj to Match Continuing Resolution","Y","U",2013,"Total",NA,20319,NA,NA,NA
+"96",2014,"493003F","Working Capital Fund, Air Force","AF","21","Supply MGMT","Working Capital Fund","050","050","111","Supplies and Materials (Medical/Dental)","Y","U",2013,"Total",NA,45452,NA,NA,NA
+"97",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","010","010","ES08","Defense Logistics Agency (DLA)","Y","U",2013,"Total",NA,259499,NA,NA,NA
+"98",2014,"493005D","Working Capital Fund, Defense-Wide","DEFW","20","DLA Working Capital Funds","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2013,"Total",NA,194,NA,NA,NA
+"99",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Undistributed","030","030","CR","Adj to Match Continuing Resolution","Y","U",2013,"Total",NA,-7521,NA,NA,NA
+"100",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","Y","U",2013,"Total",NA,1371560,NA,NA,NA
+"101",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2013,"Total",NA,13696,NA,NA,NA
+"102",2014,"",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"Total",NA,NA,NA,NA,NA
+"103",2014,"*  Reflects the FY 2013 President's Budget with an undistributed adjustment to match the Annualized Continuing Resolution funding level",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"Total",NA,NA,NA,NA,NA
+"104",2014,"   by appropriation.",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2013,"Total",NA,NA,NA,NA,NA
+"105",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Working Capital Fund","010","010","200","Prepositioned War Reserve Stocks","Y","U",2014,"Base",NA,NA,NA,NA,25158
+"106",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2014,"Base",NA,NA,NA,NA,0
+"107",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","Y","U",2014,"Base",NA,NA,NA,NA,0
+"108",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0401","MPF MLP","Y","U",2014,"Base",NA,NA,NA,NA,134917
+"109",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","5000","Post Delivery and Outfitting","Y","U",2014,"Base",NA,NA,NA,NA,43404
+"110",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","040","040","0200","National Def Sealift Vessel","Y","U",2014,"Base",NA,NA,NA,NA,0
+"111",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0220","LG Med Spd Ro/Ro Maintenance","Y","U",2014,"Base",NA,NA,NA,NA,116784
+"112",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0230","DoD Mobilization Alterations","Y","U",2014,"Base",NA,NA,NA,NA,60703
+"113",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0250","TAH Maintenance","Y","U",2014,"Base",NA,NA,NA,NA,19809
+"114",2014,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","080","080","0900","Research And Development","Y","U",2014,"Base",NA,NA,NA,NA,56058
+"115",2014,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","090","090","0500","Ready Reserve Force","Y","U",2014,"Base",NA,NA,NA,NA,299025
+"116",2014,"4557N","National Defense Sealift Fund","NAVY","20","Undistributed","Undistributed","100","100","CR","Adj to Match Continuing Resolution","Y","U",2014,"Base",NA,NA,NA,NA,0
+"117",2014,"493002N","Working Capital Fund, Navy","NAVY","20","Undistributed","Undistributed","010","010","UNDD","Undistributed","Y","U",2014,"Base",NA,NA,NA,NA,0
+"118",2014,"493003F","Working Capital Fund, Air Force","AF","10","Transportation","Working Capital Fund","010","010","220","C-17 CLS Engine Repair","Y","U",2014,"Base",NA,NA,NA,NA,0
+"119",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","020","020","200","Transportation Fallen Heroes","Y","U",2014,"Base",NA,NA,NA,NA,0
+"120",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","030","030","ES17","Fuel Costs","Y","U",2014,"Base",NA,NA,NA,NA,61731
+"121",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Undistributed","040","040","CR","Adj to Match Continuing Resolution","Y","U",2014,"Base",NA,NA,NA,NA,0
+"122",2014,"493003F","Working Capital Fund, Air Force","AF","21","Supply MGMT","Working Capital Fund","050","050","111","Supplies and Materials (Medical/Dental)","Y","U",2014,"Base",NA,NA,NA,NA,0
+"123",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","010","010","ES08","Defense Logistics Agency (DLA)","Y","U",2014,"Base",NA,NA,NA,NA,46428
+"124",2014,"493005D","Working Capital Fund, Defense-Wide","DEFW","20","DLA Working Capital Funds","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2014,"Base",NA,NA,NA,NA,0
+"125",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Undistributed","030","030","CR","Adj to Match Continuing Resolution","Y","U",2014,"Base",NA,NA,NA,NA,0
+"126",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","Y","U",2014,"Base",NA,NA,NA,NA,1413001
+"127",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2014,"Base",NA,NA,NA,NA,0
+"128",2014,"",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"Base",NA,NA,NA,NA,NA
+"129",2014,"*  Reflects the FY 2013 President's Budget with an undistributed adjustment to match the Annualized Continuing Resolution funding level",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"Base",NA,NA,NA,NA,NA
+"130",2014,"   by appropriation.",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"Base",NA,NA,NA,NA,NA
+"131",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Working Capital Fund","010","010","200","Prepositioned War Reserve Stocks","Y","U",2014,"OCO",NA,NA,NA,NA,44732
+"132",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"133",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"134",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0401","MPF MLP","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"135",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","5000","Post Delivery and Outfitting","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"136",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","040","040","0200","National Def Sealift Vessel","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"137",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0220","LG Med Spd Ro/Ro Maintenance","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"138",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0230","DoD Mobilization Alterations","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"139",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0250","TAH Maintenance","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"140",2014,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","080","080","0900","Research And Development","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"141",2014,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","090","090","0500","Ready Reserve Force","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"142",2014,"4557N","National Defense Sealift Fund","NAVY","20","Undistributed","Undistributed","100","100","CR","Adj to Match Continuing Resolution","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"143",2014,"493002N","Working Capital Fund, Navy","NAVY","20","Undistributed","Undistributed","010","010","UNDD","Undistributed","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"144",2014,"493003F","Working Capital Fund, Air Force","AF","10","Transportation","Working Capital Fund","010","010","220","C-17 CLS Engine Repair","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"145",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","020","020","200","Transportation Fallen Heroes","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"146",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","030","030","ES17","Fuel Costs","Y","U",2014,"OCO",NA,NA,NA,NA,88500
+"147",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Undistributed","040","040","CR","Adj to Match Continuing Resolution","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"148",2014,"493003F","Working Capital Fund, Air Force","AF","21","Supply MGMT","Working Capital Fund","050","050","111","Supplies and Materials (Medical/Dental)","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"149",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","010","010","ES08","Defense Logistics Agency (DLA)","Y","U",2014,"OCO",NA,NA,NA,NA,131678
+"150",2014,"493005D","Working Capital Fund, Defense-Wide","DEFW","20","DLA Working Capital Funds","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"151",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Undistributed","030","030","CR","Adj to Match Continuing Resolution","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"152",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"153",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2014,"OCO",NA,NA,NA,NA,0
+"154",2014,"",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"OCO",NA,NA,NA,NA,NA
+"155",2014,"*  Reflects the FY 2013 President's Budget with an undistributed adjustment to match the Annualized Continuing Resolution funding level",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"OCO",NA,NA,NA,NA,NA
+"156",2014,"   by appropriation.",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"OCO",NA,NA,NA,NA,NA
+"157",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Working Capital Fund","010","010","200","Prepositioned War Reserve Stocks","Y","U",2014,"Total",NA,NA,NA,69890,NA
+"158",2014,"493001A","Working Capital Fund, Army","ARMY","20","Supply Management","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2014,"Total",NA,NA,NA,0,NA
+"159",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","010","010","0100","LMSR","Y","U",2014,"Total",NA,NA,NA,0,NA
+"160",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","020","020","0401","MPF MLP","Y","U",2014,"Total",NA,NA,NA,134917,NA
+"161",2014,"4557N","National Defense Sealift Fund","NAVY","01","Construction And Conversion","Strategic Sealift Acquisition","030","030","5000","Post Delivery and Outfitting","Y","U",2014,"Total",NA,NA,NA,43404,NA
+"162",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","040","040","0200","National Def Sealift Vessel","Y","U",2014,"Total",NA,NA,NA,0,NA
+"163",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","050","050","0220","LG Med Spd Ro/Ro Maintenance","Y","U",2014,"Total",NA,NA,NA,116784,NA
+"164",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","060","060","0230","DoD Mobilization Alterations","Y","U",2014,"Total",NA,NA,NA,60703,NA
+"165",2014,"4557N","National Defense Sealift Fund","NAVY","02","Operations, Maintenance And Lease","Mobilization Preparedness","070","070","0250","TAH Maintenance","Y","U",2014,"Total",NA,NA,NA,19809,NA
+"166",2014,"4557N","National Defense Sealift Fund","NAVY","04","Research and Development","Research And Development","080","080","0900","Research And Development","Y","U",2014,"Total",NA,NA,NA,56058,NA
+"167",2014,"4557N","National Defense Sealift Fund","NAVY","05","Ready Reserve Forces","Ready Reserve and Prepositioning Force","090","090","0500","Ready Reserve Force","Y","U",2014,"Total",NA,NA,NA,299025,NA
+"168",2014,"4557N","National Defense Sealift Fund","NAVY","20","Undistributed","Undistributed","100","100","CR","Adj to Match Continuing Resolution","Y","U",2014,"Total",NA,NA,NA,0,NA
+"169",2014,"493002N","Working Capital Fund, Navy","NAVY","20","Undistributed","Undistributed","010","010","UNDD","Undistributed","Y","U",2014,"Total",NA,NA,NA,0,NA
+"170",2014,"493003F","Working Capital Fund, Air Force","AF","10","Transportation","Working Capital Fund","010","010","220","C-17 CLS Engine Repair","Y","U",2014,"Total",NA,NA,NA,0,NA
+"171",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","020","020","200","Transportation Fallen Heroes","Y","U",2014,"Total",NA,NA,NA,0,NA
+"172",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Working Capital Fund","030","030","ES17","Fuel Costs","Y","U",2014,"Total",NA,NA,NA,150231,NA
+"173",2014,"493003F","Working Capital Fund, Air Force","AF","20","Transportation","Undistributed","040","040","CR","Adj to Match Continuing Resolution","Y","U",2014,"Total",NA,NA,NA,0,NA
+"174",2014,"493003F","Working Capital Fund, Air Force","AF","21","Supply MGMT","Working Capital Fund","050","050","111","Supplies and Materials (Medical/Dental)","Y","U",2014,"Total",NA,NA,NA,0,NA
+"175",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Working Capital Fund","010","010","ES08","Defense Logistics Agency (DLA)","Y","U",2014,"Total",NA,NA,NA,178106,NA
+"176",2014,"493005D","Working Capital Fund, Defense-Wide","DEFW","20","DLA Working Capital Funds","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2014,"Total",NA,NA,NA,0,NA
+"177",2014,"493005D","Working Capital Fund, Defense-Wide","DLA","20","DLA Working Capital Funds","Undistributed","030","030","CR","Adj to Match Continuing Resolution","Y","U",2014,"Total",NA,NA,NA,0,NA
+"178",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Working Capital Fund Support","010","010","ES11","Working Capital Fund, DECA","Y","U",2014,"Total",NA,NA,NA,1413001,NA
+"179",2014,"493004D","Working Capital Fund, DECA","DECA","20","Undistributed","Undistributed","020","020","CR","Adj to Match Continuing Resolution","Y","U",2014,"Total",NA,NA,NA,0,NA
+"180",2014,"",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"Total",NA,NA,NA,NA,NA
+"181",2014,"*  Reflects the FY 2013 President's Budget with an undistributed adjustment to match the Annualized Continuing Resolution funding level",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"Total",NA,NA,NA,NA,NA
+"182",2014,"   by appropriation.",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2014,"Total",NA,NA,NA,NA,NA
