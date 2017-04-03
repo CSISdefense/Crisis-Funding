@@ -271,6 +271,8 @@ for(sfy in SourceFolderList){
     SheetData$sheet<-s
     # file_list <- (c(MilConData, SheetData))
     # rbindlist(lapply( file_list, fread ), fill = TRUE)
+      SheetData<-standardize_variable_names(Path,SheetData)
+
     MilConData<-rbind.fill(MilConData,SheetData)
   }
   rm(SheetData)
@@ -290,18 +292,18 @@ for(sfy in SourceFolderList){
                    Count=length(FiscalYear))
   
   sheetlist$FiscalYear<-FactorToNumber(sheetlist$FiscalYear)
-  sheetlist$ComptrollerVariable[sheetlist$FiscalYear==min(sheetlist$FiscalYear,na.rm=TRUE)] <- "PB.Amount"
-  sheetlist$ComptrollerVariable[sheetlist$FiscalYear== max(sheetlist$FiscalYear,na.rm=TRUE)] <- "Actual.Amount"
+  sheetlist$ComptrollerVariable[sheetlist$FiscalYear==max(sheetlist$FiscalYear,na.rm=TRUE)] <- "PB.Amount"
+  sheetlist$ComptrollerVariable[sheetlist$FiscalYear== min(sheetlist$FiscalYear,na.rm=TRUE)] <- "Actual.Amount"
   sheetlist$ComptrollerVariable[sheetlist$FiscalYear>min(sheetlist$FiscalYear,na.rm=TRUE) &
-                                  sheetlist$FiscalYear<max(sheetlist$FiscalYear,na.rm=TRUE)] <- "Enacted.Amount"
+                                  sheetlist$FiscalYear<max(sheetlist$FiscalYear,na.rm=TRUE)] <-
+    "Enacted.Amount"
   
   
   
-  sheetlist$OriginType[sheetlist$variable=="OCO_Req"]<-"OCO"
-  sheetlist$OriginType[sheetlist$variable=="OCO_Enacted"]<-"OCO"
-  sheetlist$OriginType[sheetlist$variable=="B" ]<-"Total"#& sheetlist$Count==1
-  # sheetlist$OriginType[sheetlist$variable=="" & sheetlist$Count==1]<-"Total"
-  # sheetlist$OriginType[sheetlist$variable=="" & sheetlist$Count==2]<-"Base"
+sheetlist$OriginType<-as.character(sheetlist$variable)
+  sheetlist$OriginType[sheetlist$variable=="B" & sheetlist$Count==1]<-"Total"#
+  sheetlist$OriginType[sheetlist$variable=="" & sheetlist$Count==1]<-"Total"
+  sheetlist$OriginType[sheetlist$variable=="" & sheetlist$Count>1]<-"Base"
   sheetlist$ComptrollerVariable<-
     paste(sheetlist$OriginType,sheetlist$ComptrollerVariable,sep=".")
   
@@ -340,12 +342,12 @@ for(sfy in SourceFolderList){
   # MilConData <- MilConData[,names(MilConData) != "variable"]
   
   
-  MilConData<-standardize_variable_names(Path,MilConData)
   
   colnames(MilConData)
   MilConData$SourceFiscalYear<-NumericFiscalYear
   
-  
+      MilConData<-standardize_variable_names(Path,MilConData)
+
   MilConData<-
     ComptrollerMelt(MilConData)
   
@@ -363,7 +365,8 @@ for(sfy in SourceFolderList){
   # debug(ComptrollerVariableRename)
   MilConData<-ComptrollerVariableRename(MilConData)
   # write.csv(MilConData,file.path("Data","MilCon(2011).csv"))
-  write.csv(RFdata,file.path("Data",sfy,"Output",paste("MilCon(",NumericFiscalYear,").csv",sep="")))
+
+    write.csv(MilConData,file.path("Data",sfy,"Output",paste("MilCon(",NumericFiscalYear,").csv",sep="")))
   
 }
 
@@ -371,9 +374,9 @@ for(sfy in SourceFolderList){
 ```
 
 ```{r OCOsum}
-OCOsum<-ComptrollerOCObyAccount(MilPersData)
-OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(OnMdata))
-OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(RFdata))
-OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(ProcData))
-OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(RDTEdata))
+# OCOsum<-ComptrollerOCObyAccount(MilPersData)
+# OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(OnMdata))
+# OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(RFdata))
+# OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(ProcData))
+# OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(RDTEdata))
 ```

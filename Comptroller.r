@@ -55,7 +55,7 @@ ComptrollerMelt<-function(dfComptroller){
              "BudgetType", 
              "FiscalYear",
              "SubActivity", 
-             # "ComptrollerVariable",
+             "ComptrollerVariable",
              "Project.Title", 
              "Treasury.Agency", 
              "SourceType",
@@ -134,7 +134,7 @@ ComptrollerVariableRename<-function(dfComptroller){
              "Treasury.Agency", 
              "SourceType", 
              "TOAamount", 
-             
+             "BudgetMetric",
              "OriginType"
              
              #Note that origin type is missing in the other function, as it's added in this step.
@@ -145,7 +145,7 @@ ComptrollerVariableRename<-function(dfComptroller){
   dfComptroller<-reshape2::dcast(dfComptroller, 
                                  paste(
                                    paste(varlist,collapse=" + ")
-                                   ,"~  Consolidate"),
+                                   ,"~  Consolidate" ),
                                  sum, 
                                  fill=NA_real_ )
   
