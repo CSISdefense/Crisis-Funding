@@ -49,7 +49,10 @@ for(sfy in SourceFolderList){
   MilPersData$SourceFiscalYear<-NumericFiscalYear
   MilPersData<-ComptrollerMelt(MilPersData)
   MilPersData<-ComptrollerVariableRename(MilPersData)
-  write.csv(MilPersData,file.path("Data",sfy,"Output",paste("MilPers(",NumericFiscalYear,").csv",sep="")))
+  write.csv(MilPersData,file.path("Data",sfy,"Output",paste("MilPers(",NumericFiscalYear,").csv",sep="")),
+                     row.names=FALSE,
+            na=""
+  )
 }
 
 ```
@@ -259,7 +262,7 @@ for(sfy in SourceFolderList){
   # Load workbook MilCon
   MilConXLS <- ComptrollerLoadWorkbook(sfy,"c")
  
-  getSheets(MilConXLS)
+  
   MilConData<-NULL
   # MilConData[,"Disaster Relief"] <- NULL
   # MilConData[,"Base Request"] <- NULL

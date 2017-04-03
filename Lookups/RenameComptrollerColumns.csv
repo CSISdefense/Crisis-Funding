@@ -30,9 +30,11 @@ Base...OCO.Enacted.Quantity,Comptroller,Quant_OCO_PB,QuantPBtype,OCO
 Total.Enacted,Comptroller,App,EnactedTotal,Total
 Base.PB.Amount,Comptroller,Base_PB,PBtype,Base
 OCO.PB.Amount,Comptroller,OCO_PB,PBtype,OCO
+Base..,Comptroller,Base_PB,PBtype,Base
 Base,Comptroller,Base_PB,PBtype,Base
 OCO,Comptroller,OCO_PB,PBtype,OCO
 Total,Comptroller,PB,PBtotal,Total
+Total..,Comptroller,PB,PBtotal,Total
 Base.Request.with.CR.Adj.,Comptroller,Base_App,EnactedType,Base
 OCO.Request.with.CR.Adj.,Comptroller,OCO_App,EnactedType,OCO
 Total.Request.with.CR.Adj.,Comptroller,App,EnactedTotal,Total
