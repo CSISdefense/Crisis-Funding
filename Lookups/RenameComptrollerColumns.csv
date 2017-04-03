@@ -1,6 +1,7 @@
 variable,SourceColumn,AllColumns,Consolidate,OriginType
 .Base...OCO..Quantity,Comptroller,Quant_Actual,QuantActualTotal,Total
 .Base...OCO..Amount,Comptroller,Actual,ActualTotal,Total
+.Base...OCO..Amount...,Comptroller,Actual,ActualTotal,Total
 Total.Actual.Amount,Comptroller,Actual,ActualTotal,Total
 Base.Enacted.Quantity,Comptroller,Quant_Base_App,QuantEnactedType,Base
 Base.Enacted.Amount,Comptroller,Base_App,EnactedType,Base
@@ -9,7 +10,7 @@ OCO.Enacted.Amount,Comptroller,OCO_App,EnactedType,OCO
 OCO.Enacted.Amount..,Comptroller,OCO_App,EnactedType,OCO
 Enacted.Quantity,Comptroller,Quant_App,EnactedTotalQuantity,Total
 Total.Enacted.Amount,Comptroller,App,EnactedTotal,Total
-Total.Enacted.Amount,Comptroller,App,EnactedTotal,Total
+Total.Enacted.Amount..,Comptroller,App,EnactedTotal,Total
 Total.Enacted..,Comptroller,App,EnactedTotal,Total
 Base.Quantity,Comptroller,Quant_Base_PB,QuantPBtype,Base
 Base.Amount,Comptroller,Base_PB,PBtype,Base
@@ -30,30 +31,32 @@ Base...OCO.Enacted.Quantity,Comptroller,Quant_OCO_PB,QuantPBtype,OCO
 Total.Enacted,Comptroller,App,EnactedTotal,Total
 Base.PB.Amount,Comptroller,Base_PB,PBtype,Base
 OCO.PB.Amount,Comptroller,OCO_PB,PBtype,OCO
+Base..,Comptroller,Base_PB,PBtype,Base
 Base,Comptroller,Base_PB,PBtype,Base
 OCO,Comptroller,OCO_PB,PBtype,OCO
 Total,Comptroller,PB,PBtotal,Total
+Total..,Comptroller,PB,PBtotal,Total
 Base.Request.with.CR.Adj.,Comptroller,Base_App,EnactedType,Base
 OCO.Request.with.CR.Adj.,Comptroller,OCO_App,EnactedType,OCO
 Total.Request.with.CR.Adj.,Comptroller,App,EnactedTotal,Total
-Base.Request.with.CR.Adj..Quantity,Comptroller,Quant_Base_PB,QuantPBtype,Base
-Base.Request.with.CR.Adj..Amount,Comptroller,Base_PB,PBtype,Base
-OCO.Request.with.CR.Adj..Quantity,Comptroller,Quant_OCO_PB,QuantPBtype,OCO
-OCO.Request.with.CR.Adj..Amount,Comptroller,OCO_PB,PBtype,OCO
-Total.Request.with.CR.Adj..Quantity,Comptroller,Quant_PB,QuantPBtotal,Total
-Total.Request.with.CR.Adj..Amount,Comptroller,PB,PBtotal,Total
-Actuals ,Comptroller,PB,PBtotal,Total
-Actuals.Quantity,Comptroller,Quant_PB,QuantPBtotal,Total 
-Actuals.Amount ,Comptroller,PB,PBtotal,Total
-Annualized.CR.Base..,Comptroller,Base_App,EnactedType,Base
-Annualized.CR.Base...Quantity,Comptroller,Quant_Base_PB,QuantPBtype,Base
-Annualized.CR.Base...Amount,Comptroller,Base_PB,PBtype,Base
-Annualized.CR.OCO...Quantity,Comptroller,Quant_OCO_PB,QuantPBtype,OCO
-Annualized.CR.OCO..,Comptroller,OCO_App,EnactedType,OCO
-Annualized.CR.OCO...Amount,Comptroller,OCO_PB,PBtype,OCO
-Annualized.CR.Total...Quantity,Comptroller,Quant_PB,QuantPBtotal,Total
-Annualized.CR.Total..,Comptroller,App,EnactedTotal,Total
-Annualized.CR.Total...Amount,Comptroller,PB,PBtotal,Total
+Base.Request.with.CR.Adj..Quantity,Comptroller,Quant_Base_App,QuantEnactedtype,Base
+Base.Request.with.CR.Adj..Amount,Comptroller,Base_App,EnactedType,Base
+OCO.Request.with.CR.Adj..Quantity,Comptroller,Quant_OCO_App,QuantEnactedtype,OCO
+OCO.Request.with.CR.Adj..Amount,Comptroller,OCO_App,EnactedType,OCO
+Total.Request.with.CR.Adj..Quantity,Comptroller,App,QuantEnactedtotal,Total
+Total.Request.with.CR.Adj..Amount,Comptroller,App,EnactedTotal,Total
+Actuals ,Comptroller,Actual,ActualTotal,Total
+Actuals.Quantity,Comptroller,Quant_Actual,QuantActualTotal,Total 
+Actuals.Amount ,Comptroller,Actual,ActualTotal,Total
+Annualized.CR.Base..,Comptroller,Base_App,SpecialType,Base.Ann
+Annualized.CR.Base...Quantity,Comptroller,Quant_Base_App,QuantSpecialType,Base.Ann
+Annualized.CR.Base...Amount,Comptroller,Base_App,SpecialType,Base.Ann
+Annualized.CR.OCO...Quantity,Comptroller,Quant_OCO_App,QuantSpecialType,OCO.Ann
+Annualized.CR.OCO..,Comptroller,OCO_App,SpecialType,OCO.Ann
+Annualized.CR.OCO...Amount,Comptroller,OCO_App,SpecialType,OCO.Ann
+Annualized.CR.Total...Quantity,Comptroller,Quant_App,QuantSpecialTotal,Total.Ann
+Annualized.CR.Total..,Comptroller,App,SpecialTotal,Total.Ann
+Annualized.CR.Total...Amount,Comptroller,App,SpecialTotal,Total.Ann
 Supplemental.Request.Amount,Comptroller,PB,PBtotal,Total
 Supplemental.Request.Quantity,Comptroller,Quant_PB,QuantPBtotal,Total
 Supplemental.Request,Comptroller,App,EnactedTotal,Total

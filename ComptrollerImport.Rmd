@@ -7,159 +7,23 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(plyr)
+require(plyr)
 require(ggplot2)
 require(scales)
+# options(java.parameters = "-Xmx8g")
 require(XLConnect)
-require(reshape2)
+#require(reshape2)
+require(data.table)
 
-Path<-"K:/2007-01 PROFESSIONAL SERVICES/R scripts and data/"
+# Path<-"K:/2007-01 PROFESSIONAL SERVICES/R scripts and data/"
 # Path<-"D:/Users/Greg Sanders/Documents/Development/R-scripts-and-data/"
-source(paste(Path,"lookups.r",sep=""))
-source(paste(Path,"helper.r",sep=""))
+Path<-"C:/Users/gsand_000.ALPHONSE/Documents/Development/R-scripts-and-data/"
+source(file.path(Path,"lookups.r",sep=""))
+source(file.path(Path,"helper.r",sep=""))
+source("Comptroller.r")
 
+SourceFolderList<-c("FY2012","FY2013", "FY2014","FY2015","FY2016","FY2017")#"FY2011",
 
-SourceFolderList<-c("FY2015","FY2016","FY2017")
-
-ComptrollerMelt<-function(dfComptroller){
-  varlist<-c("SourceFiscalYear",
-             "AccountDSI",
-             "Account",
-             "MilDeptDW",
-             "AccountTitle",
-             "Organization" ,
-             "BudgetActivity",
-             "BudgetActivityTitle",
-             "BudgetSubActivity",
-             "BudgetSubActivityTitle",
-             "StateCountry",
-             "StateCountryTitle",
-             "Fiscal.Year",
-             "FacilityCategoryTitle",
-             "LocationTitle",
-             "ConstructionProject",
-             "ConstructionProjectTitle",
-             "AGtitle",
-             "BSA",
-             "BSAtitle",
-             "LineNumber",
-             "LineItem",
-             "LineItemTitle",
-             "ProgramElement",
-             "ProgramElementTitle",
-             "CostType",
-             "CostTypeTitle",
-             "LineNumber",
-             "SAG",
-             "SAGtitle",
-             "IncludeInTOA",
-             "AddOrNonAdd",
-             "IncludeInTOA",
-             "Classified",
-             "BudgetType"
-  )
-  
-  varlist<-varlist[varlist %in% colnames(dfComptroller) ]
-  melt(dfComptroller,
-       id.vars=varlist
-  )
-  
-}
-
-ComptrollerVariableRename<-function(dfComptroller){
-  dfComptroller$FiscalYear<-as.numeric(substring(as.character(dfComptroller$variable),4,7))
-  dfComptroller$variable<-substring(as.character(dfComptroller$variable),9,999)
-  
-  dfComptroller<-read_and_join(
-    ""
-    ,"RenameComptrollerColumns.csv"
-    ,dfComptroller
-  )
-  
-  
-  if(any(is.na(dfComptroller$AllColumns))){
-    stop(paste("Unaccounted for Comptroller Column Variant(s): ",
-               paste(unique(dfComptroller$variable[is.na(dfComptroller$AllColumns)]),
-                     collapse=", "),
-               sep=", "))
-  }
-  
-  varlist<-c("SourceFiscalYear",
-             "AccountDSI",
-             "Account",
-             "MilDeptDW",
-             "AccountTitle",
-             "Organization" ,
-             "BudgetActivity",
-             "BudgetActivityTitle",
-             "BudgetSubActivity",
-             "BudgetSubActivityTitle",
-             "StateCountry",
-             "StateCountryTitle",
-             "Fiscal.Year",
-             "FacilityCategoryTitle",
-             "LocationTitle",
-             "ConstructionProject",
-             "ConstructionProjectTitle",
-             "AGtitle",
-             "BSA",
-             "BSAtitle",
-             "LineNumber",
-             "LineItem",
-             "LineItemTitle",
-             "ProgramElement",
-             "ProgramElementTitle",
-             "CostType",
-             "CostTypeTitle",
-             "LineNumber",
-             "SAG",
-             "SAGtitle",
-             "IncludeInTOA",
-             "AddOrNonAdd",
-             "IncludeInTOA",
-             "Classified",
-             "BudgetType",
-             "FiscalYear",
-             "OriginType" #Note that origin type is missing in the other function, as it's added in this step.
-  )
-  
-  varlist<-varlist[varlist %in% colnames(dfComptroller) ]
-  subset(dfComptroller,select=-c(variable,SourceColumn,AllColumns))
-  dfComptroller<-reshape2::dcast(dfComptroller, 
-                                 paste(
-                                   paste(varlist,collapse=" + ")
-                                   ,"~  Consolidate"),
-                                 sum, 
-                                 fill=NA_real_ )
-  
-  
-  dfComptroller
-}
-
-ComptrollerOCObyAccount<-function(dfComptroller){
-  dfComptroller<-ddply(dfComptroller,
-                       .(AccountDSI,
-                         AccountTitle,
-                         Organization,
-                         SourceFiscalYear,
-                         FiscalYear,
-                         OriginType),
-                       plyr::summarise,
-                       EnactedType=sum(EnactedType)
-  )
-  dfComptroller<-subset(dfComptroller,!is.na(EnactedType))
-  dfComptroller<-reshape2::dcast(dfComptroller, 
-                                 AccountDSI +
-                                   AccountTitle +
-                                   Organization +
-                                   SourceFiscalYear +
-                                   FiscalYear ~  
-                                   OriginType,
-                                 sum, 
-                                 fill=NA_real_ )
-  dfComptroller$pOCO=dfComptroller$OCO/(dfComptroller$OCO+dfComptroller$Base)
-  dfComptroller
-}
 
 
 
@@ -173,18 +37,31 @@ ComptrollerOCObyAccount<-function(dfComptroller){
 ##Military Personnel Programs (M-1)
 ```{r MilPers}
 # Load workbook MilPers
+MilPersCrossYear<-NULL
 for(sfy in SourceFolderList){
-  MilPersXLS <- loadWorkbook(file.path("Data",sfy,"m1.xlsx"))
-  MilPersData <- readWorksheet(MilPersXLS, sheet = "Exhibit M-1", header=TRUE,startRow=2)
+  NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
+  MilPersXLS <- ComptrollerLoadWorkbook(sfy,"m")
+
+  MilPersData <- readWorksheet(MilPersXLS, sheet = 1, header=TRUE,startRow=2)
   MilPersData<-standardize_variable_names(Path,MilPersData)
   
   colnames(MilPersData)[colnames(MilPersData)=="Account"]<-"AccountDSI"
   colnames(MilPersData)
-  MilPersData$SourceFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
+  MilPersData$SourceFiscalYear<-NumericFiscalYear
   MilPersData<-ComptrollerMelt(MilPersData)
   MilPersData<-ComptrollerVariableRename(MilPersData)
-  write.csv(MilPersData,file.path("Data","MilPers.csv"))
+  write.csv(MilPersData,file.path("Data",sfy,"Output",paste("MilPers(",NumericFiscalYear,").csv",sep="")),
+                     row.names=FALSE,
+            na=""
+  )
+  MilPersCrossYear<-rbind.fill(MilPersCrossYear,MilPersData)
+  
 }
+  write.csv(MilPersCrossYear,file.path("Output","MilPersCrossYear.csv",sep=""),
+                     row.names=FALSE,
+            na=""
+  )
+
 
 ```
 
@@ -192,18 +69,33 @@ for(sfy in SourceFolderList){
 ##Operation and Maintenance Programs (0-1)
 ```{r OnM}
 # Load workbook o1
-OnMXLS <- loadWorkbook(file.path("Data","FY2016","o1.xlsx"))
-OnMdata <- readWorksheet(OnMXLS, sheet = "Total O&M Title plus Indefinite", header=TRUE,startRow=2)
-OnMdata<-standardize_variable_names(Path,OnMdata)
+OnMcrossYear<-NULL
+for(sfy in SourceFolderList){
+  NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
 
-colnames(OnMdata)[colnames(OnMdata)=="Account"]<-"AccountDSI"
-colnames(OnMdata)
-OnMdata$SourceFiscalYear<-2016
-OnMdata<-ComptrollerMelt(OnMdata)
-OnMdata<-ComptrollerVariableRename(OnMdata)
-write.csv(OnMdata,file.path("Data","OnM.csv"))
-
-
+    OnMXLS <- ComptrollerLoadWorkbook(sfy,"o")
+  
+  OnMdata <- readWorksheet(OnMXLS, sheet = 1, header =TRUE,startRow=2)
+  OnMdata<-standardize_variable_names(Path,OnMdata)
+  
+  colnames(OnMdata)[colnames(OnMdata)=="Account"]<-"AccountDSI"
+  colnames(OnMdata)
+  
+  OnMdata$SourceFiscalYear<-NumericFiscalYear
+  OnMdata<-ComptrollerMelt(OnMdata)
+  
+  OnMdata$value = as.numeric(OnMdata$value)
+   # debug(ComptrollerVariableRename)
+  OnMdata<-ComptrollerVariableRename(OnMdata)
+  
+  write.csv(OnMdata,file.path("Data",sfy,"Output",paste("OnM(",NumericFiscalYear,").csv",sep="")))
+  OnMcrossYear<-rbind.fill(OnMcrossYear,OnMdata)
+  
+}
+  write.csv(OnMcrossYear,file.path("Output","OnMcrossYear.csv",sep=""),
+                     row.names=FALSE,
+            na=""
+  )
 
 ```
 
@@ -211,88 +103,109 @@ write.csv(OnMdata,file.path("Data","OnM.csv"))
 
 ```{r RevolvingFunds}
 # Load workbook RF
-RFXLS <- loadWorkbook(file.path("Data","FY2016","rf1.xlsx"))
-RFdata <- readWorksheet(RFXLS, sheet = "RF Title", header=TRUE,startRow=2)
-RFdata<-standardize_variable_names(Path,RFdata)
-colnames(RFdata)[colnames(RFdata)=="Account"]<-"AccountDSI"
-colnames(RFdata)
-RFdata$SourceFiscalYear<-2016
-RFdata<-ComptrollerMelt(RFdata)
-RFdata<-ComptrollerVariableRename(RFdata)
-write.csv(RFdata,file.path("Data","RF.csv"))
+RFcrossYear<-NULL
+for(sfy in SourceFolderList){
+  NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
 
+    RFXLS <- ComptrollerLoadWorkbook(sfy,"rf")
+  
+  RFdata <- readWorksheet(RFXLS, sheet = 1, header =TRUE, startRow=2)
+  RFdata<-standardize_variable_names(Path,RFdata)
+  colnames(RFdata)[colnames(RFdata)=="Account"]<-"AccountDSI"
+  colnames(RFdata)
+  RFdata$SourceFiscalYear<-NumericFiscalYear
+  RFdata<-ComptrollerMelt(RFdata)
+  RFdata<-ComptrollerVariableRename(RFdata)
+  
+  write.csv(RFdata,file.path("Data",sfy,"Output",paste("RF(",NumericFiscalYear,").csv",sep="")))
+    RFcrossYear<-rbind.fill(RFcrossYear,RFdata)
+  
+}  
+
+  write.csv(RFcrossYear,file.path("Output","RFcrossYear.csv",sep=""),
+                     row.names=FALSE,
+            na=""
+  )
+  
 
 ```
 
 ##Procurement Programs Reserve Components (P-1R)
 
 ```{r Procurement}
-# # debug(create_procedural_graphs
-# Procurement <- read.xlsx2("./Data/p1_FY2017.xlsx", 
-#                             sheetName = "Exhibit P-1",
-#                             startRow=2)
-# 
-# Procurement$SourceFiscalYear<-2017
-# Procurement<-standardize_variable_names(Path,Procurement)
-# colnames(Procurement)[colnames(Procurement)=="Account"]<-"AccountDSI"
 
-ProcXLS <- loadWorkbook(file.path("Data","FY2016","p1.xlsx"))
-ProcData <- readWorksheet(ProcXLS, sheet = "Exhibit P-1", header=TRUE,startRow=2)
-ProcData<-standardize_variable_names(Path,ProcData)
+ProcCrossYear<-NULL
+for(sfy in SourceFolderList){
+  NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
+  
+  ProcXLS <- ComptrollerLoadWorkbook(sfy,"p")
+  
+  ProcData <- readWorksheet(ProcXLS, sheet = 1, header =TRUE, startRow=2)
+  ProcData<-standardize_variable_names(Path,ProcData)
+  
+  colnames(ProcData)[colnames(ProcData)=="Account"]<-"AccountDSI"
+  colnames(ProcData)
+  ProcData$SourceFiscalYear<-NumericFiscalYear
+  ProcData<-ComptrollerMelt(ProcData)
+  ProcData<-ComptrollerVariableRename(ProcData)
+  # write.csv(ProcData,file.path("Data","Proc(2011).csv"))
+  
+  
+  ProcurementsqlColumns<-c("ID"  ,
+                           "SourceFiscalYear"  ,
+                           "AccountDSI"  ,
+                           "TreasuryAgencyCode"  ,
+                           "MainAccountCode"  ,
+                           "AccountTitle"  ,
+                           "Organization"  ,
+                           "BudgetActivity"  ,
+                           "BudgetActivityTitle"  ,
+                           "LineNumber" ,
+                           "BSA"   ,
+                           "BSA.Title"  ,
+                           "LineItem"  ,
+                           "LineItemTitle"  ,
+                           "CostType"  ,
+                           "CostTypeTitle"  ,
+                           "AddOrNonAdd"  ,
+                           "Classified"  ,
+                           "Category"  ,
+                           "FiscalYear"  ,
+                           "OriginType" ,
+                           "PBtotal" ,
+                           "PBtype"  ,
+                           "EnactedTotal"  ,
+                           "EnactedType"  ,
+                           "SpecialType"  ,
+                           "ActualTotal"  ,
+                           "QuantPBtotal"  ,
+                           "QuantPBtype"  ,
+                           "QuantEnactedTotal"  ,
+                           "QuantEnactedType"  ,
+                           "QuantSpecialTotal"  ,
+                           "QuantActualTotal"  
+  ) 
+  
+  Missing<-ProcurementsqlColumns[!ProcurementsqlColumns %in% colnames(ProcData)]
+  ProcData[,Missing]<-NA
+  
+  ProcData<-ProcData[,ProcurementsqlColumns]
+ 
+  
+  # write.csv(ProcData,file.path("Data","P1_2011_Consolidated.csv"),
+   write.csv(ProcData,file.path("Data",sfy,"Output",paste("Proc(",NumericFiscalYear,").csv",sep="")),
+            row.names=FALSE,
+            na="")
+  # str(ProcData)
 
-colnames(ProcData)[colnames(ProcData)=="Account"]<-"AccountDSI"
-colnames(ProcData)
-ProcData$SourceFiscalYear<-2016
-ProcData<-ComptrollerMelt(ProcData)
-ProcData<-ComptrollerVariableRename(ProcData)
-write.csv(ProcData,file.path("Data","Proc.csv"))
+  ProcCrossYear<-rbind.fill(ProcCrossYear,ProcData)
+  
+}
+  write.csv(ProcCrossYear,file.path("Output","ProcCrossYear.csv",sep=""),
+                     row.names=FALSE,
+            na=""
+  )
 
-
-ProcurementsqlColumns<-c("ID"  ,
-                          "SourceFiscalYear"  ,
-                          "AccountDSI"  ,
-                          "TreasuryAgencyCode"  ,
-                          "MainAccountCode"  ,
-                          "AccountTitle"  ,
-                          "Organization"  ,
-                          "BudgetActivity"  ,
-                          "BudgetActivityTitle"  ,
-                          "LineNumber" ,
-                          "BSA"   ,
-                          "BSAtitle"  ,
-                          "LineItem"  ,
-                          "LineItemTitle"  ,
-                          "CostType"  ,
-                          "CostTypeTitle"  ,
-                          "AddOrNonAdd"  ,
-                          "Classified"  ,
-                          "Category"  ,
-                          "FiscalYear"  ,
-                          "OriginType" ,
-                          "PBtotal" ,
-                          "PBtype"  ,
-                          "EnactedTotal"  ,
-                          "EnactedType"  ,
-                          "SpecialType"  ,
-                          "ActualTotal"  ,
-                          "QuantPBtotal"  ,
-                          "QuantPBtype"  ,
-                          "QuantEnactedTotal"  ,
-                          "QuantEnactedType"  ,
-                          "QuantSpecialTotal"  ,
-                          "QuantActualTotal"  
-) 
-
-Missing<-ProcurementsqlColumns[!ProcurementsqlColumns %in% colnames(ProcData)]
-ProcData[,Missing]<-NA
-
-ProcData<-ProcData[,ProcurementsqlColumns]
-
-
-write.csv(ProcData,file.path("Data","P1_2016_Consolidated.csv"), 
-          row.names=FALSE,
-          na="")
-str(ProcData)
 
 ```
 ##Research Development, Test & Evaluation Programs (R-1)
@@ -305,99 +218,234 @@ str(ProcData)
 #                             startRow=2)
 # 
 # RnD$SourceFiscalYear<-2017
+RDTEcrossYear<-NULL
 
-RDTEXLS <- loadWorkbook(file.path("Data","FY2016","r1.xlsx"))
-RDTEdata <- readWorksheet(RDTEXLS, sheet = "Exhibit R-1", header=TRUE,startRow=2)
-RDTEdata<-standardize_variable_names(Path,RDTEdata)
+for(sfy in SourceFolderList){
+  NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
+  
+  RDTEXLS <- ComptrollerLoadWorkbook(sfy,"r")
+  
+  
+  # RDTEXLS <- loadWorkbook(file.path("Data","FY2011","r1.xls"))
+  RDTEdata <- readWorksheet(RDTEXLS, sheet = 1 , header =TRUE,startRow=2)
+  RDTEdata<-standardize_variable_names(Path,RDTEdata)
+  
+  colnames(RDTEdata)[colnames(RDTEdata)=="Account"]<-"AccountDSI"
+  colnames(RDTEdata)
+  RDTEdata$SourceFiscalYear<-NumericFiscalYear
+  RDTEdata<-ComptrollerMelt(RDTEdata)
+  RDTEdata<-ComptrollerVariableRename(RDTEdata)
+  write.csv(RDTEdata,file.path("Data",sfy,"Output",paste("RDTE(",NumericFiscalYear,").csv",sep="")),
+            row.names=FALSE,
+            na="")
+  
+  
+  
+  RDTEsqlColumns<-c("ID"
+                    ,"SourceFiscalYear"
+                    ,"AccountDSI"
+                    ,"TreasuryAgencyCode"
+                    ,"MainAccountCode"
+                    ,"AccountTitle"
+                    ,"Organization"
+                    ,"BudgetActivity"
+                    ,"BudgetActivityTitle"
+                    ,"LineNumber"
+                    ,"ProgramElement"
+                    ,"ProgramElementTitle"
+                    ,"IncludeInTOA"
+                    ,"Classified"
+                    ,"FiscalYear"
+                    ,"OriginType"
+                    ,"PBtotal"
+                    ,"PBtype"
+                    ,"EnactedTotal"
+                    ,"EnactedType"
+                    ,"SpecialType"
+                    ,"ActualTotal") 
+  
+  
+  Missing<-RDTEsqlColumns[!RDTEsqlColumns %in% colnames(RDTEdata)]
+  RDTEdata[,Missing]<-NA
+  RDTEdata<-RDTEdata[,RDTEsqlColumns]
 
-colnames(RDTEdata)[colnames(RDTEdata)=="Account"]<-"AccountDSI"
-colnames(RDTEdata)
-RDTEdata$SourceFiscalYear<-2016
-RDTEdata<-ComptrollerMelt(RDTEdata)
-RDTEdata<-ComptrollerVariableRename(RDTEdata)
-write.csv(RDTEdata,file.path("Data","RDTE.csv"))
+      RDTEcrossYear<-rbind.fill(RDTEcrossYear,RDTEdata)
+  
+}
+  write.csv(RDTEcrossYear,file.path("Output","RDTEcrossYear.csv",sep=""),
+                     row.names=FALSE,
+            na=""
+  )
 
-
-
-RDTEsqlColumns<-c("ID"
-                 ,"SourceFiscalYear"
-                 ,"AccountDSI"
-                 ,"TreasuryAgencyCode"
-                 ,"MainAccountCode"
-                 ,"AccountTitle"
-                 ,"Organization"
-                 ,"BudgetActivity"
-                 ,"BudgetActivityTitle"
-                 ,"LineNumber"
-                 ,"ProgramElement"
-                 ,"ProgramElementTitle"
-                 ,"IncludeInTOA"
-                 ,"Classified"
-                 ,"FiscalYear"
-                 ,"OriginType"
-                 ,"PBtotal"
-                 ,"PBtype"
-                 ,"EnactedTotal"
-                 ,"EnactedType"
-                 ,"SpecialType"
-                 ,"ActualTotal") 
-
-
-Missing<-RDTEsqlColumns[!RDTEsqlColumns %in% colnames(RDTEdata)]
-RDTEdata[,Missing]<-NA
-RDTEdata<-RDTEdata[,RDTEsqlColumns]
 
 ```
 
 ##Military Construction, Family Housing, and Base Realignment and Closure Program (C-1)  
 ```{r MilCon}
 
-# Load workbook MilCon
-MilConXLS <- loadWorkbook(file.path("Data","FY2016","c1.xlsx"))
-getSheets(MilConXLS)
-MilConData<-NULL
-for(s in getSheets(MilConXLS)){
-  SheetData <- readWorksheet(MilConXLS, sheet = s, header=TRUE,startRow=2)
-  SheetData$sheet<-s
-  MilConData<-rbind(MilConData,SheetData)
+MilConCrossYear<-NULL
+
+for(sfy in SourceFolderList){
+  NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
+  
+  # library(data.table)
+  
+  # debug(ComptrollerVariableRename)
+  # Load workbook MilCon
+  MilConXLS <- ComptrollerLoadWorkbook(sfy,"c")
+ 
+  
+  MilConData<-NULL
+  # MilConData[,"Disaster Relief"] <- NULL
+  # MilConData[,"Base Request"] <- NULL
+  for(s in getSheets(MilConXLS)){
+    SheetData <- readWorksheet(MilConXLS, sheet = s, header=TRUE,startRow=2)
+    SheetData$sheet<-s
+    # file_list <- (c(MilConData, SheetData))
+    # rbindlist(lapply( file_list, fread ), fill = TRUE)
+      SheetData<-standardize_variable_names(Path,SheetData)
+
+    MilConData<-rbind.fill(MilConData,SheetData)
+  }
+  rm(SheetData)
+  colnames(MilConData)[colnames(MilConData)=="Fiscal.Year"]<-"FiscalYear"
+  # MilConData$FiscalYear<-as.numeric(substring(as.character(MilConData$sheet),4,7))
+  MilConData$variable<-substring(as.character(MilConData$sheet),9,999)
+  
+  #We should probably check more than one field just to be safe
+  MilConData<-subset(MilConData,!is.na(FiscalYear))
+  
+  MilConData$AccountDSI<-paste(MilConData$Account,MilConData$MilDeptDW,sep='')
+  #Why is there a FiscalYear
+  sheetlist<-unique(data.frame(FiscalYear=MilConData$FiscalYear,
+                               variable=MilConData$variable))
+  sheetlist<-ddply(sheetlist,
+                   .(FiscalYear),
+                   transform,
+                   Count=length(FiscalYear))
+  
+  sheetlist$FiscalYear<-FactorToNumber(sheetlist$FiscalYear)
+  sheetlist$ComptrollerVariable[sheetlist$FiscalYear==max(sheetlist$FiscalYear,na.rm=TRUE)] <- "PB.Amount"
+  sheetlist$ComptrollerVariable[sheetlist$FiscalYear== min(sheetlist$FiscalYear,na.rm=TRUE)] <- "Actual.Amount"
+  sheetlist$ComptrollerVariable[sheetlist$FiscalYear>min(sheetlist$FiscalYear,na.rm=TRUE) &
+                                  sheetlist$FiscalYear<max(sheetlist$FiscalYear,na.rm=TRUE)] <-
+    "Enacted.Amount"
+  
+  
+  
+sheetlist$OriginType<-as.character(sheetlist$variable)
+  sheetlist$OriginType[sheetlist$variable=="B" & sheetlist$Count==1]<-"Total"#
+  sheetlist$OriginType[sheetlist$variable=="" & sheetlist$Count==1]<-"Total"
+  sheetlist$OriginType[sheetlist$variable=="" & sheetlist$Count>1]<-"Base"
+  sheetlist$ComptrollerVariable<-
+    paste(sheetlist$OriginType,sheetlist$ComptrollerVariable,sep=".")
+  
+  # sheetlist <- sheetlist %>% select(-variable)
+  
+  # names(sheetlist)[names(sheetlist)=="variable1"] <- "variable"
+  
+  # These are already included via sheet so we don't need this anymore
+  # MilConData <- MilConData %>% select(-variable)
+  
+  # MilConData$sheet <- gsub("(.*)(2.*)","\\2",MilConData$sheet)
+  
+  sheetlist<-sheetlist[,c("FiscalYear","variable", "OriginType","ComptrollerVariable")]
+  
+  MilConData<-join(MilConData, sheetlist, by = c("FiscalYear","variable"))
+  
+  # MilConData <- MilConData %>% select(-variable)
+  MilConData <- MilConData[,!names(MilConData) %in% c("variable", "sheet")]
+  
+  # MilConData <- MilConData[-grep("variable", colnames(MilConData))]
+  
+  ########## Removed this because I suspect you don't want it to do what
+  ########## it is doing.  Which is read the FY 2016 sheet, flag all those
+  ########## entries as SourceType <- "OCO" (I doubt they are), and
+  ########## bind them onto MilConData (which already contained 2016). -LCL
+  # ------------------------------------------------------------------------
+  # MilConData$SourceType<-'Base'
+  # MilConDataOCO <- readWorksheet(MilConXLS, sheet = "FY 2016", header=TRUE, startRow=2)
+  # MilConDataOCO$SourceType<-'OCO'
+  # MilConData<-rbindlist(list(MilConData,MilConDataOCO), fill = TRUE) 
+  # rm(MilConDataOCO)
+  
+  # ------------------------------------------------------------------------
+  
+  # added: drop a duplicative column that chokes the melt function
+  # MilConData <- MilConData[,names(MilConData) != "variable"]
+  
+  
+  
+  colnames(MilConData)
+  MilConData$SourceFiscalYear<-NumericFiscalYear
+  
+      MilConData<-standardize_variable_names(Path,MilConData)
+
+  MilConData<-
+    ComptrollerMelt(MilConData)
+  
+  
+  
+  names(MilConData)[names(MilConData)=="variable"] <- "BudgetMetric"
+  names(MilConData)[names(MilConData)=="ComptrollerVariable"] <- "variable"
+  colnames(MilConData)[colnames(MilConData)=="Fiscal.Year"]<-"FiscalYear"
+  
+  MilConData[is.na(MilConData)] <- 0 
+  
+  ######### part of comptrollerrename function that fails
+  # dfComptroller$variable<-substring(as.character(dfComptroller$variable),9,999)
+  # substring(as.character(MilConData$variable),1,999)
+  # debug(ComptrollerVariableRename)
+  MilConData<-ComptrollerVariableRename(MilConData)
+  # write.csv(MilConData,file.path("Data","MilCon(2011).csv"))
+
+  #Standardize this more later, but for now it captures the two study years, 2012 and 2015, w/ data
+  MilConData<-subset(MilConData,BudgetMetric=="TOAamount")
+    write.csv(MilConData,file.path("Data",sfy,"Output",paste("MilCon(",NumericFiscalYear,").csv",sep="")))
+  
+      MilConCrossYear<-rbind.fill(MilConCrossYear,MilConData)
+  
 }
-rm(SheetData,MilConXLS)
-MilConData$FiscalYear<-as.numeric(substring(as.character(MilConData$sheet),4,7))
-MilConData$variable<-substring(as.character(MilConData$sheet),9,999)
-
-sheetlist<-unique(data.frame(FiscalYear=MilConData$FiscalYear,
-           variable=MilConData$variable))
-sheetlist<-ddply(sheetlist,
-                 .(FiscalYear),
-                 transform,
-                 Count=length(FiscalYear))
-sheetlist$OriginType[sheetlist$variable=="OCO"]<-"OCO"
-sheetlist$OriginType[sheetlist$variable=="" & sheetlist$Count==1]<-"Total"
-sheetlist$OriginType[sheetlist$variable=="" & sheetlist$Count==2]<-"Base"
-sheetlist<-sheetlist[,c("FiscalYear","variable","OriginType")]
-MilConData<-join(MilConData,sheetlist)
-MilConData$SourceType<-'Base'
-MilConDataOCO <- readWorksheet(MilConXLS, sheet = "FY 2015 OCO", header=TRUE,startRow=2)
-MilConDataOCO$SourceType<-'OCO'
-MilConData<-rbind(MilConData,MilConDataOCO)
-rm(MilConDataOCO)
-
-MilConData<-standardize_variable_names(Path,MilConData)
-
-
-colnames(MilConData)
-MilConData$SourceFiscalYear<-2016
-
-
-
-
+  write.csv(MilConCrossYear,file.path("Output","MilConCrossYear.csv",sep=""),
+                     row.names=FALSE,
+            na=""
+  )
 
 ```
 
+##Summing Greenbook by OMBbureauCode
+```{r Greenbook}
+
+# undebug(ComptrollerGreenbook)
+GreenbookSum<-ComptrollerGreenbook("Military Personnel",MilPersCrossYear)
+GreenbookSum<-rbind.fill(GreenbookSum,ComptrollerGreenbook("Operations & Maintenance",OnMcrossYear))
+GreenbookSum<-rbind.fill(GreenbookSum,ComptrollerGreenbook("Revolving Funds",RFcrossYear))
+GreenbookSum<-rbind.fill(GreenbookSum,ComptrollerGreenbook("Procurement",ProcCrossYear))
+GreenbookSum<-rbind.fill(GreenbookSum,ComptrollerGreenbook("RDT&E",RDTEcrossYear))
+GreenbookSum<-rbind.fill(GreenbookSum,ComptrollerGreenbook("Military Construction",MilConCrossYear))
+write.csv(GreenbookSum,file.path("Output","Greenbook.csv"))
+```
+
+##Summing OCO by Account
 ```{r OCOsum}
-OCOsum<-ComptrollerOCObyAccount(MilPersData)
-OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(OnMdata))
-OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(RFdata))
-OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(ProcData))
-OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount(RDTEdata))
+
+
+OCOsum<-ComptrollerOCObyAccount("Military Personnel",MilPersCrossYear)
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount("Operations & Maintenance",OnMcrossYear))
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount("Revolving Funds",RFcrossYear))
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount("Procurement",ProcCrossYear))
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount("RDT&E",RDTEcrossYear))
+MilConGapfiller<-MilConCrossYear
+MilConGapfiller$EnactedType[!is.na(MilConGapfiller$EnactedTotal) & is.na(MilConGapfiller$EnactedType)]<-
+  MilConGapfiller$EnactedTotal[!is.na(MilConGapfiller$EnactedTotal) & is.na(MilConGapfiller$EnactedType)]
+MilConGapfiller$OriginType[!is.na(MilConGapfiller$EnactedTotal) & !is.na(MilConGapfiller$EnactedType)]<-"Base"
+
+
+OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount("Military Construction",MilConGapfiller))
+write.csv(OCOsum,file.path("Output","AccountDSIocoBreakdown.csv"),
+                               row.names=FALSE,
+            na=""
+  )
+
+
 ```
