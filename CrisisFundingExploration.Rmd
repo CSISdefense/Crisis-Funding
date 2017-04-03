@@ -11,13 +11,14 @@ output: html_document
 library(plyr)
 library(dplyr)
 library(reshape2)
-library(diigtheme1)
-Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+# library(diigtheme1)
+# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
+Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
 source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep=""))
 
-diigtheme1:::diiggraph()
+# diigtheme1:::diiggraph()
 
 ```
 
@@ -254,36 +255,32 @@ OfficeScore$OCOrate<-OfficeScore$OCO/OfficeScore$Total
 write.csv(OfficeScore,file.path("Output","Office_OCObreakdown.csv"))
 
 RateCutoffHigh<-0.25
+RateCutoffMedium<-0.25
 RateCutoffLow<-0.1
 BillionsCutoff<-1
 
 
 
-#All Thresholds are met
-OfficeUpdates<-UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',3,
-                  OfficeScore$ProductOrServiceCode[OfficeScore$OCOrate>=RateCutoffHigh & OfficeScore$OCO>=BillionsCutoff])
+#High thresholds is met
+OfficeUpdates<-UpdateLookupTable('Office','ContractingOfficeCode','OCOcrisisScore',3,
+                  OfficeScore$ContractingOfficeID[OfficeScore$OCOrate>=RateCutoffHigh])
 
-#HighRate Cutoff alone is met
-OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',2,
-                  OfficeScore$ProductOrServiceCode[OfficeScore$OCOrate>=RateCutoffHigh & OfficeScore$OCO<BillionsCutoff])
-)
 
-#Low Rate Cutoff alone is met along with billions cutoff
-OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',2,
-                  OfficeScore$ProductOrServiceCode[OfficeScore$OCOrate>=RateCutoffLow & OfficeScore$OCOrate<RateCutoffHigh &
-                                                OfficeScore$OCO>=BillionsCutoff])
+#Medium Rate Cutoff alone is met
+OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('Office','ContractingOfficeCode','OCOcrisisScore',2,
+                  OfficeScore$ContractingOfficeID[OfficeScore$OCOrate>=RateCutoffMedium &
+                                                     OfficeScore$OCOrate<RateCutoffHigh])
 )
 
 #Low Rate Cutoff exclusive or billions cutoff is met
-OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',1,
-                  OfficeScore$ProductOrServiceCode[xor(OfficeScore$OCOrate>=RateCutoffLow,OfficeScore$OCO>=BillionsCutoff)&
-                                                  OfficeScore$OCOrate<RateCutoffHigh 
-                                                ])
+OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('Office','ContractingOfficeCode','OCOcrisisScore',1,
+                  OfficeScore$ContractingOfficeID[OfficeScore$OCOrate>=RateCutoffLow &
+                                                     OfficeScore$OCOrate<RateCutoffMedium])
 )
 
 #Negative score for Officecodes with no OCO spending and significant $s
-OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',-1,
-                  OfficeScore$ProductOrServiceCode[OfficeScore$OCOrate==0 & OfficeScore$Total>=BillionsCutoff
+OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('Office','ContractingOfficeCode','OCOcrisisScore',-1,
+                  OfficeScore$ContractingOfficeID[OfficeScore$OCOrate==0 & OfficeScore$Total>=BillionsCutoff
                                                 ])
 )
 
