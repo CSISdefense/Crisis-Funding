@@ -311,7 +311,7 @@ for(sfy in SourceFolderList){
   ProcData$SourceFiscalYear<-NumericFiscalYear
   ProcData<-ComptrollerMelt(ProcData)
   ProcData<-ComptrollerVariableRename(ProcData)
-  write.csv(ProcData,file.path("Data","Proc(2011).csv"))
+  # write.csv(ProcData,file.path("Data","Proc(2011).csv"))
   
   
   ProcurementsqlColumns<-c("ID"  ,
@@ -386,7 +386,7 @@ for(sfy in SourceFolderList){
   
   colnames(RDTEdata)[colnames(RDTEdata)=="Account"]<-"AccountDSI"
   colnames(RDTEdata)
-  RDTEdata$SourceFiscalYear<-2011
+  RDTEdata$SourceFiscalYear<-NumericFiscalYear
   RDTEdata<-ComptrollerMelt(RDTEdata)
   RDTEdata<-ComptrollerVariableRename(RDTEdata)
   write.csv(RDTEdata,file.path("Data",sfy,"Output",paste("RDTE(",NumericFiscalYear,").csv",sep="")),
@@ -427,114 +427,122 @@ for(sfy in SourceFolderList){
 
 ##Military Construction, Family Housing, and Base Realignment and Closure Program (C-1)  
 ```{r MilCon}
-# library(data.table)
 
-# debug(ComptrollerVariableRename)
-# Load workbook MilCon
-MilConXLS <- loadWorkbook(file.path("Data","FY2011","c1.xls"))
-getSheets(MilConXLS)
-MilConData<-NULL
-# MilConData[,"Disaster Relief"] <- NULL
-# MilConData[,"Base Request"] <- NULL
-for(s in getSheets(MilConXLS)){
-  SheetData <- readWorksheet(MilConXLS, sheet = s, header=TRUE,startRow=2)
-  SheetData$sheet<-s
-  # file_list <- (c(MilConData, SheetData))
-  # rbindlist(lapply( file_list, fread ), fill = TRUE)
-  MilConData<-rbind.fill(MilConData,SheetData)
+
+
+for(sfy in SourceFolderList){
+  NumericFiscalYear<-as.numeric(substring(sfy,3,7))#Drop the FY from FY20XX
+  
+  # library(data.table)
+  
+  # debug(ComptrollerVariableRename)
+  # Load workbook MilCon
+  MilConXLS <- ComptrollerLoadWorkbook(sfy,"c")
+ 
+  getSheets(MilConXLS)
+  MilConData<-NULL
+  # MilConData[,"Disaster Relief"] <- NULL
+  # MilConData[,"Base Request"] <- NULL
+  for(s in getSheets(MilConXLS)){
+    SheetData <- readWorksheet(MilConXLS, sheet = s, header=TRUE,startRow=2)
+    SheetData$sheet<-s
+    # file_list <- (c(MilConData, SheetData))
+    # rbindlist(lapply( file_list, fread ), fill = TRUE)
+    MilConData<-rbind.fill(MilConData,SheetData)
+  }
+  rm(SheetData)
+  colnames(MilConData)[colnames(MilConData)=="Fiscal.Year"]<-"FiscalYear"
+  # MilConData$FiscalYear<-as.numeric(substring(as.character(MilConData$sheet),4,7))
+  MilConData$variable<-substring(as.character(MilConData$sheet),9,999)
+  
+  #We should probably check more than one field just to be safe
+  MilConData<-subset(MilConData,!is.na(FiscalYear))
+  
+  #Why is there a FiscalYear
+  sheetlist<-unique(data.frame(FiscalYear=MilConData$FiscalYear,
+                               variable=MilConData$variable))
+  sheetlist<-ddply(sheetlist,
+                   .(FiscalYear),
+                   transform,
+                   Count=length(FiscalYear))
+  
+  sheetlist$FiscalYear<-FactorToNumber(sheetlist$FiscalYear)
+  sheetlist$ComptrollerVariable[sheetlist$FiscalYear==min(sheetlist$FiscalYear,na.rm=TRUE)] <- "PB.Amount"
+  sheetlist$ComptrollerVariable[sheetlist$FiscalYear== max(sheetlist$FiscalYear,na.rm=TRUE)] <- "Actual.Amount"
+  sheetlist$ComptrollerVariable[sheetlist$FiscalYear>min(sheetlist$FiscalYear,na.rm=TRUE) &
+                                  sheetlist$FiscalYear<max(sheetlist$FiscalYear,na.rm=TRUE)] <- "Enacted.Amount"
+  
+  
+  
+  sheetlist$OriginType[sheetlist$variable=="OCO_Req"]<-"OCO"
+  sheetlist$OriginType[sheetlist$variable=="OCO_Enacted"]<-"OCO"
+  sheetlist$OriginType[sheetlist$variable=="B" ]<-"Total"#& sheetlist$Count==1
+  # sheetlist$OriginType[sheetlist$variable=="" & sheetlist$Count==1]<-"Total"
+  # sheetlist$OriginType[sheetlist$variable=="" & sheetlist$Count==2]<-"Base"
+  sheetlist$ComptrollerVariable<-
+    paste(sheetlist$OriginType,sheetlist$ComptrollerVariable,sep=".")
+  
+  # sheetlist <- sheetlist %>% select(-variable)
+  
+  # names(sheetlist)[names(sheetlist)=="variable1"] <- "variable"
+  
+  # These are already included via sheet so we don't need this anymore
+  # MilConData <- MilConData %>% select(-variable)
+  
+  # MilConData$sheet <- gsub("(.*)(2.*)","\\2",MilConData$sheet)
+  
+  sheetlist<-sheetlist[,c("FiscalYear","variable", "OriginType","ComptrollerVariable")]
+  
+  MilConData<-join(MilConData, sheetlist, by = c("FiscalYear","variable"))
+  
+  # MilConData <- MilConData %>% select(-variable)
+  MilConData <- MilConData[,!names(MilConData) %in% c("variable", "sheet")]
+  
+  # MilConData <- MilConData[-grep("variable", colnames(MilConData))]
+  
+  ########## Removed this because I suspect you don't want it to do what
+  ########## it is doing.  Which is read the FY 2016 sheet, flag all those
+  ########## entries as SourceType <- "OCO" (I doubt they are), and
+  ########## bind them onto MilConData (which already contained 2016). -LCL
+  # ------------------------------------------------------------------------
+  # MilConData$SourceType<-'Base'
+  # MilConDataOCO <- readWorksheet(MilConXLS, sheet = "FY 2016", header=TRUE, startRow=2)
+  # MilConDataOCO$SourceType<-'OCO'
+  # MilConData<-rbindlist(list(MilConData,MilConDataOCO), fill = TRUE) 
+  # rm(MilConDataOCO)
+  
+  # ------------------------------------------------------------------------
+  
+  # added: drop a duplicative column that chokes the melt function
+  # MilConData <- MilConData[,names(MilConData) != "variable"]
+  
+  
+  MilConData<-standardize_variable_names(Path,MilConData)
+  
+  colnames(MilConData)
+  MilConData$SourceFiscalYear<-NumericFiscalYear
+  
+  
+  MilConData<-
+    ComptrollerMelt(MilConData)
+  
+  
+  
+  names(MilConData)[names(MilConData)=="variable"] <- "BudgetMetric"
+  names(MilConData)[names(MilConData)=="ComptrollerVariable"] <- "variable"
+  colnames(MilConData)[colnames(MilConData)=="Fiscal.Year"]<-"FiscalYear"
+  
+  MilConData[is.na(MilConData)] <- 0 
+  
+  ######### part of comptrollerrename function that fails
+  # dfComptroller$variable<-substring(as.character(dfComptroller$variable),9,999)
+  # substring(as.character(MilConData$variable),1,999)
+  # debug(ComptrollerVariableRename)
+  MilConData<-ComptrollerVariableRename(MilConData)
+  # write.csv(MilConData,file.path("Data","MilCon(2011).csv"))
+  write.csv(RFdata,file.path("Data",sfy,"Output",paste("MilCon(",NumericFiscalYear,").csv",sep="")))
+  
 }
-rm(SheetData)
-colnames(MilConData)[colnames(MilConData)=="Fiscal.Year"]<-"FiscalYear"
-# MilConData$FiscalYear<-as.numeric(substring(as.character(MilConData$sheet),4,7))
-MilConData$variable<-substring(as.character(MilConData$sheet),9,999)
-
-#We should probably check more than one field just to be safe
-MilConData<-subset(MilConData,!is.na(FiscalYear))
-
-#Why is there a FiscalYear
-sheetlist<-unique(data.frame(FiscalYear=MilConData$FiscalYear,
-           variable=MilConData$variable))
-sheetlist<-ddply(sheetlist,
-                 .(FiscalYear),
-                 transform,
-                 Count=length(FiscalYear))
-
-sheetlist$FiscalYear<-FactorToNumber(sheetlist$FiscalYear)
-sheetlist$ComptrollerVariable[sheetlist$FiscalYear==min(sheetlist$FiscalYear,na.rm=TRUE)] <- "PB.Amount"
-sheetlist$ComptrollerVariable[sheetlist$FiscalYear== max(sheetlist$FiscalYear,na.rm=TRUE)] <- "Actual.Amount"
-sheetlist$ComptrollerVariable[sheetlist$FiscalYear>min(sheetlist$FiscalYear,na.rm=TRUE) &
-                      sheetlist$FiscalYear<max(sheetlist$FiscalYear,na.rm=TRUE)] <- "Enacted.Amount"
-
-
-
-sheetlist$OriginType[sheetlist$variable=="OCO_Req"]<-"OCO"
-sheetlist$OriginType[sheetlist$variable=="OCO_Enacted"]<-"OCO"
-sheetlist$OriginType[sheetlist$variable=="B" ]<-"Total"#& sheetlist$Count==1
-# sheetlist$OriginType[sheetlist$variable=="" & sheetlist$Count==1]<-"Total"
-# sheetlist$OriginType[sheetlist$variable=="" & sheetlist$Count==2]<-"Base"
-sheetlist$ComptrollerVariable<-
-  paste(sheetlist$OriginType,sheetlist$ComptrollerVariable,sep=".")
-
-# sheetlist <- sheetlist %>% select(-variable)
-
-# names(sheetlist)[names(sheetlist)=="variable1"] <- "variable"
-
-# These are already included via sheet so we don't need this anymore
-# MilConData <- MilConData %>% select(-variable)
-
-# MilConData$sheet <- gsub("(.*)(2.*)","\\2",MilConData$sheet)
-
-sheetlist<-sheetlist[,c("FiscalYear","variable", "OriginType","ComptrollerVariable")]
-
-MilConData<-join(MilConData, sheetlist, by = c("FiscalYear","variable"))
-
-MilConData <- MilConData %>% select(-variable)
-MilConData <- MilConData[,names(MilConData) != "sheet"]
-
-# MilConData <- MilConData[-grep("variable", colnames(MilConData))]
-
-########## Removed this because I suspect you don't want it to do what
-########## it is doing.  Which is read the FY 2016 sheet, flag all those
-########## entries as SourceType <- "OCO" (I doubt they are), and
-########## bind them onto MilConData (which already contained 2016). -LCL
-# ------------------------------------------------------------------------
-# MilConData$SourceType<-'Base'
-# MilConDataOCO <- readWorksheet(MilConXLS, sheet = "FY 2016", header=TRUE, startRow=2)
-# MilConDataOCO$SourceType<-'OCO'
-# MilConData<-rbindlist(list(MilConData,MilConDataOCO), fill = TRUE) 
-# rm(MilConDataOCO)
-
-# ------------------------------------------------------------------------
-
-# added: drop a duplicative column that chokes the melt function
-# MilConData <- MilConData[,names(MilConData) != "variable"]
-
-
-MilConData<-standardize_variable_names(Path,MilConData)
-
-colnames(MilConData)
-MilConData$SourceFiscalYear<-2011
-
-
-MilConData<-
-  ComptrollerMelt(MilConData)
-
-
-
-names(MilConData)[names(MilConData)=="variable"] <- "BudgetMetric"
-names(MilConData)[names(MilConData)=="ComptrollerVariable"] <- "variable"
-colnames(MilConData)[colnames(MilConData)=="Fiscal.Year"]<-"FiscalYear"
-
-MilConData[is.na(MilConData)] <- 0 
-
-######### part of comptrollerrename function that fails
-# dfComptroller$variable<-substring(as.character(dfComptroller$variable),9,999)
-# substring(as.character(MilConData$variable),1,999)
-# debug(ComptrollerVariableRename)
-MilConData<-ComptrollerVariableRename(MilConData)
-write.csv(MilConData,file.path("Data","MilCon(2011).csv"))
-
-
 
 
 ```
