@@ -45,9 +45,9 @@ OCO.Request.with.CR.Adj..Quantity,Comptroller,Quant_OCO_App,QuantEnactedtype,OCO
 OCO.Request.with.CR.Adj..Amount,Comptroller,OCO_App,EnactedType,OCO
 Total.Request.with.CR.Adj..Quantity,Comptroller,App,QuantEnactedtotal,Total
 Total.Request.with.CR.Adj..Amount,Comptroller,App,EnactedTotal,Total
-Actuals ,Comptroller,PB,PBtotal,Total
-Actuals.Quantity,Comptroller,Quant_PB,QuantPBtotal,Total 
-Actuals.Amount ,Comptroller,PB,PBtotal,Total
+Actuals ,Comptroller,Actual,ActualTotal,Total
+Actuals.Quantity,Comptroller,Quant_Actual,QuantActualTotal,Total 
+Actuals.Amount ,Comptroller,Actual,ActualTotal,Total
 Annualized.CR.Base..,Comptroller,Base_App,SpecialType,Base.Ann
 Annualized.CR.Base...Quantity,Comptroller,Quant_Base_App,QuantSpecialType,Base.Ann
 Annualized.CR.Base...Amount,Comptroller,Base_App,SpecialType,Base.Ann

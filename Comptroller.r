@@ -150,6 +150,27 @@ ComptrollerVariableRename<-function(dfComptroller){
                                  fill=NA_real_ )
   
   
+  #Fix for cases where PB and Enacted have the same titles and thus everything is put in PB
+  if(!"EnactedType" %in% colnames(dfComptroller)){
+    dfComptroller$EnactedType<-NA
+    dfComptroller$EnactedType[dfComptroller$FiscalYear==dfComptroller$SourceFiscalYear-1 & 
+                                !is.na(dfComptroller$PBtype)]<-
+      dfComptroller$PBtype[dfComptroller$FiscalYear==dfComptroller$SourceFiscalYear-1 & 
+                             !is.na(dfComptroller$PBtype)]
+    dfComptroller$PBtype[dfComptroller$FiscalYear==dfComptroller$SourceFiscalYear-1 & 
+                                !is.na(dfComptroller$PBtype)]<-NA
+  }
+  if(!"EnactedTotal" %in% colnames(dfComptroller)){
+    dfComptroller$EnactedTotal<-NA
+    dfComptroller$EnactedTotal[dfComptroller$FiscalYear==dfComptroller$SourceFiscalYear-1 & 
+                                !is.na(dfComptroller$PBtotal)]<-
+      dfComptroller$PBtotal[dfComptroller$FiscalYear==dfComptroller$SourceFiscalYear-1 & 
+                             !is.na(dfComptroller$PBtotal)]
+    dfComptroller$PBtotal[dfComptroller$FiscalYear==dfComptroller$SourceFiscalYear-1 & 
+                           !is.na(dfComptroller$PBtotal)]<-NA
+  }
+  
+  
   dfComptroller
 }
 

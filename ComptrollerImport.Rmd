@@ -85,7 +85,7 @@ for(sfy in SourceFolderList){
   OnMdata<-ComptrollerMelt(OnMdata)
   
   OnMdata$value = as.numeric(OnMdata$value)
-  
+   # debug(ComptrollerVariableRename)
   OnMdata<-ComptrollerVariableRename(OnMdata)
   
   write.csv(OnMdata,file.path("Data",sfy,"Output",paste("OnM(",NumericFiscalYear,").csv",sep="")))
@@ -414,7 +414,7 @@ sheetlist$OriginType<-as.character(sheetlist$variable)
 ##Summing Greenbook by OMBbureauCode
 ```{r Greenbook}
 
-debug(ComptrollerGreenbook)
+# undebug(ComptrollerGreenbook)
 GreenbookSum<-ComptrollerGreenbook("Military Personnel",MilPersCrossYear)
 GreenbookSum<-rbind.fill(GreenbookSum,ComptrollerGreenbook("Operations & Maintenance",OnMcrossYear))
 GreenbookSum<-rbind.fill(GreenbookSum,ComptrollerGreenbook("Revolving Funds",RFcrossYear))

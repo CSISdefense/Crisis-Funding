@@ -177,7 +177,7 @@ for(sfy in SourceFolderList){
   OnMdata&lt;-ComptrollerMelt(OnMdata)
   
   OnMdata$value = as.numeric(OnMdata$value)
-  
+   # debug(ComptrollerVariableRename)
   OnMdata&lt;-ComptrollerVariableRename(OnMdata)
   
   write.csv(OnMdata,file.path(&quot;Data&quot;,sfy,&quot;Output&quot;,paste(&quot;OnM(&quot;,NumericFiscalYear,&quot;).csv&quot;,sep=&quot;&quot;)))
@@ -516,6 +516,26 @@ sheetlist$OriginType&lt;-as.character(sheetlist$variable)
                      row.names=FALSE,
             na=&quot;&quot;
   )</code></pre>
+</div>
+<div id="summing-greenbook-by-ombbureaucode" class="section level2">
+<h2>Summing Greenbook by OMBbureauCode</h2>
+<pre class="r"><code># undebug(ComptrollerGreenbook)
+GreenbookSum&lt;-ComptrollerGreenbook(&quot;Military Personnel&quot;,MilPersCrossYear)</code></pre>
+<pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
+<pre class="r"><code>GreenbookSum&lt;-rbind.fill(GreenbookSum,ComptrollerGreenbook(&quot;Operations &amp; Maintenance&quot;,OnMcrossYear))</code></pre>
+<pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
+<pre class="r"><code>GreenbookSum&lt;-rbind.fill(GreenbookSum,ComptrollerGreenbook(&quot;Revolving Funds&quot;,RFcrossYear))</code></pre>
+<pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
+<pre class="r"><code>GreenbookSum&lt;-rbind.fill(GreenbookSum,ComptrollerGreenbook(&quot;Procurement&quot;,ProcCrossYear))</code></pre>
+<pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
+<pre class="r"><code>GreenbookSum&lt;-rbind.fill(GreenbookSum,ComptrollerGreenbook(&quot;RDT&amp;E&quot;,RDTEcrossYear))</code></pre>
+<pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
+<pre class="r"><code>GreenbookSum&lt;-rbind.fill(GreenbookSum,ComptrollerGreenbook(&quot;Military Construction&quot;,MilConCrossYear))</code></pre>
+<pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
+<pre class="r"><code>write.csv(GreenbookSum,file.path(&quot;Output&quot;,&quot;Greenbook.csv&quot;))</code></pre>
+</div>
+<div id="summing-oco-by-account" class="section level2">
+<h2>Summing OCO by Account</h2>
 <pre class="r"><code>OCOsum&lt;-ComptrollerOCObyAccount(MilPersCrossYear)</code></pre>
 <pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
 <pre class="r"><code>OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(OnMcrossYear))</code></pre>
