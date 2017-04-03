@@ -556,6 +556,10 @@ MilConGapfiller$OriginType[!is.na(MilConGapfiller$EnactedTotal) &amp; !is.na(Mil
 
 OCOsum&lt;-rbind(OCOsum,ComptrollerOCObyAccount(&quot;Military Construction&quot;,MilConGapfiller))</code></pre>
 <pre><code>## Using EnactedType as value column: use value.var to override.</code></pre>
+<pre class="r"><code>write.csv(OCOsum,file.path(&quot;Output&quot;,&quot;AccountDSIocoBreakdown.csv&quot;),
+                               row.names=FALSE,
+            na=&quot;&quot;
+  )</code></pre>
 </div>
 
 

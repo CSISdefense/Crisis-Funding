@@ -442,4 +442,10 @@ MilConGapfiller$OriginType[!is.na(MilConGapfiller$EnactedTotal) & !is.na(MilConG
 
 
 OCOsum<-rbind(OCOsum,ComptrollerOCObyAccount("Military Construction",MilConGapfiller))
+write.csv(OCOsum,file.path("Output","AccountDSIocoBreakdown.csv"),
+                               row.names=FALSE,
+            na=""
+  )
+
+
 ```
