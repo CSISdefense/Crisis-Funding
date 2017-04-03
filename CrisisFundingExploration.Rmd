@@ -12,9 +12,9 @@ library(plyr)
 library(dplyr)
 library(reshape2)
 # library(diigtheme1)
-# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
-Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
+# Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
 source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep=""))
 
@@ -254,7 +254,7 @@ OfficeScore$OCOrate<-OfficeScore$OCO/OfficeScore$Total
 
 write.csv(OfficeScore,file.path("Output","Office_OCObreakdown.csv"))
 
-RateCutoffHigh<-0.25
+RateCutoffHigh<-0.5
 RateCutoffMedium<-0.25
 RateCutoffLow<-0.1
 BillionsCutoff<-1
@@ -286,8 +286,8 @@ OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('Office','ContractingOffice
 
 
 #No criteria, goosd or bad, met
-OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',0,
-                  OfficeScore$ProductOrServiceCode[OfficeScore$OCOrate<RateCutoffLow & OfficeScore$OCO<BillionsCutoff
+OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('Office','ContractingOfficeCode','OCOcrisisScore',0,
+                  OfficeScore$ContractingOfficeID[OfficeScore$OCOrate<RateCutoffLow & OfficeScore$OCO<BillionsCutoff
                                                 & (OfficeScore$OCOrate>0 | OfficeScore$Total<BillionsCutoff)
                                                 ])
 )
