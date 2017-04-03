@@ -11,6 +11,7 @@ output: html_document
 library(plyr)
 library(dplyr)
 library(reshape2)
+require(Hmisc)
 # library(diigtheme1)
 Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
@@ -232,14 +233,16 @@ OfficeData$OCOfiscalYear[OfficeData$IsOCOcrisisFunding==1 & !is.na(OfficeData$Is
 
 
 OfficeScore<-ddply(OfficeData,
-                .(ContractingCustomer,
-                  ContractingSubCustomer,
-                  Contracting.Agency.ID,
-                  MajorCommandCode,
-                  MajorCommandName,
-                  ContractingOfficeID,
-                  ContractingOfficeCode,
-                  ContractingOfficeName),
+                .(
+                  # ContractingCustomer,
+                  # ContractingSubCustomer,
+                  # Contracting.Agency.ID,
+                  # MajorCommandCode,
+                  # MajorCommandName,
+                  ContractingOfficeID
+                  # ContractingOfficeCode,
+                  # ContractingOfficeName
+                  ),
                 plyr::summarise,
                 Total=sum(Obligation.2015),
                 OCO=sum(OCOobligation.2015),
@@ -251,6 +254,7 @@ OfficeScore<-ddply(OfficeData,
 OfficeScore$MinOfOCOfiscalYear[is.infinite(OfficeScore$MinOfOCOfiscalYear)]<-NA
 OfficeScore$MaxOfOCOfiscalYear[is.infinite(OfficeScore$MaxOfOCOfiscalYear)]<-NA
 OfficeScore$OCOrate<-OfficeScore$OCO/OfficeScore$Total
+OfficeScore$OCOrate[is.nan(OfficeScore$OCOrate)]<-0
 
 write.csv(OfficeScore,file.path("Output","Office_OCObreakdown.csv"))
 
@@ -287,12 +291,159 @@ OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('Office','ContractingOffice
 
 #No criteria, goosd or bad, met
 OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('Office','ContractingOfficeCode','OCOcrisisScore',0,
-                  OfficeScore$ContractingOfficeID[OfficeScore$OCOrate<RateCutoffLow & OfficeScore$OCO<BillionsCutoff
+                  OfficeScore$ContractingOfficeID[OfficeScore$OCOrate<RateCutoffLow
                                                 & (OfficeScore$OCOrate>0 | OfficeScore$Total<BillionsCutoff)
                                                 ])
 )
 
 write(OfficeUpdates,file.path("Output","OfficeUpdateList.txt"))
+
+
+```
+
+
+##Points
+```{r Points}
+FullData$OCOcrisisScore<-round(FullData$OCOcrisisScore)
+FullData$IsOCOcrisisFunding<-factor(ifelse(FullData$CrisisFunding=="OCO","OCO","All Other"))
+FullData$IsOCOcrisisFunding[is.na(FullData$IsOCOcrisisFunding)]<-"All Other"
+FullData$OCOcrisisScore[FullData$OCOcrisisScore<0]<-0
+FullData$OCOscore<-cut2(FullData$OCOcrisisScore,c(3,5,7))
+
+
+FullData$Theater<-FullData$CrisisFundingTheater
+levels(FullData$Theater)<-c("Afghanistan"="Afghanistan and Iraq",
+                            "Domestic"="Domestic",
+                            "Iraq"="Afghanistan and Iraq",
+                            "Regional Support"="Regional Support",
+                            "Rest of World"="Rest of World")
+FullData$Theater<-ordered(FullData$Theater,levels=c("Afghanistan and Iraq","Regional Support","Rest of World","Domestic"))
+
+
+Evaluation<-Points<-ddply(FullData,
+                .(
+                  IsOCOcrisisFunding,
+                  OCOcrisisScore,
+                  Theater
+                  ),
+                plyr::summarise,
+                Obligations=sum(Obligation.2015)
+                )
+
+
+Evaluation<-ddply(Evaluation,
+                .(
+                  OCOcrisisScore,
+                  Theater
+                  ),
+                plyr::mutate,
+                pObligations=Obligations/sum(Obligations)
+                )
+
+
+Evaluation$OCOscore<-ordered(Evaluation$OCOcrisisScore)
+ggplot(subset(Evaluation,IsOCOcrisisFunding=="OCO" & !is.na(Theater)),aes(y=pObligations,fill=Theater,x=Theater))+
+  geom_bar(stat="identity")+
+  facet_wrap(  ~ OCOcrisisScore, nrow=2)+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+
+Points<-ddply(FullData,
+                .(
+                  Fiscal.Year,
+                  IsOCOcrisisFunding,
+                  OCOscore
+                  ),
+                plyr::summarise,
+                Obligations=sum(Obligation.2015)
+                )
+
+
+Points<-ddply(Points,
+                .(
+                  Fiscal.Year,
+                  IsOCOcrisisFunding
+                  ),
+                plyr::mutate,
+                pObligations=Obligations/sum(Obligations)
+                )
+
+
+
+
+ggplot(Points,aes(x=Fiscal.Year,y=pObligations,fill=OCOscore))+
+  geom_bar(stat="identity")+
+  facet_grid(  ~ IsOCOcrisisFunding)
+
+
+PointsRegion<-ddply(FullData,
+                .(
+                  Fiscal.Year,
+                  IsOCOcrisisFunding,
+                  OCOscore,
+                  Theater
+                  ),
+                plyr::summarise,
+                Obligations=sum(Obligation.2015)
+                )
+
+
+PointsRegion<-ddply(PointsRegion,
+                .(
+                  Fiscal.Year,
+                  IsOCOcrisisFunding,
+                  Theater
+                  ),
+                plyr::mutate,
+                pObligations=Obligations/sum(Obligations)
+                )
+
+PointsRegion$OCOscore<-ordered(PointsRegion$OCOscore)
+ggplot(subset(PointsRegion,!is.na(Theater)),aes(x=Fiscal.Year,y=pObligations,fill=OCOscore))+
+  geom_bar(stat="identity")+
+  facet_grid(  IsOCOcrisisFunding ~  Theater)+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+ scale_x_date("Fiscal Year",labels = date_format("'%y"))
+
+
+
+
+
+
+```
+
+
+
+##Labelling
+```{r Points}
+FullData$OCOlabelDetail<-NA
+FullData$OCOlabelDetail[FullData$CrisisFunding=="OCO"]<-"Confirmed OCO"
+FullData$OCOlabelDetail[FullData$OCOscore=="[ 7,10]"&is.na(FullData$OCOlabelDetail)]<-"Confident OCO"
+FullData$OCOlabelDetail[FullData$OCOscore=="[ 5, 7)"&is.na(FullData$OCOlabelDetail)]<-"Likely OCO"
+FullData$OCOlabelDetail[FullData$OCOscore=="[ 3, 5)"&is.na(FullData$OCOlabelDetail)]<-"Possible OCO"
+FullData$OCOlabelDetail[FullData$OCOscore=="[ 0, 3)"&is.na(FullData$OCOlabelDetail)]<-"Remainder"
+FullData$OCOlabelDetail<-factor(FullData$OCOlabelDetail)
+FullData$IsCSISOCO<-FALSE
+FullData$IsCSISOCO[FullData$CrisisFunding=="OCO"|FullData$OCOcrisisScore>=5]<-TRUE
+
+
+
+
+Dollars<-ddply(FullData,
+                .(
+                  Fiscal.Year,
+                  OCOlabelDetail,
+                  IsCSISOCO
+                  ),
+                plyr::summarise,
+                Obligations=sum(Obligation.2015)
+                )
+
+
+
+
+ggplot(Dollars,aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
+  geom_bar(stat="identity")+
+  facet_grid(  ~ IsCSISOCO)
+
 
 
 ```
