@@ -61,7 +61,8 @@ OfficeData <- read.csv(ZipFile,
 
 OfficeData<-apply_lookups(Path,OfficeData)
 OfficeData<-subset(OfficeData, year(Fiscal.Year)>=2000)
-
+ggplot(OfficeData,aes(x=Fiscal.Year,y=Action.Obligation))+geom_bar(stat="identity")
+ggplot(FullData,aes(x=Fiscal.Year,y=Action.Obligation))+geom_bar(stat="identity")
 
 ```
 
@@ -308,7 +309,7 @@ FullData$OCOcrisisScore<-round(FullData$OCOcrisisScore)
 FullData$IsOCOcrisisFunding<-factor(ifelse(FullData$CrisisFunding=="OCO","OCO","All Other"))
 FullData$IsOCOcrisisFunding[is.na(FullData$IsOCOcrisisFunding)]<-"All Other"
 FullData$OCOcrisisScore[FullData$OCOcrisisScore<0]<-0
-FullData$OCOscore<-cut2(FullData$OCOcrisisScore,c(3,5,7))
+FullData$OCOscore<-cut2(FullData$OCOcrisisScore,c(1,3,6))
 
 
 FullData$Theater<-FullData$CrisisFundingTheater
@@ -318,6 +319,13 @@ levels(FullData$Theater)<-c("Afghanistan"="Afghanistan and Iraq",
                             "Regional Support"="Regional Support",
                             "Rest of World"="Rest of World")
 FullData$Theater<-ordered(FullData$Theater,levels=c("Afghanistan and Iraq","Regional Support","Rest of World","Domestic"))
+
+FullData$International<-FullData$Theater
+levels(FullData$International)<-c("Afghanistan and Iraq"="International",
+                            "Regional Support"="International",
+                            "Rest of World"="International",
+                            "Domestic"="Domestic")
+FullData$International<-ordered(FullData$International,levels=c("International","Domestic"))
 
 
 Evaluation<-Points<-ddply(FullData,
@@ -408,6 +416,8 @@ ggplot(subset(PointsRegion,!is.na(Theater)),aes(x=Fiscal.Year,y=pObligations,fil
 
 
 
+
+
 ```
 
 
@@ -416,15 +426,16 @@ ggplot(subset(PointsRegion,!is.na(Theater)),aes(x=Fiscal.Year,y=pObligations,fil
 ```{r Points}
 FullData$OCOlabelDetail<-NA
 FullData$OCOlabelDetail[FullData$CrisisFunding=="OCO"]<-"Confirmed OCO"
-FullData$OCOlabelDetail[FullData$OCOscore=="[ 7,10]"&is.na(FullData$OCOlabelDetail)]<-"Confident OCO"
-FullData$OCOlabelDetail[FullData$OCOscore=="[ 5, 7)"&is.na(FullData$OCOlabelDetail)]<-"Likely OCO"
-FullData$OCOlabelDetail[FullData$OCOscore=="[ 3, 5)"&is.na(FullData$OCOlabelDetail)]<-"Possible OCO"
-FullData$OCOlabelDetail[FullData$OCOscore=="[ 0, 3)"&is.na(FullData$OCOlabelDetail)]<-"Remainder"
+FullData$OCOlabelDetail[FullData$OCOscore=="[ 6,10]"&is.na(FullData$OCOlabelDetail)]<-"Confident OCO [6-10]"
+FullData$OCOlabelDetail[FullData$OCOscore=="[ 3, 6)"&is.na(FullData$OCOlabelDetail)]<-"Borderline OCO [3-5]"
+FullData$OCOlabelDetail[FullData$OCOscore=="[ 1, 3)"&is.na(FullData$OCOlabelDetail)]<-"Possible OCO [1-2]"
+FullData$OCOlabelDetail[FullData$OCOscore==" 0"&is.na(FullData$OCOlabelDetail)]<-"Remainder [0]"
 FullData$OCOlabelDetail<-factor(FullData$OCOlabelDetail)
-FullData$IsCSISOCO<-FALSE
-FullData$IsCSISOCO[FullData$CrisisFunding=="OCO"|FullData$OCOcrisisScore>=5]<-TRUE
+FullData$IsCSISOCO<-"All Other"
+FullData$IsCSISOCO[FullData$CrisisFunding=="OCO"|FullData$OCOcrisisScore>=6]<-"Confident OCO"
 
-
+FullData$OCOlabelDetail<-ordered(FullData$OCOlabelDetail,c("Remainder [0]","Possible OCO [1-2]","Borderline OCO [3-5]","Confident OCO [6-10]",
+                                                           "Confirmed OCO"))
 
 
 Dollars<-ddply(FullData,
@@ -442,8 +453,156 @@ Dollars<-ddply(FullData,
 
 ggplot(Dollars,aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
   geom_bar(stat="identity")+
-  facet_grid(  ~ IsCSISOCO)
+  facet_grid(  ~ IsCSISOCO)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))
 
 
+DollarsTheater<-ddply(FullData,
+                .(
+                  Fiscal.Year,
+                  OCOlabelDetail,
+                  IsCSISOCO,
+                  Theater
+                  ),
+                plyr::summarise,
+                Obligations=sum(Obligation.2015)
+                )
+
+
+FullData[FullData$PlaceCountryText %in% c("Jordan","Turkey"),]
+
+
+
+ggplot(subset(DollarsTheater,!is.na(Theater)),aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
+  geom_bar(stat="identity")+
+  facet_grid(Theater  ~ IsCSISOCO, scales="free_y",space="free_y")+
+  scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
+  theme(strip.text.y = element_text(angle = 0))
+
+
+
+DollarsInternational<-ddply(FullData,
+                .(
+                  Fiscal.Year,
+                  OCOlabelDetail,
+                  IsCSISOCO,
+                  International
+                  ),
+                plyr::summarise,
+                Obligations=sum(Obligation.2015)
+                )
+
+
+FullData[FullData$PlaceCountryText %in% c("Jordan","Turkey"),]
+
+
+
+ggplot(subset(DollarsInternational,!is.na(International)),aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
+  geom_bar(stat="identity")+
+  facet_grid(International  ~ IsCSISOCO, scales="free_y",space="free_y")+
+  scale_fill_discrete(guide = guide_legend("OCO labeling detail",reverse=FALSE))+
+  theme(strip.text.y = element_text(angle = 0))+scale_y_continuous("Obligations (2015 $ Billions)")+scale_x_date("Fiscal Year")
+
+```
+
+##Country
+```{r Country}
+
+
+
+
+Country<-ddply(FullData,
+                .(Fiscal.Year,
+                  IsCSISOCO,
+                  PlaceCountryText,
+                  Theater
+                  ),
+                plyr::summarise,
+                Obligations=sum(Obligation.2015)
+                )
+
+write.csv(Country,file.path("Output","Country.csv"))
+
+
+ggplot(Dollars,aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
+  geom_bar(stat="identity")+
+  facet_grid(  ~ IsCSISOCO)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))
+
+
+
+```
+##Competition
+```{r Points}
+
+
+CompetitionSimpleArea<-ddply(FullData,
+                .(
+                  Fiscal.Year,
+                  IsCSISOCO,
+                  No.Competition.sum,
+                  SimpleArea
+                  ),
+                plyr::summarise,
+                Obligations=sum(Obligation.2015)
+                )
+
+
+
+
+CompetitionSimpleArea<-ddply(CompetitionSimpleArea,
+                .(
+                  Fiscal.Year,
+                  IsCSISOCO,
+                  SimpleArea
+                  ),
+                plyr::mutate,
+                pObligations=Obligations/sum(Obligations)
+                )
+
+ggplot(subset(CompetitionSimpleArea,SimpleArea!="Mixed or Unlabeled"),
+  aes(x=Fiscal.Year,y=pObligations,color=No.Competition.sum))+
+  geom_line(stat="identity")+
+  facet_grid(  IsCSISOCO~ SimpleArea)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
+  theme(legend.position = "bottom")
+
+
+CompetitionDuration<-ddply(FullData,
+                .(
+                  Fiscal.Year,
+                  IsCSISOCO,
+                  UnmodifiedUltimateDurationCategory,
+                  No.Competition.sum,
+                  Competition.effective.only
+                  ),
+                plyr::summarise,
+                Obligations=sum(Obligation.2015)
+                )
+
+
+
+
+CompetitionDuration<-ddply(CompetitionDuration,
+                .(
+                  Fiscal.Year,
+                  IsCSISOCO,
+                  UnmodifiedUltimateDurationCategory
+                  ),
+                plyr::mutate,
+                pObligations=Obligations/sum(Obligations)
+                )
+
+ggplot(subset(CompetitionDuration,!is.na(UnmodifiedUltimateDurationCategory)),
+  aes(x=Fiscal.Year,y=pObligations,color=No.Competition.sum))+
+  geom_line(stat="identity")+
+  facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
+  theme(legend.position = "bottom")
+
+
+ggplot(
+  subset(CompetitionDuration,!is.na(UnmodifiedUltimateDurationCategory)),
+  aes(x=Fiscal.Year,y=Obligations,fill=Competition.effective.only)+
+  geom_bar(stat="identity")+
+  facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory,scales="free_y")+
+    scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
+  theme(legend.position = "bottom")
 
 ```
