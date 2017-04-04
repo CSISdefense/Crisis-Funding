@@ -2,7 +2,9 @@
 title: "Crisis Funding Exploration"
 author: "Greg Sanders"
 date: "March 28, 2017"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 
@@ -43,264 +45,9 @@ FullData<-apply_lookups(Path,FullData)
 FullData<-subset(FullData, year(Fiscal.Year)>=2000)
 
 
-# PSC data
-ZipFile<-unz(file.path("Data","Budget.SP_CrisisFundingExploration_ProductOrServiceCode.zip"),
-             "Budget.SP_CrisisFundingExploration_ProductOrServiceCode.csv")
-PSCdata <- read.csv(ZipFile,
-                     na.strings="NULL")
-rm(ZipFile)
-
-PSCdata<-apply_lookups(Path,PSCdata)
-PSCdata<-subset(PSCdata, year(Fiscal.Year)>=2000)
-
-#Countracting Office
-ZipFile<-unz(file.path("Data","Budget.SP_CrisisFundingExploration_ContractingOfficeID.zip"),
-             "Budget.SP_CrisisFundingExploration_ContractingOfficeID.csv")
-OfficeData <- read.csv(ZipFile,
-                     na.strings="NULL")
-
-OfficeData<-apply_lookups(Path,OfficeData)
-OfficeData<-subset(OfficeData, year(Fiscal.Year)>=2000)
-ggplot(OfficeData,aes(x=Fiscal.Year,y=Action.Obligation))+geom_bar(stat="identity")
-ggplot(FullData,aes(x=Fiscal.Year,y=Action.Obligation))+geom_bar(stat="identity")
 
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-#NIA
-```{r NIA, echo=FALSE}
-
-
-
-
-NIAdata<-ddply(FullData,.(Fiscal.Year,
-                 ContractingCustomer,
-                 nationalinterestactioncodeText,
-                 NIAcrisisFunding,
-                 CrisisFunding
-                 ),
-               plyr::summarise,
-               Obligation.2015=sum(Obligation.2015))
-
-NIAcrisisData<-subset(NIAdata,!is.na(NIAcrisisFunding))
-
-ggplot(ddply(NIAcrisisData,.(Fiscal.Year,
-                 ContractingCustomer,
-                 NIAcrisisFunding
-                 ),
-               plyr::summarise,
-               Obligation.2015=sum(Obligation.2015)),
-       aes(y=Obligation.2015,
-            x=Fiscal.Year,
-            color=ContractingCustomer,
-           group=ContractingCustomer))+geom_line()+facet_wrap( ~ NIAcrisisFunding)
-
-
-ggplot(ddply(NIAcrisisData,.(Fiscal.Year,
-                 ContractingCustomer,
-                 nationalinterestactioncodeText
-                 ),
-               plyr::summarise,
-               Obligation.2015=sum(Obligation.2015)),
-       aes(y=Obligation.2015,
-            x=Fiscal.Year,
-            color=ContractingCustomer,
-           group=ContractingCustomer))+geom_line()+facet_wrap( ~ nationalinterestactioncodeText)
-
-
-write.csv(ddply(NIAcrisisData,.(
-                 NIAcrisisFunding,
-                 nationalinterestactioncodeText
-                 ),
-               plyr::summarise,
-               Obligation.2015=sum(Obligation.2015),
-               MinOfFiscalYear=min(Fiscal.Year),
-               MaxOfFiscalYear=max(Fiscal.Year))
-          ,file.path("Output","nationalinterestactioncodeSummary.csv"))
-
-
-write.csv(dcast(ddply(FullData,.(
-                PlaceCountryText,
-                 nationalinterestactioncodeText
-                 ),
-               plyr::summarise,
-               Obligation.2015=sum(Obligation.2015),
-               MinOfFiscalYear=min(Fiscal.Year),
-               MaxOfFiscalYear=max(Fiscal.Year))
-            ,"PlaceCountryText ~ nationalinterestactioncodeText"
-            ,value.var="Obligation.2015")
-          ,file.path("Output","nationalinterestactioncodeCountry.csv"))
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-
-##PSC
-```{r PSC}
-
-PSCdata$OCOobligation.2015<-0
-PSCdata$OCOobligation.2015[PSCdata$IsOCOcrisisFunding==1 & !is.na(PSCdata$IsOCOcrisisFunding)]<-
-  PSCdata$Obligation.2015[PSCdata$IsOCOcrisisFunding==1 & !is.na(PSCdata$IsOCOcrisisFunding)]
-
-if(is.Date(PSCdata$Fiscal.Year)) PSCdata$Fiscal.Year<-year(PSCdata$Fiscal.Year)
-
-PSCdata$OCOfiscalYear<-NA
-PSCdata$OCOfiscalYear[PSCdata$IsOCOcrisisFunding==1 & !is.na(PSCdata$IsOCOcrisisFunding)]<-
-  PSCdata$Fiscal.Year[PSCdata$IsOCOcrisisFunding==1 & !is.na(PSCdata$IsOCOcrisisFunding)]
-
-
-PSCscore<-ddply(PSCdata,
-                .(ProductOrServiceArea,
-                  ProductOrServiceCode,
-                  ProductOrServiceCodeText),
-                plyr::summarise,
-                Total=sum(Obligation.2015),
-                OCO=sum(OCOobligation.2015),
-                MinOfTotalFiscalYear=min(Fiscal.Year,na.rm=TRUE),
-                MaxOfTotalFiscalYear=max(Fiscal.Year,na.rm=TRUE),
-                MinOfOCOfiscalYear= suppressWarnings(min(OCOfiscalYear,na.rm=TRUE)),
-                MaxOfOCOfiscalYear=suppressWarnings(max(OCOfiscalYear,na.rm=TRUE))
-                )
-PSCscore$MinOfOCOfiscalYear[is.infinite(PSCscore$MinOfOCOfiscalYear)]<-NA
-PSCscore$MaxOfOCOfiscalYear[is.infinite(PSCscore$MaxOfOCOfiscalYear)]<-NA
-PSCscore$OCOrate<-PSCscore$OCO/PSCscore$Total
-
-write.csv(PSCscore,file.path("Output","PSC_OCObreakdown.csv"))
-
-RateCutoffHigh<-0.25
-RateCutoffLow<-0.1
-BillionsCutoff<-1
-
-
-
-#All Thresholds are met
-PSCupdates<-UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',3,
-                  PSCscore$ProductOrServiceCode[PSCscore$OCOrate>=RateCutoffHigh & PSCscore$OCO>=BillionsCutoff])
-
-#HighRate Cutoff alone is met
-PSCupdates<-rbind(PSCupdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',2,
-                  PSCscore$ProductOrServiceCode[PSCscore$OCOrate>=RateCutoffHigh & PSCscore$OCO<BillionsCutoff])
-)
-
-#Low Rate Cutoff alone is met along with billions cutoff
-PSCupdates<-rbind(PSCupdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',2,
-                  PSCscore$ProductOrServiceCode[PSCscore$OCOrate>=RateCutoffLow & PSCscore$OCOrate<RateCutoffHigh &
-                                                PSCscore$OCO>=BillionsCutoff])
-)
-
-#Low Rate Cutoff exclusive or billions cutoff is met
-PSCupdates<-rbind(PSCupdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',1,
-                  PSCscore$ProductOrServiceCode[xor(PSCscore$OCOrate>=RateCutoffLow,PSCscore$OCO>=BillionsCutoff)&
-                                                  PSCscore$OCOrate<RateCutoffHigh 
-                                                ])
-)
-
-#Negative score for PSCcodes with no OCO spending and significant $s
-PSCupdates<-rbind(PSCupdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',-1,
-                  PSCscore$ProductOrServiceCode[PSCscore$OCOrate==0 & PSCscore$Total>=BillionsCutoff
-                                                ])
-)
-
-
-#No criteria, goosd or bad, met
-PSCupdates<-rbind(PSCupdates,UpdateLookupTable('FPDStypeTable','ProductOrServiceCode','OCOcrisisScore',0,
-                  PSCscore$ProductOrServiceCode[PSCscore$OCOrate<RateCutoffLow & PSCscore$OCO<BillionsCutoff
-                                                & (PSCscore$OCOrate>0 | PSCscore$Total<BillionsCutoff)
-                                                ])
-)
-
-write(PSCupdates,file.path("Output","PSCupdateList.txt"))
-
-
-```
-
-
-
-##Office
-```{r PSC}
-
-OfficeData$OCOobligation.2015<-0
-OfficeData$OCOobligation.2015[OfficeData$IsOCOcrisisFunding==1 & !is.na(OfficeData$IsOCOcrisisFunding)]<-
-  OfficeData$Obligation.2015[OfficeData$IsOCOcrisisFunding==1 & !is.na(OfficeData$IsOCOcrisisFunding)]
-
-if(is.Date(OfficeData$Fiscal.Year)) OfficeData$Fiscal.Year<-year(OfficeData$Fiscal.Year)
-
-OfficeData$OCOfiscalYear<-NA
-OfficeData$OCOfiscalYear[OfficeData$IsOCOcrisisFunding==1 & !is.na(OfficeData$IsOCOcrisisFunding)]<-
-  OfficeData$Fiscal.Year[OfficeData$IsOCOcrisisFunding==1 & !is.na(OfficeData$IsOCOcrisisFunding)]
-
-
-OfficeScore<-ddply(OfficeData,
-                .(
-                  # ContractingCustomer,
-                  # ContractingSubCustomer,
-                  # Contracting.Agency.ID,
-                  # MajorCommandCode,
-                  # MajorCommandName,
-                  ContractingOfficeID
-                  # ContractingOfficeCode,
-                  # ContractingOfficeName
-                  ),
-                plyr::summarise,
-                Total=sum(Obligation.2015),
-                OCO=sum(OCOobligation.2015),
-                MinOfTotalFiscalYear=min(Fiscal.Year,na.rm=TRUE),
-                MaxOfTotalFiscalYear=max(Fiscal.Year,na.rm=TRUE),
-                MinOfOCOfiscalYear= suppressWarnings(min(OCOfiscalYear,na.rm=TRUE)),
-                MaxOfOCOfiscalYear=suppressWarnings(max(OCOfiscalYear,na.rm=TRUE))
-                )
-OfficeScore$MinOfOCOfiscalYear[is.infinite(OfficeScore$MinOfOCOfiscalYear)]<-NA
-OfficeScore$MaxOfOCOfiscalYear[is.infinite(OfficeScore$MaxOfOCOfiscalYear)]<-NA
-OfficeScore$OCOrate<-OfficeScore$OCO/OfficeScore$Total
-OfficeScore$OCOrate[is.nan(OfficeScore$OCOrate)]<-0
-
-write.csv(OfficeScore,file.path("Output","Office_OCObreakdown.csv"))
-
-RateCutoffHigh<-0.5
-RateCutoffMedium<-0.25
-RateCutoffLow<-0.1
-BillionsCutoff<-1
-
-
-
-#High thresholds is met
-OfficeUpdates<-UpdateLookupTable('Office','ContractingOfficeCode','OCOcrisisScore',3,
-                  OfficeScore$ContractingOfficeID[OfficeScore$OCOrate>=RateCutoffHigh])
-
-
-#Medium Rate Cutoff alone is met
-OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('Office','ContractingOfficeCode','OCOcrisisScore',2,
-                  OfficeScore$ContractingOfficeID[OfficeScore$OCOrate>=RateCutoffMedium &
-                                                     OfficeScore$OCOrate<RateCutoffHigh])
-)
-
-#Low Rate Cutoff exclusive or billions cutoff is met
-OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('Office','ContractingOfficeCode','OCOcrisisScore',1,
-                  OfficeScore$ContractingOfficeID[OfficeScore$OCOrate>=RateCutoffLow &
-                                                     OfficeScore$OCOrate<RateCutoffMedium])
-)
-
-#Negative score for Officecodes with no OCO spending and significant $s
-OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('Office','ContractingOfficeCode','OCOcrisisScore',-1,
-                  OfficeScore$ContractingOfficeID[OfficeScore$OCOrate==0 & OfficeScore$Total>=BillionsCutoff
-                                                ])
-)
-
-
-#No criteria, goosd or bad, met
-OfficeUpdates<-rbind(OfficeUpdates,UpdateLookupTable('Office','ContractingOfficeCode','OCOcrisisScore',0,
-                  OfficeScore$ContractingOfficeID[OfficeScore$OCOrate<RateCutoffLow
-                                                & (OfficeScore$OCOrate>0 | OfficeScore$Total<BillionsCutoff)
-                                                ])
-)
-
-write(OfficeUpdates,file.path("Output","OfficeUpdateList.txt"))
-
-
-```
 
 
 ##Points
@@ -422,8 +169,8 @@ ggplot(subset(PointsRegion,!is.na(Theater)),aes(x=Fiscal.Year,y=pObligations,fil
 
 
 
-##Labelling
-```{r Points}
+##Labeling
+```{r Labeling}
 FullData$OCOlabelDetail<-NA
 FullData$OCOlabelDetail[FullData$CrisisFunding=="OCO"]<-"Confirmed OCO"
 FullData$OCOlabelDetail[FullData$OCOscore=="[ 6,10]"&is.na(FullData$OCOlabelDetail)]<-"Confident OCO [6-10]"
@@ -531,35 +278,35 @@ ggplot(Dollars,aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
 
 ```
 ##Competition
-```{r Points}
+```{r Competition}
 
 #Competition and Simple Area
-CompetitionSimpleArea<-ddply(FullData,
+CompetitionSupplyServiceFRC<-ddply(FullData,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
                   No.Competition.sum,
-                  SimpleArea
+                  SupplyServiceFRC
                   ),
                 plyr::summarise,
                 Obligations=sum(Obligation.2015)
                 )
 
-CompetitionSimpleArea<-ddply(CompetitionSimpleArea,
+CompetitionSupplyServiceFRC<-ddply(CompetitionSupplyServiceFRC,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
-                  SimpleArea
+                  SupplyServiceFRC
                   ),
                 plyr::mutate,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(CompetitionSimpleArea,SimpleArea!="Mixed or Unlabeled"),
+ggplot(subset(CompetitionSupplyServiceFRC,SupplyServiceFRC!="Unlabeled"),
   aes(x=Fiscal.Year,y=pObligations,color=No.Competition.sum))+
   geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ SimpleArea)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")
+  facet_grid(  IsCSISOCO~ SupplyServiceFRC)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
+  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)
 
 
 #Competition and Duration
@@ -603,36 +350,38 @@ ggplot(
 
 
 ##Undefinitized Contract Actions
-```{r Points}
-
-FullData$isUndefinitizedAction<-ifelse(FullData$isUndefinitizedAction==1,"UCA","Not UCA")
-FullData$isUndefinitizedAction[is.na(FullData$isUndefinitizedAction)]<-"Not UCA"
+```{r UCA}
+# FullData$isUCA<-"Not UCA"
+# FullData$isUCA[FullData$isUndefinitizedAction==1]
+# FullData$isUndefinitizedAction[is.na(FullData$isUndefinitizedAction)]<-"Not UCA"
+FullData$isUCA<-factor(FullData$isUndefinitizedAction)
+FullData$isUCA[is.na(FullData$isUCA)]<-0
 #UCA and Simple Area
-UCASimpleArea<-ddply(FullData,
+UCASupplyServiceFRC<-ddply(FullData,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
-                  isUndefinitizedAction,
-                  SimpleArea
+                  isUCA,
+                  SupplyServiceFRC
                   ),
                 plyr::summarise,
                 Obligations=sum(Obligation.2015)
                 )
 
-UCASimpleArea<-ddply(UCASimpleArea,
+UCASupplyServiceFRC<-ddply(UCASupplyServiceFRC,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
-                  SimpleArea
+                  SupplyServiceFRC
                   ),
                 plyr::mutate,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(UCASimpleArea,SimpleArea!="Mixed or Unlabeled"),
-  aes(x=Fiscal.Year,y=pObligations,color=isUndefinitizedAction))+
+ggplot(subset(UCASupplyServiceFRC,SupplyServiceFRC!="Unlabeled"),
+  aes(x=Fiscal.Year,y=pObligations,color=isUCA))+
   geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ SimpleArea)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
+  facet_grid(  IsCSISOCO~ SupplyServiceFRC)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
   theme(legend.position = "bottom")
 
 
