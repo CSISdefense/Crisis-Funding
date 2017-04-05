@@ -15,9 +15,9 @@ library(dplyr)
 library(reshape2)
 require(Hmisc)
 # library(diigtheme1)
-# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
-Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
+# Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
 source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep=""))
 
@@ -277,36 +277,105 @@ ggplot(Dollars,aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
 
 
 ```
+
 ##Competition
 ```{r Competition}
+FullData$No.Competition.sum<-ordered(FullData$No.Competition.sum,
+                                                        c("2+ Offers","1 Offer", 
+                                                          "No Competition (Only One Source Exception)"
+                                                          ,"No Competition (Follow on to competed action)",
+                                                          "No Competition (Other Exception)",
+                                                          "No Competition (Unlabeled Exception)"         
+                                                        ))
+
+
 
 #Competition and Simple Area
-CompetitionSupplyServiceFRC<-ddply(FullData,
+CompetitionSupplyServiceERS<-ddply(FullData,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
                   No.Competition.sum,
-                  SupplyServiceFRC
+                  SupplyServiceERS
                   ),
                 plyr::summarise,
                 Obligations=sum(Obligation.2015)
                 )
 
-CompetitionSupplyServiceFRC<-ddply(CompetitionSupplyServiceFRC,
+CompetitionSupplyServiceERS<-ddply(CompetitionSupplyServiceERS,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
-                  SupplyServiceFRC
+                  SupplyServiceERS
                   ),
                 plyr::mutate,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(CompetitionSupplyServiceFRC,SupplyServiceFRC!="Unlabeled"),
+ggplot(subset(CompetitionSupplyServiceERS,SupplyServiceERS!="Unlabeled"),
   aes(x=Fiscal.Year,y=pObligations,color=No.Competition.sum))+
   geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ SupplyServiceFRC)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)
+  facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_color_discrete("Competition",guide = guide_legend(reverse=FALSE))+
+  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
+  scale_x_date("Fiscal Year",labels = date_format("'%y"))
+
+
+ggplot(subset(CompetitionSupplyServiceERS,SupplyServiceERS!="Unlabeled"&IsCSISOCO=="Confident OCO"),
+  aes(x=Fiscal.Year,y=Obligations,fill=No.Competition.sum))+
+  geom_bar(stat="identity")+
+  facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_fill_discrete("Competition",guide = guide_legend(reverse=FALSE))+
+  theme(legend.position = "bottom")+ scale_y_continuous("Obligations")+
+  scale_x_date("Fiscal Year",labels = date_format("'%y"))
+```
+
+##Competition
+```{r Competition}
+FullData$No.Competition.sum<-ordered(FullData$No.Competition.sum,
+                                                        c("2+ Offers","1 Offer", 
+                                                          "No Competition (Only One Source Exception)"
+                                                          ,"No Competition (Follow on to competed action)",
+                                                          "No Competition (Other Exception)",
+                                                          "No Competition (Unlabeled Exception)"         
+                                                        ))
+
+
+
+#Competition and Simple Area
+CompetitionSupplyServiceERS<-ddply(FullData,
+                .(
+                  Fiscal.Year,
+                  IsCSISOCO,
+                  No.Competition.sum,
+                  SupplyServiceERS
+                  ),
+                plyr::summarise,
+                Obligations=sum(Obligation.2015)
+                )
+
+CompetitionSupplyServiceERS<-ddply(CompetitionSupplyServiceERS,
+                .(
+                  Fiscal.Year,
+                  IsCSISOCO,
+                  SupplyServiceERS
+                  ),
+                plyr::mutate,
+                pObligations=Obligations/sum(Obligations)
+                )
+
+ggplot(subset(CompetitionSupplyServiceERS,SupplyServiceERS!="Unlabeled"),
+  aes(x=Fiscal.Year,y=pObligations,color=No.Competition.sum))+
+  geom_line(stat="identity")+
+  facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_color_discrete("Competition",guide = guide_legend(reverse=FALSE))+
+  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
+  scale_x_date("Fiscal Year",labels = date_format("'%y"))
+
+
+ggplot(subset(CompetitionSupplyServiceERS,SupplyServiceERS!="Unlabeled"&IsCSISOCO=="Confident OCO"),
+  aes(x=Fiscal.Year,y=Obligations,fill=No.Competition.sum))+
+  geom_bar(stat="identity")+
+  facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_fill_discrete("Competition",guide = guide_legend(reverse=FALSE))+
+  theme(legend.position = "bottom")+ scale_y_continuous("Obligations")+
+  scale_x_date("Fiscal Year",labels = date_format("'%y"))
 
 
 #Competition and Duration
@@ -334,8 +403,8 @@ CompetitionDuration<-ddply(CompetitionDuration,
 ggplot(subset(CompetitionDuration,!is.na(UnmodifiedUltimateDurationCategory)),
   aes(x=Fiscal.Year,y=pObligations,color=Competition.sum))+
   geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")
+  facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory)+scale_fill_discrete("Competition",guide = guide_legend(reverse=FALSE))+
+  theme(legend.position = "bottom")+scale_x_date("Fiscal Year",labels = date_format("'%y"))
 
 
 ggplot(
@@ -344,7 +413,7 @@ ggplot(
   geom_bar(stat="identity")+
   facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory,scales="free_y")+
     scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom")+scale_x_date("Fiscal Year",labels = date_format("'%y"))
 
 ```
 
@@ -354,35 +423,36 @@ ggplot(
 # FullData$isUCA<-"Not UCA"
 # FullData$isUCA[FullData$isUndefinitizedAction==1]
 # FullData$isUndefinitizedAction[is.na(FullData$isUndefinitizedAction)]<-"Not UCA"
-FullData$isUCA<-factor(FullData$isUndefinitizedAction)
-FullData$isUCA[is.na(FullData$isUCA)]<-0
+FullData$isUCA<-factor(FullData$isUndefinitizedAction,levels=c(1,0),labels=c("UCA","Not UCA"))
+FullData$isUCA[is.na(FullData$isUCA)]<-"Not UCA"
 #UCA and Simple Area
-UCASupplyServiceFRC<-ddply(FullData,
+UCASupplyServiceERS<-ddply(FullData,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
                   isUCA,
-                  SupplyServiceFRC
+                  SupplyServiceERS
                   ),
                 plyr::summarise,
                 Obligations=sum(Obligation.2015)
                 )
 
-UCASupplyServiceFRC<-ddply(UCASupplyServiceFRC,
+UCASupplyServiceERS<-ddply(UCASupplyServiceERS,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
-                  SupplyServiceFRC
+                  SupplyServiceERS
                   ),
                 plyr::mutate,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(UCASupplyServiceFRC,SupplyServiceFRC!="Unlabeled"),
+ggplot(subset(UCASupplyServiceERS,SupplyServiceERS!="Unlabeled" & isUCA=="UCA"),
   aes(x=Fiscal.Year,y=pObligations,color=isUCA))+
   geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ SupplyServiceFRC)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")
+  facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_color_discrete("Is Undefinitized Contract Action (UCA)",guide = guide_legend(reverse=FALSE))+
+  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
+  scale_x_date("Fiscal Year",labels = date_format("'%y"))
 
 
 #UCA and Duration
@@ -410,17 +480,17 @@ UCADuration<-ddply(UCADuration,
 ggplot(subset(UCADuration,!is.na(UnmodifiedUltimateDurationCategory)),
   aes(x=Fiscal.Year,y=pObligations,color=isUndefinitizedAction))+
   geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
+  facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory)+scale_fill_discrete("Is Undefinitized Contract Action (UCA)",guide = guide_legend(reverse=FALSE))+
   theme(legend.position = "bottom")
 
 
-ggplot(
-  subset(UCADuration,!is.na(UnmodifiedUltimateDurationCategory)),
-  aes(x=Fiscal.Year,y=Obligations,fill=isUndefinitizedAction))+
-  geom_bar(stat="identity")+
-  facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory,scales="free_y")+
-    scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")
+# ggplot(
+#   subset(UCADuration,!is.na(UnmodifiedUltimateDurationCategory)),
+#   aes(x=Fiscal.Year,y=Obligations,fill=isUndefinitizedAction))+
+#   geom_bar(stat="identity")+
+#   facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory,scales="free_y")+
+#     scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
+#   theme(legend.position = "bottom")
 
 ```
 
@@ -429,13 +499,16 @@ ggplot(
 ```{r Reachback}
 FullData$Reachback<-cut2(FullData$OfficeOCOcrisisScore,c(2))
 
+FullData$Reachback<-factor(FullData$Reachback,levels=c( "[ 2, 3]","[-1, 2)"), 
+                                   labels=c( "Contigency-Contracting-Intensive Contracting Offices","All Other Offices"))
+
 #Competition and Reachback
 CompetitionReachback<-ddply(FullData,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
                   Reachback,
-                  Competition.sum
+                  No.Competition.sum
                   ),
                 plyr::summarise,
                 Obligations=sum(Obligation.2015)
@@ -452,8 +525,42 @@ CompetitionReachback<-ddply(CompetitionReachback,
                 )
 
 ggplot(subset(CompetitionReachback,!is.na(Reachback)),#,!is.na(OfficeOCOcrisisScore)),
-  aes(x=Fiscal.Year,y=pObligations,color=Competition.sum))+
+  aes(x=Fiscal.Year,y=pObligations,color=No.Competition.sum))+
   geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ Reachback)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")
+  facet_grid(  IsCSISOCO~ Reachback)+scale_color_discrete(guide = guide_legend("Competition",reverse=FALSE))+
+  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
+  scale_x_date("Fiscal Year",labels = date_format("'%y"))
 
+
+
+#UCA and Reachback
+UCAReachback<-ddply(FullData,
+                .(
+                  Fiscal.Year,
+                  IsCSISOCO,
+                  Reachback,
+                  isUCA
+                  ),
+                plyr::summarise,
+                Obligations=sum(Obligation.2015)
+                )
+
+UCAReachback<-ddply(UCAReachback,
+                .(
+                  Fiscal.Year,
+                  IsCSISOCO,
+                  Reachback
+                  ),
+                plyr::mutate,
+                pObligations=Obligations/sum(Obligations)
+                )
+
+ggplot(subset(UCAReachback,!is.na(Reachback) & isUCA=="UCA"),#,!is.na(OfficeOCOcrisisScore)),
+  aes(x=Fiscal.Year,y=pObligations,color=isUCA))+
+  geom_line(stat="identity")+
+  facet_grid(  IsCSISOCO~ Reachback)+scale_color_discrete("Is Undefinitized Contract Action (UCA)", guide = guide_legend(reverse=FALSE))+
+  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
+  scale_x_date("Fiscal Year",labels = date_format("'%y"))
+
+
+```
