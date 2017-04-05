@@ -7,9 +7,9 @@ require(XLConnect)
 require(data.table)
 require(lubridate)
 
-# Path<-"K:/2007-01 PROFESSIONAL SERVICES/R scripts and data/"
+Path<-"K:/2007-01 PROFESSIONAL SERVICES/R scripts and data/"
 # Path<-"D:/Users/Greg Sanders/Documents/Development/R-scripts-and-data/"
-Path<-"C:/Users/gsand_000.ALPHONSE/Documents/Development/R-scripts-and-data/"
+# Path<-"C:/Users/gsand_000.ALPHONSE/Documents/Development/R-scripts-and-data/"
 source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep=""))
 

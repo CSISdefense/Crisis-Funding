@@ -15,9 +15,9 @@ require(XLConnect)
 #require(reshape2)
 require(data.table)
 
-# Path<-"K:/2007-01 PROFESSIONAL SERVICES/R scripts and data/"
+Path<-"K:/2007-01 PROFESSIONAL SERVICES/R scripts and data/"
 # Path<-"D:/Users/Greg Sanders/Documents/Development/R-scripts-and-data/"
-Path<-"C:/Users/gsand_000.ALPHONSE/Documents/Development/R-scripts-and-data/"
+# Path<-"C:/Users/gsand_000.ALPHONSE/Documents/Development/R-scripts-and-data/"
 source(file.path(Path,"lookups.r",sep=""))
 source(file.path(Path,"helper.r",sep=""))
 source("Comptroller.r")
@@ -80,6 +80,24 @@ for(sfy in SourceFolderList){
   
   colnames(OnMdata)[colnames(OnMdata)=="Account"]<-"AccountDSI"
   colnames(OnMdata)
+  
+  OnMdata<- if("MilDeptDW" %in% colnames(OnMdata)) {
+    
+    OnMdata <- OnMdata %>% 
+      
+      unite("Account", AccountDSI, MilDeptDW, sep = " ", remove = FALSE)
+    
+  
+       OnMdata %>% 
+          select(-AccountDSI, -MilDeptDW)
+    
+    
+   colnames(OnMdata)[colnames(OnMdata) == "Account"] <- "AccountDSI" 
+    
+  }
+  
+  
+  
   
   OnMdata$SourceFiscalYear<-NumericFiscalYear
   OnMdata<-ComptrollerMelt(OnMdata)
