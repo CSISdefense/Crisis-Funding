@@ -1,0 +1,179 @@
+﻿AccountDSI,BudgetActivity,BudgetActivityTitle,DefenseOrganization,ProcurementCategory,RnDbudgetActivity
+0107D,2,RDT&E,IG,NULL,NULL
+0130D,2,RDT&E,DHA,NULL,NULL
+0144D,1,NULL,NULL,Ground Systems,NULL
+0144D,20,MINE RESISTANT AMBUSH PROT VEH FUND,NULL,Ground Systems,NULL
+0300D,1,Major Equipment,NULL,NULL,NULL
+0300D,2,Special Operations Command,SOCOM,NULL,NULL
+0300D,3,Chemical/Biological Defense,CBDP,Defense-Wide,NULL
+0300D,20,Undistributed,NULL,Defense-Wide,NULL
+0303D,1,Joint Urgent Operational Needs Funds,DEFW,Defense-Wide,NULL
+0303D,20,Undistributed,NULL,Defense-Wide,NULL
+0350D,1,Reserve Equipment,DEFW,Support and Other,NULL
+0350D,2,National Guard Equipment,DEFW,Support and Other,NULL
+0350D,20,Undistributed,NULL,Support and Other,NULL
+0360D,1,Defense Production Act Purchases,OSD,Defense-Wide,NULL
+0360D,20,Undistributed,NULL,Defense-Wide,NULL
+0390D,1,Operation And Maintenance,ARMY,Defense-Wide,NULL
+0390D,2,"Research, Development, Test, And Evaluation",ARMY,Defense-Wide,NULL
+0390D,3,Procurement,ARMY,Defense-Wide,NULL
+0390D,20,Undistributed,NULL,Defense-Wide,NULL
+0400D,1,Basic Research,NULL,NULL,NULL
+0400D,2,Applied Research,NULL,NULL,NULL
+0400D,3,Advanced Technology Development,NULL,NULL,NULL
+0400D,4,Advanced Component Development And Prototypes,NULL,NULL,NULL
+0400D,5,System Development And Demonstration,NULL,NULL,NULL
+0400D,6,Management Support,NULL,NULL,NULL
+0400D,7,Operational System Development,NULL,NULL,NULL
+0400D,20,Undistributed,NULL,NULL,NULL
+0400D,99,NULL,NULL,NULL,NULL
+0401D,2,Applied Research,NULL,NULL,NULL
+0401D,3,Advanced Technology Development (ATD),NULL,NULL,NULL
+0401D,4,Advanced Component Development & Prototypes,NULL,NULL,NULL
+0401D,6,Management Support,NULL,NULL,NULL
+0450D,6,NULL,NULL,NULL,NULL
+0460D,3,NULL,NULL,NULL,NULL
+0460D,6,Management Support,OTE,NULL,NULL
+0460D,20,Undistributed,NULL,NULL,NULL
+1109N,2,WEAPONS AND COMBAT VEHICLES,NAVY,Ground Systems,NULL
+1109N,3,Guided missiles and equipment,NAVY,Ordnance and Missiles,NULL
+1109N,4,Communications And Electronics Equipment,NAVY,NULL,NULL
+1109N,5,Support vehicles,NAVY,Ground Systems,NULL
+1109N,6,Engineer and other equipment,NAVY,Support and Other,NULL
+1109N,7,Spares and Repair Parts,NAVY,Support and Other,NULL
+1109N,20,Undistributed,NULL,Ground Systems,NULL
+1319N,1,Basic Research,NAVY,NULL,NULL
+1319N,2,Applied Research,NAVY,NULL,NULL
+1319N,3,Advanced Technology Development,NAVY,NULL,NULL
+1319N,4,Advanced Component Development & Prototypes,NAVY,NULL,NULL
+1319N,5,System Development & Demonstration,NAVY,NULL,NULL
+1319N,6,Management Support,NAVY,NULL,NULL
+1319N,7,Operational Systems Development,NAVY,NULL,NULL
+1319N,20,Undistributed,NULL,NULL,NULL
+1319N,99,NULL,NULL,NULL,NULL
+1320N,2,Applied Research,NULL,NULL,NULL
+1320N,4,Advanced Component Development & Prototypes,NULL,NULL,NULL
+1320N,6,Management Support,NULL,NULL,NULL
+1320N,7,Operational Systems Development,NULL,NULL,NULL
+1506N,1,Combat aircraft,NAVY,Aircraft,NULL
+1506N,2,Airlift aircraft,NULL,Aircraft,NULL
+1506N,3,Trainer aircraft,NAVY,Aircraft,NULL
+1506N,4,Other aircraft,NAVY,Aircraft,NULL
+1506N,5,Modification of aircraft,NAVY,Aircraft,NULL
+1506N,6,Aircraft Spares and Repair Parts,NAVY,Aircraft,NULL
+1506N,7,Aircraft Support Equip & Facilities,NAVY,Support and Other,NULL
+1506N,20,Undistributed,NULL,Aircraft,NULL
+1507N,1,BALLISTIC MISSILES,NAVY,Ordnance and Missiles,NULL
+1507N,2,Other Missiles,NAVY,NULL,NULL
+1507N,3,Torpedoes and Related Equipment,NAVY,Ordnance and Missiles,NULL
+1507N,4,Other Weapons,NAVY,Ordnance and Missiles,NULL
+1507N,6,Spares and repair parts,NAVY,Ordnance and Missiles,NULL
+1507N,20,Undistributed,NULL,Ordnance and Missiles,NULL
+1508N,1,"Proc Ammo, Navy",NAVY,Ordnance and Missiles,NULL
+1508N,2,"Proc Ammo, MC",NAVY,Ordnance and Missiles,NULL
+1508N,20,Undistributed,NULL,Ordnance and Missiles,NULL
+1611N,1,Fleet Ballistic Missile Ships,NAVY,NULL,NULL
+1611N,2,Other warships,NAVY,Shipbuilding,NULL
+1611N,3,Amphibious Ships,NAVY,Shipbuilding,NULL
+1611N,5,"Auxiliaries, craft, and prior-year program costs",NAVY,Shipbuilding,NULL
+1611N,20,Undistributed,NULL,Shipbuilding,NULL
+1810N,1,Ships support equipment,NAVY,NULL,NULL
+1810N,2,Communications & electronics equip,NAVY,"Comms, Sensors, and Electronics",NULL
+1810N,3,Aviation Support Equipment,NAVY,NULL,NULL
+1810N,4,Ordnance support equipment,NAVY,Support and Other,NULL
+1810N,5,Civil Engineering Support Equip,NAVY,Support and Other,NULL
+1810N,6,Supply Support Equipment,NAVY,Support and Other,NULL
+1810N,7,Personnel & Command Support Equip,NAVY,NULL,NULL
+1810N,8,Spares and repair parts,NAVY,Support and Other,NULL
+1810N,20,Undistributed,NULL,Support and Other,NULL
+2031A,0,,NULL,Aircraft,NULL
+2031A,1,Aircraft,ARMY,NULL,NULL
+2031A,2,Modification of aircraft,ARMY,NULL,NULL
+2031A,3,Spares and repair parts,NULL,Aircraft,NULL
+2031A,4,Support equipment and facilities,ARMY,Support and Other,NULL
+2031A,20,Undistributed,NULL,Aircraft,NULL
+2032A,2,Other missiles,ARMY,NULL,NULL
+2032A,3,MODIFICATION OF MISSILES,ARMY,NULL,NULL
+2032A,4,Spares and Repair Parts,ARMY,Ordnance and Missiles,NULL
+2032A,5,Support equipment and facilities,ARMY,Ordnance and Missiles,NULL
+2032A,20,Undistributed,NULL,Ordnance and Missiles,NULL
+2033A,1,Tracked combat vehicles,ARMY,Ground Systems,NULL
+2033A,2,Weapons and other combat vehicles,ARMY,Ground Systems,NULL
+2033A,3,SPARE AND REPAIR PARTS,NULL,Ground Systems,NULL
+2033A,20,Undistributed,NULL,Ground Systems,NULL
+2034A,0,,NULL,Ordnance and Missiles,NULL
+2034A,1,Ammunition,ARMY,Ordnance and Missiles,NULL
+2034A,2,Ammunition Production Base Support,ARMY,Ordnance and Missiles,NULL
+2034A,7,RE-ESTIMATE OF GUARANTEED LOAN,NULL,Ordnance and Missiles,NULL
+2034A,8,INTEREST ON RE-ESTIMATE,NULL,Ordnance and Missiles,NULL
+2034A,20,Undistributed,NULL,Ordnance and Missiles,NULL
+2035A,0,,NULL,Support and Other,NULL
+2035A,1,Tactical and Support Vehicles,ARMY,Ground Systems,NULL
+2035A,2,Communications and electronics equipment,ARMY,NULL,NULL
+2035A,3,Other Support Equipment,ARMY,NULL,NULL
+2035A,4,Spare and Repair Parts,ARMY,Support and Other,NULL
+2035A,20,Undistributed,NULL,Ground Systems,NULL
+2040A,1,Basic Research,ARMY,NULL,NULL
+2040A,2,Applied Research,ARMY,NULL,NULL
+2040A,3,Advanced Technology Development,ARMY,NULL,NULL
+2040A,4,Advanced Component Development & Prototypes,ARMY,NULL,NULL
+2040A,5,System Development & Demonstration,ARMY,NULL,NULL
+2040A,6,RDT&E Management Support,ARMY,NULL,NULL
+2040A,7,Operational Systems Development,ARMY,NULL,NULL
+2040A,20,Undistributed,NULL,NULL,NULL
+2040A,99,NULL,NULL,NULL,NULL
+2041A,2,Applied Research,NULL,NULL,NULL
+2041A,3,Advanced Technology Development,NULL,NULL,NULL
+2041A,6,Management Support,NULL,NULL,NULL
+2093A,1,NETWORK ATTACK,ARMY,Defense-Wide,NULL
+2093A,2,JIEDDO DEVICE DEFEAT,ARMY,Defense-Wide,NULL
+2093A,3,Force Training,ARMY,Defense-Wide,NULL
+2093A,4,STAFF AND INFRASTRUCTURE,ARMY,Defense-Wide,NULL
+2093A,20,Undistributed,NULL,Defense-Wide,NULL
+2093D,1,Rapid Acquisition and Threat Response,DTRA,NULL,NULL
+2093D,4,Mission Enablers,DTRA,NULL,NULL
+2095A,1,RAPID ACQUISITION FUND,NULL,Defense-Wide,NULL
+3010F,1,Combat aircraft,AF,Aircraft,NULL
+3010F,2,Airlift aircraft,AF,Aircraft,NULL
+3010F,3,TRAINER AIRCRAFT,NULL,NULL,NULL
+3010F,4,Other Aircraft,AF,NULL,NULL
+3010F,5,Modification of Inservice Aircraft,AF,NULL,NULL
+3010F,6,Aircraft Spares and Repair Parts,AF,Aircraft,NULL
+3010F,7,Aircraft Supt Equipment & Facilities,AF,NULL,NULL
+3010F,20,Undistributed,NULL,Aircraft,NULL
+3011F,1,Ammunition,AF,Ordnance and Missiles,NULL
+3011F,2,Weapons,AF,Ordnance and Missiles,NULL
+3011F,20,Undistributed,NULL,Ordnance and Missiles,NULL
+3020F,1,Ballistic missiles,AF,Ordnance and Missiles,NULL
+3020F,2,Other missiles,AF,Ordnance and Missiles,NULL
+3020F,3,Modification of inservice missiles,AF,Ordnance and Missiles,NULL
+3020F,4,Spares and repair parts,AF,Ordnance and Missiles,NULL
+3020F,5,Other Support,AF,NULL,NULL
+3020F,20,Undistributed,NULL,Ordnance and Missiles,NULL
+3021F,1,"Space Procurement, Air Force",AF,Space Systems,NULL
+3021F,2,Spares,AF,NULL,NULL
+3024F,1,NULL,NULL,NULL,NULL
+3024F,5,"Tanker Replacement Transfer Fund, AF",NULL,NULL,NULL
+3024F,7,NULL,NULL,NULL,NULL
+3024F,20,Undistributed,NULL,NULL,NULL
+3080F,2,Vehicular Equipment,AF,NULL,NULL
+3080F,3,Electronics and Telecommunications Equip,AF,NULL,NULL
+3080F,4,Other Base Maintenance and Support Equip,AF,NULL,NULL
+3080F,5,Spares and repair parts,AF,Support and Other,NULL
+3080F,20,Undistributed,NULL,Support and Other,NULL
+3600F,1,Basic Research,AF,NULL,NULL
+3600F,2,Applied Research,AF,NULL,NULL
+3600F,3,Advanced Technology Development,AF,NULL,NULL
+3600F,4,Advanced Component Development & Prototypes,AF,NULL,NULL
+3600F,5,System Development & Demonstration,AF,NULL,NULL
+3600F,6,Management Support,AF,NULL,NULL
+3600F,7,Operational Systems Development,AF,NULL,NULL
+3600F,20,Undistributed,NULL,NULL,NULL
+3600F,99,NULL,NULL,NULL,NULL
+3605F,1,Basic Research,NULL,NULL,NULL
+3605F,2,Applied Research,NULL,NULL,NULL
+3605F,3,Advanced technology development,NULL,NULL,NULL
+3605F,5,NULL,NULL,NULL,NULL
+3605F,6,Management Support,NULL,NULL,NULL
+3605F,7,Operational system development,NULL,NULL,NULL
+4557N,4,Research and Development,NAVY,NULL,NULL
