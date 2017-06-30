@@ -125,9 +125,42 @@ Evaluation<-ddply(Evaluation,
 
 
 Evaluation$OCOscore<-ordered(Evaluation$OCOcrisisScore)
-ggplot(subset(Evaluation,IsOCOcrisisFunding=="OCO" & !is.na(Theater)),aes(y=pObligations,fill=Theater,x=Theater))+
+
+ggplot(subset(Evaluation,IsOCOcrisisFunding=="OCO" & !is.na(Theater))
+       ,aes(y=pObligations
+            ,fill=Theater
+            ,x=Theater))+
   geom_bar(stat="identity")+
-  facet_wrap(  ~ OCOcrisisScore, nrow=2)+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  facet_wrap(  ~ OCOcrisisScore
+               , nrow=2)+
+  scale_y_continuous("Percent of Obligations",
+                     labels = scales::percent)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="Labeled Theater Defense Contracts",
+  VAR.X.label="THeater",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(Evaluation,IsOCOcrisisFunding=="OCO" & !is.na(Theater)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Theater", #VAR.x.variable
+  VAR.y.variable="pObligations", #VAR.y.variable
+  VAR.y.series="Theater", #VAR.y.series
+  VAR.facet.primary="OCOcrisisScore" #VAR.facet.primary
+  # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+  facet_wrap(  ~ primary
+               , nrow=2)+
+  scale_y_continuous("Percent of Obligations",
+                     labels = scales::percent)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
 
 
 
@@ -157,6 +190,8 @@ Points<-ddply(Points,
 ggplot(Points,aes(x=Fiscal.Year,y=pObligations,fill=OCOscore))+
   geom_bar(stat="identity")+
   facet_grid(  ~ IsOCOcrisisFunding)
+
+
 
 
 PointsRegion<-ddply(FullData,
@@ -225,10 +260,25 @@ Dollars<-ddply(FullData,
 
 
 
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="All Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=Dollars,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="OCOlabelDetail", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO" #VAR.facet.primary
+  # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position="bottom")
 
-ggplot(Dollars,aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
-  geom_bar(stat="identity")+
-  facet_grid(  ~ IsCSISOCO)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))
 
 
 DollarsTheater<-ddply(FullData,
@@ -247,12 +297,24 @@ FullData[FullData$PlaceCountryText %in% c("Jordan","Turkey"),]
 
 
 
-ggplot(subset(DollarsTheater,!is.na(Theater)),aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
-  geom_bar(stat="identity")+
-  facet_grid(Theater  ~ IsCSISOCO, scales="free_y",space="free_y")+
-  scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
-  theme(strip.text.y = element_text(angle = 0))
-
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="Defense Contracts with Labeled Theater",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(DollarsTheater,!is.na(Theater)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="OCOlabelDetail", #VAR.y.series
+  VAR.facet.primary="Theater", #VAR.facet.primary
+  VAR.facet.secondary="IsCSISOCO" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position="right")
 
 
 DollarsInternational<-ddply(FullData,
@@ -271,20 +333,10 @@ FullData[FullData$PlaceCountryText %in% c("Jordan","Turkey"),]
 
 
 
-ggplot(subset(DollarsInternational,!is.na(International)),
-       aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
-  geom_bar(stat="identity")+
-  facet_grid(International  ~ IsCSISOCO, scales="free_y",space="free_y")+
-  scale_fill_discrete(guide = guide_legend("OCO labeling detail",reverse=FALSE))+
-  theme(strip.text.y = element_text(angle = 0))+scale_y_continuous("Obligations (2015 $ Billions)")+scale_x_date("Fiscal Year")
-
-
-
-
 
 OCOdetail<-LatticePlotWrapper(
   VAR.color.legend.label="OCO labeling detail",
-  VAR.main.label="",
+  VAR.main.label="Defense Contracts with Labeled Location",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2015 $ Billions)",
   VAR.Coloration=Coloration,
@@ -308,9 +360,6 @@ OCOdetail+theme(legend.position="right")
 ##Country
 ```{r Country}
 
-
-
-
 Country<-ddply(FullData,
                 .(Fiscal.Year,
                   IsCSISOCO,
@@ -324,14 +373,30 @@ Country<-ddply(FullData,
 write.csv(Country,file.path("Output","Country.csv"))
 
 
-ggplot(Dollars,aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
-  geom_bar(stat="identity")+
-  facet_grid(  ~ IsCSISOCO)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="All Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=Dollars,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="OCOlabelDetail", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO" #VAR.facet.primary
+  # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position="bottom")
+
 
 
 OCOdetailZoom<-LatticePlotWrapper(
   VAR.color.legend.label="OCO labeling detail",
-  VAR.main.label="",
+  VAR.main.label="Confident OCO or International Defense Contracts",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2015 $ Billions)",
   VAR.Coloration=Coloration,
@@ -351,7 +416,7 @@ OCOdetailZoom<-LatticePlotWrapper(
   #                       ,VAR.override.coloration=NA
 )
 
-OCOdetailZoom
+OCOdetailZoom+theme(legend.position="bottom")
 
 ```
 
