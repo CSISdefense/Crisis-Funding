@@ -84,9 +84,21 @@ FullData$OCOcrisisScore<-round(FullData$OCOcrisisScore)
 FullData$IsOCOcrisisFunding<-factor(ifelse(FullData$CrisisFunding=="OCO","OCO","All Other"))
 FullData$IsOCOcrisisFunding[is.na(FullData$IsOCOcrisisFunding)]<-"All Other"
 FullData$OCOcrisisScore[FullData$OCOcrisisScore<0]<-0
+
+#Group the 0-10 score into a smaller number of buckets 
+FullData$OCOscoreBuckets<-NA
 FullData$OCOscore<-cut2(FullData$OCOcrisisScore,c(1,3,6))
+FullData$OCOscoreBuckets[FullData$OCOscore=="[ 6,10]"]<-"Confident OCO [6-10]"
+FullData$OCOscoreBuckets[FullData$OCOscore=="[ 3, 6)"]<-"Borderline OCO [3-5]"
+FullData$OCOscoreBuckets[FullData$OCOscore=="[ 1, 3)"]<-"Possible OCO [1-2]"
+FullData$OCOscoreBuckets[FullData$OCOscore==" 0"]<-"Remainder [0]"
 
 
+FullData$OCOscoreBuckets<-ordered(FullData$OCOscoreBuckets,c("Remainder [0]","Possible OCO [1-2]","Borderline OCO [3-5]","Confident OCO [6-10]",
+                                                           "Confirmed OCO"))
+
+
+#Label theaters
 FullData$Theater<-FullData$CrisisFundingTheater
 levels(FullData$Theater)<-c("Afghanistan"="Afghanistan and Iraq",
                             "Domestic"="Domestic",
@@ -103,7 +115,7 @@ levels(FullData$International)<-c("Afghanistan and Iraq"="International",
 FullData$International<-ordered(FullData$International,levels=c("International","Domestic"))
 
 
-Evaluation<-Points<-ddply(FullData,
+Evaluation<-ddply(FullData,
                 .(
                   IsOCOcrisisFunding,
                   OCOcrisisScore,
@@ -124,25 +136,11 @@ Evaluation<-ddply(Evaluation,
                 )
 
 
-Evaluation$OCOscore<-ordered(Evaluation$OCOcrisisScore)
-
-ggplot(subset(Evaluation,IsOCOcrisisFunding=="OCO" & !is.na(Theater))
-       ,aes(y=pObligations
-            ,fill=Theater
-            ,x=Theater))+
-  geom_bar(stat="identity")+
-  facet_wrap(  ~ OCOcrisisScore
-               , nrow=2)+
-  scale_y_continuous("Percent of Obligations",
-                     labels = scales::percent)+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
 LatticePlotWrapper(
   VAR.color.legend.label="OCO labeling detail",
   VAR.main.label="Labeled Theater Defense Contracts",
-  VAR.X.label="THeater",
-  VAR.Y.label="Percent of Obligations",
+  VAR.X.label="Theater",
+  VAR.Y.label="Percent of Obligations That Are Confirmed OCO",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(Evaluation,IsOCOcrisisFunding=="OCO" & !is.na(Theater)),
   # NA, #VAR.ncol
@@ -168,7 +166,7 @@ Points<-ddply(FullData,
                 .(
                   Fiscal.Year,
                   IsOCOcrisisFunding,
-                  OCOscore
+                  OCOscoreBuckets
                   ),
                 plyr::summarise,
                 Obligations=sum(Obligation.2015)
@@ -184,27 +182,37 @@ Points<-ddply(Points,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-
-
-
-ggplot(Points,aes(x=Fiscal.Year,y=pObligations,fill=OCOscore))+
-  geom_bar(stat="identity")+
-  facet_grid(  ~ IsOCOcrisisFunding)
-
-
-
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=Points,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="pObligations", #VAR.y.variable
+  VAR.y.series="OCOscoreBuckets", #VAR.y.series
+  VAR.facet.primary="IsOCOcrisisFunding" #VAR.facet.primary
+  # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+ scale_y_continuous("Percent of Obligations",
+                     labels = scales::percent)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 PointsRegion<-ddply(FullData,
                 .(
                   Fiscal.Year,
                   IsOCOcrisisFunding,
-                  OCOscore,
+                  OCOscoreBuckets,
                   Theater
                   ),
                 plyr::summarise,
                 Obligations=sum(Obligation.2015)
                 )
-
 
 PointsRegion<-ddply(PointsRegion,
                 .(
@@ -216,15 +224,28 @@ PointsRegion<-ddply(PointsRegion,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-PointsRegion$OCOscore<-ordered(PointsRegion$OCOscore)
-ggplot(subset(PointsRegion,!is.na(Theater)),aes(x=Fiscal.Year,y=pObligations,fill=OCOscore))+
-  geom_bar(stat="identity")+
-  facet_grid(  IsOCOcrisisFunding ~  Theater)+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+ scale_x_date("Fiscal Year",labels = date_format("'%y"))
+PointsRegion$OCOscoreBuckets<-ordered(PointsRegion$OCOscoreBuckets)
 
-
-
-
-
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(PointsRegion,!is.na(Theater)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="pObligations", #VAR.y.variable
+  VAR.y.series="OCOscoreBuckets", #VAR.y.series
+  VAR.facet.primary="IsOCOcrisisFunding", #VAR.facet.primary
+  VAR.facet.secondary= "Theater" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+ scale_y_continuous("Percent of Obligations",
+                     labels = scales::percent)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 
@@ -234,18 +255,20 @@ ggplot(subset(PointsRegion,!is.na(Theater)),aes(x=Fiscal.Year,y=pObligations,fil
 
 ##Labeling
 ```{r Labeling}
-FullData$OCOlabelDetail<-NA
+
+FullData$OCOlabelDetail<-FullData$OCOscoreBuckets
+levels(FullData$OCOlabelDetail) <- 
+  c(levels(FullData$OCOlabelDetail),"Confirmed OCO")
 FullData$OCOlabelDetail[FullData$CrisisFunding=="OCO"]<-"Confirmed OCO"
-FullData$OCOlabelDetail[FullData$OCOscore=="[ 6,10]"&is.na(FullData$OCOlabelDetail)]<-"Confident OCO [6-10]"
-FullData$OCOlabelDetail[FullData$OCOscore=="[ 3, 6)"&is.na(FullData$OCOlabelDetail)]<-"Borderline OCO [3-5]"
-FullData$OCOlabelDetail[FullData$OCOscore=="[ 1, 3)"&is.na(FullData$OCOlabelDetail)]<-"Possible OCO [1-2]"
-FullData$OCOlabelDetail[FullData$OCOscore==" 0"&is.na(FullData$OCOlabelDetail)]<-"Remainder [0]"
-FullData$OCOlabelDetail<-factor(FullData$OCOlabelDetail)
+
+
 FullData$IsCSISOCO<-"All Other"
 FullData$IsCSISOCO[FullData$CrisisFunding=="OCO"|FullData$OCOcrisisScore>=6]<-"Confident OCO"
 
-FullData$OCOlabelDetail<-ordered(FullData$OCOlabelDetail,c("Remainder [0]","Possible OCO [1-2]","Borderline OCO [3-5]","Confident OCO [6-10]",
-                                                           "Confirmed OCO"))
+
+
+  
+
 
 
 Dollars<-ddply(FullData,
@@ -420,55 +443,6 @@ OCOdetailZoom+theme(legend.position="bottom")
 
 ```
 
-##DuplicateCompetition
-```{r DuplicateCompetition}
-# FullData$No.Competition.sum<-ordered(FullData$No.Competition.sum,
-#                                                         c("2+ Offers","1 Offer", 
-#                                                           "No Competition (Only One Source Exception)"
-#                                                           ,"No Competition (Follow on to competed action)",
-#                                                           "No Competition (Other Exception)",
-#                                                           "No Competition (Unlabeled Exception)"         
-#                                                         ))
-# 
-# 
-# 
-# #Competition and Simple Area
-# CompetitionSupplyServiceERS<-ddply(FullData,
-#                 .(
-#                   Fiscal.Year,
-#                   IsCSISOCO,
-#                   No.Competition.sum,
-#                   SupplyServiceERS
-#                   ),
-#                 plyr::summarise,
-#                 Obligations=sum(Obligation.2015)
-#                 )
-# 
-# CompetitionSupplyServiceERS<-ddply(CompetitionSupplyServiceERS,
-#                 .(
-#                   Fiscal.Year,
-#                   IsCSISOCO,
-#                   SupplyServiceERS
-#                   ),
-#                 plyr::mutate,
-#                 pObligations=Obligations/sum(Obligations)
-#                 )
-# 
-# ggplot(subset(CompetitionSupplyServiceERS,SupplyServiceERS!="Unlabeled"),
-#   aes(x=Fiscal.Year,y=pObligations,color=No.Competition.sum))+
-#   geom_line(stat="identity")+
-#   facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_color_discrete("Competition",guide = guide_legend(reverse=FALSE))+
-#   theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
-#   scale_x_date("Fiscal Year",labels = date_format("'%y"))
-# 
-# 
-# ggplot(subset(CompetitionSupplyServiceERS,SupplyServiceERS!="Unlabeled"&IsCSISOCO=="Confident OCO"),
-#   aes(x=Fiscal.Year,y=Obligations,fill=No.Competition.sum))+
-#   geom_bar(stat="identity")+
-#   facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_fill_discrete("Competition",guide = guide_legend(reverse=FALSE))+
-#   theme(legend.position = "bottom")+ scale_y_continuous("Obligations")+
-#   scale_x_date("Fiscal Year",labels = date_format("'%y"))
-```
 
 ##Competition
 ```{r Competition}
@@ -556,12 +530,28 @@ CompetitionSupplyServiceERSGraph<-LatticePercentLineWrapper(
 # 
 
 
-ggplot(subset(CompetitionSupplyServiceERS,SupplyServiceERS!="Unlabeled"&IsCSISOCO=="Confident OCO"),
-  aes(x=Fiscal.Year,y=Obligations,fill=No.Competition.sum))+
-  geom_bar(stat="identity")+
-  facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_fill_discrete("Competition",guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")+ scale_y_continuous("Obligations")+
-  scale_x_date("Fiscal Year",labels = date_format("'%y"))
+LatticePlotWrapper(
+  VAR.color.legend.label="Competition",
+  VAR.main.label="Confident OCO and Labeled Product or Service Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(CompetitionSupplyServiceERS,
+                     SupplyServiceERS!="Unlabeled"&
+                       IsCSISOCO=="Confident OCO"),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="No.Competition.sum", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")
+
+
 
 
 #Competition and Duration
@@ -592,15 +582,53 @@ ggplot(subset(CompetitionDuration,!is.na(UnmodifiedUltimateDurationCategory)),
   facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory)+scale_fill_discrete("Competition",guide = guide_legend(reverse=FALSE))+
   theme(legend.position = "bottom")+scale_x_date("Fiscal Year",labels = date_format("'%y"))
 
+#Breakdown by number of offers
+LatticePlotWrapper(
+  VAR.color.legend.label="Competition",
+  VAR.main.label="Confident OCO and Labeled Duration Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(FullData,
+                     !is.na(UnmodifiedUltimateDurationCategory)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2015", #VAR.y.variable
+  VAR.y.series="Competition.sum", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+   facet_grid(  primary~ secondary,scales="free_y")
 
-ggplot(
-  subset(CompetitionDuration,!is.na(UnmodifiedUltimateDurationCategory)),
-  aes(x=Fiscal.Year,y=Obligations,fill=Competition.sum))+
-  geom_bar(stat="identity")+
-  facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory,scales="free_y")+
-    scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")+scale_x_date("Fiscal Year",labels = date_format("'%y"))
 
+#Breakdown by reason not competed 
+LatticePlotWrapper(
+  VAR.color.legend.label="Competition",
+  VAR.main.label="Confident OCO and Labeled Duration Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(FullData,
+                     !is.na(UnmodifiedUltimateDurationCategory)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2015", #VAR.y.variable
+  VAR.y.series="No.Competition.sum", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+   facet_grid(  primary~ secondary,scales="free_y")
+
+#Breakdown by reason not competed 
+#Start Fiscal Year 
 ```
 
 
@@ -668,6 +696,31 @@ ggplot(subset(UCADuration,!is.na(UnmodifiedUltimateDurationCategory)),
   geom_line(stat="identity")+
   facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory)+scale_fill_discrete("Is Undefinitized Contract Action (UCA)",guide = guide_legend(reverse=FALSE))+
   theme(legend.position = "bottom")
+
+
+
+#Breakdown by reason not competed 
+LatticePlotWrapper(
+  VAR.color.legend.label="Undefinitized Contract Action (UCA)",
+  VAR.main.label="Labeled UCA Status and Duration Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(UCADuration,
+                     !is.na(UnmodifiedUltimateDurationCategory)&
+                       !is.na(isUndefinitizedAction)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="isUndefinitizedAction", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+   facet_grid(  primary~ secondary,scales="free_y")
 
 
 # ggplot(
