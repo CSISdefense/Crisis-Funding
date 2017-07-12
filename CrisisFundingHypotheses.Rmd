@@ -8,7 +8,7 @@ output:
   pdf_document: default
 ---
 
-
+#Setup
 ```{r setup, include=FALSE}
 
 library(plyr)
@@ -53,12 +53,6 @@ note.text.size<-1.40
 
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
 
 ##Import Data
 ```{r Import}
@@ -77,7 +71,7 @@ FullData<-subset(FullData, year(Fiscal.Year)>=2000)
 ```
 
 
-
+#Identifying Contigency Contracts
 ##Points
 ```{r Points}
 FullData$OCOcrisisScore<-round(FullData$OCOcrisisScore)
@@ -181,6 +175,7 @@ Points<-ddply(Points,
                 plyr::mutate,
                 pObligations=Obligations/sum(Obligations)
                 )
+
 
 LatticePlotWrapper(
   VAR.color.legend.label="OCO labeling detail",
@@ -379,7 +374,7 @@ OCOdetail<-LatticePlotWrapper(
 OCOdetail+theme(legend.position="right")
 
 ```
-
+#Analyisis
 ##Country
 ```{r Country}
 
@@ -480,27 +475,20 @@ CompetitionSupplyServiceERS<-ddply(CompetitionSupplyServiceERS,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(CompetitionSupplyServiceERS,SupplyServiceERS!="Unlabeled"),
-  aes(x=Fiscal.Year,y=pObligations,color=No.Competition.sum))+
-  geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_color_discrete("Competition",guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
-  scale_x_date("Fiscal Year",labels = date_format("'%y"))
 
 
-# debug(LatticePercentLineWrapper)
-CompetitionSupplyServiceERSGraph<-LatticePercentLineWrapper(
+
+  LatticePercentLineWrapper(
   VAR.color.legend.label="Competition",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Y.label="Percent of Obligations",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(CompetitionSupplyServiceERS,
-                     SupplyServiceERS!="Unlabeled"&
-                       !is.na(No.Competition.sum)),
+                     SupplyServiceERS!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="pObligations", #VAR.y.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
   VAR.y.series="No.Competition.sum", #VAR.y.series
   VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
   VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
@@ -508,26 +496,10 @@ CompetitionSupplyServiceERSGraph<-LatticePercentLineWrapper(
   # ,MovingSides=1
   # ,DataLabels=NA
   #                       ,VAR.override.coloration=NA
-)
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
 
-# LatticePercentLineWrapper<-function(VAR.color.legend.label
-#                                     ,VAR.main.label
-#                                     ,VAR.X.label
-#                                     ,VAR.Y.label
-#                                     ,VAR.Coloration
-#                                     ,VAR.long.DF
-#                                     ,VAR.ncol=NA
-#                                     ,VAR.x.variable
-#                                     ,VAR.y.variable
-#                                     ,VAR.y.series
-#                                     ,VAR.facet.primary=NA
-#                                     ,VAR.facet.secondary=NA
-#                                     ,...
-#                                     ,HorseTail=FALSE
-#                                     ,MovingAverage=1
-#                                     ,MovingSides=1){
-#     
-# 
 
 
 LatticePlotWrapper(
@@ -554,6 +526,7 @@ LatticePlotWrapper(
 
 
 
+
 #Competition and Duration
 CompetitionDuration<-ddply(FullData,
                 .(
@@ -576,11 +549,7 @@ CompetitionDuration<-ddply(CompetitionDuration,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(CompetitionDuration,!is.na(UnmodifiedUltimateDurationCategory)),
-  aes(x=Fiscal.Year,y=pObligations,color=Competition.sum))+
-  geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory)+scale_fill_discrete("Competition",guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")+scale_x_date("Fiscal Year",labels = date_format("'%y"))
+
 
 #Breakdown by number of offers
 LatticePlotWrapper(
@@ -603,6 +572,29 @@ LatticePlotWrapper(
   #                       ,VAR.override.coloration=NA
 )+theme(legend.position = "bottom")+
    facet_grid(  primary~ secondary,scales="free_y")
+
+  LatticePercentLineWrapper(
+  VAR.color.legend.label="Competition",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(CompetitionDuration,
+                     !is.na(UnmodifiedUltimateDurationCategory)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="Competition.sum", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
+
 
 
 #Breakdown by reason not competed 
@@ -627,6 +619,30 @@ LatticePlotWrapper(
 )+theme(legend.position = "bottom")+
    facet_grid(  primary~ secondary,scales="free_y")
 
+  LatticePercentLineWrapper(
+  VAR.color.legend.label="Competition",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(FullData,
+                     !is.na(UnmodifiedUltimateDurationCategory)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2015", #VAR.y.variable
+  VAR.y.series="No.Competition.sum", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
+
+
+
 #Breakdown by reason not competed 
 #Start Fiscal Year 
 ```
@@ -637,8 +653,12 @@ LatticePlotWrapper(
 # FullData$isUCA<-"Not UCA"
 # FullData$isUCA[FullData$isUndefinitizedAction==1]
 # FullData$isUndefinitizedAction[is.na(FullData$isUndefinitizedAction)]<-"Not UCA"
-FullData$isUCA<-factor(FullData$isUndefinitizedAction,levels=c(1,0),labels=c("UCA","Not UCA"))
-FullData$isUCA[is.na(FullData$isUCA)]<-"Not UCA"
+FullData$isUCA<-factor(FullData$isUndefinitizedAction,levels=c(1,0,NA),labels=c("UCA","Not UCA"))
+
+FullData$isUCA<-addNA(FullData$isUCA,ifany=TRUE)
+levels(FullData$isUCA)[is.na(levels(FullData$isUCA))] <- "Unlabeled"
+unique(FullData$isUndefinitizedAction)
+
 #UCA and Simple Area
 UCASupplyServiceERS<-ddply(FullData,
                 .(
@@ -661,12 +681,31 @@ UCASupplyServiceERS<-ddply(UCASupplyServiceERS,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(UCASupplyServiceERS,SupplyServiceERS!="Unlabeled" & isUCA=="UCA"),
-  aes(x=Fiscal.Year,y=pObligations,color=isUCA))+
-  geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_color_discrete("Is Undefinitized Contract Action (UCA)",guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
-  scale_x_date("Fiscal Year",labels = date_format("'%y"))
+
+# UCASupplyServiceERS$Graph<-TRUE
+# UCASupplyServiceERS$Graph[UCASupplyServiceERS$isUCA=='Not UCA']<-FALSE
+
+LatticePercentLineWrapper(
+  VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
+  VAR.main.label="Defense Contracts with Labeled Cector",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(UCASupplyServiceERS,SupplyServiceERS!="Unlabeled"),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="isUCA", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
+
 
 
 #UCA and Duration
@@ -675,7 +714,7 @@ UCADuration<-ddply(FullData,
                   Fiscal.Year,
                   IsCSISOCO,
                   UnmodifiedUltimateDurationCategory,
-                  isUndefinitizedAction
+                  isUCA
                   ),
                 plyr::summarise,
                 Obligations=sum(Obligation.2015)
@@ -691,11 +730,26 @@ UCADuration<-ddply(UCADuration,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(UCADuration,!is.na(UnmodifiedUltimateDurationCategory)),
-  aes(x=Fiscal.Year,y=pObligations,color=isUndefinitizedAction))+
-  geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory)+scale_fill_discrete("Is Undefinitized Contract Action (UCA)",guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")
+LatticePercentLineWrapper(
+  VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
+  VAR.main.label="Defense Contracts with Labeled Cector",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(UCADuration,!is.na(UnmodifiedUltimateDurationCategory)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="isUCA", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
 
 
 
@@ -707,12 +761,11 @@ LatticePlotWrapper(
   VAR.Y.label="Obligations (2015 $ Billions)",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(UCADuration,
-                     !is.na(UnmodifiedUltimateDurationCategory)&
-                       !is.na(isUndefinitizedAction)),
+                     !is.na(UnmodifiedUltimateDurationCategory)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligations", #VAR.y.variable
-  VAR.y.series="isUndefinitizedAction", #VAR.y.series
+  VAR.y.series="isUCA", #VAR.y.series
   VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
   VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
   # ,MovingAverage=0
@@ -723,18 +776,10 @@ LatticePlotWrapper(
    facet_grid(  primary~ secondary,scales="free_y")
 
 
-# ggplot(
-#   subset(UCADuration,!is.na(UnmodifiedUltimateDurationCategory)),
-#   aes(x=Fiscal.Year,y=Obligations,fill=isUndefinitizedAction))+
-#   geom_bar(stat="identity")+
-#   facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory,scales="free_y")+
-#     scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
-#   theme(legend.position = "bottom")
-
 ```
 
 
-#Reachback
+##Reachback
 ```{r Reachback}
 FullData$Reachback<-cut2(FullData$OfficeOCOcrisisScore,c(2))
 
@@ -763,13 +808,27 @@ CompetitionReachback<-ddply(CompetitionReachback,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(CompetitionReachback,!is.na(Reachback)),#,!is.na(OfficeOCOcrisisScore)),
-  aes(x=Fiscal.Year,y=pObligations,color=No.Competition.sum))+
-  geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ Reachback)+scale_color_discrete(guide = guide_legend("Competition",reverse=FALSE))+
-  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
-  scale_x_date("Fiscal Year",labels = date_format("'%y"))
 
+LatticePercentLineWrapper(
+  VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
+  VAR.main.label="Defense Contracts with Labeled Reachback",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(CompetitionReachback,!is.na(Reachback)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="No.Competition.sum", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
 
 
 #UCA and Reachback
@@ -794,12 +853,26 @@ UCAReachback<-ddply(UCAReachback,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(UCAReachback,!is.na(Reachback) & isUCA=="UCA"),#,!is.na(OfficeOCOcrisisScore)),
-  aes(x=Fiscal.Year,y=pObligations,color=isUCA))+
-  geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ Reachback)+scale_color_discrete("Is Undefinitized Contract Action (UCA)", guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
-  scale_x_date("Fiscal Year",labels = date_format("'%y"))
 
+LatticePercentLineWrapper(
+  VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
+  VAR.main.label="Defense Contracts with Labeled Reachback",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(UCAReachback,!is.na(Reachback)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="isUCA", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
 
 ```
