@@ -21,6 +21,28 @@ source(paste(Path,"helper.r",sep=""))
 
 # diigtheme1:::diiggraph()
 
+
+CompleteModelAndDetail  <- read.csv(
+    paste("LargeDataSets\\defense_contract_CSIScontractID_detail.csv", sep = ""),
+    header = TRUE, sep = ",", dec = ".", strip.white = TRUE, 
+    na.strings = c("NULL","NA",""),
+    stringsAsFactors = TRUE
+    )
+
+save(CompleteModelAndDetail,
+  file="LargeDataSets\\defense_contract_CSIScontractID_detail.rData")
+object.size(CompleteModelAndDetail$CSIScontractID)
+object.size(CompleteModelAndDetail$FxCb)
+object.size(CompleteModelAndDetail$pChangeOrderObligated)
+
+object.size(CompleteModelAndDetail$MinOfEffectiveDate)
+
+object.size(CompleteModelAndDetail$Action.Obligation)
+object.size(CompleteModelAndDetail$UnmodifiedNumberOfOffersReceived)
+
+CompleteModelAndDetail$MinOfEffectiveDate<-as.Date(CompleteModelAndDetail$MinOfEffectiveDate)
+CompleteModelAndDetail$UnmodifiedCurrentCompletionDate<-as.Date(CompleteModelAndDetail$UnmodifiedCurrentCompletionDate)
+CompleteModelAndDetail$LastCurrentCompletionDate <-as.Date(CompleteModelAndDetail$LastCurrentCompletionDate )
 ```
 
 ## R Markdown
