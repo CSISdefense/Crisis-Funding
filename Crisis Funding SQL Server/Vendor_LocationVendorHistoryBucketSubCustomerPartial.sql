@@ -1,7 +1,7 @@
 USE [DIIG]
 GO
 
-/****** Object:  View [Vendor].[LocationVendorHistoryBucketSubCustomer]    Script Date: 10/31/2016 8:02:59 AM ******/
+/****** Object:  View [Vendor].[LocationVendorHistoryBucketSubCustomerPartial]    Script Date: 9/26/2017 5:05:38 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -11,7 +11,8 @@ GO
 
 
 
-Create VIEW [Vendor].[LocationVendorHistoryBucketSubCustomerPartial]
+
+ALTER VIEW [Vendor].[LocationVendorHistoryBucketSubCustomerPartial]
 AS
 SELECT 
 C.fiscal_year
@@ -19,11 +20,19 @@ C.fiscal_year
 --Customer
 , ISNULL(CAgency.Customer, CAgency.AgencyIDtext) AS ContractingCustomer
 	, CAgency.SubCustomer as ContractingSubCustomer
+	, CAgency.AgencyIDtext as ContractingAgencyText
+	, CAgency.AgencyID as ContractingAgencyID
 	, COALESCE(FAgency.Customer, FAgency.AgencyIDText, CAgency.Customer, CAgency.AGENCYIDText) as FundingAgency
 	, COALESCE(FAgency.SubCustomer, FAgency.AgencyIDText, CAgency.SubCustomer, CAgency.AGENCYIDText) as FundingSubAgency
 	,mcid.MajorCommandID
-			,mcid.ContractingOfficeID
-			,mcid.ContractingOfficeName
+			,c.ContractingOfficeID
+			,officecode.ContractingOfficeName
+			,officecode.AddressCity as ContractingOfficeCity
+			,officecode.AddressState as ContractingOfficeState
+			,officecode.CountryCode as ContractingOfficeCountry
+			,officecode.StartDate as ContractingOfficeStartDate
+			,officecode.EndDate as ContractingOfficeEndDate
+			
 			
 --ProductOrServiceCode
 ,PSC.ServicesCategory
@@ -33,6 +42,7 @@ C.fiscal_year
 ,PSC.DoDportfolio
 ,PSC.ProductOrServiceCode
 ,PSC.ProductOrServiceCodeText
+,PSC.HostNation3Category
 --Geography and Vendor
 ,c.isforeignownedandlocated
 ,c.isforeigngovernment
@@ -40,6 +50,7 @@ C.fiscal_year
 ,c.organizationaltype
 ,PlaceCountryCode.IsInternational as PlaceIsInternational
 ,PlaceCountryCode.Country3LetterCodeText as PlaceCountryText
+,PlaceCountryCode.isoAlpha3 as PlaceISOalpha3
 ,PlaceISO.CrisisFundingTheater
 ,OriginCountryCode.IsInternational as OriginIsInternational
 ,OriginCountryCode.Country3LetterCodeText as OriginCountryText
@@ -112,91 +123,82 @@ C.fiscal_year
 ,C.numberOfActions
 --Contract Description
 ,pricing.TypeofContractPricingtext
-	-- ,iif(addmodified=1 and ismodified=1,'Modified ','')+
-	--	case
-	--		when addmultipleorsingawardidc=1 
-	--		then case 
-	--			when multipleorsingleawardidc is null
-	--			then 'Unlabeled '+AwardOrIDVcontractactiontype
-	--			else multipleorsingleawardidc+' '+AwardOrIDVcontractactiontype
-	--			--Blank multipleorsingleawardIDC
-	--		end
-	--		else AwardOrIDVcontractactiontype 
-	--end		as VehicleClassification
+,notcompeted.isfollowontocompetedaction as ReasonNotIsfollowontocompetedaction
+			,notcompeted.is6_302_1exception
+			,NotCompeted.reasonnotcompetedText
+			,competed.IsFullAndOpen as ExtentIsFullAndOpen
+			,competed.IsSomeCompetition as ExtentIsSomeCompetition
+			,competed.isonlyonesource as ExtentIsonlyonesource
+			,competed.IsFollowOnToCompetedAction as ExtentIsfollowontocompetedaction
+			,Fairopp.isfollowontocompetedaction as FairIsfollowontocompetedaction
+			,Fairopp.isonlyonesource as FairIsonlyonesource
+			,Fairopp.IsSomeCompetition as FairIsSomeCompetition
+			,FairOpp.statutoryexceptiontofairopportunityText
+			,setaside.typeofsetaside2category
+			
 ,C.NumberOfOffersReceived
-	--,(SELECT CompetitionClassification from FPDSTypeTable.ClassifyCompetition(
-	--	c.numberofoffersreceived --@NumberOfOffers as decimal(19,4)
-	--,c.UseFairOpportunity --@UseFairOpportunity as bit
-	--,c.ExtentIsFullAndOpen--@ExtentIsFullAndOpen as bit
-	--,c.ExtentIsSomeCompetition--@extentissomecompetition as bit
-	--,c.ExtentIsfollowontocompetedaction 
- --   ,c.ExtentIsOnlyOneSource 
- --   ,c.ReasonNotIsfollowontocompetedaction 
-	--,c.is6_302_1exception--@is6_302_1exception as bit
-	--,c.FairIsSomeCompetition--@fairissomecompetition as bit
-	--,c.FairIsfollowontocompetedaction--@FairIsfollowontocompetedaction as bit
-	--,c.FairIsonlyonesource--@FairIsonlyonesource as bit
-	--	)) as CompetitionClassification
-	--,(SELECT ClassifyNumberOfOffers from Fpdstypetable.ClassifyNumberOfOffers(
-	--	c.numberofoffersreceived
-	--	,c.UseFairOpportunity	--,@UseFairOpportunity as bit
-	--	,c.ExtentIsSomeCompetition	--,@extentissomecompetition as bit
-	--	,c.FairIsSomeCompetition	--,@fairissomecompetition as bit
-	--	)) as ClassifyNumberOfOffers
---CrisiFundingClassification
-,c	.ContingencyHumanitarianPeacekeepingOperation
+		,CASE 
+				--Award or IDV Type show only (‘Definitive Contract’, ‘IDC’, ‘Purchase Order’)
+				WHEN ctype.ForAwardUseExtentCompeted=1
+				then 0 --Use extent competed
+				--Award or IDV Type show only (‘Delivery Order’, ‘BPA Call’)
+				--IDV Part 8 or Part 13 show only (‘Part 13’)
+				--When  **Part 8 or Part 13  is not available!**
+				--then 0 --Use extent competed
+
+				--Award or IDV Type show only (‘Delivery Order’)
+				--IDV Multiple or Single Award IDV show only (‘S’)
+				when ctype.isdeliveryorder=1
+					and isnull(IDVmulti.ismultipleaward, Cmulti.ismultipleaward) =0
+				then 0
+				--Fair Opportunity / Limited Sources show only (‘Fair Opportunity Given’)
+				--Award or IDV Type show only (‘Delivery Order’)
+				--IDV Type show only (‘FSS’, ‘GWAC’, ‘IDC’)
+				--	IDV Multiple or Single Award IDV show only (‘M’)
+				when idvtype.ForIDVUseFairOpportunity=1 and 
+					ctype.isdeliveryorder=1 and 
+					isnull(IDVmulti.ismultipleaward, Cmulti.ismultipleaward) =1
+				then 1 --Use fair opportunity
+
+				--	Number of Offers Received show only (‘1’)
+				-- Award or IDV Type show only (‘BPA Call’, ‘BPA’)
+				-- Part 8 or Part 13 show only (‘Part 8’)
+				--When  **Part 8 or Part 13  is not available!**
+				--then 0 --Use extent competed
+
+				when fairopp.statutoryexceptiontofairopportunitytext is not null
+				then 1
+				else 0
+			end as UseFairOpportunity
+			,isnull(idvtype.contractactiontypetext,ctype.contractactiontypetext) as AwardOrIDVcontractactiontype
+			,isnull(IDVmulti.multipleorsingleawardidctext, Cmulti.multipleorsingleawardidctext) 
+				as multipleorsingleawardidc 
+			,isnull(IDVtype.addmultipleorsingawardidc,ctype.addmultipleorsingawardidc) as addmultipleorsingawardidc
+			,isnull(IDVtype.addmodified,ctype.addmodified) as addmodified
+			,isnull(idvmod.typeofidc,idv.typeofidc) as IDVtypeofIDC
+			,Rmod.IsModified
+			,letter.IsUndefinitizedAction
+			,letter.IsLetterContract
+	
+--CrisisFundingClassification
+,c.ContingencyHumanitarianPeacekeepingOperation
 ,conhum.ContingencyHumanitarianPeacekeepingOperationText
+,conhum.IsOCOcrisisFunding as ConHumIsOCOcrisisFunding
 	, t.CrisisFunding as ContractCrisisFunding
 	, n.nationalinterestactioncode
 	, n.nationalinterestactioncodeText
 	, n.CrisisFunding as NIAcrisisFunding
 	, coalesce(t.CrisisFunding,n.CrisisFunding) as CrisisFunding
 	,c.localareasetaside --For disasters investigate this later.
-	,iif(n.CrisisFunding='Disaster' or
-		  t.CrisisFunding='Disaster' or 
-		  c.CCRexception = '3' --Contracting officers conductingemergency operations
-		  --or c.localareasetaside='Y' --For disasters investigate this later.
-		  ,1,0) as IsDisasterCrisisFunding
-	,iif(n.CrisisFunding='ARRA' or  t.CrisisFunding='ARRA',1,0) as IsARRAcrisisFunding
-	,case 
-	--National Intrest Action Code
-	when n.CrisisFunding='OCO'
-	then 1
-	--Manually labeled contract (not presently used)
-	when t.CrisisFunding='OCO'
-	then 1
-	--Labeled as Contigency or Huanitarian Operation
-	when ConHum.IsOCOcrisisFunding=1
-	then 1
-	--CCRexception is Contracting Officers deployed in the course of military operations
-	when c.CCRexception = '4' --Contracting Officers deployed in the course of military operations
-	then 1
-	--OMB standards 
-	--Specifies stricter standard relacement, repair, modification, and procurement of equipment; 
-	--New criteria specifying a 12-month time frame for obligating funds. 
-	--Funding for research and development must be for projects required for combat operations in the theater that can be delivered in 12 months
-	when ombbureau.OMBagencyCode=7 and ombbureau.bureauCode in (15, 20) and --Procurement or RDT&E
-		[UnmodifiedUltimateDuration]> 366
-	then 0
-	else NULL
-	end as IsOCOcrisisFunding
+	,c.CCRexception
+	--Scoring
+	,psc.OCOcrisisScore as pscOCOcrisiScore
+	,PlaceISO.OCOcrisisScore as placeOCOcrisisScore
+	,ocomac.PercentFundingAccountOCO
+	,officecode.OCOcrisisScore as OfficeOCOcrisisScore
+
 	--Duration
-	,case 
-		when cdur.UnmodifiedUltimateDuration is null or cdur.UnmodifiedUltimateDuration <0
-		then NULL
-		when cdur.UnmodifiedUltimateDuration <= 61 
-		then '<=2 Months'
-		when cdur.UnmodifiedUltimateDuration <= 214 
-		then '>2-7 Months'
-		when cdur.UnmodifiedUltimateDuration <= 366
-		then '>7-12 Months'
-		when cdur.UnmodifiedUltimateDuration <= 731
-		then '>1-2 Years'
-		when cdur.UnmodifiedUltimateDuration <= 1461
-		then '>2-4 Years'
-		else '>4 years'
-	end as UnmodifiedUltimateDurationCategory
-	,cdur.UnmodifiedUltimateDuration
+	,DATEDIFF(day, cdur.MinOfEffectiveDate, cdur.UnmodifiedUltimateCompletionDate) as UnmodifiedUltimateDuration
 --Funding Account
 	--FA: OMB
 , isnull(ombbureau.OMBagencyCode,ombagency.OMBagencyCode) as OMBagencycode
@@ -206,16 +208,22 @@ C.fiscal_year
 , progsource.treasuryagencycode
 , progsource.mainaccountcode
 , progsource.subaccountcode
+
 , coalesce(nullif(c.account_title,''),progsource.AccountTitle, sac.AccountTitle,mac.AccountTitle) as AccountTitle
 --, coalesce(sac.BEAcategory,mac.BEAcategory) as BEAcategory
 FROM Contract.FPDS as C
 		LEFT OUTER JOIN
 			FPDSTypeTable.AgencyID AS CAgency ON C.contractingofficeagencyid = CAgency.AgencyID
+left outer join office.contractingofficecode officecode
+on officecode.ContractingOfficeCode=c.contractingofficeid
 left outer join office.ContractingAgencyIDofficeIDtoMajorCommandIDhistory mcid
 		on c.contractingofficeagencyid=mcid.contractingagencyid and
 		c.contractingofficeid=mcid.contractingofficeid and
 		c.fiscal_year=mcid.fiscal_year
 	
+	left outer join FPDSTypeTable.lettercontract letter
+	on letter.LetterContract=c.lettercontract
+
 		LEFT OUTER JOIN
 			FPDSTypeTable.AgencyID AS FAgency ON C.fundingrequestingagencyid = FAgency.AgencyID
 	LEFT JOIN FPDSTypeTable.ProductOrServiceCode AS PSC
@@ -249,10 +257,18 @@ left outer join Contract.CSIStransactionIDlabel t
                      on idvmod.CSISidvmodificationID=t.CSISidvmodificationID
 left join contract.CSISidvpiidID as idv
                      on idv.CSISidvpiidID=idvmod.CSISidvpiidID
-             
+           --Contract Implementation
 		LEFT OUTER JOIN FPDSTypeTable.typeofcontractpricing AS pricing
 		ON pricing.TypeOfContractPricing=C.TypeofContractPricing 
-	
+		LEFT OUTER JOIN FPDSTypeTable.TypeOfSetAside AS SetAside 
+		ON C.typeofsetaside = SetAside.TypeOfSetAside 
+	LEFT OUTER JOIN FPDSTypeTable.extentcompeted AS Competed 
+		ON C.extentcompeted = Competed.extentcompeted 
+	LEFT OUTER JOIN FPDSTypeTable.ReasonNotCompeted AS NotCompeted 
+		ON C.reasonnotcompeted = NotCompeted.reasonnotcompeted 
+	LEFT OUTER JOIN FPDSTypeTable.statutoryexceptiontofairopportunity as FairOpp 
+		ON C.statutoryexceptiontofairopportunity=FAIROpp.statutoryexceptiontofairopportunity
+
 
 	--Block of vehicle lookups
 		Left JOIN FPDSTypeTable.multipleorsingleawardidc as Cmulti
@@ -268,10 +284,7 @@ left join contract.CSISidvpiidID as idv
 
 left outer join Assistance.NationalInterestActionCode n
 	on c.nationalinterestactioncode=n.nationalinterestactioncode
-left join (select CSIScontractID
-	, cd.UnmodifiedUltimateCompletionDate
-	, DATEDIFF(day, cd.MinOfEffectiveDate, cd.UnmodifiedUltimateCompletionDate) as UnmodifiedUltimateDuration
-	from contract.ContractDiscretization cd) as cdur
+left join contract.ContractDiscretization as cdur
 	on t.CSIScontractID=cdur.CSIScontractID
 left outer join Assistance.ContingencyHumanitarianPeacekeepingOperation conhum
 	on conhum.contingencyhumanitarianpeacekeepingoperation=c.ContingencyHumanitarianPeacekeepingOperation			
@@ -294,7 +307,10 @@ left outer join budget.subAccountCode sac
 	on progsource.subaccountcode=sac.subaccountcode
 		and progsource.mainaccountcode=sac.MainAccountCode
 		and progsource.treasuryagencycode=sac.TreasuryAgencyCode
-
+left outer join Budget.OCOmainAccountCodeHistory ocomac
+	on ocomac.MainAccountCode=mac.MainAccountCode
+	and ocomac.TreasuryAgencyCode=mac.TreasuryAgencyCode
+	and ocomac.FiscalYear=c.fiscal_year
 
 
 --Link OMBagencycode and OMBbureaucode
@@ -303,6 +319,7 @@ left outer join budget.subAccountCode sac
 	left outer join agency.BureauCode ombbureau
 		on ombbureau.OMBagencyCode=coalesce(sac.agencycode,mac.agencycode,tac.agencycode) 
 		and ombbureau.bureaucode=coalesce(sac.bureaucode,mac.bureaucode,tac.bureaucode)
+
 
 
 

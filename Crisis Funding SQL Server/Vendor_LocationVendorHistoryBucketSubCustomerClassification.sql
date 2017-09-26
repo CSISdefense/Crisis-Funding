@@ -1,7 +1,7 @@
 USE [DIIG]
 GO
 
-/****** Object:  View [Vendor].[LocationVendorHistoryBucketSubCustomer]    Script Date: 10/31/2016 8:02:59 AM ******/
+/****** Object:  View [Vendor].[LocationVendorHistoryBucketSubCustomerClassification]    Script Date: 9/26/2017 5:02:57 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -11,134 +11,168 @@ GO
 
 
 
-ALTER VIEW [Vendor].[LocationVendorHistoryBucketSubCustomer]
-AS
-SELECT 
-C.fiscal_year
---,getdate() AS Query_Run_Date
-, ISNULL(CAgency.Customer, CAgency.AgencyIDtext) AS ContractingCustomer
-	, CAgency.SubCustomer as ContractingSubCustomer
-	, COALESCE(FAgency.Customer, FAgency.AgencyIDText, CAgency.Customer, CAgency.AGENCYIDText) as FundingAgency
-	, COALESCE(FAgency.SubCustomer, FAgency.AgencyIDText, CAgency.SubCustomer, CAgency.AGENCYIDText) as FundingSubAgency
-	,originiso.[USAID region] as OriginUSAIDregion
-	,vendoriso.[USAID region] as VendorUSAIDregion
-	,placeiso.[USAID region] as PlaceUSAIDregion
-	,coalesce(placeiso.[USAID region],vendoriso.[USAID region], originiso.[USAID region]) as GuessUSAIDregion
-,case 
-			when PlaceCountryCode.IsInternational=0 
-				and coalesce(parent.isforeign,VendorCountryCode.IsInternational,OriginCountryCode.IsInternational) = 0
-			then 'Domestic US'
-			when PlaceCountryCode.IsInternational=0 
-				and coalesce(parent.isforeign,VendorCountryCode.IsInternational,OriginCountryCode.IsInternational)= 1
-			then 'Foreign Vendor in US'
-			when PlaceCountryCode.ISOcountryCode=
-				isnull(vendorcountrycode.ISOcountryCode,origincountrycode.isocountrycode)
-			then 'Host Nation Vendor'
-			when PlaceCountryCode.ISOcountryCode=origincountrycode.isocountrycode
-			then 'Possible Host Nation Vendor with contradiction'
-			when PlaceCountryCode.IsInternational=1 
-				and  coalesce(parent.isforeign,VendorCountryCode.IsInternational,OriginCountryCode.IsInternational) =0 
-			then 'US Vendor abroad'
-			when PlaceCountryCode.IsInternational=1 and 
-				coalesce(parent.isforeign,VendorCountryCode.IsInternational,OriginCountryCode.IsInternational)=1
-			then 'Third Country Vendor abroad'
-			when PlaceCountryCode.IsInternational=1 and 
-				coalesce(parent.isforeign,VendorCountryCode.IsInternational,OriginCountryCode.IsInternational) is null
-			then 'Unknown vendor abroad' 
-			when PlaceCountryCode.IsInternational=0 and 
-				coalesce(parent.isforeign,VendorCountryCode.IsInternational,OriginCountryCode.IsInternational) is null
-			then 'Unknown vendor in US' 
-			when PlaceCountryCode.IsInternational is null and 
-				coalesce(parent.isforeign,VendorCountryCode.IsInternational,OriginCountryCode.IsInternational)=0
-			then 'US vendor, unknown location' 
-			when PlaceCountryCode.IsInternational is null and 
-				coalesce(parent.isforeign,VendorCountryCode.IsInternational,OriginCountryCode.IsInternational)=1
-			then 'Foreign vendor, unknown location' 
-			else 'Unlabeled'
-			end as VendorPlaceType
-,PSC.ServicesCategory
-,Scat.IsService
-,PSC.Simple
-,PSC.ProductOrServiceArea
-,PSC.DoDportfolio
-,c.isforeignownedandlocated
-,c.isforeigngovernment
-,c.isinternationalorganization
-,c.organizationaltype
-,PlaceCountryCode.IsInternational as PlaceIsInternational
-,PlaceCountryCode.Country3LetterCodeText as PlaceCountryText
-,PlaceISO.CrisisFundingTheater
-,OriginCountryCode.IsInternational as OriginIsInternational
-,OriginCountryCode.Country3LetterCodeText as OriginCountryText
-,VendorCountryCode.IsInternational as VendorIsInternational
-,VendorCountryCode.Country3LetterCodeText as VendorCountryText
-,pom.placeofmanufactureText
-,C.obligatedAmount
-,C.numberOfActions
-	, CASE
-		WHEN Parent.Top6=1 and Parent.JointVenture=1 and C.contractingofficerbusinesssizedetermination in ('s','y')
-		THEN 'Large: Big 6 JV (Small Subsidiary)'
-		WHEN Parent.Top6=1 and Parent.JointVenture=1
-		THEN 'Large: Big 6 JV'
-		WHEN Parent.Top6=1 and C.contractingofficerbusinesssizedetermination in ('s','y')
-		THEN 'Large: Big 6 (Small Subsidiary)'
-		WHEN Parent.Top6=1
-		THEN 'Large: Big 6'
-		WHEN Parent.IsPreTop6=1
-		THEN 'Large: Pre-Big 6'
-		WHEN Parent.LargeGreaterThan3B=1 and C.contractingofficerbusinesssizedetermination in ('s','y')
-		THEN 'Large (Small Subsidiary)'
-		WHEN Parent.LargeGreaterThan3B=1
-		THEN 'Large'
-		WHEN Parent.LargeGreaterThan1B=1  and C.contractingofficerbusinesssizedetermination in ('s','y')
-		THEN 'Medium >1B (Small Subsidiary)'
-		WHEN Parent.LargeGreaterThan1B=1
-		THEN 'Medium >1B'
-		WHEN C.contractingofficerbusinesssizedetermination='s' or C.contractingofficerbusinesssizedetermination='y'
-		THEN 'Small'
-		when Parent.UnknownCompany=1
-		Then 'Unlabeled'
-		ELSE 'Medium <1B'
-	END AS VendorSize
-	, t.CrisisFunding as ContractCrisisFunding
-	, n.nationalinterestactioncodeText
-	, n.CrisisFunding as NIAcrisisFunding
-	, coalesce(t.CrisisFunding,n.CrisisFunding) as CrisisFunding
-FROM Contract.FPDS as C
-		LEFT OUTER JOIN
-			FPDSTypeTable.AgencyID AS CAgency ON C.contractingofficeagencyid = CAgency.AgencyID
-		LEFT OUTER JOIN
-			FPDSTypeTable.AgencyID AS FAgency ON C.fundingrequestingagencyid = FAgency.AgencyID
-	LEFT JOIN FPDSTypeTable.ProductOrServiceCode AS PSC
-		ON C.productorservicecode=PSC.ProductOrServiceCode
-	LEFT JOIN FPDSTypeTable.Country3lettercode as PlaceCountryCode
-		ON C.placeofperformancecountrycode=PlaceCountryCode.Country3LetterCode
-	left outer join location.CountryCodes as PlaceISO
-		on PlaceCountryCode.ISOcountryCode =placeiso.[alpha-2]
-	LEFT JOIN FPDSTypeTable.Country3lettercode as OriginCountryCode
-		ON C.countryoforigin=OriginCountryCode.Country3LetterCode
-	left outer join location.CountryCodes as OriginISO
-		on OriginCountryCode.ISOcountryCode =OriginISO.[alpha-2]
-	LEFT JOIN FPDSTypeTable.vendorcountrycode as VendorCountryCodePartial
-		ON C.vendorcountrycode=VendorCountryCodePartial.vendorcountrycode
-	LEFT JOIN FPDSTypeTable.Country3lettercode as VendorCountryCode
-		ON vendorcountrycode.Country3LetterCode=VendorCountryCodePartial.Country3LetterCode
-	left outer join location.CountryCodes as VendorISO
-		on VendorCountryCode.ISOcountryCode=VendorISO.[alpha-2]
-	LEFT JOIN ProductOrServiceCode.ServicesCategory As Scat
-		ON Scat.ServicesCategory = PSC.ServicesCategory
-	LEFT OUTER JOIN Contractor.DunsnumbertoParentContractorHistory as DUNS
-		ON C.fiscal_year = DUNS.FiscalYear 
-		AND C.DUNSNumber = DUNS.DUNSNUMBER
-	LEFT OUTER JOIN Contractor.ParentContractor as PARENT
-		ON DUNS.ParentID = PARENT.ParentID
-	left outer join FPDSTypeTable.placeofmanufacture as PoM
-		on c.placeofmanufacture=pom.placeofmanufacture
-left outer join Contract.CSIStransactionIDlabel t
-on c.CSIStransactionID=t.CSIStransactionID
-left outer join Assistance.NationalInterestActionCode n
-on c.nationalinterestactioncode=n.nationalinterestactioncode
 
+ALTER VIEW [Vendor].[LocationVendorHistoryBucketSubCustomerClassification]
+AS
+SELECT  [fiscal_year]
+      ,[CSIScontractID]
+      ,[ContractingCustomer]
+      ,[ContractingSubCustomer]
+      ,[FundingAgency]
+      ,[FundingSubAgency]
+      ,[MajorCommandID]
+      ,[ContractingOfficeID]
+      ,[ContractingOfficeName]
+	  ,ContractingOfficeCity
+			,ContractingOfficeState
+			,ContractingOfficeCountry
+			,ContractingOfficeStartDate
+			,ContractingOfficeEndDate
+      ,[ServicesCategory]
+      ,[IsService]
+      ,[Simple]
+      ,[ProductOrServiceArea]
+	  ,HostNation3Category
+      ,[DoDportfolio]
+      ,[ProductOrServiceCode]
+      ,[ProductOrServiceCodeText]
+      ,[isforeignownedandlocated]
+      ,[isforeigngovernment]
+      ,[isinternationalorganization]
+      ,[organizationaltype]
+      ,[PlaceIsInternational]
+      ,[PlaceCountryText]
+	  ,PlaceISOalpha3
+      ,[CrisisFundingTheater]
+      ,[OriginIsInternational]
+      ,[OriginCountryText]
+      ,[VendorIsInternational]
+      ,[VendorCountryText]
+      ,[placeofmanufactureText]
+      ,[OriginUSAIDregion]
+      ,[VendorUSAIDregion]
+      ,[PlaceUSAIDregion]
+      ,[GuessUSAIDregion]
+      ,[VendorPlaceType]
+      ,[VendorSize]
+      ,[obligatedAmount]
+      ,[numberOfActions]
+      ,[TypeofContractPricingtext]
+	  ,IsUndefinitizedAction
+	  	 ,iif(addmodified=1 and ismodified=1,'Modified ','')+
+		case
+			when addmultipleorsingawardidc=1 
+			then case 
+				when multipleorsingleawardidc is null
+				then 'Unlabeled '+AwardOrIDVcontractactiontype
+				else multipleorsingleawardidc+' '+AwardOrIDVcontractactiontype
+				--Blank multipleorsingleawardIDC
+			end
+			else AwardOrIDVcontractactiontype 
+	end		as VehicleClassification
+      ,[NumberOfOffersReceived]
+	  	,(SELECT CompetitionClassification from FPDSTypeTable.ClassifyCompetition(
+		l.numberofoffersreceived --@NumberOfOffers as decimal(19,4)
+	,l.UseFairOpportunity --@UseFairOpportunity as bit
+	,l.ExtentIsFullAndOpen--@ExtentIsFullAndOpen as bit
+	,l.ExtentIsSomeCompetition--@extentissomecompetition as bit
+	,l.ExtentIsfollowontocompetedaction 
+    ,l.ExtentIsOnlyOneSource 
+    ,l.ReasonNotIsfollowontocompetedaction 
+	,l.is6_302_1exception--@is6_302_1exception as bit
+	,l.FairIsSomeCompetition--@fairissomecompetition as bit
+	,l.FairIsfollowontocompetedaction--@FairIsfollowontocompetedaction as bit
+	,l.FairIsonlyonesource--@FairIsonlyonesource as bit
+		)) as CompetitionClassification
+	,(SELECT ClassifyNumberOfOffers from Fpdstypetable.ClassifyNumberOfOffers(
+		l.numberofoffersreceived
+		,l.UseFairOpportunity	--,@UseFairOpportunity as bit
+		,l.ExtentIsSomeCompetition	--,@extentissomecompetition as bit
+		,l.FairIsSomeCompetition	--,@fairissomecompetition as bit
+		)) as ClassifyNumberOfOffers
+      ,[ContingencyHumanitarianPeacekeepingOperation]
+      ,[ContingencyHumanitarianPeacekeepingOperationText]
+      ,[ContractCrisisFunding]
+      ,[nationalinterestactioncode]
+      ,[nationalinterestactioncodeText]
+      ,[NIAcrisisFunding]
+      ,[CrisisFunding]
+      ,[localareasetaside]
+   ,iif(NIAcrisisFunding='Disaster' or
+		  ContractCrisisFunding='Disaster' or 
+		  l.CCRexception = '3' --Contracting officers conductingemergency operations
+		  --or l.localareasetaside='Y' --For disasters investigate this later.
+		  ,1,0) as IsDisasterCrisisFunding
+	,iif(NIAcrisisFunding='ARRA' or  ContractCrisisFunding='ARRA',1,0) as IsARRAcrisisFunding
+	,case 
+	--National Intrest Action Code
+	when NIAcrisisFunding='OCO'
+	then 1
+	--Manually labeled contract (not presently used)
+	when ContractCrisisFunding='OCO'
+	then 1
+	--Labeled as Contigency or Huanitarian Operation
+	when ConHumIsOCOcrisisFunding=1
+	then 1
+	--CCRexception is Contracting Officers deployed in the course of military operations
+	when l.CCRexception = '4' --Contracting Officers deployed in the course of military operations
+	then 1
+	else NULL
+	end as IsOCOcrisisFunding
+	
+	--OMB test for procurement and R&D with duration > 1 year
+	, iif(l.OMBagencyCode=7 and l.OMBbureauCode in (15, 20) and --Procurement or RDT&E
+		[UnmodifiedUltimateDuration]> 366,1,0) as IsMultipleYearProcRnD
+	
+
+	--Point Version
+	--Product or Service Code score and OMB standards. Up to 2 points, as little as -2 points
+	--OMB standards 
+	--Specifies stricter standard relacement, repair, modification, and procurement of equipment; 
+	--New criteria specifying a 12-month time frame for obligating funds. 
+	--Funding for research and development must be for projects required for combat operations in the theater that can be delivered in 12 months
+	,iif(isnull(pscOCOcrisiScore,0) 
+		- iif(l.OMBagencyCode=7 and l.OMBbureauCode in (15, 20) and --Procurement or RDT&E
+		[UnmodifiedUltimateDuration]> 366,1,0) >2,2,isnull(pscOCOcrisiScore,0)- iif(l.OMBagencyCode=7 and l.OMBbureauCode in (15, 20) and --Procurement or RDT&E
+		[UnmodifiedUltimateDuration]> 366,1,0))
+	--Place of Performance and Contracting Office, up to 4 points, as little as -2 points
+	+iif(isnull(placeOCOcrisisScore,0) + isnull(OfficeOCOcrisisScore,0) >4,4,
+		isnull(placeOCOcrisisScore,0) + isnull(OfficeOCOcrisisScore,0))
+	+round(isnull(PercentFundingAccountOCO,0)*4,0) as OCOcrisisScore
+	,pscOCOcrisiScore
+	,placeOCOcrisisScore
+	,PercentFundingAccountOCO
+	,OfficeOCOcrisisScore
+
+	   	,case 
+		when l.UnmodifiedUltimateDuration is null or l.UnmodifiedUltimateDuration <0
+		then NULL
+		when l.UnmodifiedUltimateDuration <= 61 
+		then '<=2 Months'
+		when l.UnmodifiedUltimateDuration <= 214 
+		then '>2-7 Months'
+		when l.UnmodifiedUltimateDuration <= 366
+		then '>7-12 Months'
+		when l.UnmodifiedUltimateDuration <= 731
+		then '>1-2 Years'
+		when l.UnmodifiedUltimateDuration <= 1461
+		then '>2-4 Years'
+		else '>4 years'
+	end as UnmodifiedUltimateDurationCategory
+
+      ,[UnmodifiedUltimateDuration]
+      ,bc.agencyname as OMBagencyName
+	  ,bc.BureauCode as OMBbureauName
+	  ,l.OMBagencycode
+      ,l.[OMBbureaucode]
+      ,[treasuryagencycode]
+      ,[mainaccountcode]
+      ,[subaccountcode]
+	  ,[AccountTitle]
+  FROM [DIIG].[Vendor].[LocationVendorHistoryBucketSubCustomerPartial] l
+  left outer join agency.BureauCode bc
+  on bc.OMBagencyCode=l.OMBagencycode and
+  bc.BureauCode=l.OMBbureaucode
 
 
 
