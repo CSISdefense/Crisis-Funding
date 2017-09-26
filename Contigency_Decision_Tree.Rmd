@@ -8,8 +8,8 @@ output:
 pdf_document: default
 ---
   
-  #Setup
-  ```{r setup, include=FALSE}
+#Setup
+```{r setup, include=FALSE}
 
 library(plyr)
 library(dplyr)
@@ -67,7 +67,7 @@ rm(ZipFile)
 full_data<-apply_lookups(Path,full_data)
 full_data<-subset(full_data, year(Fiscal.Year)>=2000)
 
-
+save(full_data,file="Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.Rdata")
 
 ```
 
