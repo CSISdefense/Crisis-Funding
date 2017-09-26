@@ -2,14 +2,8 @@
 Greg Sanders  
 March 28, 2017  
 
+#Setup
 
-
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 
 ##Import Data
@@ -26,15 +20,15 @@ FullData<-apply_lookups(Path,FullData)
 ```
 
 ```
+## Joining by: CompetitionClassification, ClassifyNumberOfOffers
+```
+
+```
 ## Joining by: ProductOrServiceArea
 ```
 
 ```
 ## Joining by: Vendor.Size
-```
-
-```
-## Joining by: CompetitionClassification, ClassifyNumberOfOffers
 ```
 
 ```
@@ -50,7 +44,7 @@ FullData<-subset(FullData, year(Fiscal.Year)>=2000)
 ```
 
 
-
+#Identifying Contigency Contracts
 ##Points
 
 ```r
@@ -58,9 +52,21 @@ FullData$OCOcrisisScore<-round(FullData$OCOcrisisScore)
 FullData$IsOCOcrisisFunding<-factor(ifelse(FullData$CrisisFunding=="OCO","OCO","All Other"))
 FullData$IsOCOcrisisFunding[is.na(FullData$IsOCOcrisisFunding)]<-"All Other"
 FullData$OCOcrisisScore[FullData$OCOcrisisScore<0]<-0
+
+#Group the 0-10 score into a smaller number of buckets 
+FullData$OCOscoreBuckets<-NA
 FullData$OCOscore<-cut2(FullData$OCOcrisisScore,c(1,3,6))
+FullData$OCOscoreBuckets[FullData$OCOscore=="[ 6,10]"]<-"Confident OCO [6-10]"
+FullData$OCOscoreBuckets[FullData$OCOscore=="[ 3, 6)"]<-"Borderline OCO [3-5]"
+FullData$OCOscoreBuckets[FullData$OCOscore=="[ 1, 3)"]<-"Possible OCO [1-2]"
+FullData$OCOscoreBuckets[FullData$OCOscore==" 0"]<-"Remainder [0]"
 
 
+FullData$OCOscoreBuckets<-ordered(FullData$OCOscoreBuckets,c("Remainder [0]","Possible OCO [1-2]","Borderline OCO [3-5]","Confident OCO [6-10]",
+                                                           "Confirmed OCO"))
+
+
+#Label theaters
 FullData$Theater<-FullData$CrisisFundingTheater
 levels(FullData$Theater)<-c("Afghanistan"="Afghanistan and Iraq",
                             "Domestic"="Domestic",
@@ -77,7 +83,7 @@ levels(FullData$International)<-c("Afghanistan and Iraq"="International",
 FullData$International<-ordered(FullData$International,levels=c("International","Domestic"))
 
 
-Evaluation<-Points<-ddply(FullData,
+Evaluation<-ddply(FullData,
                 .(
                   IsOCOcrisisFunding,
                   OCOcrisisScore,
@@ -98,10 +104,38 @@ Evaluation<-ddply(Evaluation,
                 )
 
 
-Evaluation$OCOscore<-ordered(Evaluation$OCOcrisisScore)
-ggplot(subset(Evaluation,IsOCOcrisisFunding=="OCO" & !is.na(Theater)),aes(y=pObligations,fill=Theater,x=Theater))+
-  geom_bar(stat="identity")+
-  facet_wrap(  ~ OCOcrisisScore, nrow=2)+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="Labeled Theater Defense Contracts",
+  VAR.X.label="Theater",
+  VAR.Y.label="Percent of Obligations That Are Confirmed OCO",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(Evaluation,IsOCOcrisisFunding=="OCO" & !is.na(Theater)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Theater", #VAR.x.variable
+  VAR.y.variable="pObligations", #VAR.y.variable
+  VAR.y.series="Theater", #VAR.y.series
+  VAR.facet.primary="OCOcrisisScore" #VAR.facet.primary
+  # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+  facet_wrap(  ~ primary
+               , nrow=2)+
+  scale_y_continuous("Percent of Obligations",
+                     labels = scales::percent)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```
+## Warning in if (class(VAR.long.DF$x.variable) == "Date") {: the condition
+## has length > 1 and only the first element will be used
+```
+
+```
+## Scale for 'y' is already present. Adding another scale for 'y', which
+## will replace the existing scale.
 ```
 
 ![](CrisisFundingHypotheses_files/figure-html/Points-1.png)<!-- -->
@@ -111,7 +145,7 @@ Points<-ddply(FullData,
                 .(
                   Fiscal.Year,
                   IsOCOcrisisFunding,
-                  OCOscore
+                  OCOscoreBuckets
                   ),
                 plyr::summarise,
                 Obligations=sum(Obligation.2015)
@@ -128,11 +162,31 @@ Points<-ddply(Points,
                 )
 
 
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=Points,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="pObligations", #VAR.y.variable
+  VAR.y.series="OCOscoreBuckets", #VAR.y.series
+  VAR.facet.primary="IsOCOcrisisFunding" #VAR.facet.primary
+  # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+ scale_y_continuous("Percent of Obligations",
+                     labels = scales::percent)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
 
-
-ggplot(Points,aes(x=Fiscal.Year,y=pObligations,fill=OCOscore))+
-  geom_bar(stat="identity")+
-  facet_grid(  ~ IsOCOcrisisFunding)
+```
+## Scale for 'y' is already present. Adding another scale for 'y', which
+## will replace the existing scale.
 ```
 
 ![](CrisisFundingHypotheses_files/figure-html/Points-2.png)<!-- -->
@@ -142,13 +196,12 @@ PointsRegion<-ddply(FullData,
                 .(
                   Fiscal.Year,
                   IsOCOcrisisFunding,
-                  OCOscore,
+                  OCOscoreBuckets,
                   Theater
                   ),
                 plyr::summarise,
                 Obligations=sum(Obligation.2015)
                 )
-
 
 PointsRegion<-ddply(PointsRegion,
                 .(
@@ -160,10 +213,43 @@ PointsRegion<-ddply(PointsRegion,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-PointsRegion$OCOscore<-ordered(PointsRegion$OCOscore)
-ggplot(subset(PointsRegion,!is.na(Theater)),aes(x=Fiscal.Year,y=pObligations,fill=OCOscore))+
-  geom_bar(stat="identity")+
-  facet_grid(  IsOCOcrisisFunding ~  Theater)+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+ scale_x_date("Fiscal Year",labels = date_format("'%y"))
+PointsRegion$OCOscoreBuckets<-ordered(PointsRegion$OCOscoreBuckets)
+
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(PointsRegion,!is.na(Theater)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="pObligations", #VAR.y.variable
+  VAR.y.series="OCOscoreBuckets", #VAR.y.series
+  VAR.facet.primary="IsOCOcrisisFunding", #VAR.facet.primary
+  VAR.facet.secondary= "Theater" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+ scale_y_continuous("Percent of Obligations",
+                     labels = scales::percent)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```
+## Scale for 'y' is already present. Adding another scale for 'y', which
+## will replace the existing scale.
+```
+
+```
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font family not found in Windows font database
+```
+
+```
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font family not found in Windows font database
 ```
 
 ![](CrisisFundingHypotheses_files/figure-html/Points-3.png)<!-- -->
@@ -173,18 +259,19 @@ ggplot(subset(PointsRegion,!is.na(Theater)),aes(x=Fiscal.Year,y=pObligations,fil
 ##Labeling
 
 ```r
-FullData$OCOlabelDetail<-NA
+FullData$OCOlabelDetail<-FullData$OCOscoreBuckets
+levels(FullData$OCOlabelDetail) <- 
+  c(levels(FullData$OCOlabelDetail),"Confirmed OCO")
 FullData$OCOlabelDetail[FullData$CrisisFunding=="OCO"]<-"Confirmed OCO"
-FullData$OCOlabelDetail[FullData$OCOscore=="[ 6,10]"&is.na(FullData$OCOlabelDetail)]<-"Confident OCO [6-10]"
-FullData$OCOlabelDetail[FullData$OCOscore=="[ 3, 6)"&is.na(FullData$OCOlabelDetail)]<-"Borderline OCO [3-5]"
-FullData$OCOlabelDetail[FullData$OCOscore=="[ 1, 3)"&is.na(FullData$OCOlabelDetail)]<-"Possible OCO [1-2]"
-FullData$OCOlabelDetail[FullData$OCOscore==" 0"&is.na(FullData$OCOlabelDetail)]<-"Remainder [0]"
-FullData$OCOlabelDetail<-factor(FullData$OCOlabelDetail)
+
+
 FullData$IsCSISOCO<-"All Other"
 FullData$IsCSISOCO[FullData$CrisisFunding=="OCO"|FullData$OCOcrisisScore>=6]<-"Confident OCO"
 
-FullData$OCOlabelDetail<-ordered(FullData$OCOlabelDetail,c("Remainder [0]","Possible OCO [1-2]","Borderline OCO [3-5]","Confident OCO [6-10]",
-                                                           "Confirmed OCO"))
+
+
+  
+
 
 
 Dollars<-ddply(FullData,
@@ -199,10 +286,24 @@ Dollars<-ddply(FullData,
 
 
 
-
-ggplot(Dollars,aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
-  geom_bar(stat="identity")+
-  facet_grid(  ~ IsCSISOCO)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="All Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=Dollars,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="OCOlabelDetail", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO" #VAR.facet.primary
+  # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position="bottom")
 ```
 
 ![](CrisisFundingHypotheses_files/figure-html/Labeling-1.png)<!-- -->
@@ -224,9 +325,9 @@ FullData[FullData$PlaceCountryText %in% c("Jordan","Turkey"),]
 ```
 
 ```
-##  [1] Fiscal.Year                        CompetitionClassification         
-##  [3] ClassifyNumberOfOffers             Vendor.Size                       
-##  [5] ProductOrServiceArea               SimpleArea                        
+##  [1] Fiscal.Year                        Vendor.Size                       
+##  [3] ProductOrServiceArea               CompetitionClassification         
+##  [5] ClassifyNumberOfOffers             SimpleArea                        
 ##  [7] ContractCrisisFunding              ContractingCustomer               
 ##  [9] ContractingSubCustomer             nationalinterestactioncodeText    
 ## [11] NIAcrisisFunding                   IsOCOcrisisFunding                
@@ -236,36 +337,55 @@ FullData[FullData$PlaceCountryText %in% c("Jordan","Turkey"),]
 ## [19] OMBagencyName                      OMBbureauName                     
 ## [21] isUndefinitizedAction              OCOcrisisScore                    
 ## [23] OfficeOCOcrisisScore               Action.Obligation                 
-## [25] numberOfActions                    ProductServiceOrRnDarea           
-## [27] ServicesCategory.detail            ServicesCategory.sum              
-## [29] ProductsCategory.detail            ProductOrServiceArea.DLA          
-## [31] ProductOrServicesCategory.Graph    ServicesCategory.sum.1            
-## [33] SupplyServiceFRC                   SupplyServiceERS                  
-## [35] Vendor.Size.detail                 Vendor.Size.sum                   
-## [37] Shiny.VendorSize                   Competition.detail                
-## [39] Competition.sum                    Competition.effective.only        
-## [41] Competition.multisum               No.Competition.sum                
+## [25] numberOfActions                    Competition.detail                
+## [27] Competition.sum                    Competition.effective.only        
+## [29] Competition.multisum               No.Competition.sum                
+## [31] ProductServiceOrRnDarea            ServicesCategory.detail           
+## [33] ServicesCategory.sum               ProductsCategory.detail           
+## [35] ProductOrServiceArea.DLA           ProductOrServicesCategory.Graph   
+## [37] ProductServiceOrRnDarea.sum        SupplyServiceFRC                  
+## [39] SupplyServiceERS                   Vendor.Size.detail                
+## [41] Vendor.Size.sum                    Shiny.VendorSize                  
 ## [43] Deflator.2005                      Deflator.2011                     
 ## [45] Deflator.2012                      Deflator.2013                     
 ## [47] Deflator.2014                      Deflator.2015                     
-## [49] X                                  X.1                               
-## [51] X.2                                X.3                               
-## [53] X.4                                GDPdeflator                       
-## [55] Obligation.2013                    Obligation.2014                   
-## [57] Obligation.2015                    LogOfAction.Obligation            
-## [59] Fiscal.Year.End                    Fiscal.Year.Start                 
-## [61] Graph                              OCOscore                          
-## [63] Theater                            International                     
-## [65] OCOlabelDetail                     IsCSISOCO                         
+## [49] Deflator.2016                      Obligation.2013                   
+## [51] Obligation.2014                    Obligation.2015                   
+## [53] LogOfAction.Obligation             Fiscal.Year.End                   
+## [55] Fiscal.Year.Start                  Graph                             
+## [57] OCOscoreBuckets                    OCOscore                          
+## [59] Theater                            International                     
+## [61] OCOlabelDetail                     IsCSISOCO                         
 ## <0 rows> (or 0-length row.names)
 ```
 
 ```r
-ggplot(subset(DollarsTheater,!is.na(Theater)),aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
-  geom_bar(stat="identity")+
-  facet_grid(Theater  ~ IsCSISOCO, scales="free_y",space="free_y")+
-  scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
-  theme(strip.text.y = element_text(angle = 0))
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="Defense Contracts with Labeled Theater",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(DollarsTheater,!is.na(Theater)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="OCOlabelDetail", #VAR.y.series
+  VAR.facet.primary="Theater", #VAR.facet.primary
+  VAR.facet.secondary="IsCSISOCO" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position="right")
+```
+
+```
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font family not found in Windows font database
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font family not found in Windows font database
 ```
 
 ![](CrisisFundingHypotheses_files/figure-html/Labeling-2.png)<!-- -->
@@ -287,9 +407,9 @@ FullData[FullData$PlaceCountryText %in% c("Jordan","Turkey"),]
 ```
 
 ```
-##  [1] Fiscal.Year                        CompetitionClassification         
-##  [3] ClassifyNumberOfOffers             Vendor.Size                       
-##  [5] ProductOrServiceArea               SimpleArea                        
+##  [1] Fiscal.Year                        Vendor.Size                       
+##  [3] ProductOrServiceArea               CompetitionClassification         
+##  [5] ClassifyNumberOfOffers             SimpleArea                        
 ##  [7] ContractCrisisFunding              ContractingCustomer               
 ##  [9] ContractingSubCustomer             nationalinterestactioncodeText    
 ## [11] NIAcrisisFunding                   IsOCOcrisisFunding                
@@ -299,45 +419,32 @@ FullData[FullData$PlaceCountryText %in% c("Jordan","Turkey"),]
 ## [19] OMBagencyName                      OMBbureauName                     
 ## [21] isUndefinitizedAction              OCOcrisisScore                    
 ## [23] OfficeOCOcrisisScore               Action.Obligation                 
-## [25] numberOfActions                    ProductServiceOrRnDarea           
-## [27] ServicesCategory.detail            ServicesCategory.sum              
-## [29] ProductsCategory.detail            ProductOrServiceArea.DLA          
-## [31] ProductOrServicesCategory.Graph    ServicesCategory.sum.1            
-## [33] SupplyServiceFRC                   SupplyServiceERS                  
-## [35] Vendor.Size.detail                 Vendor.Size.sum                   
-## [37] Shiny.VendorSize                   Competition.detail                
-## [39] Competition.sum                    Competition.effective.only        
-## [41] Competition.multisum               No.Competition.sum                
+## [25] numberOfActions                    Competition.detail                
+## [27] Competition.sum                    Competition.effective.only        
+## [29] Competition.multisum               No.Competition.sum                
+## [31] ProductServiceOrRnDarea            ServicesCategory.detail           
+## [33] ServicesCategory.sum               ProductsCategory.detail           
+## [35] ProductOrServiceArea.DLA           ProductOrServicesCategory.Graph   
+## [37] ProductServiceOrRnDarea.sum        SupplyServiceFRC                  
+## [39] SupplyServiceERS                   Vendor.Size.detail                
+## [41] Vendor.Size.sum                    Shiny.VendorSize                  
 ## [43] Deflator.2005                      Deflator.2011                     
 ## [45] Deflator.2012                      Deflator.2013                     
 ## [47] Deflator.2014                      Deflator.2015                     
-## [49] X                                  X.1                               
-## [51] X.2                                X.3                               
-## [53] X.4                                GDPdeflator                       
-## [55] Obligation.2013                    Obligation.2014                   
-## [57] Obligation.2015                    LogOfAction.Obligation            
-## [59] Fiscal.Year.End                    Fiscal.Year.Start                 
-## [61] Graph                              OCOscore                          
-## [63] Theater                            International                     
-## [65] OCOlabelDetail                     IsCSISOCO                         
+## [49] Deflator.2016                      Obligation.2013                   
+## [51] Obligation.2014                    Obligation.2015                   
+## [53] LogOfAction.Obligation             Fiscal.Year.End                   
+## [55] Fiscal.Year.Start                  Graph                             
+## [57] OCOscoreBuckets                    OCOscore                          
+## [59] Theater                            International                     
+## [61] OCOlabelDetail                     IsCSISOCO                         
 ## <0 rows> (or 0-length row.names)
 ```
 
 ```r
-ggplot(subset(DollarsInternational,!is.na(International)),
-       aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
-  geom_bar(stat="identity")+
-  facet_grid(International  ~ IsCSISOCO, scales="free_y",space="free_y")+
-  scale_fill_discrete(guide = guide_legend("OCO labeling detail",reverse=FALSE))+
-  theme(strip.text.y = element_text(angle = 0))+scale_y_continuous("Obligations (2015 $ Billions)")+scale_x_date("Fiscal Year")
-```
-
-![](CrisisFundingHypotheses_files/figure-html/Labeling-3.png)<!-- -->
-
-```r
 OCOdetail<-LatticePlotWrapper(
   VAR.color.legend.label="OCO labeling detail",
-  VAR.main.label="",
+  VAR.main.label="Defense Contracts with Labeled Location",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2015 $ Billions)",
   VAR.Coloration=Coloration,
@@ -353,32 +460,20 @@ OCOdetail<-LatticePlotWrapper(
   # ,DataLabels=NA
   #                       ,VAR.override.coloration=NA
 )
-```
 
-```
-## Warning in `levels<-`(`*tmp*`, value = if (nl == nL) as.character(labels)
-## else paste0(labels, : duplicated levels in factors are deprecated
-```
-
-```r
 OCOdetail+theme(legend.position="right")
 ```
 
 ```
-## Warning in `levels<-`(`*tmp*`, value = if (nl == nL) as.character(labels)
-## else paste0(labels, : duplicated levels in factors are deprecated
-```
-
-```
-## Warning in grid.Call(L_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
 ## font family not found in Windows font database
 
-## Warning in grid.Call(L_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
 ## font family not found in Windows font database
 ```
 
-![](CrisisFundingHypotheses_files/figure-html/Labeling-4.png)<!-- -->
-
+![](CrisisFundingHypotheses_files/figure-html/Labeling-3.png)<!-- -->
+#Analyisis
 ##Country
 
 ```r
@@ -395,9 +490,24 @@ Country<-ddply(FullData,
 write.csv(Country,file.path("Output","Country.csv"))
 
 
-ggplot(Dollars,aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
-  geom_bar(stat="identity")+
-  facet_grid(  ~ IsCSISOCO)+scale_fill_discrete(guide = guide_legend(reverse=FALSE))
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="All Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=Dollars,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="OCOlabelDetail", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO" #VAR.facet.primary
+  # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position="bottom")
 ```
 
 ![](CrisisFundingHypotheses_files/figure-html/Country-1.png)<!-- -->
@@ -405,7 +515,7 @@ ggplot(Dollars,aes(x=Fiscal.Year,y=Obligations,fill=OCOlabelDetail))+
 ```r
 OCOdetailZoom<-LatticePlotWrapper(
   VAR.color.legend.label="OCO labeling detail",
-  VAR.main.label="",
+  VAR.main.label="Confident OCO or International Defense Contracts",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2015 $ Billions)",
   VAR.Coloration=Coloration,
@@ -424,82 +534,20 @@ OCOdetailZoom<-LatticePlotWrapper(
   # ,DataLabels=NA
   #                       ,VAR.override.coloration=NA
 )
+
+OCOdetailZoom+theme(legend.position="bottom")
 ```
 
 ```
-## Warning in `levels<-`(`*tmp*`, value = if (nl == nL) as.character(labels)
-## else paste0(labels, : duplicated levels in factors are deprecated
-```
-
-```r
-OCOdetailZoom
-```
-
-```
-## Warning in `levels<-`(`*tmp*`, value = if (nl == nL) as.character(labels)
-## else paste0(labels, : duplicated levels in factors are deprecated
-```
-
-```
-## Warning in grid.Call(L_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
 ## font family not found in Windows font database
 
-## Warning in grid.Call(L_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
 ## font family not found in Windows font database
 ```
 
 ![](CrisisFundingHypotheses_files/figure-html/Country-2.png)<!-- -->
 
-##DuplicateCompetition
-
-```r
-# FullData$No.Competition.sum<-ordered(FullData$No.Competition.sum,
-#                                                         c("2+ Offers","1 Offer", 
-#                                                           "No Competition (Only One Source Exception)"
-#                                                           ,"No Competition (Follow on to competed action)",
-#                                                           "No Competition (Other Exception)",
-#                                                           "No Competition (Unlabeled Exception)"         
-#                                                         ))
-# 
-# 
-# 
-# #Competition and Simple Area
-# CompetitionSupplyServiceERS<-ddply(FullData,
-#                 .(
-#                   Fiscal.Year,
-#                   IsCSISOCO,
-#                   No.Competition.sum,
-#                   SupplyServiceERS
-#                   ),
-#                 plyr::summarise,
-#                 Obligations=sum(Obligation.2015)
-#                 )
-# 
-# CompetitionSupplyServiceERS<-ddply(CompetitionSupplyServiceERS,
-#                 .(
-#                   Fiscal.Year,
-#                   IsCSISOCO,
-#                   SupplyServiceERS
-#                   ),
-#                 plyr::mutate,
-#                 pObligations=Obligations/sum(Obligations)
-#                 )
-# 
-# ggplot(subset(CompetitionSupplyServiceERS,SupplyServiceERS!="Unlabeled"),
-#   aes(x=Fiscal.Year,y=pObligations,color=No.Competition.sum))+
-#   geom_line(stat="identity")+
-#   facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_color_discrete("Competition",guide = guide_legend(reverse=FALSE))+
-#   theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
-#   scale_x_date("Fiscal Year",labels = date_format("'%y"))
-# 
-# 
-# ggplot(subset(CompetitionSupplyServiceERS,SupplyServiceERS!="Unlabeled"&IsCSISOCO=="Confident OCO"),
-#   aes(x=Fiscal.Year,y=Obligations,fill=No.Competition.sum))+
-#   geom_bar(stat="identity")+
-#   facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_fill_discrete("Competition",guide = guide_legend(reverse=FALSE))+
-#   theme(legend.position = "bottom")+ scale_y_continuous("Obligations")+
-#   scale_x_date("Fiscal Year",labels = date_format("'%y"))
-```
 
 ##Competition
 
@@ -538,30 +586,20 @@ CompetitionSupplyServiceERS<-ddply(CompetitionSupplyServiceERS,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(CompetitionSupplyServiceERS,SupplyServiceERS!="Unlabeled"),
-  aes(x=Fiscal.Year,y=pObligations,color=No.Competition.sum))+
-  geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_color_discrete("Competition",guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
-  scale_x_date("Fiscal Year",labels = date_format("'%y"))
-```
 
-![](CrisisFundingHypotheses_files/figure-html/Competition-1.png)<!-- -->
 
-```r
-# debug(LatticePercentLineWrapper)
-CompetitionSupplyServiceERSGraph<-LatticePercentLineWrapper(
+
+  LatticePercentLineWrapper(
   VAR.color.legend.label="Competition",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Y.label="Percent of Obligations",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(CompetitionSupplyServiceERS,
-                     SupplyServiceERS!="Unlabeled"&
-                       !is.na(No.Competition.sum)),
+                     SupplyServiceERS!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="pObligations", #VAR.y.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
   VAR.y.series="No.Competition.sum", #VAR.y.series
   VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
   VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
@@ -569,40 +607,48 @@ CompetitionSupplyServiceERSGraph<-LatticePercentLineWrapper(
   # ,MovingSides=1
   # ,DataLabels=NA
   #                       ,VAR.override.coloration=NA
-)
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
 ```
 
 ```
 ## Warning: Ignoring unknown parameters: NA
 ```
 
+![](CrisisFundingHypotheses_files/figure-html/Competition-1.png)<!-- -->
+
 ```r
-# LatticePercentLineWrapper<-function(VAR.color.legend.label
-#                                     ,VAR.main.label
-#                                     ,VAR.X.label
-#                                     ,VAR.Y.label
-#                                     ,VAR.Coloration
-#                                     ,VAR.long.DF
-#                                     ,VAR.ncol=NA
-#                                     ,VAR.x.variable
-#                                     ,VAR.y.variable
-#                                     ,VAR.y.series
-#                                     ,VAR.facet.primary=NA
-#                                     ,VAR.facet.secondary=NA
-#                                     ,...
-#                                     ,HorseTail=FALSE
-#                                     ,MovingAverage=1
-#                                     ,MovingSides=1){
-#     
-# 
+LatticePlotWrapper(
+  VAR.color.legend.label="Competition",
+  VAR.main.label="Confident OCO and Labeled Product or Service Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(CompetitionSupplyServiceERS,
+                     SupplyServiceERS!="Unlabeled"&
+                       IsCSISOCO=="Confident OCO"),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="No.Competition.sum", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")
+```
 
+```
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font family not found in Windows font database
+```
 
-ggplot(subset(CompetitionSupplyServiceERS,SupplyServiceERS!="Unlabeled"&IsCSISOCO=="Confident OCO"),
-  aes(x=Fiscal.Year,y=Obligations,fill=No.Competition.sum))+
-  geom_bar(stat="identity")+
-  facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_fill_discrete("Competition",guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")+ scale_y_continuous("Obligations")+
-  scale_x_date("Fiscal Year",labels = date_format("'%y"))
+```
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font family not found in Windows font database
 ```
 
 ![](CrisisFundingHypotheses_files/figure-html/Competition-2.png)<!-- -->
@@ -630,26 +676,139 @@ CompetitionDuration<-ddply(CompetitionDuration,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(CompetitionDuration,!is.na(UnmodifiedUltimateDurationCategory)),
-  aes(x=Fiscal.Year,y=pObligations,color=Competition.sum))+
-  geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory)+scale_fill_discrete("Competition",guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")+scale_x_date("Fiscal Year",labels = date_format("'%y"))
+
+
+#Breakdown by number of offers
+LatticePlotWrapper(
+  VAR.color.legend.label="Competition",
+  VAR.main.label="Confident OCO and Labeled Duration Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(FullData,
+                     !is.na(UnmodifiedUltimateDurationCategory)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2015", #VAR.y.variable
+  VAR.y.series="Competition.sum", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+   facet_grid(  primary~ secondary,scales="free_y")
+```
+
+```
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font family not found in Windows font database
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font family not found in Windows font database
 ```
 
 ![](CrisisFundingHypotheses_files/figure-html/Competition-3.png)<!-- -->
 
 ```r
-ggplot(
-  subset(CompetitionDuration,!is.na(UnmodifiedUltimateDurationCategory)),
-  aes(x=Fiscal.Year,y=Obligations,fill=Competition.sum))+
-  geom_bar(stat="identity")+
-  facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory,scales="free_y")+
-    scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")+scale_x_date("Fiscal Year",labels = date_format("'%y"))
+  LatticePercentLineWrapper(
+  VAR.color.legend.label="Competition",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(CompetitionDuration,
+                     !is.na(UnmodifiedUltimateDurationCategory)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="Competition.sum", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
+```
+
+```
+## Warning: Ignoring unknown parameters: NA
 ```
 
 ![](CrisisFundingHypotheses_files/figure-html/Competition-4.png)<!-- -->
+
+```r
+#Breakdown by reason not competed 
+LatticePlotWrapper(
+  VAR.color.legend.label="Competition",
+  VAR.main.label="Confident OCO and Labeled Duration Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(FullData,
+                     !is.na(UnmodifiedUltimateDurationCategory)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2015", #VAR.y.variable
+  VAR.y.series="No.Competition.sum", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+   facet_grid(  primary~ secondary,scales="free_y")
+```
+
+```
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font family not found in Windows font database
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font family not found in Windows font database
+```
+
+![](CrisisFundingHypotheses_files/figure-html/Competition-5.png)<!-- -->
+
+```r
+  LatticePercentLineWrapper(
+  VAR.color.legend.label="Competition",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(FullData,
+                     !is.na(UnmodifiedUltimateDurationCategory)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2015", #VAR.y.variable
+  VAR.y.series="No.Competition.sum", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
+```
+
+```
+## Warning: Ignoring unknown parameters: NA
+```
+
+![](CrisisFundingHypotheses_files/figure-html/Competition-6.png)<!-- -->
+
+```r
+#Breakdown by reason not competed 
+#Start Fiscal Year 
+```
 
 
 ##Undefinitized Contract Actions
@@ -658,8 +817,18 @@ ggplot(
 # FullData$isUCA<-"Not UCA"
 # FullData$isUCA[FullData$isUndefinitizedAction==1]
 # FullData$isUndefinitizedAction[is.na(FullData$isUndefinitizedAction)]<-"Not UCA"
-FullData$isUCA<-factor(FullData$isUndefinitizedAction,levels=c(1,0),labels=c("UCA","Not UCA"))
-FullData$isUCA[is.na(FullData$isUCA)]<-"Not UCA"
+FullData$isUCA<-factor(FullData$isUndefinitizedAction,levels=c(1,0,NA),labels=c("UCA","Not UCA"))
+
+FullData$isUCA<-addNA(FullData$isUCA,ifany=TRUE)
+levels(FullData$isUCA)[is.na(levels(FullData$isUCA))] <- "Unlabeled"
+unique(FullData$isUndefinitizedAction)
+```
+
+```
+## [1]  0 NA  1
+```
+
+```r
 #UCA and Simple Area
 UCASupplyServiceERS<-ddply(FullData,
                 .(
@@ -682,17 +851,34 @@ UCASupplyServiceERS<-ddply(UCASupplyServiceERS,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(UCASupplyServiceERS,SupplyServiceERS!="Unlabeled" & isUCA=="UCA"),
-  aes(x=Fiscal.Year,y=pObligations,color=isUCA))+
-  geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ SupplyServiceERS)+scale_color_discrete("Is Undefinitized Contract Action (UCA)",guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
-  scale_x_date("Fiscal Year",labels = date_format("'%y"))
+
+# UCASupplyServiceERS$Graph<-TRUE
+# UCASupplyServiceERS$Graph[UCASupplyServiceERS$isUCA=='Not UCA']<-FALSE
+
+LatticePercentLineWrapper(
+  VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
+  VAR.main.label="Defense Contracts with Labeled Cector",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(UCASupplyServiceERS,SupplyServiceERS!="Unlabeled"),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="isUCA", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
 ```
 
 ```
-## geom_path: Each group consists of only one observation. Do you need to
-## adjust the group aesthetic?
+## Warning: Ignoring unknown parameters: NA
 ```
 
 ![](CrisisFundingHypotheses_files/figure-html/UCA-1.png)<!-- -->
@@ -704,7 +890,7 @@ UCADuration<-ddply(FullData,
                   Fiscal.Year,
                   IsCSISOCO,
                   UnmodifiedUltimateDurationCategory,
-                  isUndefinitizedAction
+                  isUCA
                   ),
                 plyr::summarise,
                 Obligations=sum(Obligation.2015)
@@ -720,27 +906,72 @@ UCADuration<-ddply(UCADuration,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(UCADuration,!is.na(UnmodifiedUltimateDurationCategory)),
-  aes(x=Fiscal.Year,y=pObligations,color=isUndefinitizedAction))+
-  geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory)+scale_fill_discrete("Is Undefinitized Contract Action (UCA)",guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")
+LatticePercentLineWrapper(
+  VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
+  VAR.main.label="Defense Contracts with Labeled Cector",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(UCADuration,!is.na(UnmodifiedUltimateDurationCategory)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="isUCA", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
+```
+
+```
+## Warning: Ignoring unknown parameters: NA
 ```
 
 ![](CrisisFundingHypotheses_files/figure-html/UCA-2.png)<!-- -->
 
 ```r
-# ggplot(
-#   subset(UCADuration,!is.na(UnmodifiedUltimateDurationCategory)),
-#   aes(x=Fiscal.Year,y=Obligations,fill=isUndefinitizedAction))+
-#   geom_bar(stat="identity")+
-#   facet_grid(  IsCSISOCO~ UnmodifiedUltimateDurationCategory,scales="free_y")+
-#     scale_fill_discrete(guide = guide_legend(reverse=FALSE))+
-#   theme(legend.position = "bottom")
+#Breakdown by reason not competed 
+LatticePlotWrapper(
+  VAR.color.legend.label="Undefinitized Contract Action (UCA)",
+  VAR.main.label="Labeled UCA Status and Duration Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(UCADuration,
+                     !is.na(UnmodifiedUltimateDurationCategory)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="isUCA", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+   facet_grid(  primary~ secondary,scales="free_y")
 ```
 
+```
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font family not found in Windows font database
+```
 
-#Reachback
+```
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font family not found in Windows font database
+```
+
+![](CrisisFundingHypotheses_files/figure-html/UCA-3.png)<!-- -->
+
+
+##Reachback
 
 ```r
 FullData$Reachback<-cut2(FullData$OfficeOCOcrisisScore,c(2))
@@ -770,12 +1001,31 @@ CompetitionReachback<-ddply(CompetitionReachback,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(CompetitionReachback,!is.na(Reachback)),#,!is.na(OfficeOCOcrisisScore)),
-  aes(x=Fiscal.Year,y=pObligations,color=No.Competition.sum))+
-  geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ Reachback)+scale_color_discrete(guide = guide_legend("Competition",reverse=FALSE))+
-  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
-  scale_x_date("Fiscal Year",labels = date_format("'%y"))
+
+LatticePercentLineWrapper(
+  VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
+  VAR.main.label="Defense Contracts with Labeled Reachback",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(CompetitionReachback,!is.na(Reachback)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="No.Competition.sum", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
+```
+
+```
+## Warning: Ignoring unknown parameters: NA
 ```
 
 ![](CrisisFundingHypotheses_files/figure-html/Reachback-1.png)<!-- -->
@@ -803,12 +1053,31 @@ UCAReachback<-ddply(UCAReachback,
                 pObligations=Obligations/sum(Obligations)
                 )
 
-ggplot(subset(UCAReachback,!is.na(Reachback) & isUCA=="UCA"),#,!is.na(OfficeOCOcrisisScore)),
-  aes(x=Fiscal.Year,y=pObligations,color=isUCA))+
-  geom_line(stat="identity")+
-  facet_grid(  IsCSISOCO~ Reachback)+scale_color_discrete("Is Undefinitized Contract Action (UCA)", guide = guide_legend(reverse=FALSE))+
-  theme(legend.position = "bottom")+ scale_y_continuous("Percent of Obligations",labels = scales::percent)+
-  scale_x_date("Fiscal Year",labels = date_format("'%y"))
+
+LatticePercentLineWrapper(
+  VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
+  VAR.main.label="Defense Contracts with Labeled Reachback",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(UCAReachback,!is.na(Reachback)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="isUCA", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
+```
+
+```
+## Warning: Ignoring unknown parameters: NA
 ```
 
 ![](CrisisFundingHypotheses_files/figure-html/Reachback-2.png)<!-- -->

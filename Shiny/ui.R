@@ -6,7 +6,8 @@
 
 library(shiny)
 library(shinyBS)
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
 
 shinyUI(fluidPage(
   
@@ -19,6 +20,7 @@ shinyUI(fluidPage(
           label = "Years",
           min = 2000,
           max = 2016,
+          sep = "",
           value = c(2000,2016)
         )
       ),
@@ -50,8 +52,8 @@ shinyUI(fluidPage(
         selectInput(
           inputId = "y_var",
           label = "Y Variable",
-          choices = "Action.Obligation",
-          selected = "Action.Obligation",
+          choices = "Action.Obligation.2016",
+          selected = "Action.Obligation.2016",
           width = "100%",
           selectize = TRUE
         ),
@@ -86,12 +88,12 @@ shinyUI(fluidPage(
                 fluidRow(
                   column(
                     width = 6,
-                    p("Width (inches):")
+                    p("Height (inches):")
                   ),
                   column(
                     width = 6,
                     numericInput(
-                      inputId = "save_plot_width",
+                      inputId = "save_plot_height",
                       label = NULL,
                       value = 6,
                       min = 0.5,
@@ -103,12 +105,12 @@ shinyUI(fluidPage(
                 fluidRow(
                   column(
                     width = 6,
-                    p("Height (inches):")
+                    p("Width (inches):")
                   ),
                   column(
                     width = 6,
                     numericInput(
-                      inputId = "save_plot_height",
+                      inputId = "save_plot_width",
                       label = NULL,
                       value = 6,
                       min = 0.5,
@@ -172,6 +174,13 @@ shinyUI(fluidPage(
                 style = "primary",
                 block = TRUE
               ),
+              bsButton(
+                inputId = "restore_btn",
+                label = "Restore Original Data",
+                style = "primary",
+                size = "default",
+                block = TRUE
+              ),
               br(),
               tags$div(id = "edit_var_placeholder"),
               textInput(
@@ -193,16 +202,20 @@ shinyUI(fluidPage(
             column(
               width = 6,
               bsButton(
-                inputId = "restore_btn",
-                label = "Restore Original Data",
+                inputId = "csv_btn",
+                label = "Switch to Uploaded Data",
                 style = "success",
-                size = "default",
+                size = "large",
                 block = TRUE
               ),
-              br(),
-              br(),
-              br(),
-              br(),
+              fileInput(
+                "file_upload",
+                "Upload CSV File",
+                accept = c(
+                "text/csv",
+                "text/comma-separated-values,text/plain",
+                ".csv")
+              ),
               tags$div(id = "edit_value_placeholder"),
               textInput(
                 inputId = "rename_value_txt",

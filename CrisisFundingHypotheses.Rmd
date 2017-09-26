@@ -14,8 +14,9 @@ output:
 library(plyr)
 library(dplyr)
 library(reshape2)
-require(Hmisc)
-# library(diigtheme1)
+library(Hmisc)
+library(csis360)
+
 # Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
 Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
@@ -59,12 +60,12 @@ note.text.size<-1.40
 # read in data    
 ZipFile<-unz(file.path("Data","Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.zip"),
              "Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.csv")
-FullData <- read.csv(ZipFile,
+full_data <- read.csv(ZipFile,
                      na.strings="NULL")
 rm(ZipFile)
 
-FullData<-apply_lookups(Path,FullData)
-FullData<-subset(FullData, year(Fiscal.Year)>=2000)
+full_data<-apply_lookups(Path,full_data)
+full_data<-subset(full_data, year(Fiscal.Year)>=2000)
 
 
 
@@ -74,42 +75,42 @@ FullData<-subset(FullData, year(Fiscal.Year)>=2000)
 #Identifying Contigency Contracts
 ##Points
 ```{r Points}
-FullData$OCOcrisisScore<-round(FullData$OCOcrisisScore)
-FullData$IsOCOcrisisFunding<-factor(ifelse(FullData$CrisisFunding=="OCO","OCO","All Other"))
-FullData$IsOCOcrisisFunding[is.na(FullData$IsOCOcrisisFunding)]<-"All Other"
-FullData$OCOcrisisScore[FullData$OCOcrisisScore<0]<-0
+full_data$OCOcrisisScore<-round(full_data$OCOcrisisScore)
+full_data$IsOCOcrisisFunding<-factor(ifelse(full_data$CrisisFunding=="OCO","OCO","All Other"))
+full_data$IsOCOcrisisFunding[is.na(full_data$IsOCOcrisisFunding)]<-"All Other"
+full_data$OCOcrisisScore[full_data$OCOcrisisScore<0]<-0
 
 #Group the 0-10 score into a smaller number of buckets 
-FullData$OCOscoreBuckets<-NA
-FullData$OCOscore<-cut2(FullData$OCOcrisisScore,c(1,3,6))
-FullData$OCOscoreBuckets[FullData$OCOscore=="[ 6,10]"]<-"Confident OCO [6-10]"
-FullData$OCOscoreBuckets[FullData$OCOscore=="[ 3, 6)"]<-"Borderline OCO [3-5]"
-FullData$OCOscoreBuckets[FullData$OCOscore=="[ 1, 3)"]<-"Possible OCO [1-2]"
-FullData$OCOscoreBuckets[FullData$OCOscore==" 0"]<-"Remainder [0]"
+full_data$OCOscoreBuckets<-NA
+full_data$OCOscore<-cut2(full_data$OCOcrisisScore,c(1,3,6))
+full_data$OCOscoreBuckets[full_data$OCOscore=="[ 6,10]"]<-"Confident OCO [6-10]"
+full_data$OCOscoreBuckets[full_data$OCOscore=="[ 3, 6)"]<-"Borderline OCO [3-5]"
+full_data$OCOscoreBuckets[full_data$OCOscore=="[ 1, 3)"]<-"Possible OCO [1-2]"
+full_data$OCOscoreBuckets[full_data$OCOscore==" 0"]<-"Remainder [0]"
 
 
-FullData$OCOscoreBuckets<-ordered(FullData$OCOscoreBuckets,c("Remainder [0]","Possible OCO [1-2]","Borderline OCO [3-5]","Confident OCO [6-10]",
+full_data$OCOscoreBuckets<-ordered(full_data$OCOscoreBuckets,c("Remainder [0]","Possible OCO [1-2]","Borderline OCO [3-5]","Confident OCO [6-10]",
                                                            "Confirmed OCO"))
 
 
 #Label theaters
-FullData$Theater<-FullData$CrisisFundingTheater
-levels(FullData$Theater)<-c("Afghanistan"="Afghanistan and Iraq",
+full_data$Theater<-full_data$CrisisFundingTheater
+levels(full_data$Theater)<-c("Afghanistan"="Afghanistan and Iraq",
                             "Domestic"="Domestic",
                             "Iraq"="Afghanistan and Iraq",
                             "Regional Support"="Regional Support",
                             "Rest of World"="Rest of World")
-FullData$Theater<-ordered(FullData$Theater,levels=c("Afghanistan and Iraq","Regional Support","Rest of World","Domestic"))
+full_data$Theater<-ordered(full_data$Theater,levels=c("Afghanistan and Iraq","Regional Support","Rest of World","Domestic"))
 
-FullData$International<-FullData$Theater
-levels(FullData$International)<-c("Afghanistan and Iraq"="International",
+full_data$International<-full_data$Theater
+levels(full_data$International)<-c("Afghanistan and Iraq"="International",
                             "Regional Support"="International",
                             "Rest of World"="International",
                             "Domestic"="Domestic")
-FullData$International<-ordered(FullData$International,levels=c("International","Domestic"))
+full_data$International<-ordered(full_data$International,levels=c("International","Domestic"))
 
 
-Evaluation<-ddply(FullData,
+Evaluation<-ddply(full_data,
                 .(
                   IsOCOcrisisFunding,
                   OCOcrisisScore,
@@ -156,7 +157,7 @@ LatticePlotWrapper(
 
 
 
-Points<-ddply(FullData,
+Points<-ddply(full_data,
                 .(
                   Fiscal.Year,
                   IsOCOcrisisFunding,
@@ -198,7 +199,7 @@ LatticePlotWrapper(
                      labels = scales::percent)+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-PointsRegion<-ddply(FullData,
+PointsRegion<-ddply(full_data,
                 .(
                   Fiscal.Year,
                   IsOCOcrisisFunding,
@@ -251,14 +252,14 @@ LatticePlotWrapper(
 ##Labeling
 ```{r Labeling}
 
-FullData$OCOlabelDetail<-FullData$OCOscoreBuckets
-levels(FullData$OCOlabelDetail) <- 
-  c(levels(FullData$OCOlabelDetail),"Confirmed OCO")
-FullData$OCOlabelDetail[FullData$CrisisFunding=="OCO"]<-"Confirmed OCO"
+full_data$OCOlabelDetail<-full_data$OCOscoreBuckets
+levels(full_data$OCOlabelDetail) <- 
+  c(levels(full_data$OCOlabelDetail),"Confirmed OCO")
+full_data$OCOlabelDetail[full_data$CrisisFunding=="OCO"]<-"Confirmed OCO"
 
 
-FullData$IsCSISOCO<-"All Other"
-FullData$IsCSISOCO[FullData$CrisisFunding=="OCO"|FullData$OCOcrisisScore>=6]<-"Confident OCO"
+full_data$IsCSISOCO<-"All Other"
+full_data$IsCSISOCO[full_data$CrisisFunding=="OCO"|full_data$OCOcrisisScore>=6]<-"Confident OCO"
 
 
 
@@ -266,7 +267,7 @@ FullData$IsCSISOCO[FullData$CrisisFunding=="OCO"|FullData$OCOcrisisScore>=6]<-"C
 
 
 
-Dollars<-ddply(FullData,
+Dollars<-ddply(full_data,
                 .(
                   Fiscal.Year,
                   OCOlabelDetail,
@@ -299,7 +300,7 @@ LatticePlotWrapper(
 
 
 
-DollarsTheater<-ddply(FullData,
+DollarsTheater<-ddply(full_data,
                 .(
                   Fiscal.Year,
                   OCOlabelDetail,
@@ -311,7 +312,7 @@ DollarsTheater<-ddply(FullData,
                 )
 
 
-FullData[FullData$PlaceCountryText %in% c("Jordan","Turkey"),]
+full_data[full_data$PlaceCountryText %in% c("Jordan","Turkey"),]
 
 
 
@@ -335,7 +336,7 @@ LatticePlotWrapper(
 )+theme(legend.position="right")
 
 
-DollarsInternational<-ddply(FullData,
+DollarsInternational<-ddply(full_data,
                 .(
                   Fiscal.Year,
                   OCOlabelDetail,
@@ -347,7 +348,7 @@ DollarsInternational<-ddply(FullData,
                 )
 
 
-FullData[FullData$PlaceCountryText %in% c("Jordan","Turkey"),]
+full_data[full_data$PlaceCountryText %in% c("Jordan","Turkey"),]
 
 
 
@@ -378,7 +379,7 @@ OCOdetail+theme(legend.position="right")
 ##Country
 ```{r Country}
 
-Country<-ddply(FullData,
+Country<-ddply(full_data,
                 .(Fiscal.Year,
                   IsCSISOCO,
                   PlaceCountryText,
@@ -441,8 +442,8 @@ OCOdetailZoom+theme(legend.position="bottom")
 
 ##Competition
 ```{r Competition}
-FullData$No.Competition.sum<-ordered(
-  FullData$No.Competition.sum,
+full_data$No.Competition.sum<-ordered(
+  full_data$No.Competition.sum,
   c("2+ Offers","1 Offer", 
     "No Comp. (Only 1 Source)",
     "Follow on to Competed Action",
@@ -454,7 +455,7 @@ FullData$No.Competition.sum<-ordered(
 
 
 #Competition and Simple Area
-CompetitionSupplyServiceERS<-ddply(FullData,
+CompetitionSupplyServiceERS<-ddply(full_data,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
@@ -528,7 +529,7 @@ LatticePlotWrapper(
 
 
 #Competition and Duration
-CompetitionDuration<-ddply(FullData,
+CompetitionDuration<-ddply(full_data,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
@@ -558,7 +559,7 @@ LatticePlotWrapper(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2015 $ Billions)",
   VAR.Coloration=Coloration,
-  VAR.long.DF=subset(FullData,
+  VAR.long.DF=subset(full_data,
                      !is.na(UnmodifiedUltimateDurationCategory)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -604,7 +605,7 @@ LatticePlotWrapper(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2015 $ Billions)",
   VAR.Coloration=Coloration,
-  VAR.long.DF=subset(FullData,
+  VAR.long.DF=subset(full_data,
                      !is.na(UnmodifiedUltimateDurationCategory)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -625,7 +626,7 @@ LatticePlotWrapper(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
   VAR.Coloration=Coloration,
-  VAR.long.DF=subset(FullData,
+  VAR.long.DF=subset(full_data,
                      !is.na(UnmodifiedUltimateDurationCategory)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -650,17 +651,17 @@ LatticePlotWrapper(
 
 ##Undefinitized Contract Actions
 ```{r UCA}
-# FullData$isUCA<-"Not UCA"
-# FullData$isUCA[FullData$isUndefinitizedAction==1]
-# FullData$isUndefinitizedAction[is.na(FullData$isUndefinitizedAction)]<-"Not UCA"
-FullData$isUCA<-factor(FullData$isUndefinitizedAction,levels=c(1,0,NA),labels=c("UCA","Not UCA"))
+# full_data$isUCA<-"Not UCA"
+# full_data$isUCA[full_data$isUndefinitizedAction==1]
+# full_data$isUndefinitizedAction[is.na(full_data$isUndefinitizedAction)]<-"Not UCA"
+full_data$isUCA<-factor(full_data$isUndefinitizedAction,levels=c(1,0,NA),labels=c("UCA","Not UCA"))
 
-FullData$isUCA<-addNA(FullData$isUCA,ifany=TRUE)
-levels(FullData$isUCA)[is.na(levels(FullData$isUCA))] <- "Unlabeled"
-unique(FullData$isUndefinitizedAction)
+full_data$isUCA<-addNA(full_data$isUCA,ifany=TRUE)
+levels(full_data$isUCA)[is.na(levels(full_data$isUCA))] <- "Unlabeled"
+unique(full_data$isUndefinitizedAction)
 
 #UCA and Simple Area
-UCASupplyServiceERS<-ddply(FullData,
+UCASupplyServiceERS<-ddply(full_data,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
@@ -709,7 +710,7 @@ LatticePercentLineWrapper(
 
 
 #UCA and Duration
-UCADuration<-ddply(FullData,
+UCADuration<-ddply(full_data,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
@@ -781,13 +782,13 @@ LatticePlotWrapper(
 
 ##Reachback
 ```{r Reachback}
-FullData$Reachback<-cut2(FullData$OfficeOCOcrisisScore,c(2))
+full_data$Reachback<-cut2(full_data$OfficeOCOcrisisScore,c(2))
 
-FullData$Reachback<-factor(FullData$Reachback,levels=c( "[ 2, 3]","[-1, 2)"), 
+full_data$Reachback<-factor(full_data$Reachback,levels=c( "[ 2, 3]","[-1, 2)"), 
                                    labels=c( "Contigency-Contracting-Intensive Contracting Offices","All Other Offices"))
 
 #Competition and Reachback
-CompetitionReachback<-ddply(FullData,
+CompetitionReachback<-ddply(full_data,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
@@ -832,7 +833,7 @@ LatticePercentLineWrapper(
 
 
 #UCA and Reachback
-UCAReachback<-ddply(FullData,
+UCAReachback<-ddply(full_data,
                 .(
                   Fiscal.Year,
                   IsCSISOCO,
@@ -875,4 +876,22 @@ LatticePercentLineWrapper(
     scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=270))
 
+```
+#Output to Shiny
+```{r Output }
+
+full_data<-replace_nas_with_unlabeled(full_data,"UnmodifiedUltimateDurationCategory")
+full_data<-replace_nas_with_unlabeled(full_data,"isUndefinitizedAction")
+full_data<-replace_nas_with_unlabeled(full_data,"Theater")
+full_data<-replace_nas_with_unlabeled(full_data,"International")
+
+full_data<-replace_nas_with_unlabeled(full_data,"Reachback")
+
+
+labels_and_colors<-prepare_labels_and_colors(full_data)
+
+
+column_key<-csis360::get_column_key(full_data)
+
+save(labels_and_colors,column_key,full_data,file="Shiny/Crisis_Funding.RData")
 ```
