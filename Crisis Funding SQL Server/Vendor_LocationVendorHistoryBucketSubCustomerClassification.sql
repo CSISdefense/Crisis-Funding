@@ -131,18 +131,22 @@ SELECT  [fiscal_year]
 	--Specifies stricter standard relacement, repair, modification, and procurement of equipment; 
 	--New criteria specifying a 12-month time frame for obligating funds. 
 	--Funding for research and development must be for projects required for combat operations in the theater that can be delivered in 12 months
-	,iif(isnull(pscOCOcrisiScore,0) 
+	,iif(isnull(pscOCOcrisisScore,0) 
 		- iif(l.OMBagencyCode=7 and l.OMBbureauCode in (15, 20) and --Procurement or RDT&E
-		[UnmodifiedUltimateDuration]> 366,1,0) >2,2,isnull(pscOCOcrisiScore,0)- iif(l.OMBagencyCode=7 and l.OMBbureauCode in (15, 20) and --Procurement or RDT&E
+		[UnmodifiedUltimateDuration]> 366,1,0) >2,2,isnull(pscOCOcrisisScore,0)- iif(l.OMBagencyCode=7 and l.OMBbureauCode in (15, 20) and --Procurement or RDT&E
 		[UnmodifiedUltimateDuration]> 366,1,0))
 	--Place of Performance and Contracting Office, up to 4 points, as little as -2 points
 	+iif(isnull(placeOCOcrisisScore,0) + isnull(OfficeOCOcrisisScore,0) >4,4,
 		isnull(placeOCOcrisisScore,0) + isnull(OfficeOCOcrisisScore,0))
 	+round(isnull(PercentFundingAccountOCO,0)*4,0) as OCOcrisisScore
-	,pscOCOcrisiScore
+	,pscOCOcrisisScore
+	,pscOCOcrisisPercent
 	,placeOCOcrisisScore
+	,IsOMBocoList
+	,isforeign
 	,PercentFundingAccountOCO
 	,OfficeOCOcrisisScore
+	,OfficeOCOcrisisPercent
 
 	   	,case 
 		when l.UnmodifiedUltimateDuration is null or l.UnmodifiedUltimateDuration <0

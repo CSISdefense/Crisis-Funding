@@ -192,10 +192,14 @@ C.fiscal_year
 	,c.localareasetaside --For disasters investigate this later.
 	,c.CCRexception
 	--Scoring
-	,psc.OCOcrisisScore as pscOCOcrisiScore
+	,psc.OCOcrisisScore as pscOCOcrisisScore
 	,PlaceISO.OCOcrisisScore as placeOCOcrisisScore
+	,PlaceISO.IsOMBocoList
+	,PlaceISO.isforeign
+	,psc.OCOcrisisPercent as pscOCOcrisisPercent
 	,ocomac.PercentFundingAccountOCO
 	,officecode.OCOcrisisScore as OfficeOCOcrisisScore
+	,officecode.OCOcrisisPercent as OfficeOCOcrisisPercent
 
 	--Duration
 	,DATEDIFF(day, cdur.MinOfEffectiveDate, cdur.UnmodifiedUltimateCompletionDate) as UnmodifiedUltimateDuration
