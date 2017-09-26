@@ -1,0 +1,377 @@
+---
+title: "Crisis Funding Exploration"
+author: "Greg Sanders"
+date: "March 28, 2017"
+output:
+  html_document: 
+  keep_md: yes
+pdf_document: default
+---
+  
+  #Setup
+  ```{r setup, include=FALSE}
+
+library(plyr)
+library(dplyr)
+library(reshape2)
+library(Hmisc)
+library(csis360)
+
+# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+# Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
+Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
+source(paste(Path,"lookups.r",sep=""))
+source(paste(Path,"helper.r",sep=""))
+
+# diigtheme1:::diiggraph()
+
+Coloration<-read.csv(
+  paste(Path,"Lookups\\","lookup_coloration.csv",sep=""),
+  header=TRUE, sep=",", na.strings="", dec=".", strip.white=TRUE, 
+  stringsAsFactors=FALSE
+)
+
+Coloration<-ddply(Coloration
+                  , c(.(R), .(G), .(B))
+                  , transform
+                  , ColorRGB=as.character(
+                    if(min(is.na(c(R,G,B)))) {NA} 
+                    else {rgb(max(R),max(G),max(B),max=255)}
+                  )
+)
+
+
+axis.text.size<-12
+strip.text.size<-12
+legend.text.size<-8
+# table.text.size<-5.75
+title.text.size<-12
+geom.text.size<-12
+
+main.text.size<-2
+note.text.size<-1.40
+
+
+```
+
+
+##Import Data
+```{r Import}
+# read in data    
+ZipFile<-unz(file.path("Data","Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.zip"),
+             "Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.csv")
+full_data <- read.csv(ZipFile,
+                      na.strings="NULL")
+rm(ZipFile)
+
+full_data<-apply_lookups(Path,full_data)
+full_data<-subset(full_data, year(Fiscal.Year)>=2000)
+
+
+
+```
+
+
+#Identifying Contigency Contracts
+##Points
+```{r Points}
+full_data$OCOcrisisScore<-round(full_data$OCOcrisisScore)
+full_data$IsOCOcrisisFunding<-factor(ifelse(full_data$CrisisFunding=="OCO","OCO","All Other"))
+full_data$IsOCOcrisisFunding[is.na(full_data$IsOCOcrisisFunding)]<-"All Other"
+full_data$OCOcrisisScore[full_data$OCOcrisisScore<0]<-0
+
+#Group the 0-10 score into a smaller number of buckets 
+full_data$OCOscoreBuckets<-NA
+full_data$OCOscore<-cut2(full_data$OCOcrisisScore,c(1,3,6))
+full_data$OCOscoreBuckets[full_data$OCOscore=="[ 6,10]"]<-"Confident OCO [6-10]"
+full_data$OCOscoreBuckets[full_data$OCOscore=="[ 3, 6)"]<-"Borderline OCO [3-5]"
+full_data$OCOscoreBuckets[full_data$OCOscore=="[ 1, 3)"]<-"Possible OCO [1-2]"
+full_data$OCOscoreBuckets[full_data$OCOscore==" 0"]<-"Remainder [0]"
+
+
+full_data$OCOscoreBuckets<-ordered(full_data$OCOscoreBuckets,c("Remainder [0]","Possible OCO [1-2]","Borderline OCO [3-5]","Confident OCO [6-10]",
+                                                               "Confirmed OCO"))
+
+
+#Label theaters
+full_data$Theater<-full_data$CrisisFundingTheater
+levels(full_data$Theater)<-c("Afghanistan"="Afghanistan and Iraq",
+                             "Domestic"="Domestic",
+                             "Iraq"="Afghanistan and Iraq",
+                             "Regional Support"="Regional Support",
+                             "Rest of World"="Rest of World")
+full_data$Theater<-ordered(full_data$Theater,levels=c("Afghanistan and Iraq","Regional Support","Rest of World","Domestic"))
+
+full_data$International<-full_data$Theater
+levels(full_data$International)<-c("Afghanistan and Iraq"="International",
+                                   "Regional Support"="International",
+                                   "Rest of World"="International",
+                                   "Domestic"="Domestic")
+full_data$International<-ordered(full_data$International,levels=c("International","Domestic"))
+
+
+Evaluation<-ddply(full_data,
+                  .(
+                    IsOCOcrisisFunding,
+                    OCOcrisisScore,
+                    Theater
+                  ),
+                  plyr::summarise,
+                  Obligations=sum(Obligation.2015)
+)
+
+
+Evaluation<-ddply(Evaluation,
+                  .(
+                    OCOcrisisScore,
+                    Theater
+                  ),
+                  plyr::mutate,
+                  pObligations=Obligations/sum(Obligations)
+)
+
+
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="Labeled Theater Defense Contracts",
+  VAR.X.label="Theater",
+  VAR.Y.label="Percent of Obligations That Are Confirmed OCO",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(Evaluation,IsOCOcrisisFunding=="OCO" & !is.na(Theater)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Theater", #VAR.x.variable
+  VAR.y.variable="pObligations", #VAR.y.variable
+  VAR.y.series="Theater", #VAR.y.series
+  VAR.facet.primary="OCOcrisisScore" #VAR.facet.primary
+  # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+  facet_wrap(  ~ primary
+                 , nrow=2)+
+  scale_y_continuous("Percent of Obligations",
+                     labels = scales::percent)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+
+
+Points<-ddply(full_data,
+              .(
+                Fiscal.Year,
+                IsOCOcrisisFunding,
+                OCOscoreBuckets
+              ),
+              plyr::summarise,
+              Obligations=sum(Obligation.2015)
+)
+
+
+Points<-ddply(Points,
+              .(
+                Fiscal.Year,
+                IsOCOcrisisFunding
+              ),
+              plyr::mutate,
+              pObligations=Obligations/sum(Obligations)
+)
+
+
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=Points,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="pObligations", #VAR.y.variable
+  VAR.y.series="OCOscoreBuckets", #VAR.y.series
+  VAR.facet.primary="IsOCOcrisisFunding" #VAR.facet.primary
+  # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+ scale_y_continuous("Percent of Obligations",
+                      labels = scales::percent)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+PointsRegion<-ddply(full_data,
+                    .(
+                      Fiscal.Year,
+                      IsOCOcrisisFunding,
+                      OCOscoreBuckets,
+                      Theater
+                    ),
+                    plyr::summarise,
+                    Obligations=sum(Obligation.2015)
+)
+
+PointsRegion<-ddply(PointsRegion,
+                    .(
+                      Fiscal.Year,
+                      IsOCOcrisisFunding,
+                      Theater
+                    ),
+                    plyr::mutate,
+                    pObligations=Obligations/sum(Obligations)
+)
+
+PointsRegion$OCOscoreBuckets<-ordered(PointsRegion$OCOscoreBuckets)
+
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(PointsRegion,!is.na(Theater)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="pObligations", #VAR.y.variable
+  VAR.y.series="OCOscoreBuckets", #VAR.y.series
+  VAR.facet.primary="IsOCOcrisisFunding", #VAR.facet.primary
+  VAR.facet.secondary= "Theater" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+ scale_y_continuous("Percent of Obligations",
+                      labels = scales::percent)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+
+```
+
+
+
+##Labeling
+```{r Labeling}
+
+full_data$OCOlabelDetail<-full_data$OCOscoreBuckets
+levels(full_data$OCOlabelDetail) <- 
+  c(levels(full_data$OCOlabelDetail),"Confirmed OCO")
+full_data$OCOlabelDetail[full_data$CrisisFunding=="OCO"]<-"Confirmed OCO"
+
+
+full_data$IsCSISOCO<-"All Other"
+full_data$IsCSISOCO[full_data$CrisisFunding=="OCO"|full_data$OCOcrisisScore>=6]<-"Confident OCO"
+
+
+
+
+
+
+
+Dollars<-ddply(full_data,
+               .(
+                 Fiscal.Year,
+                 OCOlabelDetail,
+                 IsCSISOCO
+               ),
+               plyr::summarise,
+               Obligations=sum(Obligation.2015)
+)
+
+
+
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="All Defense Contracts",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=Dollars,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="OCOlabelDetail", #VAR.y.series
+  VAR.facet.primary="IsCSISOCO" #VAR.facet.primary
+  # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position="bottom")
+
+
+
+DollarsTheater<-ddply(full_data,
+                      .(
+                        Fiscal.Year,
+                        OCOlabelDetail,
+                        IsCSISOCO,
+                        Theater
+                      ),
+                      plyr::summarise,
+                      Obligations=sum(Obligation.2015)
+)
+
+
+full_data[full_data$PlaceCountryText %in% c("Jordan","Turkey"),]
+
+
+
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="Defense Contracts with Labeled Theater",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(DollarsTheater,!is.na(Theater)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="OCOlabelDetail", #VAR.y.series
+  VAR.facet.primary="Theater", #VAR.facet.primary
+  VAR.facet.secondary="IsCSISOCO" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position="right")
+
+
+DollarsInternational<-ddply(full_data,
+                            .(
+                              Fiscal.Year,
+                              OCOlabelDetail,
+                              IsCSISOCO,
+                              International
+                            ),
+                            plyr::summarise,
+                            Obligations=sum(Obligation.2015)
+)
+
+
+full_data[full_data$PlaceCountryText %in% c("Jordan","Turkey"),]
+
+
+
+
+OCOdetail<-LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="Defense Contracts with Labeled Location",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(DollarsInternational,!is.na(International)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.series="OCOlabelDetail", #VAR.y.series
+  VAR.facet.primary="International", #VAR.facet.primary
+  VAR.facet.secondary="IsCSISOCO" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)
+
+OCOdetail+theme(legend.position="right")
+
+```
