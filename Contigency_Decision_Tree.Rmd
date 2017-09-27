@@ -17,11 +17,11 @@ library(reshape2)
 library(Hmisc)
 library(csis360)
 
-Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
-# Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
+Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
 source(paste(Path,"lookups.r",sep=""))
-source(paste(Path,"helper.r",sep=""))
+source(paste(Path,"helper.r",sep="")) 
 
 # diigtheme1:::diiggraph()
 
@@ -52,40 +52,178 @@ main.text.size<-2
 note.text.size<-1.40
 
 
-```
-
-
-##Import Data
-```{r Import}
-# read in data    
-ZipFile<-unz(file.path("Data","Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.zip"),
-             "Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.csv")
-full_data <- read.csv(ZipFile,
-                      na.strings="NULL")
-rm(ZipFile)
-
-full_data<-apply_lookups(Path,full_data)
-full_data<-subset(full_data, year(Fiscal.Year)>=2000)
-
-save(full_data,file="Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
+load(
+     file="Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
 
 ```
 
 #Decision Tree
-##Step 1: Is this contract labeled as a contingency contract
-```{r Step1}
+#Step 1: Direct Crisis Labels 
+##Step 1A: Is this an ARRA labled contract (or a CSIS labeled one)
+```{r Step1A}
+full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
+defense_data<-replace_nas_with_unlabeled(defense_data,"ContractCrisisFunding")
+
+LatticePlotWrapper(
+  VAR.color.legend.label="ARRA/CSIS Labeled Contract",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Constant ($ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=defense_data,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="ContractCrisisFunding", #VAR.y.series
+  VAR.facet.primary= "ContractCrisisFunding", #VAR.facet.primary
+  VAR.facet.secondary="Is.Defense", # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+facet_grid(primary ~ secondary
+              , scales="free_y" #The scales actually do stay fixed
+              , space="fixed")
+
+```
+
+##Step 1B: Contigency or Humanitarian Peacekeeping Operation
+```{r Step1B}
+full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
+defense_data<-replace_nas_with_unlabeled(defense_data,"Theater")
 full_data<-replace_nas_with_unlabeled(full_data,"Theater")
+# ConHumIsOCOcrisisFunding=1
+# ,[ContingencyHumanitarianPeacekeepingOperation]
+
+LatticePlotWrapper(
+  VAR.color.legend.label="Contigency or Humanitarian Peacekeeping Operation",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Constant ($ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=defense_data,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="ContingencyHumanitarianPeacekeepingOperation", #VAR.y.series
+  VAR.facet.primary= "ContingencyHumanitarianPeacekeepingOperation", #VAR.facet.primary
+  VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+facet_grid(primary ~ secondary
+              , scales="free_y" #The scales actually do stay fixed
+              , space="fixed")
+
+```
+
+
+
+##Step 1C: National Action Interest Code
+```{r Step1C}
 full_data<-replace_nas_with_unlabeled(full_data,"NIAcrisisFunding")
+defense_data<-replace_nas_with_unlabeled(defense_data,"NIAcrisisFunding")
+full_data<-replace_nas_with_unlabeled(full_data,"NIAcrisisFunding")
+
+#       ,[nationalinterestactioncode]
+
+LatticePlotWrapper(
+  VAR.color.legend.label="Contigency or Humanitarian Peacekeeping Operation",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Constant ($ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=defense_data,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="NIAcrisisFunding", #VAR.y.series
+  VAR.facet.primary= "NIAcrisisFunding", #VAR.facet.primary
+  VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+facet_grid(primary ~ secondary
+              , scales="free_y" #The scales actually do stay fixed
+              , space="fixed")
+
+```
+
+
+##Step 1D: Revealing Waivers to the CCR Reporting Requirement
+```{r Step1D}
+# CCRexception 
+
+
+
+LatticePlotWrapper(
+  VAR.color.legend.label="Contigency or Humanitarian Peacekeeping Operation",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Constant ($ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=defense_data,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="CCRexception", #VAR.y.series
+  VAR.facet.primary= "CCRexception", #VAR.facet.primary
+  VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+facet_grid(primary ~ secondary
+              , scales="free_y" #The scales actually do stay fixed
+              , space="fixed")
+
+```
+
+##Step 1E: Local Area Set-Aside
+```{r Step1E}
+# localareasetaside
+
+
+
+LatticePlotWrapper(
+  VAR.color.legend.label="Contigency or Humanitarian Peacekeeping Operation",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Constant ($ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=defense_data,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="localareasetaside", #VAR.y.series
+  VAR.facet.primary= "localareasetaside", #VAR.facet.primary
+  VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+facet_grid(primary ~ secondary
+              , scales="free_y" #The scales actually do stay fixed
+              , space="fixed")
+
+```
+
+
+#Trimming this away
+```{r Step1}
+
 
 
 #Is OCO Crisis Funding
 LatticePlotWrapper(
-  VAR.color.legend.label="OCO labeling detail",
+  VAR.color.legend.label="IsOCOcrisisFunding",
   VAR.main.label="Labeled Theater Defense Contracts",
   VAR.X.label="Theater",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=Coloration,
-  VAR.long.DF=full_data,
+  VAR.long.DF=defense_data,
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
@@ -101,9 +239,32 @@ LatticePlotWrapper(
               , scales="free_y" #The scales actually do stay fixed
               , space="fixed")
 
+LatticePlotWrapper(
+  VAR.color.legend.label="FUll Data CrisisFunding",
+  VAR.main.label="Labeled Theater Defense Contracts",
+  VAR.X.label="Theater",
+  VAR.Y.label="Constant ($ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=full_data,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="CrisisFunding", #VAR.y.series
+  VAR.facet.primary= "CrisisFunding", #VAR.facet.primary
+  VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+facet_grid(primary ~ secondary
+                                              # , labeller=Label_Wrap
+              , scales="free_y" #The scales actually do stay fixed
+              , space="fixed")
+
+
 #Just NIAcrisisFunding
 LatticePlotWrapper(
-  VAR.color.legend.label="OCO labeling detail",
+  VAR.color.legend.label="NIAcrisisFunding",
   VAR.main.label="Labeled Theater Defense Contracts",
   VAR.X.label="Theater",
   VAR.Y.label="Constant ($ Billions)",
@@ -124,11 +285,11 @@ LatticePlotWrapper(
               , scales="free_y" #The scales actually do stay fixed
               , space="fixed")
 
-undebug(LatticePlotWrapper)
-#Just ContractCrisisFunding
-debug(get_column_key)
+
+
+#Just NIAcrisisFunding
 LatticePlotWrapper(
-  VAR.color.legend.label="OCO labeling detail",
+  VAR.color.legend.label="NIAcrisisFunding",
   VAR.main.label="Labeled Theater Defense Contracts",
   VAR.X.label="Theater",
   VAR.Y.label="Constant ($ Billions)",
@@ -137,8 +298,8 @@ LatticePlotWrapper(
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="ContractCrisisFunding", #VAR.y.series
-  VAR.facet.primary= "ContractCrisisFunding", #VAR.facet.primary
+  VAR.y.series="NIAcrisisFunding", #VAR.y.series
+  VAR.facet.primary= "NIAcrisisFunding", #VAR.facet.primary
   VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -149,13 +310,40 @@ LatticePlotWrapper(
               , scales="free_y" #The scales actually do stay fixed
               , space="fixed")
 
+
+
+#Just CrisisFunding
 LatticePlotWrapper(
   VAR.color.legend.label="OCO labeling detail",
   VAR.main.label="Labeled Theater Defense Contracts",
   VAR.X.label="Theater",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=Coloration,
-  VAR.long.DF=subset(full_data,Theater!='Domestic'),
+  VAR.long.DF=defense_data,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="CrisisFunding", #VAR.y.series
+  VAR.facet.primary= "CrisisFunding", #VAR.facet.primary
+  VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+facet_grid(primary ~ secondary
+              , scales="free_y" #The scales actually do stay fixed
+              , space="fixed")
+
+
+
+
+LatticePlotWrapper(
+  VAR.color.legend.label="OCO labeling detail",
+  VAR.main.label="Labeled Theater Defense Contracts",
+  VAR.X.label="Theater",
+  VAR.Y.label="Constant ($ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(defense_data,Theater!='Domestic'),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
@@ -168,35 +356,11 @@ LatticePlotWrapper(
   #                       ,VAR.override.coloration=NA
 )
 
-full_data$NIAcrisisFunding
-full_data$ContractCrisisFunding
-
-
+# defense_data$ContractCrisisFunding
 ```
 
 ##Points
 ```{r Points}
-full_data$IsOCOcrisisFunding<-factor(ifelse(full_data$CrisisFunding=="OCO","OCO","All Other"))
-full_data$IsOCOcrisisFunding[is.na(full_data$IsOCOcrisisFunding)]<-"All Other"
-
-
-
-#Label theaters
-full_data$Theater<-full_data$CrisisFundingTheater
-levels(full_data$Theater)<-c("Afghanistan"="Afghanistan and Iraq",
-                             "Domestic"="Domestic",
-                             "Iraq"="Afghanistan and Iraq",
-                             "Regional Support"="Regional Support",
-                             "Rest of World"="Rest of World")
-full_data$Theater<-ordered(full_data$Theater,levels=c("Afghanistan and Iraq","Regional Support","Rest of World","Domestic"))
-
-full_data$International<-full_data$Theater
-levels(full_data$International)<-c("Afghanistan and Iraq"="International",
-                                   "Regional Support"="International",
-                                   "Rest of World"="International",
-                                   "Domestic"="Domestic")
-full_data$International<-ordered(full_data$International,levels=c("International","Domestic"))
-
 
 Evaluation<-ddply(full_data,
                   .(
