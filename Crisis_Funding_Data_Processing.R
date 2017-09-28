@@ -61,18 +61,17 @@ defense_data <- read.csv(ZipFile,
 rm(ZipFile)
 
 # read in full data set    
-ZipFile<-unz(file.path("Data","Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.zip"),
-             "Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.txt")
+ZipFile<-unz(file.path("Data","Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.zip"),
+             "Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.csv")
 full_data <- read.csv(ZipFile,
                       na.strings="NULL",
-                      sep="\t")
+                      sep=",")
 rm(ZipFile)
-
+full_data$CrisisFundingLegacy<-full_data$CrisisFunding
 
 defense_data<-apply_lookups(Path,defense_data)
 defense_data<-subset(defense_data, year(Fiscal.Year)>=2000)
 
-debug(competition_vehicle_lookups)
 full_data<-apply_lookups(Path,full_data)
 full_data<-subset(full_data, year(Fiscal.Year)>=2000)
 
@@ -118,6 +117,30 @@ full_data$International<-ordered(full_data$International,
                                  levels=c("International",
                                           "Domestic"))
 
+
+
+full_data<-csis360::read_and_join(
+  full_data,
+  "Lookup_ContingencyHumanitarianPeacekeepingOperation.csv",
+  by="ContingencyHumanitarianPeacekeepingOperation",
+  # replace_na_var=NULL,
+  # overlap_var_replaced=TRUE,
+  # add_var="Is.Defense"
+  # new_var_checked=TRUE,
+  skip_check_var="CHPKisCrisisFunding"
+  )
+
+colnames(full_data)[colnames(full_data)=="ContractingCustomer"]<-"Customer"
+full_data<-csis360::read_and_join(
+  full_data,
+  "LOOKUP_Customer.csv",
+  by="Customer",
+  # replace_na_var=NULL,
+  # overlap_var_replaced=TRUE,
+  add_var="Is.Defense",
+  new_var_checked="Is.Defense"
+  # skip_check_var=NULL
+)
 
 save(defense_data,
      full_data,

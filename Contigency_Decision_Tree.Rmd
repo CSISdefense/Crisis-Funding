@@ -16,10 +16,11 @@ library(dplyr)
 library(reshape2)
 library(Hmisc)
 library(csis360)
+library(scales)
 
-# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
-Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
+# Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
 source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep="")) 
 
@@ -62,7 +63,15 @@ load(
 ##Step 1A: Is this an ARRA labled contract (or a CSIS labeled one)
 ```{r Step1A}
 full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
+full_data<-replace_nas_with_unlabeled(full_data,"Is.Defense")
 defense_data<-replace_nas_with_unlabeled(defense_data,"ContractCrisisFunding")
+
+
+full_data$CrisisFunding<-"Unlabeled"
+full_data$CrisisFunding<-order("OCO","Disaster","ARRA","Unlabeled")
+full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled"]<-
+  full_data$ContractCrisisFunding[full_data$CrisisFunding=="Unlabeled"]
+
 
 LatticePlotWrapper(
   VAR.color.legend.label="ARRA/CSIS Labeled Contract",
@@ -70,7 +79,7 @@ LatticePlotWrapper(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=Coloration,
-  VAR.long.DF=defense_data,
+  VAR.long.DF=full_data,
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
@@ -96,17 +105,17 @@ full_data<-replace_nas_with_unlabeled(full_data,"Theater")
 # ,[ContingencyHumanitarianPeacekeepingOperation]
 
 LatticePlotWrapper(
-  VAR.color.legend.label="Contigency or Humanitarian Peacekeeping Operation",
+  VAR.color.legend.label="Classification As of Prior Step",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=Coloration,
-  VAR.long.DF=defense_data,
+  VAR.long.DF=full_data,
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="ContingencyHumanitarianPeacekeepingOperation", #VAR.y.series
-  VAR.facet.primary= "ContingencyHumanitarianPeacekeepingOperation", #VAR.facet.primary
+  VAR.y.series="contingencyhumanitarianpeacekeepingoperationText", #VAR.y.series
+  VAR.facet.primary= "contingencyhumanitarianpeacekeepingoperationText", #VAR.facet.primary
   VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -115,7 +124,6 @@ LatticePlotWrapper(
 )+facet_grid(primary ~ secondary
               , scales="free_y" #The scales actually do stay fixed
               , space="fixed")
-
 ```
 
 
