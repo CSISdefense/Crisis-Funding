@@ -18,9 +18,9 @@ library(Hmisc)
 library(csis360)
 library(scales)
 
-Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
-# Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
+Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
 source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep="")) 
 
@@ -42,14 +42,14 @@ Coloration<-ddply(Coloration
 )
 
 
-axis.text.size<-12
-strip.text.size<-12
+axis.text.size<-10
+strip.text.size<-10
 legend.text.size<-8
 # table.text.size<-5.75
 title.text.size<-12
 geom.text.size<-12
 
-main.text.size<-2
+main.text.size<-1
 note.text.size<-1.40
 
 
