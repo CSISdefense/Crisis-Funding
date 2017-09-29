@@ -55,6 +55,12 @@
           <AssociatedConnUserName />
           <FullPath>Contract_ContractHistoryCrisisFundingScoreSubCustomer.sql</FullPath>
         </FileNode>
+        <FileNode Name="Contract_ContractHistoryPBLscoreSubCustomer.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Contract_ContractHistoryPBLscoreSubCustomer.sql</FullPath>
+        </FileNode>
         <FileNode Name="Contract_ContractHistoryPBLscoreSubCustomerDetail.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
@@ -150,18 +156,6 @@
           <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractUnmodifiedCompetitionVehicleCustomer.sql</FullPath>
-        </FileNode>
-        <FileNode Name="ContractHistoryPBLscoreSubCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
-          <AssociatedConnUserName />
-          <FullPath>ContractHistoryPBLscoreSubCustomer.sql</FullPath>
-        </FileNode>
-        <FileNode Name="Vendor_LocationVendorHistoryBucketSubCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
-          <AssociatedConnUserName />
-          <FullPath>Vendor_LocationVendorHistoryBucketSubCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Vendor_LocationVendorHistoryBucketSubCustomerClassification.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>

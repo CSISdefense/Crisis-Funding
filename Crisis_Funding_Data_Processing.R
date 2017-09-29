@@ -16,6 +16,7 @@ library(reshape2)
 library(Hmisc)
 library(csis360)
 
+
 # Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
 Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
@@ -72,6 +73,7 @@ full_data$CrisisFundingLegacy<-full_data$CrisisFunding
 defense_data<-apply_lookups(Path,defense_data)
 defense_data<-subset(defense_data, year(Fiscal.Year)>=2000)
 
+debug(apply_lookups)
 full_data<-apply_lookups(Path,full_data)
 full_data<-subset(full_data, year(Fiscal.Year)>=2000)
 
@@ -141,6 +143,19 @@ full_data<-csis360::read_and_join(
   new_var_checked="Is.Defense"
   # skip_check_var=NULL
 )
+
+
+full_data<-csis360::read_and_join(
+  full_data,
+  "Lookup_nationalinterestactioncode.csv",
+  by="nationalinterestactioncode",
+  # replace_na_var=NULL,
+  # overlap_var_replaced=TRUE,
+  # add_var="Is.Defense"
+  # new_var_checked=TRUE,
+  skip_check_var=c("NAICcrisisFunding","IsHurricane")
+)
+
 
 save(defense_data,
      full_data,

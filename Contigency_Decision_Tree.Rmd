@@ -68,12 +68,12 @@ defense_data<-replace_nas_with_unlabeled(defense_data,"ContractCrisisFunding")
 
 
 full_data$CrisisFunding<-"Unlabeled"
-full_data$CrisisFunding<-order("OCO","Disaster","ARRA","Unlabeled")
+full_data$CrisisFunding<-ordered(full_data$CrisisFunding,levels=c("OCO","Disaster","ARRA","Unlabeled"))
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled"]<-
   full_data$ContractCrisisFunding[full_data$CrisisFunding=="Unlabeled"]
 
 
-LatticePlotWrapper(
+Tree1A<-LatticePlotWrapper(
   VAR.color.legend.label="ARRA/CSIS Labeled Contract",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
@@ -83,7 +83,7 @@ LatticePlotWrapper(
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="ContractCrisisFunding", #VAR.y.series
+  VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary= "ContractCrisisFunding", #VAR.facet.primary
   VAR.facet.secondary="Is.Defense", # VAR.facet.secondary=NA
   # ,MovingAverage=0
@@ -94,29 +94,61 @@ LatticePlotWrapper(
               , scales="free_y" #The scales actually do stay fixed
               , space="fixed")
 
+Tree1A
+
+ggsave("Output//Tree1A.png", Tree1A, width=6.5, height= 3, units="in",dpi=300)
 ```
 
-##Step 1B: Contigency or Humanitarian Peacekeeping Operation
+##Step 1B: Contingency or Humanitarian Peacekeeping Operation
 ```{r Step1B}
 full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
-defense_data<-replace_nas_with_unlabeled(defense_data,"Theater")
 full_data<-replace_nas_with_unlabeled(full_data,"Theater")
+full_data<-replace_nas_with_unlabeled(full_data,"contingencyhumanitarianpeacekeepingoperationText")
+full_data$contingencyhumanitarianpeacekeepingoperationText[
+  full_data$contingencyhumanitarianpeacekeepingoperationText=="Not Applicable"]<-"Unlabeled"
+
+
+defense_data<-replace_nas_with_unlabeled(defense_data,"Theater")
+
 # ConHumIsOCOcrisisFunding=1
 # ,[ContingencyHumanitarianPeacekeepingOperation]
 
-LatticePlotWrapper(
+Tree1B<-LatticePercentLineWrapper(
+  VAR.color.legend.label="Classification As of Prior Step",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(full_data,Theater!="Unlabeled"),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="contingencyhumanitarianpeacekeepingoperationText", #VAR.y.series
+  VAR.facet.primary= "Theater", #VAR.facet.primary
+  # VAR.facet.secondary="contingencyhumanitarianpeacekeepingoperationText", # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)
+# +facet_grid(primary ~ secondary
+#               , scales="free_y" #The scales actually do stay fixed
+#               , space="fixed")
+
+
+Contradictions1B<-LatticePlotWrapper(
   VAR.color.legend.label="Classification As of Prior Step",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=Coloration,
-  VAR.long.DF=full_data,
+  VAR.long.DF=subset(full_data,Theater!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="contingencyhumanitarianpeacekeepingoperationText", #VAR.y.series
-  VAR.facet.primary= "contingencyhumanitarianpeacekeepingoperationText", #VAR.facet.primary
-  VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
+  VAR.y.series="CrisisFunding", #VAR.y.series
+  VAR.facet.primary="contingencyhumanitarianpeacekeepingoperationText", #VAR.facet.primary
+  VAR.facet.secondary= "Theater", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   DataLabels=FALSE
@@ -124,6 +156,15 @@ LatticePlotWrapper(
 )+facet_grid(primary ~ secondary
               , scales="free_y" #The scales actually do stay fixed
               , space="fixed")
+
+
+Tree1B
+Contradictions1B
+
+ggsave("Output//Tree1B.png", Tree1B, width=6.5, height= 4.5, units="in",dpi=300)
+
+full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$ConHumIsOCOcrisisFunding==1]<-"OCO"
+
 ```
 
 
@@ -136,26 +177,69 @@ full_data<-replace_nas_with_unlabeled(full_data,"NIAcrisisFunding")
 
 #       ,[nationalinterestactioncode]
 
-LatticePlotWrapper(
+Tree1Coco<-LatticePlotWrapper(
   VAR.color.legend.label="Contigency or Humanitarian Peacekeeping Operation",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=Coloration,
-  VAR.long.DF=defense_data,
+  VAR.long.DF=subset(full_data,NAICcrisisFunding=="OCO" | (CrisisFunding=="OCO" & nationalinterestactioncodeText=="None")),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="NIAcrisisFunding", #VAR.y.series
-  VAR.facet.primary= "NIAcrisisFunding", #VAR.facet.primary
-  VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
+  VAR.y.series="CrisisFunding", #VAR.y.series
+  VAR.facet.primary= "nationalinterestactioncodeText", #VAR.facet.primary
+  # VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   DataLabels=FALSE
   #                       ,VAR.override.coloration=NA
-)+facet_grid(primary ~ secondary
-              , scales="free_y" #The scales actually do stay fixed
-              , space="fixed")
+)+facet_wrap(~primary,ncol=3)
+# +facet_grid(primary ~ secondary
+#               , scales="free_y" #The scales actually do stay fixed
+#               , space="fixed")
+
+ 
+    undebug(prepare_labels_and_colors)
+      labels.x.DF<-prepare_labels_and_colors(full_data,"nationalinterestactioncodeText")
+      full_data$nationalinterestactioncodeText<-factor(full_data$nationalinterestactioncodeText,
+        levels=c(labels.x.DF$variable),
+        labels=c(labels.x.DF$Label),
+        ordered=TRUE)
+    
+
+debug(LatticePlotWrapper)
+Tree1C<-LatticePlotWrapper(
+  VAR.color.legend.label="Contigency or Humanitarian Peacekeeping Operation",
+  VAR.main.label="",
+  VAR.X.label="", #"Fiscal Year",
+  VAR.Y.label="Constant ($ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(full_data,!nationalinterestactioncodeText %in% c("None","Unlabeled")|
+      (CrisisFunding=="OCO" & nationalinterestactioncodeText=="None")),
+  # NA, #VAR.ncol
+  VAR.x.variable="nationalinterestactioncodeText", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="CrisisFunding", #VAR.y.series
+  # VAR.facet.primary= NA ,#"NAICcrisisFunding", #VAR.facet.primary
+  # VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  coord_flip()
+#
+# +facet_grid(primary ~ secondary
+#               , scales="free_y" #The scales actually do stay fixed
+#               , space="fixed")
+
+#NAICcrisisFunding
+Tree1Coco
+Tree1C
+
+ggsave("Output//Tree1Coco.png", Tree1Coco, width=6.5, height= 3, units="in",dpi=300)
+ggsave("Output//Tree1C.png", Tree1C, width=6.5, height= 5, units="in",dpi=300)
 
 ```
 

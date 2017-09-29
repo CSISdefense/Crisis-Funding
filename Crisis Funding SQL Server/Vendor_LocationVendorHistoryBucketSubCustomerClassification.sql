@@ -90,14 +90,15 @@ SELECT  [fiscal_year]
 		,l.ExtentIsSomeCompetition	--,@extentissomecompetition as bit
 		,l.FairIsSomeCompetition	--,@fairissomecompetition as bit
 		)) as ClassifyNumberOfOffers
-      ,[ContingencyHumanitarianPeacekeepingOperation]
-      ,[ContingencyHumanitarianPeacekeepingOperationText]
       ,[ContractCrisisFunding]
       ,[nationalinterestactioncode]
-      ,[nationalinterestactioncodeText]
       ,[NIAcrisisFunding]
       ,[CrisisFunding]
       ,[localareasetaside]
+	  ,ContingencyHumanitarianPeacekeepingOperation
+	  ,ConHumIsOCOcrisisFunding
+	  ,l.CCRexception
+	  ,localareasetaside
    ,iif(NIAcrisisFunding='Disaster' or
 		  ContractCrisisFunding='Disaster' or 
 		  l.CCRexception = '3' --Contracting officers conductingemergency operations

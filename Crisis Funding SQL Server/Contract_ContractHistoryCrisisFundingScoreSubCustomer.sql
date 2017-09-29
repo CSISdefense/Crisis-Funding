@@ -70,7 +70,7 @@ SELECT   CSIScontractID
       ,max(cast([IsOfficialPBL] as smallint)) as [MaxOfIsOfficialPBL]
       ,max(cast([IsPerformanceBasedLogistics] as smallint)) as [MaxOfIsPerformanceBasedLogistics]
 	  ,sum(sumofobligatedAmount) as sumofobligatedAmount
-  FROM [DIIG].[Vendor].[LocationVendorHistoryBucketSubCustomer]
+  FROM [DIIG].[Vendor].[LocationVendorHistoryBucketSubCustomerPartial]
 
   group by CSIScontractID
   	,fiscal_year
