@@ -94,7 +94,7 @@ Tree1A<-LatticePlotWrapper(
               , scales="free_y" #The scales actually do stay fixed
               , space="fixed")
   
-
+Tree1A
 
 ggsave("Output//Tree1A.png", Tree1A, width=6.5, height= 3, units="in",dpi=300)
 ```
@@ -310,7 +310,6 @@ Tree1Coco<-LatticePlotWrapper(
 Tree1Ctheater
 Tree1CisDefense
 Tree1Coco
-Tree1C
 Tree1CdetailIsDefense
 ggsave("Output//Tree1CisDefense.png", Tree1CisDefense, width=6.5, height= 3, units="in",dpi=300)
 ggsave("Output//Tree1CdetailIsDefense.png", Tree1CdetailIsDefense , width=4, height= 5, units="in",dpi=300)
@@ -321,6 +320,7 @@ ggsave("Output//Tree1Coco.png", Tree1Coco, width=6.5, height= 3, units="in",dpi=
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$NIACcrisisFunding=="OCO"]<-"OCO"
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$NIACcrisisFunding=="Disaster"]<-"Disaster"
 
+save(full_data,file="LargeDataSets//full_data_after_step_1C.Rdata")
 
 ```
 
@@ -330,7 +330,7 @@ full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$NIACcri
 # CCRexception 
 
 Tree1DisDefense<-LatticePlotWrapper(
-  VAR.color.legend.label="Classification Through Step 1B",
+  VAR.color.legend.label="Classification Through Step 1C",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
@@ -366,10 +366,8 @@ sum(full_data$Obligation.2016[full_data$CCRexception %in% c(3,4)])
 #Step 2: Iraq and Afghanistan
 
 
-##Step 1D: Revealing Waivers to the CCR Reporting Requirement
 ```{r Step1D}
-# CCRexception 
-
+debug(LatticePlotWrapper)
 Tree2isDefense<-LatticePlotWrapper(
   VAR.color.legend.label="Classification Through Step 1B",
   VAR.main.label="",
@@ -387,10 +385,11 @@ Tree2isDefense<-LatticePlotWrapper(
   # ,MovingSides=1
   DataLabels=FALSE
   #                       ,VAR.override.coloration=NA
-)+facet_grid(primary ~ secondary
-              , scales="free_y" #The scales actually do stay fixed
-              , space="fixed")+theme(legend.position="bottom")
-
+)
+# +facet_grid(primary 
+#               , scales="free_y" #The scales actually do stay fixed
+#               , space="fixed")+theme(legend.position="bottom")
+# 
 
 Tree2isDefense
 ```
