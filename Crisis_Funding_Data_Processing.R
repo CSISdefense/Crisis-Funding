@@ -144,7 +144,6 @@ full_data<-csis360::read_and_join(
   # skip_check_var=NULL
 )
 
-
 full_data<-csis360::read_and_join(
   full_data,
   "Lookup_nationalinterestactioncode.csv",
@@ -153,9 +152,20 @@ full_data<-csis360::read_and_join(
   # overlap_var_replaced=TRUE,
   # add_var="Is.Defense"
   # new_var_checked=TRUE,
-  skip_check_var=c("NAICcrisisFunding","IsHurricane")
+  skip_check_var=c("NIAcrisisFunding","IsHurricane")
 )
 
+full_data$CCRexception[full_data$CCRexception==""]<-NA
+full_data<-csis360::read_and_join(
+  full_data,
+  "Lookup_CCRexception.csv",
+  by="CCRexception",
+  replace_na_var="CCRexception",
+  # overlap_var_replaced=TRUE,
+  # add_var="Is.Defense"
+  # new_var_checked=TRUE,
+  skip_check_var=c("SAMcrisisFunding")
+)
 
 save(defense_data,
      full_data,

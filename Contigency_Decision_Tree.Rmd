@@ -93,7 +93,7 @@ Tree1A<-LatticePlotWrapper(
 )+facet_grid(primary ~ secondary
               , scales="free_y" #The scales actually do stay fixed
               , space="fixed")
-
+  
 Tree1A
 
 ggsave("Output//Tree1A.png", Tree1A, width=6.5, height= 3, units="in",dpi=300)
@@ -130,14 +130,17 @@ Tree1B<-LatticePercentLineWrapper(
   # ,MovingSides=1
   DataLabels=FALSE
   #                       ,VAR.override.coloration=NA
-)
+)+theme(legend.position="bottom")+
+  scale_x_date(
+            # breaks=date_breaks("5 years"),
+            labels=date_format("'%y"))
+  
 # +facet_grid(primary ~ secondary
 #               , scales="free_y" #The scales actually do stay fixed
 #               , space="fixed")
 
-
 Contradictions1B<-LatticePlotWrapper(
-  VAR.color.legend.label="Classification As of Prior Step",
+  VAR.color.legend.label="Classification",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
@@ -155,13 +158,15 @@ Contradictions1B<-LatticePlotWrapper(
   #                       ,VAR.override.coloration=NA
 )+facet_grid(primary ~ secondary
               , scales="free_y" #The scales actually do stay fixed
-              , space="fixed")
+              , space="fixed")+
+  theme(legend.position="bottom")
 
 
 Tree1B
 Contradictions1B
 
-ggsave("Output//Tree1B.png", Tree1B, width=6.5, height= 4.5, units="in",dpi=300)
+ggsave("Output//Tree1B.png", Tree1B, width=6.5, height= 3, units="in",dpi=300)
+ggsave("Output//Tree1Bcontradictions.png", Contradictions1B, width=6.5, height= 4.5, units="in",dpi=300)
 
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$ConHumIsOCOcrisisFunding==1]<-"OCO"
 
@@ -176,14 +181,115 @@ defense_data<-replace_nas_with_unlabeled(defense_data,"NIAcrisisFunding")
 full_data<-replace_nas_with_unlabeled(full_data,"NIAcrisisFunding")
 
 #       ,[nationalinterestactioncode]
+#Flipping so first element is on top
 
-Tree1Coco<-LatticePlotWrapper(
-  VAR.color.legend.label="Contigency or Humanitarian Peacekeeping Operation",
+labels.x.DF<-prepare_labels_and_colors(full_data,"nationalinterestactioncodeText")
+      full_data$NIAlist<-factor(full_data$nationalinterestactioncodeText,
+        levels=c(rev(labels.x.DF$variable)),
+        labels=c(rev(labels.x.DF$Label)),
+        ordered=TRUE)
+  
+        
+Tree1CdetailIsDefense<-LatticePlotWrapper(
+  VAR.color.legend.label="National Interest Action",
+  VAR.main.label="",
+  VAR.X.label="", #"Fiscal Year",
+  VAR.Y.label="Constant ($ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(full_data,NIAcrisisFunding !="Unlabeled"
+                     | nationalinterestactioncodeText=="Inauguration 2009"),
+  # NA, #VAR.ncol
+  VAR.x.variable="NIAlist", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="Is.Defense" #VAR.y.series
+  # VAR.facet.primary=NA , #"NIAcrisisFunding", #VAR.facet.primary
+  # VAR.facet.secondary=NA,  # VAR.facet.secondary=NA
+  # MovingAverage=0,
+  # MovingSides=1,
+  # DataLabels=FALSE
+  # "Is.Defense"
+  #                       ,VAR.override.coloration=NA
+)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  coord_flip()+theme(legend.position="bottom")
+
+write.csv(subset(full_data, nationalinterestactioncodeText=="California Wildfires 2008") ,"Output//CaliforniaWildfires.csv")
+
+
+#Remove the premature Californnia Wildfire 
+full_data$NIAcrisisFunding[
+  full_data$nationalinterestactioncodeText=="California Wildfires 2008" &
+    full_data$Fiscal.Year<as.Date("2008-01-01")
+]<-"Unlabeled"
+
+Tree1Ctheater<-LatticePercentLineWrapper(
+  VAR.color.legend.label="Classification",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(full_data,Theater!="Unlabeled"),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="NIAcrisisFunding", #VAR.y.series
+  VAR.facet.primary= "Theater", #VAR.facet.primary
+  # VAR.facet.secondary="contingencyhumanitarianpeacekeepingoperationText", # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position="bottom")+
+  scale_x_date(
+            # breaks=date_breaks("5 years"),
+            labels=date_format("'%y"))
+
+
+  
+full_data$NIAcontradictions<-full_data$NIAcrisisFunding
+full_data$NIAcontradictions<-factor(full_data$NIAcontradictions,
+                                    levels=c("Disaster",
+                                             "OCO",
+                                             "Missed OCO",
+                                             "Unlabeled"
+                                             )
+                                    )
+full_data$NIAcontradictions[full_data$NIAcrisisFunding=="Unlabeled" & 
+                              full_data$CrisisFunding=="OCO" ]<-"Missed OCO"
+
+unique(subset(full_data,NIAcontradictions!="Unlabeled"
+              & Fiscal.Year<=as.Date("2008-01-01"))$nationalinterestactioncodeText)
+
+
+Tree1CisDefense<-LatticePlotWrapper(
+  VAR.color.legend.label="Classification Through Step 1B",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=Coloration,
-  VAR.long.DF=subset(full_data,NAICcrisisFunding=="OCO" | (CrisisFunding=="OCO" & nationalinterestactioncodeText=="None")),
+  VAR.long.DF=subset(full_data,NIAcontradictions!="Unlabeled"),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="CrisisFunding", #VAR.y.series
+  VAR.facet.primary= "NIAcontradictions", #VAR.facet.primary
+  VAR.facet.secondary="Is.Defense", # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+facet_grid(primary ~ secondary
+              , scales="fixed" #The scales actually do stay fixed
+              , space="fixed")+theme(legend.position="bottom")
+  
+
+
+Tree1Coco<-LatticePlotWrapper(
+  VAR.color.legend.label="National Interest Action",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Constant ($ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(full_data,NIAcrisisFunding=="OCO" | (CrisisFunding=="OCO" & nationalinterestactioncodeText=="None")),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
@@ -199,47 +305,22 @@ Tree1Coco<-LatticePlotWrapper(
 #               , scales="free_y" #The scales actually do stay fixed
 #               , space="fixed")
 
- 
-    undebug(prepare_labels_and_colors)
-      labels.x.DF<-prepare_labels_and_colors(full_data,"nationalinterestactioncodeText")
-      full_data$nationalinterestactioncodeText<-factor(full_data$nationalinterestactioncodeText,
-        levels=c(labels.x.DF$variable),
-        labels=c(labels.x.DF$Label),
-        ordered=TRUE)
-    
 
-debug(LatticePlotWrapper)
-Tree1C<-LatticePlotWrapper(
-  VAR.color.legend.label="Contigency or Humanitarian Peacekeeping Operation",
-  VAR.main.label="",
-  VAR.X.label="", #"Fiscal Year",
-  VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
-  VAR.long.DF=subset(full_data,!nationalinterestactioncodeText %in% c("None","Unlabeled")|
-      (CrisisFunding=="OCO" & nationalinterestactioncodeText=="None")),
-  # NA, #VAR.ncol
-  VAR.x.variable="nationalinterestactioncodeText", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="CrisisFunding", #VAR.y.series
-  # VAR.facet.primary= NA ,#"NAICcrisisFunding", #VAR.facet.primary
-  # VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  DataLabels=FALSE
-  #                       ,VAR.override.coloration=NA
-)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  coord_flip()
-#
-# +facet_grid(primary ~ secondary
-#               , scales="free_y" #The scales actually do stay fixed
-#               , space="fixed")
-
-#NAICcrisisFunding
+  #NIAcrisisFunding
+Tree1Ctheater
+Tree1CisDefense
 Tree1Coco
-Tree1C
+Tree1CdetailIsDefense
+ggsave("Output//Tree1CisDefense.png", Tree1CisDefense, width=6.5, height= 3, units="in",dpi=300)
+ggsave("Output//Tree1CdetailIsDefense.png", Tree1CdetailIsDefense , width=4, height= 5, units="in",dpi=300)
 
 ggsave("Output//Tree1Coco.png", Tree1Coco, width=6.5, height= 3, units="in",dpi=300)
-ggsave("Output//Tree1C.png", Tree1C, width=6.5, height= 5, units="in",dpi=300)
+
+#Apply decisions
+full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$NIACcrisisFunding=="OCO"]<-"OCO"
+full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$NIACcrisisFunding=="Disaster"]<-"Disaster"
+
+save(full_data,file="LargeDataSets//full_data_after_step_1C.Rdata")
 
 ```
 
@@ -248,58 +329,69 @@ ggsave("Output//Tree1C.png", Tree1C, width=6.5, height= 5, units="in",dpi=300)
 ```{r Step1D}
 # CCRexception 
 
-
-
-LatticePlotWrapper(
-  VAR.color.legend.label="Contigency or Humanitarian Peacekeeping Operation",
+Tree1DisDefense<-LatticePlotWrapper(
+  VAR.color.legend.label="Classification Through Step 1C",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=Coloration,
-  VAR.long.DF=defense_data,
+  VAR.long.DF=subset(full_data,SAMexception.sum!="No Exception"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="CCRexception", #VAR.y.series
-  VAR.facet.primary= "CCRexception", #VAR.facet.primary
-  VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
+  VAR.y.series="CrisisFunding", #VAR.y.series
+  VAR.facet.primary= "SAMexception.sum", #VAR.facet.primary
+  VAR.facet.secondary="Is.Defense", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   DataLabels=FALSE
   #                       ,VAR.override.coloration=NA
 )+facet_grid(primary ~ secondary
               , scales="free_y" #The scales actually do stay fixed
-              , space="fixed")
+              , space="fixed")+theme(legend.position="bottom")
 
+Tree1DisDefense
+summary(full_data$CCRexception)
+summary(full_data$CCRexception)
+
+plyr::ddply(full_data,
+       plyr::.(CCRexception),
+       plyr::summarise,
+           Obligation.2016=sum(Obligation.2016)
+       )
+
+sum(full_data$Obligation.2016[full_data$CCRexception %in% c(3,4)])
 ```
 
-##Step 1E: Local Area Set-Aside
-```{r Step1E}
-# localareasetaside
+#Step 2: Iraq and Afghanistan
 
 
-
-LatticePlotWrapper(
-  VAR.color.legend.label="Contigency or Humanitarian Peacekeeping Operation",
+```{r Step1D}
+debug(LatticePlotWrapper)
+Tree2isDefense<-LatticePlotWrapper(
+  VAR.color.legend.label="Classification Through Step 1B",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=Coloration,
-  VAR.long.DF=defense_data,
+  VAR.long.DF=subset(full_data,Theater=="Afghanistan and Iraq"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="localareasetaside", #VAR.y.series
-  VAR.facet.primary= "localareasetaside", #VAR.facet.primary
-  VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
+  VAR.y.series="CrisisFunding", #VAR.y.series
+  VAR.facet.primary= "Is.Defense", #VAR.facet.primary
+  # VAR.facet.secondary="Is.Defense", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   DataLabels=FALSE
   #                       ,VAR.override.coloration=NA
-)+facet_grid(primary ~ secondary
-              , scales="free_y" #The scales actually do stay fixed
-              , space="fixed")
+)
+# +facet_grid(primary 
+#               , scales="free_y" #The scales actually do stay fixed
+#               , space="fixed")+theme(legend.position="bottom")
+# 
 
+Tree2isDefense
 ```
 
 
