@@ -109,11 +109,11 @@
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractDetailsR&amp;DCustomer.sql</FullPath>
         </FileNode>
-        <FileNode Name="Contract_SP_ContractIdentifier.sql">
+        <FileNode Name="Contract_SP_ContractDiscretizationCustomer.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
           <AssociatedConnUserName />
-          <FullPath>Contract_SP_ContractIdentifier.sql</FullPath>
+          <FullPath>Contract_SP_ContractDiscretizationCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractInterlinkedUnmodifiedSystemEquipment.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>

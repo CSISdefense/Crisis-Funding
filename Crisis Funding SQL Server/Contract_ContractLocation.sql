@@ -86,16 +86,16 @@ from (SELECT
 		, Min(iif(C.modnumber='0' or C.modnumber is null,convert(int,VendorCountryCode.IsInternational),NULL)) AS MinOfUnmodifiedVendorIsInternational
 		, Max(iif(C.modnumber='0' or C.modnumber is null,convert(int,VendorCountryCode.IsInternational),NULL)) AS MaxOfUnmodifiedVendorIsInternational
 --OriginCountryISO3
-	, Min(convert(int,OriginCountryCode.isoAlpha3)) AS MinOfOriginCountryISO3	
-	, Max(convert(int,OriginCountryCode.isoAlpha3)) AS MaxOfOriginCountryISO3	
-			, Min(iif(C.modnumber='0' or C.modnumber is null,convert(int,OriginCountryCode.isoAlpha3),NULL)) AS MinOfUnmodifiedOriginCountryISO3	
-		, Max(iif(C.modnumber='0' or C.modnumber is null,convert(int,OriginCountryCode.isoAlpha3),NULL)) AS MaxOfUnmodifiedOriginCountryISO3	
+	, Min(OriginCountryCode.isoAlpha3) AS MinOfOriginCountryISO3	
+	, Max(OriginCountryCode.isoAlpha3) AS MaxOfOriginCountryISO3	
+	, Min(iif(C.modnumber='0' or C.modnumber is null,OriginCountryCode.isoAlpha3,NULL)) AS MinOfUnmodifiedOriginCountryISO3	
+	, Max(iif(C.modnumber='0' or C.modnumber is null,OriginCountryCode.isoAlpha3,NULL)) AS MaxOfUnmodifiedOriginCountryISO3	
 	----Origin Binaries IsInternational
 	,sum(iif(OriginCountryCode.IsInternational=1,ObligatedAmount,NULL)) as ObligatedAmountOriginIsInternational
 	,min(convert(int,OriginCountryCode.IsInternational)) as MinOfOriginIsInternational
 	,max(convert(int,OriginCountryCode.IsInternational)) as MaxOfOriginIsInternational
-		, Min(iif(C.modnumber='0' or C.modnumber is null,convert(int,OriginCountryCode.IsInternational),NULL)) AS MinOfUnmodifiedOriginIsInternational
-		, Max(iif(C.modnumber='0' or C.modnumber is null,convert(int,OriginCountryCode.IsInternational),NULL)) AS MaxOfUnmodifiedOriginIsInternational
+	, Min(iif(C.modnumber='0' or C.modnumber is null,convert(int,OriginCountryCode.IsInternational),NULL)) AS MinOfUnmodifiedOriginIsInternational
+	, Max(iif(C.modnumber='0' or C.modnumber is null,convert(int,OriginCountryCode.IsInternational),NULL)) AS MaxOfUnmodifiedOriginIsInternational
 
   FROM contract.FPDS as C
  	LEFT JOIN FPDSTypeTable.Country3lettercode as PlaceCountryCode
