@@ -594,7 +594,7 @@ Tree5<-LatticePercentLineWrapper(
 #Step 5: Calculate the contracts contingency likelihood score.
 ##Step 5A Calculate the Funding Source Score
 ```{r Step5A}
-load(file="LargeDataSets//full_data_after_step_4b.Rdata")
+# load(file="LargeDataSets//full_data_after_step_4b.Rdata")
 
 defense_data$PercentFundingAccountOCO<-as.numeric(defense_data$PercentFundingAccountOCO)
 defense_data<-replace_nas_with_unlabeled(defense_data,"CrisisFunding")
@@ -746,7 +746,7 @@ Tree5C<-LatticePlotWrapper(
               , space="fixed")+
   scale_x_continuous(labels = percent_format())+geom_vline(aes(xintercept=0.25))  
 Tree5C
-ggsave("Output//Tree5C.png", Tree5C+xlab("Square Root of the Share of Office Obligations Going to Official Contingency Contracts"), width=6.5, height= 3, units="in",dpi=300)
+ggsave("Output//Tree5C.png", Tree5C, width=6.5, height= 3, units="in",dpi=300)
 sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="OCO"&
       defense_data$Customer=="Defense"& 
     defense_data$OfficeOCOcrisisPercentRound1>=0.25],na.rm=TRUE)/
