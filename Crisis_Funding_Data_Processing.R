@@ -55,18 +55,36 @@ note.text.size<-1.40
 
 ##Import Data
 # read in detailed defense dataset    
-ZipFile<-unz(file.path("Data","Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.zip"),
-             "Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.csv")
-defense_data <- read.csv(ZipFile,
-                         na.strings="NULL")
-rm(ZipFile)
+# ZipFile<-unz(file.path("Data","Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.zip"),
+             # "Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.csv")
+defense_data <- readr::read_delim(
+  "Data//Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.txt",
+  delim="\t",
+  
+                         na="NULL")
+defense_data<-standardize_variable_names(defense_data)
 
 # read in full data set    
 ZipFile<-unz(file.path("Data","Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.zip"),
-             "Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.csv")
-full_data <- read.csv(ZipFile,
-                      na.strings="NULL",
-                      sep=",")
+             "Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.txt")
+full_data <- readr::read_delim(ZipFile,
+                      na="NULL",
+                      delim="\t")
+
+full_data<-full_data[,colnames(full_data) %in% 
+    c(
+      "ContractCrisisFunding.1"             ,
+      "localareasetaside.1",
+      "IsOMBocoList.1"
+    )]
+
+full_data<-standardize_variable_names(full_data)
+missingf<-colnames(full_data)[!colnames(full_data) %in% colnames(defense_data)]
+missingd<-colnames(defense_data)[!colnames(defense_data) %in% colnames(full_data)]
+
+
+
+
 rm(ZipFile)
 full_data$CrisisFundingLegacy<-full_data$CrisisFunding
 
@@ -77,47 +95,27 @@ debug(apply_lookups)
 full_data<-apply_lookups(Path,full_data)
 full_data<-subset(full_data, year(Fiscal.Year)>=2000)
 
-defense_data$Theater<-defense_data$CrisisFundingTheater
-levels(defense_data$Theater)<-c("Afghanistan"="Afghanistan and Iraq",
-                                "Domestic"="Domestic",
-                                "Iraq"="Afghanistan and Iraq",
-                                "Regional Support"="Regional Support",
-                                "Rest of World"="Rest of World")
-defense_data$Theater<-ordered(defense_data$Theater,levels=
-                                c("Afghanistan and Iraq",
-                                  "Regional Support",
-                                  "Rest of World",
-                                  "Domestic"))
-
+defense_data$Theater<-as.character(defense_data$CrisisFundingTheater)
+defense_data$Theater[defense_data$Theater %in% c("Afghanistan","Iraq")]<-"Afghanistan and Iraq"
 defense_data$International<-defense_data$Theater
-levels(defense_data$International)<-c("Afghanistan and Iraq"="International",
-                                      "Regional Support"="International",
-                                      "Rest of World"="International",
-                                      "Domestic"="Domestic")
+defense_data$International[defense_data$Theater %in% c("Afghanistan and Iraq",
+  "Regional Support",
+  "Rest of World")]<-"International"
 defense_data$International<-ordered(defense_data$International,
-                                    levels=c("International",
-                                             "Domestic"))
+  levels=c("International",
+    "Domestic"))
 
-full_data$Theater<-full_data$CrisisFundingTheater
-levels(full_data$Theater)<-c("Afghanistan"="Afghanistan and Iraq",
-                             "Domestic"="Domestic",
-                             "Iraq"="Afghanistan and Iraq",
-                             "Regional Support"="Regional Support",
-                             "Rest of World"="Rest of World")
-full_data$Theater<-ordered(full_data$Theater,levels=
-                             c("Afghanistan and Iraq",
-                               "Regional Support",
-                               "Rest of World",
-                               "Domestic"))
-
+full_data$Theater<-as.character(full_data$CrisisFundingTheater)
+full_data$Theater[full_data$Theater %in% c("Afghanistan","Iraq")]<-"Afghanistan and Iraq"
 full_data$International<-full_data$Theater
-levels(full_data$International)<-c("Afghanistan and Iraq"="International",
-                                   "Regional Support"="International",
-                                   "Rest of World"="International",
-                                   "Domestic"="Domestic")
+full_data$International[full_data$Theater %in% c("Afghanistan and Iraq",
+  "Regional Support",
+  "Rest of World")]<-"International"
 full_data$International<-ordered(full_data$International,
-                                 levels=c("International",
-                                          "Domestic"))
+  levels=c("International",
+    "Domestic"))
+
+
 
 
 
@@ -155,6 +153,18 @@ full_data<-csis360::read_and_join(
   skip_check_var=c("NIAcrisisFunding","IsHurricane")
 )
 
+
+full_data$SubCustomer<-full_data$ContractingSubCustomer
+full_data<-csis360::read_and_join(
+  full_data,
+  "Lookup_SubCustomer.csv",
+  by=c("Customer","SubCustomer"),
+  # replace_na_var=NULL,
+  # overlap_var_replaced=TRUE,
+  add_var="SubCustomer.detail"
+  # new_var_checked=TRUE,
+  # skip_check_var=c("NIAcrisisFunding","IsHurricane")
+)
 full_data$CCRexception[full_data$CCRexception==""]<-NA
 full_data<-csis360::read_and_join(
   full_data,
@@ -167,7 +177,61 @@ full_data<-csis360::read_and_join(
   skip_check_var=c("SAMcrisisFunding")
 )
 
-save(defense_data,
-     full_data,
-     file="Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
 
+
+defense_data<-csis360::read_and_join(
+  defense_data,
+  "Lookup_ContingencyHumanitarianPeacekeepingOperation.csv",
+  by="ContingencyHumanitarianPeacekeepingOperation",
+  # replace_na_var=NULL,
+  # overlap_var_replaced=TRUE,
+  # add_var="Is.Defense"
+  # new_var_checked=TRUE,
+  skip_check_var="CHPKisCrisisFunding"
+)
+
+colnames(defense_data)[colnames(defense_data)=="ContractingCustomer"]<-"Customer"
+defense_data<-csis360::read_and_join(
+  defense_data,
+  "LOOKUP_Customer.csv",
+  by="Customer",
+  # replace_na_var=NULL,
+  # overlap_var_replaced=TRUE,
+  add_var="Is.Defense",
+  new_var_checked="Is.Defense"
+  # skip_check_var=NULL
+)
+
+# defense_data<-csis360::read_and_join(
+#   defense_data,
+#   "Lookup_nationalinterestactioncode.csv",
+#   by="nationalinterestactioncode",
+#   # replace_na_var=NULL,
+#   # overlap_var_replaced=TRUE,
+#   # add_var="Is.Defense"
+#   # new_var_checked=TRUE,
+#   skip_check_var=c("NIAcrisisFunding","IsHurricane")
+# )
+
+
+defense_data$SubCustomer<-defense_data$ContractingSubCustomer
+defense_data<-csis360::read_and_join(
+  defense_data,
+  "Lookup_SubCustomer.csv",
+  by=c("Customer","SubCustomer"),
+  # replace_na_var=NULL,
+  # overlap_var_replaced=TRUE,
+  add_var="SubCustomer.detail"
+  # new_var_checked=TRUE,
+  # skip_check_var=c("NIAcrisisFunding","IsHurricane")
+)
+
+
+save(full_data,
+  file="overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
+
+
+save(full_data,defense_data,
+  file="budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
+
+load(file="budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")

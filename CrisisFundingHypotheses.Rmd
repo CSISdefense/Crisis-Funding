@@ -58,190 +58,7 @@ note.text.size<-1.40
 ##Import Data
 ```{r Import}
 # read in data    
-ZipFile<-unz(file.path("Data","Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.zip"),
-             "Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.csv")
-full_data <- read.csv(ZipFile,
-                     na.strings="NULL")
-rm(ZipFile)
 
-full_data<-apply_lookups(Path,full_data)
-full_data<-subset(full_data, year(Fiscal.Year)>=2000)
-
-
-
-```
-
-
-#Identifying Contigency Contracts
-##Points
-```{r Points}
-full_data$OCOcrisisScore<-round(full_data$OCOcrisisScore)
-full_data$IsOCOcrisisFunding<-factor(ifelse(full_data$CrisisFunding=="OCO","OCO","All Other"))
-full_data$IsOCOcrisisFunding[is.na(full_data$IsOCOcrisisFunding)]<-"All Other"
-full_data$OCOcrisisScore[full_data$OCOcrisisScore<0]<-0
-
-#Group the 0-10 score into a smaller number of buckets 
-full_data$OCOscoreBuckets<-NA
-full_data$OCOscore<-cut2(full_data$OCOcrisisScore,c(1,3,6))
-full_data$OCOscoreBuckets[full_data$OCOscore=="[ 6,10]"]<-"Confident OCO [6-10]"
-full_data$OCOscoreBuckets[full_data$OCOscore=="[ 3, 6)"]<-"Borderline OCO [3-5]"
-full_data$OCOscoreBuckets[full_data$OCOscore=="[ 1, 3)"]<-"Possible OCO [1-2]"
-full_data$OCOscoreBuckets[full_data$OCOscore==" 0"]<-"Remainder [0]"
-
-
-full_data$OCOscoreBuckets<-ordered(full_data$OCOscoreBuckets,c("Remainder [0]","Possible OCO [1-2]","Borderline OCO [3-5]","Confident OCO [6-10]",
-                                                           "Confirmed OCO"))
-
-
-#Label theaters
-full_data$Theater<-full_data$CrisisFundingTheater
-levels(full_data$Theater)<-c("Afghanistan"="Afghanistan and Iraq",
-                            "Domestic"="Domestic",
-                            "Iraq"="Afghanistan and Iraq",
-                            "Regional Support"="Regional Support",
-                            "Rest of World"="Rest of World")
-full_data$Theater<-ordered(full_data$Theater,levels=c("Afghanistan and Iraq","Regional Support","Rest of World","Domestic"))
-
-full_data$International<-full_data$Theater
-levels(full_data$International)<-c("Afghanistan and Iraq"="International",
-                            "Regional Support"="International",
-                            "Rest of World"="International",
-                            "Domestic"="Domestic")
-full_data$International<-ordered(full_data$International,levels=c("International","Domestic"))
-
-
-Evaluation<-ddply(full_data,
-                .(
-                  IsOCOcrisisFunding,
-                  OCOcrisisScore,
-                  Theater
-                  ),
-                plyr::summarise,
-                Obligations=sum(Obligation.2015)
-                )
-
-
-Evaluation<-ddply(Evaluation,
-                .(
-                  OCOcrisisScore,
-                  Theater
-                  ),
-                plyr::mutate,
-                pObligations=Obligations/sum(Obligations)
-                )
-
-
-LatticePlotWrapper(
-  VAR.color.legend.label="OCO labeling detail",
-  VAR.main.label="Labeled Theater Defense Contracts",
-  VAR.X.label="Theater",
-  VAR.Y.label="Percent of Obligations That Are Confirmed OCO",
-  VAR.Coloration=Coloration,
-  VAR.long.DF=subset(Evaluation,IsOCOcrisisFunding=="OCO" & !is.na(Theater)),
-  # NA, #VAR.ncol
-  VAR.x.variable="Theater", #VAR.x.variable
-  VAR.y.variable="pObligations", #VAR.y.variable
-  VAR.y.series="Theater", #VAR.y.series
-  VAR.facet.primary="OCOcrisisScore" #VAR.facet.primary
-  # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  ,DataLabels=FALSE
-  #                       ,VAR.override.coloration=NA
-)+  facet_wrap(  ~ primary
-               , nrow=2)+
-  scale_y_continuous("Percent of Obligations",
-                     labels = scales::percent)+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
-
-
-Points<-ddply(full_data,
-                .(
-                  Fiscal.Year,
-                  IsOCOcrisisFunding,
-                  OCOscoreBuckets
-                  ),
-                plyr::summarise,
-                Obligations=sum(Obligation.2015)
-                )
-
-
-Points<-ddply(Points,
-                .(
-                  Fiscal.Year,
-                  IsOCOcrisisFunding
-                  ),
-                plyr::mutate,
-                pObligations=Obligations/sum(Obligations)
-                )
-
-
-LatticePlotWrapper(
-  VAR.color.legend.label="OCO labeling detail",
-  VAR.main.label="Defense Contracts",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
-  VAR.Coloration=Coloration,
-  VAR.long.DF=Points,
-  # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="pObligations", #VAR.y.variable
-  VAR.y.series="OCOscoreBuckets", #VAR.y.series
-  VAR.facet.primary="IsOCOcrisisFunding" #VAR.facet.primary
-  # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  ,DataLabels=FALSE
-  #                       ,VAR.override.coloration=NA
-)+ scale_y_continuous("Percent of Obligations",
-                     labels = scales::percent)+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-PointsRegion<-ddply(full_data,
-                .(
-                  Fiscal.Year,
-                  IsOCOcrisisFunding,
-                  OCOscoreBuckets,
-                  Theater
-                  ),
-                plyr::summarise,
-                Obligations=sum(Obligation.2015)
-                )
-
-PointsRegion<-ddply(PointsRegion,
-                .(
-                  Fiscal.Year,
-                  IsOCOcrisisFunding,
-                  Theater
-                  ),
-                plyr::mutate,
-                pObligations=Obligations/sum(Obligations)
-                )
-
-PointsRegion$OCOscoreBuckets<-ordered(PointsRegion$OCOscoreBuckets)
-
-LatticePlotWrapper(
-  VAR.color.legend.label="OCO labeling detail",
-  VAR.main.label="Defense Contracts",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
-  VAR.Coloration=Coloration,
-  VAR.long.DF=subset(PointsRegion,!is.na(Theater)),
-  # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="pObligations", #VAR.y.variable
-  VAR.y.series="OCOscoreBuckets", #VAR.y.series
-  VAR.facet.primary="IsOCOcrisisFunding", #VAR.facet.primary
-  VAR.facet.secondary= "Theater" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  ,DataLabels=FALSE
-  #                       ,VAR.override.coloration=NA
-)+ scale_y_continuous("Percent of Obligations",
-                     labels = scales::percent)+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 
@@ -258,8 +75,8 @@ levels(full_data$OCOlabelDetail) <-
 full_data$OCOlabelDetail[full_data$CrisisFunding=="OCO"]<-"Confirmed OCO"
 
 
-full_data$IsCSISOCO<-"All Other"
-full_data$IsCSISOCO[full_data$CrisisFunding=="OCO"|full_data$OCOcrisisScore>=6]<-"Confident OCO"
+full_data$CrisisDisplay<-"All Other"
+full_data$CrisisDisplay[full_data$CrisisFunding=="OCO"|full_data$OCOcrisisScore>=6]<-"Confident OCO"
 
 
 
@@ -271,10 +88,10 @@ Dollars<-ddply(full_data,
                 .(
                   Fiscal.Year,
                   OCOlabelDetail,
-                  IsCSISOCO
+                  CrisisDisplay
                   ),
                 plyr::summarise,
-                Obligations=sum(Obligation.2015)
+                Obligation.2016=sum(Obligation.2015)
                 )
 
 
@@ -283,14 +100,14 @@ LatticePlotWrapper(
   VAR.color.legend.label="OCO labeling detail",
   VAR.main.label="All Defense Contracts",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Y.label="Obligation.2016 (2015 $ Billions)",
   VAR.Coloration=Coloration,
   VAR.long.DF=Dollars,
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="OCOlabelDetail", #VAR.y.series
-  VAR.facet.primary="IsCSISOCO" #VAR.facet.primary
+  VAR.facet.primary="CrisisDisplay" #VAR.facet.primary
   # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -304,11 +121,11 @@ DollarsTheater<-ddply(full_data,
                 .(
                   Fiscal.Year,
                   OCOlabelDetail,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   Theater
                   ),
                 plyr::summarise,
-                Obligations=sum(Obligation.2015)
+                Obligation.2016=sum(Obligation.2015)
                 )
 
 
@@ -320,15 +137,15 @@ LatticePlotWrapper(
   VAR.color.legend.label="OCO labeling detail",
   VAR.main.label="Defense Contracts with Labeled Theater",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Y.label="Obligation.2016 (2015 $ Billions)",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(DollarsTheater,!is.na(Theater)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="OCOlabelDetail", #VAR.y.series
   VAR.facet.primary="Theater", #VAR.facet.primary
-  VAR.facet.secondary="IsCSISOCO" # VAR.facet.secondary=NA
+  VAR.facet.secondary="CrisisDisplay" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   # ,DataLabels=NA
@@ -340,11 +157,11 @@ DollarsInternational<-ddply(full_data,
                 .(
                   Fiscal.Year,
                   OCOlabelDetail,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   International
                   ),
                 plyr::summarise,
-                Obligations=sum(Obligation.2015)
+                Obligation.2016=sum(Obligation.2015)
                 )
 
 
@@ -357,15 +174,15 @@ OCOdetail<-LatticePlotWrapper(
   VAR.color.legend.label="OCO labeling detail",
   VAR.main.label="Defense Contracts with Labeled Location",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Y.label="Obligation.2016 (2015 $ Billions)",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(DollarsInternational,!is.na(International)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="OCOlabelDetail", #VAR.y.series
   VAR.facet.primary="International", #VAR.facet.primary
-  VAR.facet.secondary="IsCSISOCO" # VAR.facet.secondary=NA
+  VAR.facet.secondary="CrisisDisplay" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   # ,DataLabels=NA
@@ -381,12 +198,12 @@ OCOdetail+theme(legend.position="right")
 
 Country<-ddply(full_data,
                 .(Fiscal.Year,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   PlaceCountryText,
                   Theater
                   ),
                 plyr::summarise,
-                Obligations=sum(Obligation.2015)
+                Obligation.2016=sum(Obligation.2015)
                 )
 
 write.csv(Country,file.path("Output","Country.csv"))
@@ -396,14 +213,14 @@ LatticePlotWrapper(
   VAR.color.legend.label="OCO labeling detail",
   VAR.main.label="All Defense Contracts",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Y.label="Obligation.2016 (2015 $ Billions)",
   VAR.Coloration=Coloration,
   VAR.long.DF=Dollars,
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="OCOlabelDetail", #VAR.y.series
-  VAR.facet.primary="IsCSISOCO" #VAR.facet.primary
+  VAR.facet.primary="CrisisDisplay" #VAR.facet.primary
   # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -417,18 +234,18 @@ OCOdetailZoom<-LatticePlotWrapper(
   VAR.color.legend.label="OCO labeling detail",
   VAR.main.label="Confident OCO or International Defense Contracts",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Y.label="Obligation.2016 (2015 $ Billions)",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(DollarsInternational,
-                     (IsCSISOCO=="Confident OCO" | 
+                     (CrisisDisplay=="Confident OCO" | 
                        International=="International") & 
                        !is.na(International)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="OCOlabelDetail", #VAR.y.series
   VAR.facet.primary="International", #VAR.facet.primary
-  VAR.facet.secondary="IsCSISOCO" # VAR.facet.secondary=NA
+  VAR.facet.secondary="CrisisDisplay" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   # ,DataLabels=NA
@@ -458,22 +275,22 @@ full_data$No.Competition.sum<-ordered(
 CompetitionSupplyServiceERS<-ddply(full_data,
                 .(
                   Fiscal.Year,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   No.Competition.sum,
                   SupplyServiceERS
                   ),
                 plyr::summarise,
-                Obligations=sum(Obligation.2015)
+                Obligation.2016=sum(Obligation.2015)
                 )
 
 CompetitionSupplyServiceERS<-ddply(CompetitionSupplyServiceERS,
                 .(
                   Fiscal.Year,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   SupplyServiceERS
                   ),
                 plyr::mutate,
-                pObligations=Obligations/sum(Obligations)
+                pObligation.2016=Obligation.2016/sum(Obligation.2016)
                 )
 
 
@@ -483,15 +300,15 @@ CompetitionSupplyServiceERS<-ddply(CompetitionSupplyServiceERS,
   VAR.color.legend.label="Competition",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
+  VAR.Y.label="Percent of Obligation.2016",
   VAR.Coloration=Coloration,
-  VAR.long.DF=subset(CompetitionSupplyServiceERS,
+  VAR.long.DF=subset(full_data,
                      SupplyServiceERS!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="No.Competition.sum", #VAR.y.series
-  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
   VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -507,16 +324,16 @@ LatticePlotWrapper(
   VAR.color.legend.label="Competition",
   VAR.main.label="Confident OCO and Labeled Product or Service Defense Contracts",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Y.label="Obligation.2016 (2015 $ Billions)",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(CompetitionSupplyServiceERS,
                      SupplyServiceERS!="Unlabeled"&
-                       IsCSISOCO=="Confident OCO"),
+                       CrisisDisplay=="Confident OCO"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="No.Competition.sum", #VAR.y.series
-  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
   VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -532,22 +349,22 @@ LatticePlotWrapper(
 CompetitionDuration<-ddply(full_data,
                 .(
                   Fiscal.Year,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   UnmodifiedUltimateDurationCategory,
                   Competition.sum
                   ),
                 plyr::summarise,
-                Obligations=sum(Obligation.2015)
+                Obligation.2016=sum(Obligation.2015)
                 )
 
 CompetitionDuration<-ddply(CompetitionDuration,
                 .(
                   Fiscal.Year,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   UnmodifiedUltimateDurationCategory
                   ),
                 plyr::mutate,
-                pObligations=Obligations/sum(Obligations)
+                pObligation.2016=Obligation.2016/sum(Obligation.2016)
                 )
 
 
@@ -557,7 +374,7 @@ LatticePlotWrapper(
   VAR.color.legend.label="Competition",
   VAR.main.label="Confident OCO and Labeled Duration Defense Contracts",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Y.label="Obligation.2016 (2015 $ Billions)",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(full_data,
                      !is.na(UnmodifiedUltimateDurationCategory)),
@@ -565,7 +382,7 @@ LatticePlotWrapper(
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2015", #VAR.y.variable
   VAR.y.series="Competition.sum", #VAR.y.series
-  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
   VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -578,15 +395,15 @@ LatticePlotWrapper(
   VAR.color.legend.label="Competition",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
+  VAR.Y.label="Percent of Obligation.2016",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(CompetitionDuration,
                      !is.na(UnmodifiedUltimateDurationCategory)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="Competition.sum", #VAR.y.series
-  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
   VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -603,7 +420,7 @@ LatticePlotWrapper(
   VAR.color.legend.label="Competition",
   VAR.main.label="Confident OCO and Labeled Duration Defense Contracts",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Y.label="Obligation.2016 (2015 $ Billions)",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(full_data,
                      !is.na(UnmodifiedUltimateDurationCategory)),
@@ -611,7 +428,7 @@ LatticePlotWrapper(
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2015", #VAR.y.variable
   VAR.y.series="No.Competition.sum", #VAR.y.series
-  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
   VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -624,7 +441,7 @@ LatticePlotWrapper(
   VAR.color.legend.label="Competition",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
+  VAR.Y.label="Percent of Obligation.2016",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(full_data,
                      !is.na(UnmodifiedUltimateDurationCategory)),
@@ -632,7 +449,7 @@ LatticePlotWrapper(
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2015", #VAR.y.variable
   VAR.y.series="No.Competition.sum", #VAR.y.series
-  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
   VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -664,22 +481,22 @@ unique(full_data$isUndefinitizedAction)
 UCASupplyServiceERS<-ddply(full_data,
                 .(
                   Fiscal.Year,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   isUCA,
                   SupplyServiceERS
                   ),
                 plyr::summarise,
-                Obligations=sum(Obligation.2015)
+                Obligation.2016=sum(Obligation.2015)
                 )
 
 UCASupplyServiceERS<-ddply(UCASupplyServiceERS,
                 .(
                   Fiscal.Year,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   SupplyServiceERS
                   ),
                 plyr::mutate,
-                pObligations=Obligations/sum(Obligations)
+                pObligation.2016=Obligation.2016/sum(Obligation.2016)
                 )
 
 
@@ -690,14 +507,14 @@ LatticePercentLineWrapper(
   VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
   VAR.main.label="Defense Contracts with Labeled Cector",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
+  VAR.Y.label="Percent of Obligation.2016",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(UCASupplyServiceERS,SupplyServiceERS!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="isUCA", #VAR.y.series
-  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
   VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -713,36 +530,36 @@ LatticePercentLineWrapper(
 UCADuration<-ddply(full_data,
                 .(
                   Fiscal.Year,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   UnmodifiedUltimateDurationCategory,
                   isUCA
                   ),
                 plyr::summarise,
-                Obligations=sum(Obligation.2015)
+                Obligation.2016=sum(Obligation.2015)
                 )
 
 UCADuration<-ddply(UCADuration,
                 .(
                   Fiscal.Year,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   UnmodifiedUltimateDurationCategory
                   ),
                 plyr::mutate,
-                pObligations=Obligations/sum(Obligations)
+                pObligation.2016=Obligation.2016/sum(Obligation.2016)
                 )
 
 LatticePercentLineWrapper(
   VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
   VAR.main.label="Defense Contracts with Labeled Cector",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
+  VAR.Y.label="Percent of Obligation.2016",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(UCADuration,!is.na(UnmodifiedUltimateDurationCategory)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="isUCA", #VAR.y.series
-  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
   VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -759,15 +576,15 @@ LatticePlotWrapper(
   VAR.color.legend.label="Undefinitized Contract Action (UCA)",
   VAR.main.label="Labeled UCA Status and Duration Defense Contracts",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligations (2015 $ Billions)",
+  VAR.Y.label="Obligation.2016 (2015 $ Billions)",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(UCADuration,
                      !is.na(UnmodifiedUltimateDurationCategory)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="isUCA", #VAR.y.series
-  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
   VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -791,22 +608,22 @@ full_data$Reachback<-factor(full_data$Reachback,levels=c( "[ 2, 3]","[-1, 2)"),
 CompetitionReachback<-ddply(full_data,
                 .(
                   Fiscal.Year,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   Reachback,
                   No.Competition.sum
                   ),
                 plyr::summarise,
-                Obligations=sum(Obligation.2015)
+                Obligation.2016=sum(Obligation.2015)
                 )
 
 CompetitionReachback<-ddply(CompetitionReachback,
                 .(
                   Fiscal.Year,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   Reachback
                   ),
                 plyr::mutate,
-                pObligations=Obligations/sum(Obligations)
+                pObligation.2016=Obligation.2016/sum(Obligation.2016)
                 )
 
 
@@ -814,14 +631,14 @@ LatticePercentLineWrapper(
   VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
   VAR.main.label="Defense Contracts with Labeled Reachback",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
+  VAR.Y.label="Percent of Obligation.2016",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(CompetitionReachback,!is.na(Reachback)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="No.Competition.sum", #VAR.y.series
-  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
   VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -836,22 +653,22 @@ LatticePercentLineWrapper(
 UCAReachback<-ddply(full_data,
                 .(
                   Fiscal.Year,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   Reachback,
                   isUCA
                   ),
                 plyr::summarise,
-                Obligations=sum(Obligation.2015)
+                Obligation.2016=sum(Obligation.2015)
                 )
 
 UCAReachback<-ddply(UCAReachback,
                 .(
                   Fiscal.Year,
-                  IsCSISOCO,
+                  CrisisDisplay,
                   Reachback
                   ),
                 plyr::mutate,
-                pObligations=Obligations/sum(Obligations)
+                pObligation.2016=Obligation.2016/sum(Obligation.2016)
                 )
 
 
@@ -859,14 +676,14 @@ LatticePercentLineWrapper(
   VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
   VAR.main.label="Defense Contracts with Labeled Reachback",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
+  VAR.Y.label="Percent of Obligation.2016",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(UCAReachback,!is.na(Reachback)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligations", #VAR.y.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="isUCA", #VAR.y.series
-  VAR.facet.primary="IsCSISOCO", #VAR.facet.primary
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
   VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1

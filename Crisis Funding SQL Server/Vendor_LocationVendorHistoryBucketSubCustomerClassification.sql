@@ -94,7 +94,6 @@ SELECT  [fiscal_year]
       ,[nationalinterestactioncode]
       ,[NIAcrisisFunding]
       ,[CrisisFunding]
-      ,[localareasetaside]
 	  ,ContingencyHumanitarianPeacekeepingOperation
 	  ,ConHumIsOCOcrisisFunding
 	  ,l.CCRexception
@@ -149,6 +148,63 @@ SELECT  [fiscal_year]
 	,OfficeOCOcrisisScore
 	,OfficeOCOcrisisPercent
 
+	
+	--DecisionTree
+	,case
+	--Step 1A
+	when ContractCrisisFunding is not null 
+	then ContractCrisisFunding
+	--Step 1b 
+	when ConHumIsOCOcrisisFunding=1
+	then 'OCO'
+	--Step 1C
+	when NIAcrisisFunding is not null and
+		(nationalinterestactioncode<>'W081' or --Excluding a majore ($26 billion mislabelling case)
+		fiscal_year>=2008) 
+
+	then NIAcrisisFunding 
+	when PlaceCountryText in ('Afghanistan','Iraq')
+	then 'OCO'
+	when l.OMBagencyCode=7 and l.OMBbureauCode in (15, 20) and --Procurement or RDT&E
+		[UnmodifiedUltimateDuration]> 366
+	then 'Excluded'
+	when pscOCOcrisisScore=-1 or OfficeOCOcrisisScore=-1
+	then 'Excluded'
+	when (pscOCOcrisisPoint + FundingAccountOCOpoint + OfficeOCOcrisisPoint)>=1 and
+		IsOMBocoList=1
+	then 'OCO'
+	when (pscOCOcrisisPoint + FundingAccountOCOpoint + OfficeOCOcrisisPoint)>=2 and
+		PlaceIsInternational=1
+	then 'OCO'
+	when (pscOCOcrisisPoint + FundingAccountOCOpoint + OfficeOCOcrisisPoint)>=3
+	then 'OCO'
+	else NULL
+	end as DecisionTree
+	--DecisionTree
+	,case
+	--Step 1A
+	when ContractCrisisFunding is not null 
+	then ContractCrisisFunding
+	--Step 1b 
+	when ConHumIsOCOcrisisFunding=1
+	then 'OCO'
+	--Step 1C
+	when NIAcrisisFunding is not null and
+		(nationalinterestactioncode<>'W081' or --Excluding a majore ($26 billion mislabelling case)
+		fiscal_year>=2008) 
+	then NIAcrisisFunding 
+	when PlaceCountryText in ('Afghanistan','Iraq')
+	then 'OCO'
+	when l.OMBagencyCode=7 and l.OMBbureauCode in (15, 20) and --Procurement or RDT&E
+		[UnmodifiedUltimateDuration]> 366
+	then 'Excluded'
+	when pscOCOcrisisScore=-1 or OfficeOCOcrisisScore=-1
+	then 'Excluded'
+	else NULL
+	end as DecisionTreeStep4
+	,pscOCOcrisisPoint
+	,FundingAccountOCOpoint
+	,OfficeOCOcrisisPoint
 	   	,case 
 		when l.UnmodifiedUltimateDuration is null or l.UnmodifiedUltimateDuration <0
 		then NULL
@@ -178,7 +234,7 @@ SELECT  [fiscal_year]
   left outer join agency.BureauCode bc
   on bc.OMBagencyCode=l.OMBagencycode and
   bc.BureauCode=l.OMBbureaucode
-
+  
 
 
 

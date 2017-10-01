@@ -197,10 +197,12 @@ C.fiscal_year
 	,PlaceISO.IsOMBocoList
 	,PlaceISO.isforeign
 	,psc.OCOcrisisPercent as pscOCOcrisisPercent
+	,iif(psc.OCOcrisisPercent>=0.04,1,0)  as pscOCOcrisisPoint
 	,ocomac.PercentFundingAccountOCO
+	,iif(ocomac.PercentFundingAccountOCO>=0.25,1,0)  as FundingAccountOCOpoint
 	,officecode.OCOcrisisScore as OfficeOCOcrisisScore
 	,officecode.OCOcrisisPercent as OfficeOCOcrisisPercent
-
+	,iif(officecode.OCOcrisisPercent>=0.05,1,0)  as OfficeOCOcrisisPoint
 	--Duration
 	,DATEDIFF(day, cdur.MinOfEffectiveDate, cdur.UnmodifiedUltimateCompletionDate) as UnmodifiedUltimateDuration
 --Funding Account
