@@ -51,32 +51,30 @@ geom.text.size<-12
 main.text.size<-2
 note.text.size<-1.40
 
-
-
 ##Import Data
 # read in detailed defense dataset    
-# ZipFile<-unz(file.path("Data","Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.zip"),
-             # "Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.csv")
-defense_data <- readr::read_delim(
-  "Data//Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.txt",
+ZipFile<-unz(file.path("Data","Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.zip"),
+             "Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.csv")
+defense_data <- readr::read_delim(ZipFile,
   delim="\t",
   
                          na="NULL")
 defense_data<-standardize_variable_names(defense_data)
 
 # read in full data set    
-ZipFile<-unz(file.path("Data","Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.zip"),
-             "Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.txt")
-full_data <- readr::read_delim(ZipFile,
+# ZipFile<-unz(file.path("Data","Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.zip"),
+             # "Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.txt")
+full_data <- readr::read_delim(file.path("LargeDataSets",
+  "Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.txt"),
                       na="NULL",
                       delim="\t")
 
-full_data<-full_data[,colnames(full_data) %in% 
-    c(
-      "ContractCrisisFunding.1"             ,
-      "localareasetaside.1",
-      "IsOMBocoList.1"
-    )]
+# defense_data<-defense_data[,colnames(defense_data) %in% 
+#     c(
+#       "ContractCrisisFunding.1"             ,
+#       "localareasetaside.1",
+#       "IsOMBocoList.1"
+#     )]
 
 full_data<-standardize_variable_names(full_data)
 missingf<-colnames(full_data)[!colnames(full_data) %in% colnames(defense_data)]

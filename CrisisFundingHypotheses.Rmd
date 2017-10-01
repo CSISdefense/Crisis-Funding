@@ -66,6 +66,145 @@ note.text.size<-1.40
 
 
 
+```{r FirstLook}
+
+full_data$CrisisDisplay<-as.character(full_data$CrisisFunding)
+full_data$CrisisDisplay[full_data$CrisisDisplay  %in% c("Unlabeled","Excluded")]<-"All Other"
+debug(prepare_labels_and_colors)
+OCOdetail<-LatticePlotWrapper(
+  VAR.color.legend.label="Crisis Category",
+  VAR.main.label="Defense Contracts with Labeled Location",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2016 $ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(full_data,!is.na(International)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="Is.Defense", #VAR.y.series
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.secondary="International" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+  facet_grid(primary ~ secondary
+              , scales="free_y" #The scales actually do stay fixed
+              , space="fixed")+theme(legend.position="bottom")
+OCOdetail
+ggsave("Output//AnalysisSumamry.png", OCOdetail, width=6.5, height= 4, units="in",dpi=300)
+
+```
+
+
+```{r Competition}
+
+
+
+Comp1<-  LatticePercentLineWrapper(
+  VAR.color.legend.label="Competition",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligation.2016",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(full_data,
+                     SupplyServiceERS!="Unlabeled"),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="No.Competition.sum", #VAR.y.series
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
+
+ggsave("Output//Comp1.png", OCOdetail, width=6.5, height= 4, units="in",dpi=300)
+
+Comp2<-  LatticePercentLineWrapper(
+  VAR.color.legend.label="Competition",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligation.2016",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=full_data,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="No.Competition.sum", #VAR.y.series
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.secondary="Is.Defense" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
+
+
+Comp3<-  LatticePlotWrapper(
+  VAR.color.legend.label="Competition",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligation.2016",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=full_data,
+  # NA, #VAR.ncol
+  VAR.x.variable="No.Competition.sum", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="No.Competition.sum", #VAR.y.series
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.secondary="Is.Defense" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=TRUE
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+  facet_grid(primary ~ secondary
+              , scales="free_y" #The scales actually do stay fixed
+              , space="fixed")+theme(legend.position="bottom")
+    # scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+ Comp3<-Comp3+ theme(axis.text.x = element_text(angle=270))
+
+
+ggsave("Output//Comp2.png", Comp2, width=6.5, height= 4, units="in",dpi=300)
+
+ggsave("Output//Comp3.png", Comp3, width=6.5, height= 4, units="in",dpi=300)
+
+full_data$isUCA<-factor(full_data$isUndefinitizedAction,levels=c(1,0,NA),labels=c("UCA","Not UCA"))
+full_data$isUCA<-factor(full_data$isUCA,levels=c("UCA","Not UCA","Unlabeled"))
+full_data$isUCA[is.na(full_data$isUCA)]<-"Unlabeled"
+UCA<-LatticePercentLineWrapper(
+  VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
+  VAR.main.label="Defense Contracts with Labeled Cector",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligation.2016",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=full_data,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.series="isUCA", #VAR.y.series
+  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.secondary="Is.Defense" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270))
+
+
+ggsave("Output//UCA.png", UCA, width=6.5, height= 4, units="in",dpi=300)
+
+
+```
+
 ##Labeling
 ```{r Labeling}
 
