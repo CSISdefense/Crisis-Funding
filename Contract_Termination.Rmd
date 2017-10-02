@@ -12,8 +12,6 @@ Is Terminated exploration
 
 #Setup
 ```{r InputFiles, echo = TRUE}
-
-
 Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
 # Path<-"D:\\Users\\Greg Sanders\\Documents\\Development\\R-scripts-and-data\\"
 # Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
@@ -21,6 +19,7 @@ source(file.path(Path,"lookups.r",sep=""))
 source(file.path(Path,"helper.r",sep=""))
 
 source("ContractCleanup.r")
+library(csis360)
 
 library(ggplot2)
 library(scales)
@@ -160,13 +159,25 @@ TerminatedSDurSCeilStatCount<-ddply(
       Ceil.Simple,
       StartFiscalYear,
       Term,
-      DecisionTree
+      DecisionTree,
+      Who,
+      Intl,
+      SinglerOffer,
+      UCA
     ),
     plyr::summarise,
     Action.Obligation=sum(Action.Obligation),
     Count=length(CSIScontractID),
     metric="Contracts within Period"
 )
+
+TerminatedSDurSCeilStatCount$Period[TerminatedSDurSCeilStatCount$StartFiscalYear>=2007 &
+                                      TerminatedSDurSCeilStatCount$StartFiscalYear<=2011]<-
+  "2007-2011"
+TerminatedSDurSCeilStatCount$Period[TerminatedSDurSCeilStatCount$StartFiscalYear>=2007 &
+                                      TerminatedSDurSCeilStatCount$StartFiscalYear<=2011]<-
+  "2012+"
+
 
 TerminatedSDurSCeilStatCount$Term<-factor(TerminatedSDurSCeilStatCount$Term,
                                           levels=c("Unterminated",
