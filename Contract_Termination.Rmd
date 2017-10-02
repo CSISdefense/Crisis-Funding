@@ -67,7 +67,6 @@ load(file="LargeDataSets/Federal_contract_CSIScontractID_detail.Rdata")
 head(FederalModelAndDetail)
 
 debug(FormatContractModel)
-FederalModelAndDetail<-FormatContractModel(FederalModelAndDetail)
 
 
 

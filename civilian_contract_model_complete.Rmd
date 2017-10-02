@@ -1020,6 +1020,16 @@ CivilianModelAndDetail<-CivilianModelAndDetail[,!colnames(CivilianModelAndDetail
 )]
 
 FederalModelAndDetail<-rbind(DefenseModelAndDetail,CivilianModelAndDetail)
+FederalModelAndDetail<-FormatContractModel(FederalModelAndDetail)
+
+FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDetail,
+    lookup_file="Overall_Contract_SP_ContractBudgetDecisionTree.txt",
+  path="",
+  directory = "LargeDataSets/",
+  by="CSIScontractID",
+  new_var_checked=FALSE
+)
+
 save(FederalModelAndDetail,file="LargeDataSets\\Federal_contract_CSIScontractID_detail.Rdata")
 
 
