@@ -1020,6 +1020,8 @@ CivilianModelAndDetail<-CivilianModelAndDetail[,!colnames(CivilianModelAndDetail
 )]
 
 FederalModelAndDetail<-rbind(DefenseModelAndDetail,CivilianModelAndDetail)
+
+debug(FormatContractModel)
 FederalModelAndDetail<-FormatContractModel(FederalModelAndDetail)
 
 FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDetail,
@@ -1029,8 +1031,10 @@ FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDet
   by="CSIScontractID",
   new_var_checked=FALSE
 )
-
+summary(FederalModelAndDetail)
 save(FederalModelAndDetail,file="LargeDataSets\\Federal_contract_CSIScontractID_detail.Rdata")
+
+
 
 
 ```

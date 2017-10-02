@@ -37,53 +37,55 @@ FormatContractModel<-function(dfContract){
     colnames(dfContract)[colnames(dfContract)=="qHighCeiling"]<-"Ceil"
     
   }
-  if (all(levels(dfContract$qHighCeiling)==c("[0.00e+00,1.50e+04)",
-                                                    "[1.50e+04,1.00e+05)",
-                                                    "[1.00e+05,1.00e+06)",
-                                                    "[1.00e+06,1.00e+07)",
-                                                    "[1.00e+07,7.50e+07)",
-                                                    "[7.50e+07,3.36e+12]"))){
-    dfContract$qHighCeiling<-factor(dfContract$qHighCeiling, 
-                                           
-                                           levels=c("[0.00e+00,1.50e+04)",
-                                                    "[1.50e+04,1.00e+05)",
-                                                    "[1.00e+05,1.00e+06)",
-                                                    "[1.00e+06,1.00e+07)",
-                                                    "[1.00e+07,7.50e+07)",
-                                                    "[7.50e+07,3.36e+12]"),
-                                           labels=c("[0,15k)",
-                                                    "[15k,100k)",
-                                                    "[100k,1m)",
-                                                    "[1m,10m)",
-                                                    "[10m,75m)",
-                                                    "[75m+]"),
-                                           ordered=TRUE
+  
+  
+  if ("Ceil" %in% colnames(dfContract)&
+      levels(dfContract$Ceil)[[2]] %in% c("[1.50e+04,1.00e+05)",
+                                                     "[ 1.50e+04, 1.00e+05)")&
+      levels(dfContract$Ceil)[[3]] %in% c("[1.00e+05,1.00e+06)",
+                                                     "[ 1.00e+05, 1.00e+06)")&
+      levels(dfContract$Ceil)[[4]] %in% c("[1.00e+06,1.00e+07)",
+                                                     "[ 1.00e+06, 1.00e+07)")&
+      levels(dfContract$Ceil)[[5]] %in% c("[1.00e+07,7.50e+07)",
+                                                     "[ 1.00e+07, 7.50e+07)")){
+    dfContract$Ceil<-factor(dfContract$Ceil, 
+                                       
+                                       levels=levels(dfContract$Ceil),
+                                       labels=c("[0,15k)",
+                                                "[15k,100k)",
+                                                "[100k,1m)",
+                                                "[1m,10m)",
+                                                "[10m,75m)",
+                                                "[75m+]"),
+                                       ordered=TRUE
     )
   }
   
-  if (all(levels(dfContract$qLowCeiling)==c("[0.00e+00,1.50e+04)",
-                                                   "[1.50e+04,1.00e+05)",
-                                                   "[1.00e+05,1.00e+06)",
-                                                   "[1.00e+06,3.00e+07)",
-                                                   "[3.00e+07,3.36e+12]"))){
-    dfContract$qLowCeiling<-factor(dfContract$qLowCeiling, 
-                                          
-                                          levels=c("[0.00e+00,1.50e+04)",
-                                                   "[1.50e+04,1.00e+05)",
-                                                   "[1.00e+05,1.00e+06)",
-                                                   "[1.00e+06,3.00e+07)",
-                                                   "[3.00e+07,3.36e+12]"),
-                                          labels=c("[0,15k)",
-                                                   "[15k,100k)",
-                                                   "[100k,1m)",
-                                                   "[1m,30m)",
-                                                   "[30m+]"),
-                                          ordered=TRUE
+  
+  if ("LowCeil" %in% colnames(dfContract)&
+                           all(levels(dfContract$LowCeil)==c("[0.00e+00,1.50e+04)",
+                                            "[1.50e+04,1.00e+05)",
+                                            "[1.00e+05,1.00e+06)",
+                                            "[1.00e+06,3.00e+07)",
+                                            "[3.00e+07,3.36e+12]"))){
+    dfContract$LowCeil<-factor(dfContract$LowCeil, 
+                                   
+                                   levels=c("[0.00e+00,1.50e+04)",
+                                            "[1.50e+04,1.00e+05)",
+                                            "[1.00e+05,1.00e+06)",
+                                            "[1.00e+06,3.00e+07)",
+                                            "[3.00e+07,3.36e+12]"),
+                                   labels=c("[0,15k)",
+                                            "[15k,100k)",
+                                            "[100k,1m)",
+                                            "[1m,30m)",
+                                            "[30m+]"),
+                                   ordered=TRUE
     )
   }
-
-    
-  if (all(
+  
+  if ("Ceil" %in% colnames(dfContract)&
+     all(
     levels(dfContract$Ceil) %in% c("[75m+]",
                                    "[10m,75m)",
                                    "[1m,10m)", 
@@ -123,24 +125,30 @@ FormatContractModel<-function(dfContract){
   
   
   
-  if (levels(dfContract$qDuration)[[2]]=="[   61,  214)"){
-    dfContract$qDuration<-factor(dfContract$qDuration, 
-                                        
-                                        levels=c("[    0,   61)",
-                                                 "[   61,  214)",
-                                                 "[  214,  366)",
-                                                 "[  366,  732)",
-                                                 "[  732,33192]"),
-                                        labels=c("[0 months,~2 months)",
-                                                 "[~2 months,~7 months)",
-                                                 "[~7 months-~1 year]",
-                                                 "(~1 year,~2 years]",
-                                                 "(~2 years+]"),
-                                        ordered=TRUE
+  if ( "Dur" %in% colnames(dfContract) & 
+       levels(dfContract$Dur)[[2]] %in% c("[   61,  214)",
+                                                     "[     61,    214)")&
+       levels(dfContract$Dur)[[3]] %in% c("[  214,  366)",
+                                                     "[    214,    366)")&
+       levels(dfContract$Dur)[[4]] %in% c("[  366,  732)",
+                                                     "[    366,    732)")
+  ){
+    dfContract$Dur<-factor(dfContract$Dur, 
+                                      
+                                      levels=levels(dfContract$Dur),
+                                      # "[    0,   61)",
+                                      # "[   61,  214)",
+                                      # "[  214,  366)",
+                                      # "[  366,  732)",
+                                      # "[  732,33192]"),
+                                      labels=c("[0 months,~2 months)",
+                                               "[~2 months,~7 months)",
+                                               "[~7 months-~1 year]",
+                                               "(~1 year,~2 years]",
+                                               "(~2 years+]"),
+                                      ordered=TRUE
     )
   }
-  
-  
   
   
   
@@ -169,7 +177,61 @@ FormatContractModel<-function(dfContract){
     )
   }
   
-  dfContract$ContractCount<-1
+  
+  if(is.null(dfContract$CRai) & 
+     "pChangeOrderUnmodifiedBaseAndAll" %in% colnames(dfContract)){
+    
+    dfContract$qCRais <- cut2(
+      dfContract$pChangeOrderUnmodifiedBaseAndAll,c(
+        -0.001,
+        0.001,
+        0.15)
+    )
+    colnames(dfContract)[colnames(dfContract)=="qCRais"]<-"CRai"
+    
+    #                                               min(subset(
+    #                                                   dfContract$pChangeOrderObligated,
+    #                                                   dfContract$pChangeOrderObligated>0)),
+  }
+  
+  if(is.null(dfContract$CRai) & 
+     "pChangeOrderUnmodifiedBaseAndAll" %in% colnames(dfContract)){
+    
+    dfContract$qCRais <- cut2(
+      dfContract$pChangeOrderUnmodifiedBaseAndAll,c(
+        -0.001,
+        0.001,
+        0.15)
+    )
+    colnames(dfContract)[colnames(dfContract)=="qCRais"]<-"CRai"
+    
+    #                                               min(subset(
+    #                                                   dfContract$pChangeOrderObligated,
+    #                                                   dfContract$pChangeOrderObligated>0)),
+  }
+  
+  
+  if(is.null(dfContract$qNChg) & 
+     "SumOfisChangeOrder" %in% colnames(dfContract)){
+    
+    dfContract$qNChg <- cut2(dfContract$SumOfisChangeOrder,c(1,2,3))
+    
+    
+    
+    colnames(dfContract)[colnames(dfContract)=="qCRais"]<-"CRai"
+    
+    colnames(dfContract)[colnames(dfContract)=="qNChg"]<-"NChg"
+    
+    #                                               min(subset(
+    #                                                   dfContract$pChangeOrderObligated,
+    #                                                   dfContract$pChangeOrderObligated>0)),
+  }
+  
+  
+  
+  
+  
+    dfContract$ContractCount<-1
   
   if("UnmodifiedCurrentCompletionDate" %in% colnames(dfContract))
     dfContract$UnmodifiedCurrentCompletionDate<-

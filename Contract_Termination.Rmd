@@ -65,10 +65,9 @@ These four catetegories and the "Close Out" category are used to mark a contract
 ```{r ReadInData, echo = TRUE}
 load(file="LargeDataSets/Federal_contract_CSIScontractID_detail.Rdata")
 head(FederalModelAndDetail)
+```
 
-debug(FormatContractModel)
-
-
+```{r PrepareData}
 
 
 #ContractWeighted <- apply_lookups(Path,ContractWeighted)
@@ -81,12 +80,12 @@ FederalModelAndDetail$TermNum<-as.integer(as.character(factor(FederalModelAndDet
 FederalModelAndDetail$ObligationWT<-FederalModelAndDetail$Action.Obligation
 FederalModelAndDetail$ObligationWT[FederalModelAndDetail$ObligationWT<0]<-NA
 
-FederalModelAndDetail<-ddply(FederalModelAndDetail,
-                         .(Ceil),
-                         
-                         plyr::mutate,
-                         ceil.median.wt = median(UnmodifiedContractBaseAndAllOptionsValue)
-)
+# FederalModelAndDetail<-ddply(FederalModelAndDetail,
+#                          .(Ceil),
+#                          
+#                          plyr::mutate,
+#                          ceil.median.wt = median(UnmodifiedContractBaseAndAllOptionsValue)
+# )
 
 
 FederalModelAndDetail$UnmodifiedYearsFloat<-FederalModelAndDetail$UnmodifiedDays/365.25
@@ -109,13 +108,22 @@ FederalModelAndDetail$Ceil.Simple<-as.character(FederalModelAndDetail$Ceil)
 
 FederalModelAndDetail$Ceil.Simple[FederalModelAndDetail$Ceil.Simple %in% c(
     "75m+",
-    "10m - <75m")]<-"10m+"
+    "[75m+]",
+    "[10m,75m)",
+    "10m - <75m"
+    )]<-"10m+"
 FederalModelAndDetail$Ceil.Simple[FederalModelAndDetail$Ceil.Simple %in% c(
     "1m - <10m",
-    "100k - <1m")]<-"100k - <10m"
+    "[1m,10m)",
+    "100k - <1m",
+    "[100k,1m)",
+    "[100k,1m)"
+    )]<-"100k - <10m"
 FederalModelAndDetail$Ceil.Simple[FederalModelAndDetail$Ceil.Simple %in% c(
     "15k - <100k",
-    "0 - <15k")]<-"0k - <100k"
+    "[15k,100k)",
+    "0 - <15k",
+    "[0,15k)")]<-"0k - <100k"
 FederalModelAndDetail$Ceil.Simple<-factor(FederalModelAndDetail$Ceil.Simple,
        levels=c("0k - <100k",
                 "100k - <10m",
@@ -123,128 +131,17 @@ FederalModelAndDetail$Ceil.Simple<-factor(FederalModelAndDetail$Ceil.Simple,
        ordered=TRUE
        )
 
-
-
-
-write.csv(subset(FederalModelAndDetail,Term=="Terminated"),"Terminated.csv")
-
-```
-
-**A Histogram of the IsTerminated data** showing the distribution of whether or not a contract was terminated each year from 2007.  
-
-```{r ContractTerminationGraphs, echo = TRUE, fig.width=3,fig.height=9, dpi=600}
-# TerminatedDurSummary<-ddply(subset(FederalModelAndDetail,StartFiscalYear>=2007 & 
-#                   !is.na(Ceil)&
-#                   UnmodifiedCompletionDate<=as.Date("2015-09-30")&
-#                       !is.na(Term)),
-#                             .(Ceil,
-#                               Dur,
-#                               StartFiscalYear,
-#                               Term
-#                             ),
-#                             plyr::summarise,
-#                             Action.Obligation=sum(Action.Obligation),
-#                             Count=length(CSIScontractID)
-#                   )
-# 
-# 
-# TerminatedDurSummary<-ddply(TerminatedDurSummary,.(Ceil,
-#                                                   Dur,
-#                                              StartFiscalYear
-#                                              ),transform,
-#                       pContractCeilDurStart=Count/sum(Count),
-#                       pObligationCeilDurStart=Action.Obligation/sum(Action.Obligation)
-#       )
-# 
-# 
-# ggplot(TerminatedDurSummary,
-#        aes(x=StartFiscalYear,
-#            y=Count,
-#            color=Term))+geom_line()+    geom_point(aes(shape=metric))+facet_grid(Ceil ~ Dur ) +scale_y_log10(labels=scales::comma)
-# 
-# 
-# 
-# 
-# 
-# 
-# ggplot(
-#   data = TerminatedEndSummary,
-#   aes_string(x = "Term"),
-#   ) + geom_bar() + 
-#     facet_grid( Ceil ~ .,
-#                 scales = "free_y",
-#                 space = "free_y") + scale_y_continuous(expand = c(0,50)) 
-# 
-# 
-# 
-# 
-# 
-# ggplot(
-#   data = subset(TerminatedEndSummary,Term=="Terminated"),
-#   aes_string(x = "Ceil")
-#   )+ geom_bar()+
-#     scale_x_discrete("Original Ceiling (Current $ Value)")+scale_y_continuous("Number of Partially or Completely \nTerminated Contracts",labels = comma)+theme(axis.text.x=element_text(angle=90,size=12))
-# 
-# 
-# 
-# 
-# 
-# 
-# TerminatedEndSummary$Graph[TerminatedEndSummary$Term=="Terminated"]<-TRUE
-# 
-# TerminatedEndSummary$Graph[TerminatedEndSummary$Term=="Unterminated"]<-FALSE
-# 
-# 
-# head(TerminatedEndSummary)
-# 
-# ggplot(
-#   data = subset(TerminatedEndSummary,Term=="Terminated"),
-#   aes(x = Ceil,weight=Action.Obligation/1000000000)
-#   )+ geom_bar()+
-#     scale_x_discrete("Original Ceiling (Current $ Value)")+scale_y_continuous("Obligations to Partially or Completely\nTerminated Contracts (Current $ Billions)",labels = comma)+theme(axis.text.x=element_text(angle=90,size=12))
-# 
-# 
-# ggplot(
-#   data = subset(TerminatedEndSummary,Term=="Terminated"),
-#   aes_string(x = "Ceil",weight="pContract")
-# #   main="Percentage of Contracts going to Partially or Completely Terminated Contracts\nBy Initial Contract Ceiling"
-#   )+ geom_bar()+ scale_y_continuous("Percent of Contracts Partially or Completely Terminated\nby Original Ceiling Category", labels=percent)+
-#     scale_x_discrete("Original Ceiling (Current $ Value)")+theme(axis.text.x=element_text(angle=90,size=12))
-# 
-# 
-# ggplot(
-#   data = subset(TerminatedEndSummary,Term=="Terminated"),
-#   aes_string(x = "Ceil",weight="pObligation"),
-#   main="Percentage of Contract Obligations going to Partially or Completely Terminated Contracts\nBy Initial Contract Ceiling"
-#   )+ geom_bar()+ scale_y_continuous("Percent of Obligations to Terminated Contracts \nin Original Ceiling Category", labels=percent)+
-#     scale_x_discrete("Original Ceiling (Current $ Value)")+theme(axis.text.x=element_text(angle=90,size=12))
-# 
-# 
-# # 
-# # LatticePercentLineWrapper("VAR.name"
-# #                                     ,"VAR.proper.name"
-# #                                     ,"VAR.X.label"
-# #                                     ,"VAR.Y.label"
-# #                                     ,Coloration
-# #                                     ,subset(TerminatedEndSummary,!is.na(Term))
-# #                                     ,NULL
-# #                                     ,"Ceil"
-# #                                     ,"Count"
-# #                                     ,"Term"
-# #                                     ,NA
-# #                                     ,NA
-# #                                     )
-# 
-# # 
-# # + 
-# #     facet_grid( Ceil ~ .,
-# #                 scales = "free_y",
-# #                 space = "free_y") 
-# # 
+FederalModelAndDetail$DecisionTree<-as.character(FederalModelAndDetail$MaxOfDecisionTree)
+FederalModelAndDetail$DecisionTree[
+  FederalModelAndDetail$DecisionTree=="Excluded"|
+    is.na(FederalModelAndDetail$DecisionTree)]<-"All Other"
+FederalModelAndDetail$DecisionTree<-factor(FederalModelAndDetail$DecisionTree,levels=c("OCO","Disaster","ARRA","All Other"))
+write.csv(subset(FederalModelAndDetail,Term=="Terminated"),"LargeDataSets//Terminated.csv")
 
 ```
 
 
+#Analysis
 
 
 ```{r SDurSCeilCount, fig.width=3,fig.height=9, dpi=600}
@@ -254,43 +151,22 @@ TerminatedSDurSCeilStatCount<-ddply(
                !is.na(Ceil.Simple) &
                !is.na(Term) &
                StartFiscalYear>=2007 & 
-               StartFiscalYear<=2014 &                
-               (LastCurrentCompletionDate<=as.Date("2015-09-30") |
-                    IsClosed==1) &
-               UnmodifiedCurrentCompletionDate<as.Date("2015-09-30")),
+               StartFiscalYear<=2015 ),
+           # &                
+           #     (LastCurrentCompletionDate<=as.Date("2015-09-30") |
+           #          IsClosed==1) &
+           #     UnmodifiedCurrentCompletionDate<as.Date("2015-09-30")),
     .(Dur.Simple,
       Ceil.Simple,
       StartFiscalYear,
-      Term
+      Term,
+      DecisionTree
     ),
     plyr::summarise,
     Action.Obligation=sum(Action.Obligation),
     Count=length(CSIScontractID),
     metric="Contracts within Period"
 )
-
-TerminatedSDurSCeilStatCount<-rbind(TerminatedSDurSCeilStatCount,
-                                    ddply(subset(FederalModelAndDetail,
-                                           !is.na(Dur.Simple) & 
-                                               !is.na(Ceil.Simple) &
-                                               !is.na(Term) &
-                                               StartFiscalYear>=2007 & 
-                                               StartFiscalYear<=2014),               
-                                    .(Dur.Simple,
-                                      Ceil.Simple,
-                                      StartFiscalYear,
-                                      Term
-                                    ),
-                                    plyr::summarise,
-                                    Action.Obligation=sum(Action.Obligation),
-                                    Count=length(CSIScontractID),
-                                    metric="Early Results for All Contracts"
-)
-)
-TerminatedSDurSCeilStatCount$metric<-factor(TerminatedSDurSCeilStatCount$metric,
-                                            levels=c("Contracts within Period",
-                                                   "Early Results for All Contracts"),
-                                            ordered=TRUE)
 
 TerminatedSDurSCeilStatCount$Term<-factor(TerminatedSDurSCeilStatCount$Term,
                                           levels=c("Unterminated",
@@ -310,25 +186,48 @@ TerminatedSDurSCeilLabels<-ddply(
 
 Ypos<-max(TerminatedSDurSCeilStatCount$Count)
 
-
-ggplot(TerminatedSDurSCeilStatCount,
-       aes(x=StartFiscalYear,y=Count,color=Term))+
-    geom_line(aes(linetype=metric))+
-    geom_point(aes(shape=Term))+
-    geom_text(data=TerminatedSDurSCeilLabels,
+TopLineTerm<-LatticePlotWrapper(
+  VAR.color.legend.label="Classification",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Constant ($ Billions)",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=TerminatedSDurSCeilStatCount,
+  # NA, #VAR.ncol
+  VAR.x.variable="StartFiscalYear", #VAR.x.variable
+  VAR.y.variable="Count", #VAR.y.variable
+  VAR.y.series="Term", #VAR.y.series
+  VAR.facet.primary="Dur.Simple", #VAR.facet.primary
+  VAR.facet.secondary= "Ceil.Simple", # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+geom_text(data=TerminatedSDurSCeilLabels,
               aes(x=2007,y=Ypos,label=FacetValue),
               # parse=TRUE,
               hjust=0,
               vjust=1,
-              color="black")+
-    facet_grid( Dur.Simple  ~ Ceil.Simple ) +#
-    scale_x_continuous("Contract Starting Fiscal Year")+
-    scale_color_manual("Status", values=c("blue","red"))+
-    scale_linetype_discrete("Early Results")+
-    scale_shape_discrete("Status")+
-    scale_y_log10("Number of Contracts (Logorithmic Scale)",label=comma)+
-    # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1)+
-    theme(legend.position="bottom") #, position=pd
+              color="black")
+
+# ggplot(TerminatedSDurSCeilStatCount,
+#        aes(x=StartFiscalYear,y=Count,color=Term))+
+#     geom_line(aes(linetype=metric))+
+#     geom_point(aes(shape=Term))+
+#     geom_text(data=TerminatedSDurSCeilLabels,
+#               aes(x=2007,y=Ypos,label=FacetValue),
+#               # parse=TRUE,
+#               hjust=0,
+#               vjust=1,
+#               color="black")+
+#     facet_grid( Dur.Simple  ~ Ceil.Simple ) +#
+#     scale_x_continuous("Contract Starting Fiscal Year")+
+#     scale_color_manual("Status", values=c("blue","red"))+
+#     scale_linetype_discrete("Early Results")+
+#     scale_shape_discrete("Status")+
+#     scale_y_log10("Number of Contracts (Logorithmic Scale)",label=comma)+
+#     # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1)+
+#     theme(legend.position="bottom") #, position=pd
 
 
 ```
