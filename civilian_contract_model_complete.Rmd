@@ -1,0 +1,1026 @@
+---
+title: "Civilian Contract Statistics Model Complete"
+author: "Greg Sanders"
+date: "Monday, March 23, 2015"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+#*************************************Required Libraries******************************************
+require(plyr)
+require(grid)
+require(reshape2)
+require(stringr)
+require(ggplot2)
+library(Hmisc)
+library(readr)
+#*************************************Options*****************************************************
+options(error=recover)
+options(warn=1)
+
+#*************************************Lookup Files*****************************************************
+
+Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+
+# Path<-"~\\FPDS\\R scripts and data\\"
+# Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
+
+source(paste(Path,"helper.r",sep=""))
+source(paste(Path,"lookups.r",sep=""))
+
+```
+
+#Combining Source Files
+##Sample Criteria
+```{r DetailCustomer}
+
+CivilianContracts <-readr::read_delim(
+  "LargeDataSets\\Civilian_contract_SP_ContractSampleCriteriaDetailsCustomer.csv",
+  col_names=TRUE, 
+  delim=",",
+  # , dec=".",
+  trim_ws=TRUE,
+  na=c("NULL","NA")
+  # stringsAsFactors=FALSE
+)
+
+CivilianContracts<-csis360::standardize_variable_names(CivilianContracts)
+
+
+#Limit to completed contracts that start in 2007 or later
+CivilianContracts$LastCurrentCompletionDate<-strptime(CivilianContracts$LastCurrentCompletionDate,"%Y-%m-%d") 
+#Drop contracts starting before the study period
+CivilianContracts<-subset(CivilianContracts,
+  StartFiscal_Year>=2007 
+  &
+    (LastCurrentCompletionDate<=strptime("2015-09-30","%Y-%m-%d") | IsClosed==1)
+)
+
+
+
+# CivilianContracts<-subset(CivilianContracts,select=-c(StartFiscal_Year
+# ,IsClosed
+# ,LastSignedLastDateToOrder
+#                                                       ,LastUltimateCompletionDate
+# ))
+save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+
+
+```
+
+##Details
+
+```{r ContractDetailsCustomer}
+
+CivilianContracts<-csis360::read_and_join_experiment(data=CivilianContracts,
+    lookup_file="Civilian_Contract_SP_ContractDetailsCustomer.csv",
+  path="",
+  directory = "LargeDataSets/",
+  by="CSIScontractID",
+  new_var_checked=FALSE
+)
+
+CivilianContracts<-csis360::standardize_variable_names(CivilianContracts)
+
+CivilianContracts<-subset(CivilianContracts,select=-c(
+  Number.Of.Actions,
+  #     Action.Obligation,
+  StartFiscal_Year
+  #     MinOfSignedDate,
+  #     ,LastCurrentCompletionDate
+))
+# CivilianContracts<-CivilianContracts[,!colnames(CivilianContracts) %in% 
+#     c(
+#         # Number.Of.Actions,
+#   #     Action.Obligation,
+#   # StartFiscal_Year
+#   #     MinOfSignedDate,
+#   #     ,LastCurrentCompletionDate
+#     )]
+
+save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+```
+
+## ContractingDelta
+```{r ContractingDelta}
+
+#Civilian_contract_SP_ContractModificationDeltaCustomer.csv
+CivilianContracts<-csis360::read_and_join_experiment(CivilianContracts,
+  "Civilian_contract_SP_ContractModificationDeltaCustomer.csv",
+  "",
+  "LargeDataSets\\",
+  by="CSIScontractID",
+  new_var_checked=FALSE
+)
+
+CivilianContracts<-csis360::standardize_variable_names(CivilianContracts)
+
+CivilianContracts$ChangeOrderObligatedAmount<-FactorToNumber(CivilianContracts$ChangeOrderObligatedAmount)
+CivilianContracts$ChangeOrderBaseAndAllOptionsValue<-FactorToNumber(CivilianContracts$ChangeOrderBaseAndAllOptionsValue)
+
+
+CivilianContracts<-CivilianContracts[,!colnames(CivilianContracts) %in% 
+    c(
+    "ChangeOrderObligatedAmount"             ,
+    "ChangeOrderBaseAndExercisedOptionsValue",
+#     ChangeOrderBaseAndAllOptionsValue      ,
+    "NewWorkObligatedAmount",
+    "NewWorkBaseAndExercisedOptionsValue"    
+    # "NewWorkBaseAndAllOptionsValue",
+    )]
+save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+```
+##Location
+```{r Location}
+
+#Civilian_contract_SP_ContractLocationCustomer.csv
+CivilianContracts<-csis360::read_and_join_experiment(CivilianContracts,
+  "Civilian_contract_SP_ContractLocationCustomer.txt"
+  ,""
+  ,"LargeDataSets\\"
+  ,by="CSIScontractID"
+  ,new_var_checked=FALSE
+)
+
+CivilianContracts<-csis360::standardize_variable_names(CivilianContracts)
+
+CivilianContracts$ObligatedAmountIsInternational<-FactorToNumber(CivilianContracts$ObligatedAmountIsInternational)
+CivilianContracts$pIsInternational<-CivilianContracts$ObligatedAmountPlaceIsInternational/
+  CivilianContracts$Action.Obligation
+CivilianContracts$pIsInternational[is.na(CivilianContracts$ObligatedAmountPlaceIsInternational)] <- 0
+
+if(is.numeric(CivilianContracts$AnyPlaceInternational)){
+  CivilianContracts$AnyPlaceInternational<-factor(CivilianContracts$AnyPlaceInternational,
+    exclude=NULL,
+    levels=c(0,1,NA),
+    labels=c("Just U.S.","Any International","Unlabeled")
+  )
+}
+CivilianContracts$AnyPlaceInternational[CivilianContracts$pIsInternational<=0 & 
+    CivilianContracts$AnyPlaceInternational=="Any International" &
+    CivilianContracts$UnmodifiedPlaceIsInternational==0]<-"Just U.S."
+
+CivilianContracts$UnmodifiedPlaceCountryISO3<-factor(CivilianContracts$UnmodifiedPlaceCountryISO3)
+CivilianContracts$UnmodifiedVendorCountryISO3<-factor(CivilianContracts$UnmodifiedVendorCountryISO3)
+CivilianContracts$VendorCountryISO3<-factor(CivilianContracts$VendorCountryISO3)
+CivilianContracts$UnmodifiedOriginCountryISO3<-factor(CivilianContracts$UnmodifiedOriginCountryISO3)
+CivilianContracts$OriginCountryISO3<-factor(CivilianContracts$OriginCountryISO3)
+UnmodifiedVendorCountryISO3
+
+
+CivilianContracts<-CivilianContracts[,!colnames(CivilianContracts) %in% 
+    c(
+  "UnmodifiedPlaceIsInternational",
+  "PlaceIsInternational",
+  "ObligatedAmountPlaceIsInternational",
+        # "UnmodifiedVendorIsInternational",
+  # "VendorIsInternational",
+  "ObligatedAmountVendorIsInternational",
+      # "UnmodifiedOriginIsInternational",
+  # "OriginIsInternational",
+  "ObligatedAmountOriginIsInternational",
+  # "UnmodifiedPlaceCountryISO3",
+  "PlaceCountryISO3"
+    )]
+# load(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata")
+
+
+
+save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+
+
+```
+
+##Outcome
+```{r Outcome}
+#"data\\Civilian_contract_SP_ContractUnmodifiedandOutcomeDetailsCustomer.csv"
+
+CivilianContracts<-csis360::read_and_join_experiment(data=CivilianContracts
+  ,"Civilian_Contract_SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt"
+  ,path=""
+  ,"LargeDataSets\\"
+  ,by="CSIScontractID"
+  ,new_var_checked=FALSE
+)
+
+CivilianContracts<-csis360::standardize_variable_names(CivilianContracts)
+
+
+CivilianContracts$UnmodifiedCurrentCompletionDate<-
+  strptime(CivilianContracts$UnmodifiedCurrentCompletionDate,"%Y-%m-%d") 
+
+#Calculate the number of days the contract lasts.
+CivilianContracts$UnmodifiedDays<-as.numeric(
+  difftime(strptime(CivilianContracts$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")
+    , strptime(CivilianContracts$MinOfEffectiveDate,"%Y-%m-%d")
+    , unit="days"
+  ))+1
+
+# 
+# CDuration<-as.duration(strptime(CivilianContracts$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")-
+#                 strptime(CivilianContracts$MinOfEffectiveDate,"%Y-%m-%d"))
+# 
+# CPeriod<-as.period(
+#     CInterval<-new_interval(ymd(CivilianContracts$UnmodifiedCurrentCompletionDate),
+#                 ymd(CivilianContracts$MinOfEffectiveDate))
+# 
+# 
+# 
+# summary(dYears)
+
+#Break the count of days into four categories.
+CivilianContracts$qDuration<-cut2(CivilianContracts$UnmodifiedDays,cuts=c(61,214,366,732))
+
+
+
+
+
+if (levels(CivilianContracts$qDuration)[[2]]=="[   61,  214)"){
+  CivilianContracts$qDuration<-factor(CivilianContracts$qDuration, 
+    
+    levels=c("[    0,   61)",
+      "[   61,  214)",
+      "[  214,  366)",
+      "[  366,  732)",
+      "[  732,33192]"),
+    labels=c("[0 months,~2 months)",
+      "[~2 months,~7 months)",
+      "[~7 months-~1 year]",
+      "(~1 year,~2 years]",
+      "(~2 years+]"),
+    ordered=TRUE
+  )
+}
+
+
+lowroundedcutoffs<-c(15000,100000,1000000,30000000)
+highroundedcutoffs<-c(15000,100000,1000000,10000000,75000000)
+CivilianContracts$qLowCeiling <- cut2(CivilianContracts$UnmodifiedContractBaseAndAllOptionsValue,cuts=lowroundedcutoffs)
+CivilianContracts$qHighCeiling <- cut2(CivilianContracts$UnmodifiedContractBaseAndAllOptionsValue,cuts=highroundedcutoffs)
+rm(lowroundedcutoffs,highroundedcutoffs)
+
+
+
+
+if (all(levels(CivilianContracts$qHighCeiling)==c("[0.00e+00,1.50e+04)",
+  "[1.50e+04,1.00e+05)",
+  "[1.00e+05,1.00e+06)",
+  "[1.00e+06,1.00e+07)",
+  "[1.00e+07,7.50e+07)",
+  "[7.50e+07,3.36e+12]"))){
+  CivilianContracts$qHighCeiling<-factor(CivilianContracts$qHighCeiling, 
+    
+    levels=c("[0.00e+00,1.50e+04)",
+      "[1.50e+04,1.00e+05)",
+      "[1.00e+05,1.00e+06)",
+      "[1.00e+06,1.00e+07)",
+      "[1.00e+07,7.50e+07)",
+      "[7.50e+07,3.36e+12]"),
+    labels=c("[0,15k)",
+      "[15k,100k)",
+      "[100k,1m)",
+      "[1m,10m)",
+      "[10m,75m)",
+      "[75m+]"),
+    ordered=TRUE
+  )
+}
+
+if (all(levels(CivilianContracts$qLowCeiling)==c("[0.00e+00,1.50e+04)",
+  "[1.50e+04,1.00e+05)",
+  "[1.00e+05,1.00e+06)",
+  "[1.00e+06,3.00e+07)",
+  "[3.00e+07,3.36e+12]"))){
+  CivilianContracts$qLowCeiling<-factor(CivilianContracts$qLowCeiling, 
+    
+    levels=c("[0.00e+00,1.50e+04)",
+      "[1.50e+04,1.00e+05)",
+      "[1.00e+05,1.00e+06)",
+      "[1.00e+06,3.00e+07)",
+      "[3.00e+07,3.36e+12]"),
+    labels=c("[0,15k)",
+      "[15k,100k)",
+      "[100k,1m)",
+      "[1m,30m)",
+      "[30m+]"),
+    ordered=TRUE
+  )
+}
+
+
+
+CivilianContracts$qNChg <- cut2(CivilianContracts$SumOfisChangeOrder,c(1,2,3))
+
+
+# CivilianContracts$pChangeOrderObligated<-CivilianContracts$ChangeOrderObligatedAmount/
+#   CivilianContracts$Action.Obligation
+# CivilianContracts$pChangeOrderObligated[is.na(CivilianContracts$pChangeOrderObligated)&
+#     CivilianContracts$SumOfisChangeOrder==0]<-0
+CivilianContracts$pChangeOrderUnmodifiedBaseAndAll<-CivilianContracts$ChangeOrderBaseAndAllOptionsValue/
+  CivilianContracts$UnmodifiedContractBaseAndAllOptionsValue
+CivilianContracts$pChangeOrderUnmodifiedBaseAndAll[
+  is.na(CivilianContracts$pChangeOrderUnmodifiedBaseAndAll) & CivilianContracts$SumOfisChangeOrder==0]<-0
+
+
+CivilianContracts$qCRais <- cut2(
+  CivilianContracts$pChangeOrderUnmodifiedBaseAndAll,c(
+    -0.001,
+    0.001,
+    0.15)
+)
+#                                               min(subset(
+#                                                   CivilianContracts$pChangeOrderObligated,
+#                                                   CivilianContracts$pChangeOrderObligated>0)),
+
+summary(subset(CivilianContracts$qCRais,CivilianContracts$SumOfisChangeOrder>0    ))
+
+
+CivilianContracts<-CivilianContracts[,!colnames(CivilianContracts) %in% 
+    c(
+  #     UnmodifiedDays,
+  #     UnmodifiedCurrentCompletionDate
+  #     MinOfEffectiveDate,
+  "MinOfSignedDate",
+  "LastUltimateCompletionDate"
+    )]
+
+save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+```
+
+##BucketPlatform
+```{r BucketPlatform}
+CivilianContracts<-csis360::read_and_join_experiment(data=CivilianContracts
+  ,"Civilian_Contract_SP_ContractBucketPlatformCustomer.txt"
+  ,path=""
+  ,"LargeDataSets\\"
+  ,by="CSIScontractID"
+  ,new_var_checked=FALSE
+)
+# 
+# CivilianContracts$ObligatedAmountIsProducts<-FactorToNumber(CivilianContracts$ObligatedAmountIsProducts)
+# 
+# CivilianContracts$ObligatedAmountIsServices<-FactorToNumber(CivilianContracts$ObligatedAmountIsServices)
+# 
+# CivilianContracts$ObligatedAmountIsRnD<-FactorToNumber(CivilianContracts$ObligatedAmountIsRnD)
+# 
+# CivilianContracts$pIsProducts <- CivilianContracts$ObligatedAmountIsProducts/CivilianContracts$Action.Obligation
+# CivilianContracts$pIsProducts[is.na(CivilianContracts$ObligatedAmountIsProducts)] <- 0
+# 
+# CivilianContracts$pIsServices <- CivilianContracts$ObligatedAmountIsServices/CivilianContracts$Action.Obligation
+# CivilianContracts$pIsServices[is.na(CivilianContracts$ObligatedAmountIsServices)] <- 0
+# 
+# CivilianContracts$pIsRnD <- CivilianContracts$ObligatedAmountIsRnD/CivilianContracts$Action.Obligation
+# CivilianContracts$pIsRnD[is.na(CivilianContracts$ObligatedAmountIsRnD)] <- 0
+
+#Need to update these to the new platform portfolios
+# 
+# 
+# CivilianContracts$ObligatedAmountIsLand<-FactorToNumber(CivilianContracts$ObligatedAmountIsLand)
+# 
+# CivilianContracts$ObligatedAmountIsVessel<-FactorToNumber(CivilianContracts$ObligatedAmountIsVessel)
+# 
+# 
+# CivilianContracts$ObligatedAmountIsVessel<-FactorToNumber(CivilianContracts$ObligatedAmountIsAir)
+# 
+# CivilianContracts$ObligatedAmountIsVessel<-FactorToNumber(CivilianContracts$ObligatedAmountIsOtherPP)
+# 
+# CivilianContracts$ObligatedAmountIsWnA<-FactorToNumber(CivilianContracts$ObligatedAmountIsWnA)
+# 
+# CivilianContracts$ObligatedAmountIsMnS<-FactorToNumber(CivilianContracts$ObligatedAmountIsMnS)
+# 
+# CivilianContracts$ObligatedAmountIsEnC<-FactorToNumber(CivilianContracts$ObligatedAmountIsEnC)
+# 
+# CivilianContracts$ObligatedAmountIsFRSnC<-FactorToNumber(CivilianContracts$ObligatedAmountIsFRSnC)
+# 
+# 
+# CivilianContracts$pIsLand <- CivilianContracts$ObligatedAmountIsLand/CivilianContracts$Action.Obligation
+# CivilianContracts$pIsLand[is.nan(CivilianContracts$pIsLand)|is.infinite(CivilianContracts$pIsLand)|is.na(CivilianContracts$ObligatedAmountIsLand)] <- 0
+# 
+# CivilianContracts$pIsVessel <- CivilianContracts$ObligatedAmountIsVessel/CivilianContracts$Action.Obligation
+# CivilianContracts$pIsVessel[is.nan(CivilianContracts$pIsVessel)|is.infinite(CivilianContracts$pIsVessel)|is.na(CivilianContracts$ObligatedAmountIsVessel)] <- 0
+# 
+# CivilianContracts$pIsOtherPP <- CivilianContracts$ObligatedAmountIsOtherPP/CivilianContracts$Action.Obligation
+# CivilianContracts$pIsOtherPP[is.nan(CivilianContracts$pIsOtherPP)|is.infinite(CivilianContracts$pIsOtherPP)|is.na(CivilianContracts$ObligatedAmountIsOtherPP)] <- 0
+# 
+# CivilianContracts$pIsAir <- CivilianContracts$ObligatedAmountIsAir/CivilianContracts$Action.Obligation
+# CivilianContracts$pIsAir[is.nan(CivilianContracts$pIsAir)|is.infinite(CivilianContracts$pIsAir)|is.na(CivilianContracts$ObligatedAmountIsAir)] <- 0
+# 
+# CivilianContracts$pIsEnC <- CivilianContracts$ObligatedAmountIsEnC/CivilianContracts$Action.Obligation
+# CivilianContracts$pIsEnC[is.nan(CivilianContracts$pIsEnC)|is.infinite(CivilianContracts$pIsEnC)|is.na(CivilianContracts$ObligatedAmountIsEnC)] <- 0
+# 
+# CivilianContracts$pIsFRSnC <- CivilianContracts$ObligatedAmountIsFRSnC/CivilianContracts$Action.Obligation
+# CivilianContracts$pIsFRSnC[is.nan(CivilianContracts$pIsFRSnC)|is.infinite(CivilianContracts$pIsFRSnC)|is.na(CivilianContracts$ObligatedAmountIsFRSnC)] <- 0
+# 
+# 
+# CivilianContracts$pIsMnS <- CivilianContracts$ObligatedAmountIsMnS/CivilianContracts$Action.Obligation
+# CivilianContracts$pIsMnS[is.nan(CivilianContracts$pIsMnS)|is.infinite(CivilianContracts$pIsMnS)|is.na(CivilianContracts$ObligatedAmountIsMnS)] <- 0
+
+
+# TempList<-c("PlatformPortfolio","UnmodifiedPlatformPortfolio","ObligatedAmountIsAir","ObligatedAmountIsEnC","ObligatedAmountIsFRSnC","ObligatedAmountIsLand","ObligatedAmountIsMnS","ObligatedAmountIsOtherPP","ObligatedAmountIsVessel","ObligatedAmountIsWnA","ProductOrServiceArea","UnmodifiedProductOrServiceArea","SimpleArea","UnmodifiedSimpleArea","ObligatedAmountIsProducts","ObligatedAmountIsServices","ObligatedAmountIsRnD","MaxOfIsPossibleSoftwareEngineering")
+
+# TempList<-TempList[TempList %in% names(CivilianContracts)]
+# CivilianContracts<-subset(CivilianContracts,select=-c(PlatformPortfolio,
+#                                                       UnmodifiedPlatformPortfolio,
+#                                                       SimpleArea,UnmodifiedSimpleArea ))
+
+NASimpleArea<-(CivilianContracts$SimpleArea=="Mixed or Unlabeled" | is.na(CivilianContracts$SimpleArea))&
+  !is.na(CivilianContracts$UnmodifiedSimpleArea) & CivilianContracts$UnmodifiedSimpleArea!="NULL"
+CivilianContracts$SimpleArea[NASimpleArea]<-CivilianContracts$UnmodifiedSimpleArea[NASimpleArea]
+# CivilianContracts$SimpleArea[CivilianContracts$SimpleArea=="Mixed or Unlabeled" & CivilianContracts$pIsProducts>0.5]<-"Products"
+# CivilianContracts$SimpleArea[CivilianContracts$SimpleArea=="Mixed or Unlabeled" & CivilianContracts$pIsServices>0.5]<-"Services"
+# CivilianContracts$SimpleArea[CivilianContracts$SimpleArea=="Mixed or Unlabeled" & CivilianContracts$pIsRnD>0.5]<-"R&D"
+
+
+
+# CivilianContracts$PlatformPortfolio.sum[CivilianContracts$pIsLand>=0.75&
+#     CivilianContracts$PlatformPortfolio.sum=="Unlabeled"]<-"Land Vehicles"
+# CivilianContracts$PlatformPortfolio.sum[CivilianContracts$pIsVessel>=0.75&
+#     CivilianContracts$PlatformPortfolio.sum=="Unlabeled"]<-"Ships & Submarines"
+# CivilianContracts$PlatformPortfolio.sum[CivilianContracts$pIsAir>=0.75&
+#     CivilianContracts$PlatformPortfolio.sum=="Unlabeled"]<-"Aircraft and Drones"
+# CivilianContracts$PlatformPortfolio.sum[CivilianContracts$pIsOtherPP>=0.75&
+#     CivilianContracts$PlatformPortfolio.sum=="Unlabeled"]<-"Other"
+# CivilianContracts$PlatformPortfolio.sum[CivilianContracts$pIsWnA>=0.75&
+#     CivilianContracts$PlatformPortfolio.sum=="Unlabeled"]<-"Weapons and Ammunition"
+# CivilianContracts$PlatformPortfolio.sum[CivilianContracts$pIsMnS>=0.75&
+#     CivilianContracts$PlatformPortfolio.sum=="Unlabeled"]<-"Missile and Space Systems"
+# CivilianContracts$PlatformPortfolio.sum[CivilianContracts$pIsEnC>=0.75&
+#     CivilianContracts$PlatformPortfolio.sum=="Unlabeled"]<-"Electronics and Communications"
+# CivilianContracts$PlatformPortfolio.sum[CivilianContracts$pIsFRSnC>=0.75&
+#     CivilianContracts$PlatformPortfolio.sum=="Unlabeled"]<-"Facilities and Construction"
+# 
+# CivilianContracts$SoftwareEng<-factor(CivilianContracts$MaxOfIsPossibleSoftwareEngineering,
+#   levels=c(0,1),
+#   labels=c("Not Software Eng.","Possible Software Eng.")
+# )
+# 
+# CivilianContracts$SoftwareEng[is.na(CivilianContracts$SoftwareEng)&
+#     !is.na(CivilianContracts$SimpleArea)]<-"Not Software Eng."
+
+
+
+CivilianContracts$PlatformPortfolio<-factor(CivilianContracts$PlatformPortfolio)
+CivilianContracts$UnmodifiedPlatformPortfolio<-factor(CivilianContracts$UnmodifiedPlatformPortfolio)
+
+CivilianContracts$ProductOrServiceArea<-factor(CivilianContracts$ProductOrServiceArea)
+CivilianContracts$UnmodifiedProductOrServiceArea<-factor(CivilianContracts$UnmodifiedProductOrServiceArea)
+
+CivilianContracts$SimpleArea<-factor(CivilianContracts$SimpleArea)
+CivilianContracts$UnmodifiedSimpleArea<-factor(CivilianContracts$UnmodifiedSimpleArea)
+
+
+CivilianContracts<-subset(CivilianContracts,select=-c(
+  # UnmodifiedSimpleArea,
+  # SimpleArea,
+  MaxOfIsPossibleSoftwareEngineering
+  # ObligatedAmountIsProducts,
+  # ObligatedAmountIsServices,
+  # ObligatedAmountIsRnD,
+  # ObligatedAmountIsLand,
+  # ObligatedAmountIsVessel,
+  # ObligatedAmountIsOtherPP,
+  # ObligatedAmountIsAir,
+  # ObligatedAmountIsEnC,
+  # ObligatedAmountIsFRSnC,
+  # ObligatedAmountIsMnS,
+  # ObligatedAmountIsWnA
+  
+  
+))
+
+
+CivilianContracts$AnyPlaceInternational<-droplevels(CivilianContracts$AnyPlaceInternational)
+
+
+CivilianContracts$SimpleArea<-droplevels(CivilianContracts$SimpleArea)
+
+
+save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+
+```
+
+##Competition Vehicle
+```{r CompetitionVehicle}
+#data\\Civilian_contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.csv
+CivilianContracts<-csis360::read_and_join_experiment(data=CivilianContracts
+  ,"Civilian_contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.csv"
+  ,path=""
+  ,"LargeDataSets\\"
+  ,by="CSIScontractID"
+  ,new_var_checked=FALSE
+)
+
+#Civilian_contract_SP_ContractCompetitionVehicleCustomer.csv
+CivilianContracts<-csis360::read_and_join_experiment(data=CivilianContracts
+  ,"Civilian_contract_SP_ContractCompetitionVehicleCustomer.txt"
+  ,path=""
+  ,"LargeDataSets\\"
+  ,by="CSIScontractID"
+  ,new_var_checked=FALSE
+)
+
+CivilianContracts$UnmodifiedNumberOfOffersReceived<-FactorToNumber(CivilianContracts$UnmodifiedNumberOfOffersReceived)
+
+CivilianContracts$NumberOfOffersReceived<-FactorToNumber(CivilianContracts$NumberOfOffersReceived)
+CivilianContracts$UnmodifiedNumberOfOffersReceived[is.null(CivilianContracts$UnmodifiedNumberOfOffersReceived)]<-NA
+CivilianContracts$NumberOfOffersReceived[is.null(CivilianContracts$NumberOfOffersReceived)]<-NA
+
+NAnumberOfOffers<-is.na(CivilianContracts$UnmodifiedNumberOfOffersReceived)&
+  !is.na(CivilianContracts$NumberOfOffersReceived)
+CivilianContracts$UnmodifiedNumberOfOffersReceived[NAnumberOfOffers]<-
+  CivilianContracts$NumberOfOffersReceived[NAnumberOfOffers]
+rm(NAnumberOfOffers)
+
+CivilianContracts$qOffers <- cut2(CivilianContracts$NumberOfOffersReceived,cuts=c(1,2,3,5))
+
+if(is.numeric(CivilianContracts$IsIDV)){
+  CivilianContracts$IsIDV<-factor(CivilianContracts$IsIDV,levels=c(0,1),labels=c("Def/Pur","IDV"))
+}
+
+
+
+CivilianContracts$UnmodifiedNumberOfOffersReceived[is.na(CivilianContracts$UnmodifiedNumberOfOffersReceived)&
+    !is.na(CivilianContracts$UnmodifiedIsSomeCompetition)&
+    CivilianContracts$UnmodifiedIsSomeCompetition=="No Comp."
+  ]<-1
+
+
+
+
+
+CivilianContracts$SingleOffer<-factor(CivilianContracts$UnmodifiedNumberOfOffersReceived==1,
+  levels=c(TRUE,FALSE),
+  labels=c("Single","Multi")
+)
+
+CivilianContracts$SingleOffer[is.na(CivilianContracts$UnmodifiedNumberOfOffersReceived)]<-NA
+
+CivilianContracts$SimpleVehicle<-NA
+CivilianContracts$SimpleVehicle[CivilianContracts$AwardOrIDVcontractActionType %in% c("Definitive Contract",
+  "Purchase Order")]<-"Def/Pur"
+CivilianContracts$SimpleVehicle[CivilianContracts$AwardOrIDVcontractActionType 
+  %in% c("Basic Ordering Agreement",
+    "Blanket Purchase Agreement",
+    "Federal Supply Schedule",
+    "Government Wide Acquisition Contract")]<-"Other IDV"
+CivilianContracts$SimpleVehicle[CivilianContracts$AwardOrIDVcontractActionType == "Letter Contract"]<-"Letter"
+CivilianContracts$SimpleVehicle[CivilianContracts$AwardOrIDVcontractActionType %in%
+    c("Indefinite Delivery Contract",
+      "Delivery Order")]<-
+  as.character(CivilianContracts$multipleorsingleawardidc[CivilianContracts$AwardOrIDVcontractActionType %in%
+      c("Indefinite Delivery Contract",
+        "Delivery Order")])
+
+CivilianContracts$SimpleVehicle<-factor(CivilianContracts$SimpleVehicle)
+summary(CivilianContracts$SimpleVehicle)
+str(CivilianContracts$SimpleVehicle)
+
+summary(CivilianContracts[is.na(CivilianContracts$SimpleVehicle),"AwardOrIDVcontractActionType"])
+
+
+CivilianContracts$UCA<-factor(CivilianContracts$MaxOfIsUndefinitizedAction,
+  levels=c(0,1),
+  labels=c("Not UCA","UCA")
+)
+
+#IsSomeCompetition Impute missing values when labeled entries have a consistent value.
+NAisSomeCompetition<-(is.na(CivilianContracts$UnmodifiedIsSomeCompetition)|
+    CivilianContracts$UnmodifiedIsSomeCompetition=="Unlabeled")&
+  (CivilianContracts$IsSomeCompetition!="Mixed or \nUnlabeled"&
+      !is.na(CivilianContracts$IsSomeCompetition))
+CivilianContracts$UnmodifiedIsSomeCompetition[NAisSomeCompetition]<-
+  CivilianContracts$IsSomeCompetition[NAisSomeCompetition]
+rm(NAisSomeCompetition)
+# Add this later if you want not full & open
+# CivilianContracts$Comp[CivilianContracts$UnmodifiedIsSomeCompetition=="No Comp."]<-"No Comp."
+# CivilianContracts$Comp[CivilianContracts$UnmodifiedIsSomeCompetition=="Comp." & 
+#                            CivilianContracts$UnmodifiedIsFullAndOpen=="Not Full & Open"]<-"Comp."
+# CivilianContracts$Comp[CivilianContracts$UnmodifiedIsSomeCompetition=="Comp." & 
+#                            CivilianContracts$UnmodifiedIsFullAndOpen=="Comp."]<-"Comp."
+# CivilianContracts$Comp[CivilianContracts$UnmodifiedIsSomeCompetition=="Comp."]<-"Comp."
+
+
+# CivilianContracts$Comp<-factor(CivilianContracts$Comp,
+#                                levels=c("No Comp.","Comp.")
+#                                )
+
+
+
+if (all(levels(CivilianContracts$qOffers)==c("  1","  2","[  3,  5)","[  5,999]"))){
+  CivilianContracts$qOffers<-factor(CivilianContracts$qOffers, 
+    levels=c("  1","  2","[  3,  5)","[  5,999]"),
+    labels=c("1","2","3-4","5+"),
+    ordered=TRUE
+  )
+}
+
+
+CivilianContracts$qOffers[is.na(CivilianContracts$qOffers)&
+    !is.na(CivilianContracts$UnmodifiedIsSomeCompetition)&
+    CivilianContracts$UnmodifiedIsSomeCompetition=="No Comp."
+  ]<-"1"
+
+
+
+CivilianContracts<-CivilianContracts[,!colnames(CivilianContracts) %in% 
+    c(
+  #     UnmodifiedIsFullAndOpen,
+  "UnmodifiedIsOnlyOneSource",
+  "UnmodifiedIsFollowonToCompetedAction",
+  #     Unmodifiedmultipleorsingleawardidc,
+  #     Unmodifiedaddmultipleorsingawardidc,
+  "IsFullAndOpen",
+  "IsFollowonToCompetedAction"
+  #     multipleorsingleawardidc,
+  #     AddMultipleOrSingleAwardIDC
+)]
+
+  
+save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+
+```
+
+
+##Pricing
+```{r Pricing}
+
+CivilianContracts<-csis360::read_and_join_experiment(data=CivilianContracts
+  ,"Civilian_Contract_SP_ContractPricingCustomer.csv"
+  ,path=""
+  ,"LargeDataSets\\"
+  ,by="CSIScontractID"
+  ,new_var_checked=FALSE
+)
+
+#IsLabeledPricing Can drop this the next time we download, as there's an Isnull(,0 there now)
+CivilianContracts$IsLabeledPricing[is.nan(CivilianContracts$IsLabeledPricing)|is.na(CivilianContracts$IsLabeledPricing)] <- 0
+
+#Process FixedOrCost
+CivilianContracts$ObligatedAmountIsFixedPrice<-FactorToNumber(CivilianContracts$ObligatedAmountIsFixedPrice)
+CivilianContracts$pIsFixedPrice <- CivilianContracts$ObligatedAmountIsFixedPrice/CivilianContracts$Action.Obligation
+CivilianContracts$pIsFixedPrice[is.nan(CivilianContracts$ObligatedAmountIsFixedPrice)|is.na(CivilianContracts$ObligatedAmountIsFixedPrice)] <- 0
+
+
+CivilianContracts$ObligatedAmountIsCostBased<-FactorToNumber(CivilianContracts$ObligatedAmountIsCostBased)
+CivilianContracts$pIsCostBased <- CivilianContracts$ObligatedAmountIsCostBased/CivilianContracts$Action.Obligation
+CivilianContracts$pIsCostBased[is.nan(CivilianContracts$ObligatedAmountIsCostBased)|is.na(CivilianContracts$ObligatedAmountIsCostBased)] <- 0
+
+CivilianContracts$ObligatedAmountIsCombination<-FactorToNumber(CivilianContracts$ObligatedAmountIsCombination)
+CivilianContracts$pIsCombination <- CivilianContracts$ObligatedAmountIsCombination/CivilianContracts$Action.Obligation
+CivilianContracts$pIsCombination[is.nan(CivilianContracts$ObligatedAmountIsCombination)|is.na(CivilianContracts$ObligatedAmountIsCombination)] <- 0
+
+#Assign FixedOrCost
+CivilianContracts$FixedOrCost[CivilianContracts$pIsFixedPrice>0  |
+    CivilianContracts$pIsCostBased>0 | 
+    CivilianContracts$pIsCombination>0]<-"Combination or Other"
+
+CivilianContracts$FixedOrCost[CivilianContracts$pIsFixedPrice>=0.95|(CivilianContracts$IsFixedPrice==1 & (CivilianContracts$pIsCombination<=0.05))]<-"Fixed-Price"
+CivilianContracts$FixedOrCost[CivilianContracts$pIsCostBased>=0.95|(CivilianContracts$IsCostBased==1 & (CivilianContracts$pIsCombination<=0.05))]<-"Cost-Based"
+CivilianContracts$FixedOrCost<-factor(CivilianContracts$FixedOrCost,levels=c("Fixed-Price","Cost-Based","Combination or Other"))
+
+#Process Fee
+CivilianContracts$ObligatedAmountIsIncentive<-FactorToNumber(CivilianContracts$ObligatedAmountIsIncentive)
+CivilianContracts$pIsIncentive <- CivilianContracts$ObligatedAmountIsIncentive/CivilianContracts$Action.Obligation
+CivilianContracts$pIsIncentive[is.nan(CivilianContracts$ObligatedAmountIsIncentive)|is.na(CivilianContracts$ObligatedAmountIsIncentive)] <- 0
+
+CivilianContracts$ObligatedAmountIsAwardFee<-FactorToNumber(CivilianContracts$ObligatedAmountIsAwardFee)
+CivilianContracts$pIsAwardFee <- CivilianContracts$ObligatedAmountIsAwardFee/CivilianContracts$Action.Obligation
+CivilianContracts$pIsAwardFee[is.nan(CivilianContracts$ObligatedAmountIsAwardFee)|is.na(CivilianContracts$ObligatedAmountIsAwardFee)] <- 0
+
+CivilianContracts$ObligatedAmountIsFFPorNoFee<-FactorToNumber(CivilianContracts$ObligatedAmountIsFFPorNoFee)
+CivilianContracts$pIsFFPorNoFee <- CivilianContracts$ObligatedAmountIsFFPorNoFee/CivilianContracts$Action.Obligation
+CivilianContracts$pIsFFPorNoFee[is.nan(CivilianContracts$ObligatedAmountIsFFPorNoFee)|is.na(CivilianContracts$ObligatedAmountIsFFPorNoFee)] <- 0
+
+
+CivilianContracts$ObligatedAmountIsFixedFee<-FactorToNumber(CivilianContracts$ObligatedAmountIsFixedFee)
+CivilianContracts$pIsFixedFee <- CivilianContracts$ObligatedAmountIsFixedFee/CivilianContracts$Action.Obligation
+CivilianContracts$pIsFixedFee[is.nan(CivilianContracts$ObligatedAmountIsFixedFee)|is.na(CivilianContracts$ObligatedAmountIsFixedFee)] <- 0
+
+CivilianContracts$ObligatedAmountIsOtherFee<-FactorToNumber(CivilianContracts$ObligatedAmountIsOtherFee)
+CivilianContracts$pIsOtherFee <- CivilianContracts$ObligatedAmountIsOtherFee/CivilianContracts$Action.Obligation
+CivilianContracts$pIsOtherFee[is.nan(CivilianContracts$ObligatedAmountIsOtherFee)|is.na(CivilianContracts$ObligatedAmountIsOtherFee)] <- 0
+
+
+#AssignFee
+CivilianContracts$Fee<-NA
+CivilianContracts$Fee[CivilianContracts$pIsAwardFee>=0.9|(CivilianContracts$IsAwardFee==1
+  & CivilianContracts$pIsCombination<=0.05)]<-"Award Fee"
+CivilianContracts$Fee[CivilianContracts$pIsIncentive>=0.9|(CivilianContracts$IsIncentive==1
+  & CivilianContracts$pIsCombination<=0.05)]<-"Incentive"
+CivilianContracts$Fee[CivilianContracts$pIsFFPorNoFee>=0.9|(CivilianContracts$IsFFPorNoFee==1
+  & CivilianContracts$pIsCombination<=0.05)]<-"FFP or No Fee"
+CivilianContracts$Fee[CivilianContracts$pIsFixedFee>=0.9|(CivilianContracts$IsFixedFee==1
+  & CivilianContracts$pIsCombination<=0.05)]<-"Fixed Fee"
+
+CivilianContracts$Fee[CivilianContracts$pIsOtherFee>=0.9|
+    CivilianContracts$IsOtherFee==1 | 
+    CivilianContracts$pIsCombination>0.1|
+    (is.na(CivilianContracts$Fee) & CivilianContracts$IsLabeledPricing==1)]<-
+  "Combination or Other Fee"
+
+
+CivilianContracts<-subset(CivilianContracts,select=-c(
+ 
+)
+)
+
+CivilianContracts<-CivilianContracts[,!colnames(CivilianContracts) %in% 
+    c(
+  # Pricing.Mechanism.Code,
+  "UnmodifiedTypeOfContractPricing",
+  "IsLabeledPricing",
+  "ObligatedAmountIsFixedPrice",
+  # IsFixedPrice,
+  "UnmodifiedIsFixedPrice",
+  "ObligatedAmountIsCostBased",
+  # IsCostBased,
+  "UnmodifiedIsCostBased",
+  "ObligatedAmountIsCombination",
+  # IsCombination,
+  "UnmodifiedIsCombination",
+  "ObligatedAmountIsIncentive",
+  # IsIncentive,
+  "UnmodifiedIsIncentive",
+  "ObligatedAmountIsAwardFee",
+  # IsAwardFee,
+  "UnmodifiedIsAwardFee",
+  "ObligatedAmountIsFFPorNoFee",
+  # IsFFPorNoFee,
+  "UnmodifiedIsFFPorNoFee",
+  "ObligatedAmountIsFixedFee",
+  # IsFixedFee,
+  "UnmodifiedIsFixedFee",
+  "ObligatedAmountIsOtherFee",
+  # IsOtherFee,
+  "UnmodifiedIsOtherFee"
+  # pIsFixedPrice,
+  # pIsCostBased,
+  # pIsCombination,
+  # pIsIncentive,
+  # pIsAwardFee,
+  # pIsFFPorNoFee,
+  # pIsFixedFee,
+  # pIsOtherFee,
+  # FixedOrCost,
+  # Fee
+    )]
+# load(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata")
+
+
+
+save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+
+```
+#Final Cleanup and Output
+##Applying lookups
+```{r PostApply}
+# debug(apply_lookups)
+
+
+CivilianContracts<-apply_lookups(Path,CivilianContracts)
+
+
+
+
+# CivilianContracts<-csis360::read_and_join(
+#   CivilianContracts,
+#   "Lookup_SubCustomer.csv",
+#   by=c("Customer","SubCustomer"),
+#   # replace_na_var=NULL,
+#   # overlap_var_replaced=TRUE,
+#   add_var="SubCustomer.sum"
+#   # new_var_checked=TRUE,
+#   # skip_check_var="CHPKisCrisisFunding"
+#   )
+
+# CivilianContracts$SubCustomer.sum<-factor(CivilianContracts$SubCustomer.sum)
+# CivilianContracts$SubCustomer.sum<-droplevels(CivilianContracts$SubCustomer.sum)
+# CivilianContracts$SubCustomer.sum<-droplevels(CivilianContracts$SubCustomer.sum)
+
+
+CivilianContracts<-csis360::read_and_join(
+  CivilianContracts,
+  "LOOKUP_PlatformPortfolio.csv",
+  by="PlatformPortfolio",
+  # replace_na_var=NULL,
+  # overlap_var_replaced=TRUE,
+  add_var="PlatformPortfolio.sum"
+  # new_var_checked=TRUE,
+  # skip_check_var="CHPKisCrisisFunding"
+  )
+CivilianContracts$PlatformPortfolio.sum<-factor(CivilianContracts$PlatformPortfolio.sum)
+
+    CivilianContracts$IsTerminated<-factor(CivilianContracts$IsTerminated,
+                                levels = c(0,1),
+                                labels = c("Unterminated", "Terminated")
+    )
+
+
+
+save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+
+
+```
+##Model Output
+
+```{r ModelOutput}
+CivilianModel<-subset(CivilianContracts,select=c(IsIDV,
+  FixedOrCost,
+  UnmodifiedIsSomeCompetition,
+  #                         Comp,
+  # LabeledMDAP,
+  # SubCustomer.sum,
+  PlatformPortfolio.sum,
+  AnyPlaceInternational,
+  SimpleArea,
+  qLowCeiling,
+  qHighCeiling,
+  qDuration,
+  qOffers,
+  SimpleVehicle,
+  IsTerminated,
+  UCA,
+  qCRais,
+  qNChg
+)
+)
+# 
+
+colnames(CivilianModel)[colnames(CivilianModel)=="SubCustomer.sum"]<-"Who"
+colnames(CivilianModel)[colnames(CivilianModel)=="UnmodifiedIsSomeCompetition"]<-"Comp"
+colnames(CivilianModel)[colnames(CivilianModel)=="PlatformPortfolio.sum"]<-"What"
+colnames(CivilianModel)[colnames(CivilianModel)=="IsIDV"]<-"IDV"
+colnames(CivilianModel)[colnames(CivilianModel)=="FixedOrCost"]<-"FxCb"
+colnames(CivilianModel)[colnames(CivilianModel)=="AnyPlaceInternational"]<-"Intl"
+colnames(CivilianModel)[colnames(CivilianModel)=="SimpleArea"]<-"PSR"
+colnames(CivilianModel)[colnames(CivilianModel)=="qLowCeiling"]<-"LowCeil"
+colnames(CivilianModel)[colnames(CivilianModel)=="qHighCeiling"]<-"Ceil"
+colnames(CivilianModel)[colnames(CivilianModel)=="qDuration"]<-"Dur"
+# colnames(CivilianModel)[colnames(CivilianModel)=="SingleOffer"]<-"One"
+colnames(CivilianModel)[colnames(CivilianModel)=="qOffers"]<-"Offr"
+colnames(CivilianModel)[colnames(CivilianModel)=="IsTerminated"]<-"Term"
+colnames(CivilianModel)[colnames(CivilianModel)=="SimpleVehicle"]<-"Veh"
+colnames(CivilianModel)[colnames(CivilianModel)=="LabeledMDAP"]<-"MDAP"
+colnames(CivilianModel)[colnames(CivilianModel)=="qNChg"]<-"NChg"
+colnames(CivilianModel)[colnames(CivilianModel)=="qCRais"]<-"CRai"
+
+
+
+
+summary(CivilianModel)
+summary(subset(CivilianModel,is.na(Offr)))
+summary(subset(CivilianContracts,is.na(qOffers)))
+summary(subset(CivilianContracts,is.na(FixedOrCost)&IsFixedPrice==1))
+save(CivilianModel,file="LargeDataSets\\Civilian_contract_CSIScontractID_model.Rdata")
+write.table(CivilianModel
+  ,file=paste("LargeDataSets\\Civilian_contract_CSIScontractID_model.csv"
+    ,sep=""
+  )
+  #   ,header=TRUE
+  , sep=","
+  , row.names=FALSE
+  , append=FALSE
+)
+
+
+```
+
+##Model and detail
+
+```{r DetailedOutput}
+CivilianModelAndDetail<-CivilianContracts
+
+CivilianContracts<-apply_lookups(Path,CivilianContracts)
+
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="SubCustomer.sum"]<-"Who"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="UnmodifiedIsSomeCompetition"]<-"Comp"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="PlatformPortfolio.sum"]<-"What"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="IsIDV"]<-"IDV"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="FixedOrCost"]<-"FxCb"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="AnyPlaceInternational"]<-"Intl"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="SimpleArea"]<-"PSR"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="qLowCeiling"]<-"LowCeil"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="qHighCeiling"]<-"Ceil"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="qDuration"]<-"Dur"
+# colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="SingleOffer"]<-"One"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="qOffers"]<-"Offr"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="IsTerminated"]<-"Term"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="SimpleVehicle"]<-"Veh"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="LabeledMDAP"]<-"MDAP"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="qNChg"]<-"NChg"
+colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="qCRais"]<-"CRai"
+
+CivilianModelAndDetail<-subset(CivilianModelAndDetail,select=c(CSIScontractID,
+  # IsIDV,
+  FxCb,
+  Fee,
+  # Comp,
+  # MDAP,
+  # unmodifiedSystemequipmentcode,
+  # Who,
+  What,
+  Intl,
+  PSR,
+  LowCeil,
+  Ceil,
+  Dur,
+  SingleOffer,
+  Offr,
+  # IsIDV,
+  # Soft,
+  UCA,
+  CRai,
+  NChg,
+  Veh,
+  UnmodifiedNumberOfOffersReceived,
+  Term,
+  UnmodifiedContractBaseAndAllOptionsValue,
+  SumOfisChangeOrder,
+  pChangeOrderUnmodifiedBaseAndAll,
+  # pChangeOrderObligated,
+  UnmodifiedDays,
+  MinOfEffectiveDate,
+  Action.Obligation
+)
+)
+# 
+
+    # CivilianModelAndDetail$Term<-factor(CivilianModelAndDetail$Term,
+    #                             levels = c(0,1),
+    #                             labels = c("Unterminated", "Terminated")
+    # )
+
+
+write.table(CivilianModelAndDetail
+  ,file=paste("data\\Civilian_contract_CSIScontractID_detail.csv"
+    ,sep=""
+  )
+  #   ,header=TRUE
+  , sep=","
+  , row.names=FALSE
+  , append=FALSE
+)
+save(CivilianModelAndDetail,file="LargeDataSets\\Civilian_contract_CSIScontractID_detail.Rdata")
+
+
+#Strip out the cuts
+
+
+
+```
+
+##Merging up
+```{r CombineDefenseAndCivil}
+
+load(file="LargeDataSets\\Defense_contract_CSIScontractID_detail.Rdata")
+
+
+DefenseModelAndDetail$Who<-factor(DefenseModelAndDetail$Who,
+  levels=c("Civilian",levels(DefenseModelAndDetail$Who)))
+CivilianModelAndDetail$Who<-factor("Civilian",levels(DefenseModelAndDetail$Who))
+FederalModelAndDetail<-rbind(DefenseModelAndDetail,CivilianModelAndDetail)
+summary(CivilianModelAndDetail$Term)
+summary(DefenseModelAndDetail$Term)
+summary(CivilianModelAndDetail$Veh)
+summary(DefenseModelAndDetail$Veh)
+
+
+summary(DefenseModelAndDetail)
+summary(CivilianModelAndDetail)
+ 
+CivilianModelAndDetail$Term<-factor(CivilianModelAndDetail$Term,
+                                levels = c(0,1),
+                                labels = c("Unterminated", "Terminated")
+    )
+
+
+
+
+DefenseModelAndDetail<-DefenseModelAndDetail[,!colnames(DefenseModelAndDetail) %in% 
+    c(
+"LowCeil",
+      "Ceil",
+      "CRai",
+      "NChg",
+      "Dur"
+      
+)]
+CivilianModelAndDetail<-CivilianModelAndDetail[,!colnames(CivilianModelAndDetail) %in% 
+    c(
+"LowCeil",
+      "Ceil",
+      "CRai",
+      "NChg",
+      "Dur"
+      
+)]
+
+FederalModelAndDetail<-rbind(DefenseModelAndDetail,CivilianModelAndDetail)
+save(FederalModelAndDetail,file="LargeDataSets\\Federal_contract_CSIScontractID_detail.Rdata")
+
+
+```
