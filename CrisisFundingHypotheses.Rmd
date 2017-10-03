@@ -41,16 +41,15 @@ Coloration<-ddply(Coloration
                   )
 
 
-axis.text.size<-12
-strip.text.size<-12
+axis.text.size<-8
+strip.text.size<-8
 legend.text.size<-8
 # table.text.size<-5.75
 title.text.size<-12
-geom.text.size<-12
+geom.text.size<-0.9
 
-main.text.size<-2
+main.text.size<-1
 note.text.size<-1.40
-
 
 ```
 
@@ -59,7 +58,7 @@ note.text.size<-1.40
 ```{r Import}
 # read in data    
 
-oad(file="LargeDataSets//full_data_after_step_4b.Rdata")
+load(file="LargeDataSets//full_data_after_step_6.Rdata")
 full_data$CrisisDisplay<-as.character(full_data$CrisisFunding)
 full_data$CrisisDisplay[full_data$CrisisDisplay  %in% c("Unlabeled","Excluded")]<-"All Other"
 
@@ -67,6 +66,7 @@ full_data$Reachback<-cut2(full_data$OfficeOCOcrisisScore,c(2))
 
 full_data$Reachback<-factor(full_data$Reachback,levels=c( "[ 2, 3]","[-1, 2)"), 
                                    labels=c( "Contigency-Contracting-Intensive Contracting Offices","All Other Offices"))
+full_data<-replace_nas_with_unlabeled(full_data,"Reachback")
 ```
 
 #Analysis
@@ -75,14 +75,46 @@ full_data$Reachback<-factor(full_data$Reachback,levels=c( "[ 2, 3]","[-1, 2)"),
 
 ```{r Summary}
 
+full_data$CrisisDisplay<-factor(full_data$CrisisDisplay)
+full_data$No.Competition.sum<-factor(full_data$No.Competition.sum)
+full_data$Competition.multisum<-factor(full_data$Competition.multisum)
+full_data$isUndefinitizedAction<-factor(full_data$isUndefinitizedAction)
+full_data$SupplyServiceERS<-factor(full_data$SupplyServiceERS)
 
-OCOdetail<-LatticePlotWrapper(
+summary_data<-plyr::ddply(full_data,
+  .(Fiscal.Year,
+    Is.Defense,
+    CrisisDisplay,
+    International,
+    No.Competition.sum,
+    Competition.multisum,
+    Theater,
+    isUndefinitizedAction,
+    SupplyServiceERS,
+    ProductOrServiceArea,
+    Reachback,
+    UnmodifiedUltimateDurationCategory),
+  plyr::summarise,
+  Obligation.2016=sum(Obligation.2016)
+)
+
+
+summary_data<-ddply(summary_data,
+                .(
+                  CrisisDisplay
+                  ),
+                plyr::mutate,
+                pDatasetObligation=Obligation.2016/sum(Obligation.2016)
+                )
+
+
+chapter4topline<-LatticePlotWrapper(
   VAR.color.legend.label="Crisis Category",
-  VAR.main.label="Defense Contracts with Labeled Location",
+  VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2016 $ Billions)",
   VAR.Coloration=Coloration,
-  VAR.long.DF=subset(full_data,!is.na(International)),
+  VAR.long.DF=subset(summary_data,!is.na(International)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
@@ -96,238 +128,8 @@ OCOdetail<-LatticePlotWrapper(
 )+  facet_grid(primary ~ secondary
               , scales="free_y" #The scales actually do stay fixed
               , space="fixed")+theme(legend.position="bottom")
-OCOdetail
-ggsave("Output//AnalysisTopline.png", OCOdetail, width=6.5, height= 4, units="in",dpi=300)
-
-```
-
-
-```{r Competition}
-
-Comp1<-  LatticePercentLineWrapper(
-  VAR.color.legend.label="Competition",
-  VAR.main.label="",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligation.2016",
-  VAR.Coloration=Coloration,
-  VAR.long.DF=subset(full_data,
-                     SupplyServiceERS!="Unlabeled"),
-  # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="No.Competition.sum", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
-  VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  # ,DataLabels=NA
-  #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
-    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-  theme(strip.text.y = element_text(angle=270))
-
-ggsave("Output//Comp1.png", OCOdetail, width=6.5, height= 4, units="in",dpi=300)
-
-Comp2<-  LatticePercentLineWrapper(
-  VAR.color.legend.label="Competition",
-  VAR.main.label="",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligation.2016",
-  VAR.Coloration=Coloration,
-  VAR.long.DF=full_data,
-  # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="No.Competition.sum", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
-  VAR.facet.secondary="Is.Defense" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  # ,DataLabels=NA
-  #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
-    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-  theme(strip.text.y = element_text(angle=270))
-
-
-Comp3<-  LatticePlotWrapper(
-  VAR.color.legend.label="Competition",
-  VAR.main.label="",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligation.2016",
-  VAR.Coloration=Coloration,
-  VAR.long.DF=full_data,
-  # NA, #VAR.ncol
-  VAR.x.variable="No.Competition.sum", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="No.Competition.sum", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
-  VAR.facet.secondary="Is.Defense" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  ,DataLabels=TRUE
-  #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+  facet_grid(primary ~ secondary
-              , scales="free_y" #The scales actually do stay fixed
-              , space="fixed")+theme(legend.position="bottom")
-    # scale_x_date("Fiscal Year",labels = date_format("'%y"))+
- Comp3<-Comp3+ theme(axis.text.x = element_text(angle=270))
-
-
-ggsave("Output//Comp2.png", Comp2, width=6.5, height= 4, units="in",dpi=300)
-
-ggsave("Output//Comp3.png", Comp3, width=6.5, height= 4, units="in",dpi=300)
-
-full_data$isUCA<-factor(full_data$isUndefinitizedAction,levels=c(1,0,NA),labels=c("UCA","Not UCA"))
-full_data$isUCA<-factor(full_data$isUCA,levels=c("UCA","Not UCA","Unlabeled"))
-full_data$isUCA[is.na(full_data$isUCA)]<-"Unlabeled"
-UCA<-LatticePercentLineWrapper(
-  VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
-  VAR.main.label="Defense Contracts with Labeled Cector",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligation.2016",
-  VAR.Coloration=Coloration,
-  VAR.long.DF=full_data,
-  # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="isUCA", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
-  VAR.facet.secondary="Is.Defense" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  # ,DataLabels=NA
-  #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
-    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-  theme(strip.text.y = element_text(angle=270))
-
-
-ggsave("Output//UCA.png", UCA, width=6.5, height= 4, units="in",dpi=300)
-
-
-```
-
-##Labeling
-```{r Labeling}
-
-full_data$OCOlabelDetail<-full_data$OCOscoreBuckets
-levels(full_data$OCOlabelDetail) <- 
-  c(levels(full_data$OCOlabelDetail),"Confirmed OCO")
-full_data$OCOlabelDetail[full_data$CrisisFunding=="OCO"]<-"Confirmed OCO"
-
-
-full_data$CrisisDisplay<-"All Other"
-full_data$CrisisDisplay[full_data$CrisisFunding=="OCO"|full_data$OCOcrisisScore>=6]<-"Confident OCO"
-
-
-
-Dollars<-ddply(full_data,
-                .(
-                  Fiscal.Year,
-                  OCOlabelDetail,
-                  CrisisDisplay
-                  ),
-                plyr::summarise,
-                Obligation.2016=sum(Obligation.2016)
-                )
-
-
-
-LatticePlotWrapper(
-  VAR.color.legend.label="OCO labeling detail",
-  VAR.main.label="All Defense Contracts",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligation (2016 $ Billions)",
-  VAR.Coloration=Coloration,
-  VAR.long.DF=Dollars,
-  # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="OCOlabelDetail", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay" #VAR.facet.primary
-  # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  ,DataLabels=FALSE
-  #                       ,VAR.override.coloration=NA
-)+theme(legend.position="bottom")
-
-
-
-DollarsTheater<-ddply(full_data,
-                .(
-                  Fiscal.Year,
-                  OCOlabelDetail,
-                  CrisisDisplay,
-                  Theater
-                  ),
-                plyr::summarise,
-                Obligation.2016=sum(Obligation.2016)
-                )
-
-
-full_data[full_data$PlaceCountryText %in% c("Jordan","Turkey"),]
-
-
-
-LatticePlotWrapper(
-  VAR.color.legend.label="OCO labeling detail",
-  VAR.main.label="Defense Contracts with Labeled Theater",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligation (2016 $ Billions)",
-  VAR.Coloration=Coloration,
-  VAR.long.DF=subset(DollarsTheater,!is.na(Theater)),
-  # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="OCOlabelDetail", #VAR.y.series
-  VAR.facet.primary="Theater", #VAR.facet.primary
-  VAR.facet.secondary="CrisisDisplay" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  # ,DataLabels=NA
-  #                       ,VAR.override.coloration=NA
-)+theme(legend.position="right")
-
-
-DollarsInternational<-ddply(full_data,
-                .(
-                  Fiscal.Year,
-                  OCOlabelDetail,
-                  CrisisDisplay,
-                  International
-                  ),
-                plyr::summarise,
-                Obligation.2016=sum(Obligation.2016)
-                )
-
-
-full_data[full_data$PlaceCountryText %in% c("Jordan","Turkey"),]
-
-
-
-
-OCOdetail<-LatticePlotWrapper(
-  VAR.color.legend.label="OCO labeling detail",
-  VAR.main.label="Defense Contracts with Labeled Location",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligation (2016 $ Billions)",
-  VAR.Coloration=Coloration,
-  VAR.long.DF=subset(DollarsInternational,!is.na(International)),
-  # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
-  VAR.y.series="OCOlabelDetail", #VAR.y.series
-  VAR.facet.primary="International", #VAR.facet.primary
-  VAR.facet.secondary="CrisisDisplay" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  # ,DataLabels=NA
-  #                       ,VAR.override.coloration=NA
-)
-
-OCOdetail+theme(legend.position="right")
+chapter4topline
+ggsave("Output//chapter4topline.png", chapter4topline, width=6.5, height= 4, units="in",dpi=300)
 
 ```
 
@@ -335,7 +137,7 @@ OCOdetail+theme(legend.position="right")
 ##Country
 ```{r Country}
 
-Country<-ddply(full_data,
+Country<-ddply(summary_data,
                 .(Fiscal.Year,
                   CrisisDisplay,
                   PlaceCountryText,
@@ -398,8 +200,8 @@ OCOdetailZoom+theme(legend.position="bottom")
 
 ##Competition
 ```{r Competition}
-full_data$No.Competition.sum<-ordered(
-  full_data$No.Competition.sum,
+summary_data$No.Competition.sum<-ordered(
+  summary_data$No.Competition.sum,
   c("2+ Offers","1 Offer", 
     "No Comp. (Only 1 Source)",
     "Follow on to Competed Action",
@@ -411,7 +213,7 @@ full_data$No.Competition.sum<-ordered(
 
 
 #Competition and Simple Area
-CompetitionSupplyServiceERS<-ddply(full_data,
+CompetitionSupplyServiceERS<-ddply(summary_data,
                 .(
                   Fiscal.Year,
                   CrisisDisplay,
@@ -435,13 +237,42 @@ CompetitionSupplyServiceERS<-ddply(CompetitionSupplyServiceERS,
 
 
 
+CompOverall<-  LatticePlotWrapper(
+  VAR.color.legend.label="Dataset",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(summary_data,
+                     CrisisDisplay!="Not in Sample"),
+  # NA, #VAR.ncol
+  VAR.x.variable="CrisisDisplay", #VAR.x.variable
+  VAR.y.variable="pDatasetObligation", #VAR.y.variable
+  VAR.y.series="CrisisDisplay", #VAR.y.series
+  VAR.facet.primary="No.Competition.sum" #VAR.facet.primary
+  # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+   ,DataLabels=TRUE
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=0))+
+  # theme(axis.text.x = element_text(angle=180))+
+    scale_y_continuous( labels = percent_format())+
+  facet_grid(primary ~ .)
+    # )
+CompOverall
+ggsave("Output//CompOverall.png", CompOverall, width=6.5, height= 6, units="in",dpi=300)
+
+geom.text.size<-2
   LatticePercentLineWrapper(
   VAR.color.legend.label="Competition",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligation.2016",
   VAR.Coloration=Coloration,
-  VAR.long.DF=subset(full_data,
+  VAR.long.DF=subset(summary_data,
                      SupplyServiceERS!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -485,7 +316,7 @@ LatticePlotWrapper(
 
 
 #Competition and Duration
-CompetitionDuration<-ddply(full_data,
+CompetitionDuration<-ddply(summary_data,
                 .(
                   Fiscal.Year,
                   CrisisDisplay,
@@ -508,14 +339,14 @@ CompetitionDuration<-ddply(CompetitionDuration,
 
 
 
-#Breakdown by number of offers
+# Breakdown by number of offers
 LatticePlotWrapper(
   VAR.color.legend.label="Competition",
   VAR.main.label="Confident OCO and Labeled Duration Defense Contracts",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligation (2016 $ Billions)",
   VAR.Coloration=Coloration,
-  VAR.long.DF=subset(full_data,
+  VAR.long.DF=subset(summary_data,
                      !is.na(UnmodifiedUltimateDurationCategory)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -561,7 +392,7 @@ LatticePlotWrapper(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligation (2016 $ Billions)",
   VAR.Coloration=Coloration,
-  VAR.long.DF=subset(full_data,
+  VAR.long.DF=subset(summary_data,
                      !is.na(UnmodifiedUltimateDurationCategory)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -582,7 +413,7 @@ LatticePlotWrapper(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligation.2016",
   VAR.Coloration=Coloration,
-  VAR.long.DF=subset(full_data,
+  VAR.long.DF=subset(summary_data,
                      !is.na(UnmodifiedUltimateDurationCategory)),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -601,23 +432,23 @@ LatticePlotWrapper(
 
 
 #Breakdown by reason not competed 
-#Start Fiscal Year 
+ #Start Fiscal Year
 ```
 
 
 ##Undefinitized Contract Actions
 ```{r UCA}
-# full_data$isUCA<-"Not UCA"
-# full_data$isUCA[full_data$isUndefinitizedAction==1]
-# full_data$isUndefinitizedAction[is.na(full_data$isUndefinitizedAction)]<-"Not UCA"
-full_data$isUCA<-factor(full_data$isUndefinitizedAction,levels=c(1,0,NA),labels=c("UCA","Not UCA"))
+ # summary_data$isUCA<-"Not UCA" 
+ # summary_data$isUCA[summary_data$isUndefinitizedAction==1] 
+ # summary_data$isUndefinitizedAction[is.na(summary_data$isUndefinitizedAction)]<-"Not UCA" 
+summary_data$isUCA<-factor(summary_data$isUndefinitizedAction,levels=c(1,0,NA),labels=c("UCA","Not UCA"))
 
-full_data$isUCA<-addNA(full_data$isUCA,ifany=TRUE)
-levels(full_data$isUCA)[is.na(levels(full_data$isUCA))] <- "Unlabeled"
-unique(full_data$isUndefinitizedAction)
+summary_data$isUCA<-addNA(summary_data$isUCA,ifany=TRUE)
+levels(summary_data$isUCA)[is.na(levels(summary_data$isUCA))] <- "Unlabeled"
+summary(summary_data$isUCA)
 
 #UCA and Simple Area
-UCASupplyServiceERS<-ddply(full_data,
+UCASupplyServiceERS<-ddply(summary_data,
                 .(
                   Fiscal.Year,
                   CrisisDisplay,
@@ -639,8 +470,40 @@ UCASupplyServiceERS<-ddply(UCASupplyServiceERS,
                 )
 
 
-# UCASupplyServiceERS$Graph<-TRUE
-# UCASupplyServiceERS$Graph[UCASupplyServiceERS$isUCA=='Not UCA']<-FALSE
+# UCASupplyServiceERS$Graph<-TRUE 
+ # UCASupplyServiceERS$Graph[UCASupplyServiceERS$isUCA=='Not UCA']<-FALSE
+
+
+
+geom.text.size<-3
+UCAoverall<-  LatticePlotWrapper(
+  VAR.color.legend.label="Dataset",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(summary_data,
+                     CrisisDisplay!="Not in Sample"),
+  # NA, #VAR.ncol
+  VAR.x.variable="CrisisDisplay", #VAR.x.variable
+  VAR.y.variable="pDatasetObligation", #VAR.y.variable
+  VAR.y.series="CrisisDisplay", #VAR.y.series
+  VAR.facet.primary="isUCA" #VAR.facet.primary
+  # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+   ,DataLabels=TRUE
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=0))+
+  # theme(axis.text.x = element_text(angle=180))+
+    scale_y_continuous( labels = percent_format())+
+  facet_grid(primary ~ .)
+    # )
+UCAoverall
+ggsave("Output//UCAoverall.png", UCAoverall, width=6.5, height= 3, units="in",dpi=300)
+
 
 LatticePercentLineWrapper(
   VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
@@ -666,7 +529,7 @@ LatticePercentLineWrapper(
 
 
 #UCA and Duration
-UCADuration<-ddply(full_data,
+UCADuration<-ddply(summary_data,
                 .(
                   Fiscal.Year,
                   CrisisDisplay,
@@ -741,7 +604,7 @@ LatticePlotWrapper(
 
 
 #Competition and Reachback
-CompetitionReachback<-ddply(full_data,
+CompetitionReachback<-ddply(summary_data,
                 .(
                   Fiscal.Year,
                   CrisisDisplay,
@@ -786,7 +649,7 @@ LatticePercentLineWrapper(
 
 
 #UCA and Reachback
-UCAReachback<-ddply(full_data,
+UCAReachback<-ddply(summary_data,
                 .(
                   Fiscal.Year,
                   CrisisDisplay,
@@ -827,24 +690,25 @@ LatticePercentLineWrapper(
   #                       ,VAR.override.coloration=NA
 )+theme(legend.position = "bottom")+
     scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-  theme(strip.text.y = element_text(angle=270))
+  theme(strip.text.y = element_text(angle=270))+
+  
 
 ```
 #Output to Shiny
 ```{r Output }
 
-full_data<-replace_nas_with_unlabeled(full_data,"UnmodifiedUltimateDurationCategory")
-full_data<-replace_nas_with_unlabeled(full_data,"isUndefinitizedAction")
-full_data<-replace_nas_with_unlabeled(full_data,"Theater")
-full_data<-replace_nas_with_unlabeled(full_data,"International")
+summary_data<-replace_nas_with_unlabeled(summary_data,"UnmodifiedUltimateDurationCategory")
+summary_data<-replace_nas_with_unlabeled(summary_data,"isUndefinitizedAction")
+summary_data<-replace_nas_with_unlabeled(summary_data,"Theater")
+summary_data<-replace_nas_with_unlabeled(summary_data,"International")
 
-full_data<-replace_nas_with_unlabeled(full_data,"Reachback")
-
-
-labels_and_colors<-prepare_labels_and_colors(full_data)
+summary_data<-replace_nas_with_unlabeled(summary_data,"Reachback")
 
 
-column_key<-csis360::get_column_key(full_data)
+labels_and_colors<-prepare_labels_and_colors(summary_data)
 
-save(labels_and_colors,column_key,full_data,file="Shiny/Crisis_Funding.RData")
+
+column_key<-csis360::get_column_key(summary_data)
+
+save(labels_and_colors,column_key,summary_data,file="Shiny/Crisis_Funding.RData")
 ```

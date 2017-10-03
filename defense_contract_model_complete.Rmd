@@ -57,7 +57,7 @@ DefenseContracts$LastCurrentCompletionDate<-strptime(DefenseContracts$LastCurren
 DefenseContracts<-subset(DefenseContracts,
   StartFiscal_Year>=2007 
   &
-    (LastCurrentCompletionDate<=strptime("2016-09-30","%Y-%m-%d") | IsClosed==1)
+    (LastCurrentCompletionDate<=strptime("2015-09-30","%Y-%m-%d") | IsClosed==1)
 )
 
 
@@ -961,6 +961,9 @@ write.table(DefenseModelAndDetail
   , append=FALSE
 )
 save(DefenseModelAndDetail,file="LargeDataSets\\defense_contract_CSIScontractID_detail.Rdata")
+
+
+
 
 
 ```

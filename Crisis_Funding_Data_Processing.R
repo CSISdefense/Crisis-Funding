@@ -53,28 +53,33 @@ note.text.size<-1.40
 
 ##Import Data
 # read in detailed defense dataset    
-ZipFile<-unz(file.path("Data","Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.zip"),
-             "Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.csv")
+ZipFile<-unz(file.path("LargeDataSets","Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.zip"),
+             "Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.txt")
 defense_data <- readr::read_delim(ZipFile,
-  delim="\t",
-  
-                         na="NULL")
+  delim="\t",na=c("NULL","NA"))
+readr::problems(defense_data)
 defense_data<-standardize_variable_names(defense_data)
 
+defense_data<-defense_data[,!colnames(defense_data) %in%
+    c(
+      "ContractCrisisFunding.1"             ,
+      "localareasetaside.1",
+      "IsOMBocoList.1",
+      "ContractCrisisFunding_1"             ,
+      "localareasetaside_1",
+      "IsOMBocoList_1"
+    )]
+
+rm(ZipFile)
+
 # read in full data set    
-# ZipFile<-unz(file.path("Data","Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.zip"),
-             # "Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.txt")
+ZipFile<-unz(file.path("LargeDataSets","Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.zip"),
+             "Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.txt")
 full_data <- readr::read_delim(file.path("LargeDataSets",
   "Overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.txt"),
-                      na="NULL",
-                      delim="\t")
+                      delim="\t",
+  na=c("NULL","NA"))
 
-# defense_data<-defense_data[,colnames(defense_data) %in% 
-#     c(
-#       "ContractCrisisFunding.1"             ,
-#       "localareasetaside.1",
-#       "IsOMBocoList.1"
-#     )]
 
 full_data<-standardize_variable_names(full_data)
 missingf<-colnames(full_data)[!colnames(full_data) %in% colnames(defense_data)]
@@ -83,13 +88,12 @@ missingd<-colnames(defense_data)[!colnames(defense_data) %in% colnames(full_data
 
 
 
-rm(ZipFile)
-full_data$CrisisFundingLegacy<-full_data$CrisisFunding
+defense_data$CrisisFundingLegacy<-defense_data$CrisisFunding
 
 defense_data<-apply_lookups(Path,defense_data)
 defense_data<-subset(defense_data, year(Fiscal.Year)>=2000)
 
-debug(apply_lookups)
+full_data$CrisisFundingLegacy<-full_data$CrisisFunding
 full_data<-apply_lookups(Path,full_data)
 full_data<-subset(full_data, year(Fiscal.Year)>=2000)
 
@@ -200,16 +204,16 @@ defense_data<-csis360::read_and_join(
   # skip_check_var=NULL
 )
 
-# defense_data<-csis360::read_and_join(
-#   defense_data,
-#   "Lookup_nationalinterestactioncode.csv",
-#   by="nationalinterestactioncode",
-#   # replace_na_var=NULL,
-#   # overlap_var_replaced=TRUE,
-#   # add_var="Is.Defense"
-#   # new_var_checked=TRUE,
-#   skip_check_var=c("NIAcrisisFunding","IsHurricane")
-# )
+defense_data<-csis360::read_and_join(
+  defense_data,
+  "Lookup_nationalinterestactioncode.csv",
+  by="nationalinterestactioncode",
+  # replace_na_var=NULL,
+  # overlap_var_replaced=TRUE,
+  # add_var="Is.Defense"
+  # new_var_checked=TRUE,
+  skip_check_var=c("NIAcrisisFunding","IsHurricane")
+)
 
 
 defense_data$SubCustomer<-defense_data$ContractingSubCustomer
@@ -225,11 +229,13 @@ defense_data<-csis360::read_and_join(
 )
 
 
-save(full_data,
-  file="overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
+full_data$DecisionTree<-factor(full_data$DecisionTree)
+full_data$DecisionTreeStep4<-factor(full_data$DecisionTreeStep4)
 
 
 save(full_data,defense_data,
-  file="budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
+  file="LargeDataSets//budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
 
-load(file="budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
+# load(file="budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
+
+

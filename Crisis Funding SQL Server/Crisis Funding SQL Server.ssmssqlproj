@@ -43,6 +43,18 @@
           <AssociatedConnUserName />
           <FullPath>Budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.sql</FullPath>
         </FileNode>
+        <FileNode Name="Budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Contract_SP_ContractBudgetDecisionTree.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Contract_SP_ContractBudgetDecisionTree.sql</FullPath>
+        </FileNode>
         <FileNode Name="Contract_CompetitionContractSizeHistoryBucketSubCustomerClassification.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
