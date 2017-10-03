@@ -20,7 +20,6 @@ source(file.path(Path,"helper.r",sep=""))
 
 source("ContractCleanup.r")
 library(csis360)
-
 library(ggplot2)
 library(scales)
 library(Hmisc)
@@ -40,6 +39,16 @@ Coloration<-ddply(Coloration
                       )
                   )
 
+
+axis.text.size<-10
+strip.text.size<-10
+legend.text.size<-8
+# table.text.size<-5.75
+title.text.size<-12
+geom.text.size<-12
+
+main.text.size<-1
+note.text.size<-1.40
 
 
 ```
@@ -62,7 +71,7 @@ These four catetegories and the "Close Out" category are used to mark a contract
 ##Prepare Data
 
 ```{r ReadInData, echo = TRUE}
-load(file="LargeDataSets/Federal_contract_CSIScontractID_detail.Rdata")
+  load(file="LargeDataSets/Federal_contract_CSIScontractID_detail.Rdata")
 head(FederalModelAndDetail)
 ```
 
@@ -135,15 +144,59 @@ FederalModelAndDetail$DecisionTree[
   FederalModelAndDetail$DecisionTree=="Excluded"|
     is.na(FederalModelAndDetail$DecisionTree)]<-"All Other"
 FederalModelAndDetail$DecisionTree<-factor(FederalModelAndDetail$DecisionTree,levels=c("OCO","Disaster","ARRA","All Other"))
+
+if(!"Is.Defense" %in% colnames(FederalModelAndDetail)){
+  FederalModelAndDetail$Is.Defense<-as.character(FederalModelAndDetail$Who)
+  FederalModelAndDetail$Is.Defense[FederalModelAndDetail$Is.Defense %in%
+                                     c("Air Force","Army",
+                                       "Navy","Other DoD","Uncategorized"  )
+                                   ]<-"Defense"
+  FederalModelAndDetail$Is.Defense<-factor(FederalModelAndDetail$Is.Defense)
+}
+
+FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$StartFiscalYear>=2007 &
+                                      FederalModelAndDetail$StartFiscalYear<=2011 &
+                                      FederalModelAndDetail$DecisionTree=="OCO"]<-"OCO ('07-11)"
+FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$StartFiscalYear>=2012 &
+                                      FederalModelAndDetail$StartFiscalYear<=2016]<-
+  "OCO ('12+)"
+FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$DecisionTree=="Disaster"]<-"Disaster ('05+)"
+FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$DecisionTree=="ARRA"]<-"ARRA ('09-'13)"
+
+FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$DecisionTree=="All Other" &
+                                      FederalModelAndDetail$Intl=="Just U.S." &
+                                      FederalModelAndDetail$Is.Defense=="Civilian"
+                                      ]<-"Other U.S. Civilian ('07+)"
+
+FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$DecisionTree=="All Other" &
+                                      FederalModelAndDetail$Intl=="Any International" &
+                                      FederalModelAndDetail$Is.Defense=="Civilian"
+                                      ]<-"Other Intl. Civilian ('07+)"
+
+FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$DecisionTree=="All Other" &
+                                      FederalModelAndDetail$Intl=="Just U.S." &
+                                      FederalModelAndDetail$Is.Defense=="Defense"
+                                      ]<-"Other U.S. Defense ('07+)"
+
+FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$DecisionTree=="All Other" &
+                                      FederalModelAndDetail$Intl=="Any International" &
+                                      FederalModelAndDetail$Is.Defense=="Defense"
+                                      ]<-"Other Intl. Defense ('07+)"
+  
+FederalModelAndDetail$DecisionTreeDisplay<-factor(FederalModelAndDetail$DecisionTreeDisplay)
+summary(FederalModelAndDetail$DecisionTree)
+summary(FederalModelAndDetail$DecisionTreeDisplay)
 write.csv(subset(FederalModelAndDetail,Term=="Terminated"),"LargeDataSets//Terminated.csv")
 
+save(FederalModelAndDetail,file="LargeDataSets//FederalModelForTerminations.RData")
 ```
 
 
 #Analysis
 
 
-```{r SDurSCeilCount, fig.width=3,fig.height=9, dpi=600}
+```{r SDurSCeilCount, fig.width=6.5,fig.height=5, dpi=600}
+# load(file="LargeDataSets//FederalModelForTerminations.RData")
 TerminatedSDurSCeilStatCount<-ddply(
     subset(FederalModelAndDetail,
            !is.na(Dur.Simple) & 
@@ -159,10 +212,10 @@ TerminatedSDurSCeilStatCount<-ddply(
       Ceil.Simple,
       StartFiscalYear,
       Term,
-      DecisionTree,
-      Who,
+      DecisionTreeDisplay,
+      Is.Defense,
       Intl,
-      SinglerOffer,
+      SingleOffer,
       UCA
     ),
     plyr::summarise,
@@ -171,12 +224,10 @@ TerminatedSDurSCeilStatCount<-ddply(
     metric="Contracts within Period"
 )
 
-TerminatedSDurSCeilStatCount$Period[TerminatedSDurSCeilStatCount$StartFiscalYear>=2007 &
-                                      TerminatedSDurSCeilStatCount$StartFiscalYear<=2011]<-
-  "2007-2011"
-TerminatedSDurSCeilStatCount$Period[TerminatedSDurSCeilStatCount$StartFiscalYear>=2007 &
-                                      TerminatedSDurSCeilStatCount$StartFiscalYear<=2011]<-
-  "2012+"
+
+
+
+
 
 
 TerminatedSDurSCeilStatCount$Term<-factor(TerminatedSDurSCeilStatCount$Term,
@@ -188,58 +239,209 @@ TerminatedSDurSCeilStatCount$Term<-factor(TerminatedSDurSCeilStatCount$Term,
 
 
 TerminatedSDurSCeilLabels<-ddply(
-    subset(TerminatedSDurSCeilStatCount,metric=="Contracts within Period"),
+    subset(TerminatedSDurSCeilStatCount),
     .(Dur.Simple,Ceil.Simple),
     plyr::summarise,
     FacetCount=paste("Count:",prettyNum(sum(Count),big.mark=",")),
     FacetValue=paste(FacetCount,"\nObligated: $",round(sum(Action.Obligation)/1000000000,1),"B",sep="")
     )
 
-Ypos<-max(TerminatedSDurSCeilStatCount$Count)
-
-TopLineTerm<-LatticePlotWrapper(
-  VAR.color.legend.label="Classification",
-  VAR.main.label="",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
-  VAR.long.DF=TerminatedSDurSCeilStatCount,
-  # NA, #VAR.ncol
-  VAR.x.variable="StartFiscalYear", #VAR.x.variable
-  VAR.y.variable="Count", #VAR.y.variable
-  VAR.y.series="Term", #VAR.y.series
-  VAR.facet.primary="Dur.Simple", #VAR.facet.primary
-  VAR.facet.secondary= "Ceil.Simple", # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  DataLabels=FALSE
-  #                       ,VAR.override.coloration=NA
-)+geom_text(data=TerminatedSDurSCeilLabels,
-              aes(x=2007,y=Ypos,label=FacetValue),
-              # parse=TRUE,
-              hjust=0,
-              vjust=1,
-              color="black")
-
-# ggplot(TerminatedSDurSCeilStatCount,
-#        aes(x=StartFiscalYear,y=Count,color=Term))+
-#     geom_line(aes(linetype=metric))+
-#     geom_point(aes(shape=Term))+
-#     geom_text(data=TerminatedSDurSCeilLabels,
+# debug(LatticePlotWrapper)
+# top_line_term<-LatticePlotWrapper(
+#   VAR.color.legend.label="Classification",
+#   VAR.main.label="",
+#   VAR.X.label="Fiscal Year",
+#   VAR.Y.label="Constant ($ Billions)",
+#   VAR.Coloration=Coloration,
+#   VAR.long.DF=TerminatedSDurSCeilStatCount,
+#   # NA, #VAR.ncol
+#   VAR.x.variable="StartFiscalYear", #VAR.x.variable
+#   VAR.y.variable="Count", #VAR.y.variable
+#   VAR.y.series="Term", #VAR.y.series
+#   VAR.facet.primary="Dur.Simple", #VAR.facet.primary
+#   VAR.facet.secondary= "Ceil.Simple", # VAR.facet.secondary=NA
+#   # ,MovingAverage=0
+#   # ,MovingSides=1
+#   DataLabels=FALSE
+#   #                       ,VAR.override.coloration=NA
+# )+geom_text(data=TerminatedSDurSCeilLabels,
 #               aes(x=2007,y=Ypos,label=FacetValue),
 #               # parse=TRUE,
 #               hjust=0,
 #               vjust=1,
-#               color="black")+
-#     facet_grid( Dur.Simple  ~ Ceil.Simple ) +#
-#     scale_x_continuous("Contract Starting Fiscal Year")+
-#     scale_color_manual("Status", values=c("blue","red"))+
-#     scale_linetype_discrete("Early Results")+
-#     scale_shape_discrete("Status")+
-#     scale_y_log10("Number of Contracts (Logorithmic Scale)",label=comma)+
-#     # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1)+
-#     theme(legend.position="bottom") #, position=pd
+#               color="black")
+```
+
+##Top Line Terminations
+```{r Top_Line_Term}
+top_line_term_data<-ddply(
+    TerminatedSDurSCeilStatCount,
+      .(Dur.Simple,
+      Ceil.Simple,
+      # StartFiscalYear,
+      Term,
+      DecisionTreeDisplay
+      # Who,
+      # Intl,
+      # SingleOffer,
+      # UCA,
+    ),
+    plyr::summarise,
+    Action.Obligation=sum(Action.Obligation),
+    Count=sum(Count)
+)
+
+top_line_term_data<-ddply(
+    top_line_term_data,
+      .(Dur.Simple,
+      Ceil.Simple,
+      DecisionTreeDisplay
+    ),
+    plyr::mutate,
+    pObligation=Action.Obligation/sum(Action.Obligation),
+    pCount=Count/sum(Count)
+)
+
+Ypos<-max(subset(top_line_term_data,Term=="Complete or Partial Termination")$pCount)*1.5
+Xpos<-levels(top_line_term_data$DecisionTreeDisplay)[[1]]
 
 
+top_line_term<-ggplot(subset(top_line_term_data,Term=="Complete or Partial Termination"),
+                    aes(x=DecisionTreeDisplay,y=pCount,color=DecisionTree))+
+    geom_bar(stat="identity")+
+    # geom_line(aes(group=DecisionTreeDisplay,size=0.5))+
+  geom_point(aes(x=DecisionTreeDisplay,y=pCount))+
+    geom_text(data=TerminatedSDurSCeilLabels,
+              aes(x=Xpos,y=Ypos,label=FacetValue),
+              # parse=TRUE,
+              hjust=0,
+              vjust=1,
+              color="black")+
+    facet_grid( Dur.Simple ~ Ceil.Simple  ) +#
+    scale_x_discrete("Crisis Funding or Comparison Group")+
+    # scale_color_manual("Status", values=c("blue","red"))+
+    # scale_linetype_discrete("Early Results")+
+    scale_shape_discrete("Status")+
+    scale_y_continuous("Percent Terminated",label=comma)+
+    # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1)+
+    theme(legend.position="bottom") #, position=pd
+
+top_line_term
+```
+
+```{r Comp_Term}
+comp_term_data<-ddply(
+    TerminatedSDurSCeilStatCount,
+      .(Dur.Simple,
+      Ceil.Simple,
+      # StartFiscalYear,
+      Term,
+      DecisionTreeDisplay
+      # Who,
+      # Intl,
+      # SingleOffer,
+      # UCA,
+    ),
+    plyr::summarise,
+    Action.Obligation=sum(Action.Obligation),
+    Count=sum(Count)
+)
+
+comp_term_data<-ddply(
+    comp_term_data,
+      .(Dur.Simple,
+      Ceil.Simple,
+      DecisionTreeDisplay,
+	  SingleOffer,
+    ),
+    plyr::mutate,
+    pObligation=Action.Obligation/sum(Action.Obligation),
+    pCount=Count/sum(Count)
+)
+
+Ypos<-max(subset(comp_term_data,Term=="Complete or Partial Termination")$pCount)*1.5
+Xpos<-levels(comp_term_data$DecisionTreeDisplay)[[1]]
+
+
+comp_term<-ggplot(subset(comp_term_data,Term=="Complete or Partial Termination"),
+                    aes(x=DecisionTreeDisplay,y=pCount,color=DecisionTreeDisplay))+
+    geom_bar(stat="identity")+
+    # geom_line(aes(group=DecisionTreeDisplay,size=0.5))+
+  geom_point(aes(x=DecisionTreeDisplay,y=pCount))+
+    geom_text(data=TerminatedSDurSCeilLabels,
+              aes(x=Xpos,y=Ypos,label=FacetValue),
+              # parse=TRUE,
+              hjust=0,
+              vjust=1,
+              color="black")+
+    facet_grid( Comp + Dur.Simple ~ Ceil.Simple  ) +#
+    scale_x_discrete("Crisis Funding or Comparison Group")+
+    # scale_color_manual("Status", values=c("blue","red"))+
+    # scale_linetype_discrete("Early Results")+
+    scale_shape_discrete("Status")+
+    scale_y_continuous("Percent Terminated",label=comma)+
+    # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1)+
+    theme(legend.position="bottom") #, position=pd
+
+comp_term
+```
+
+
+
+```{r UCA_Term}
+uca_term_data<-ddply(
+    TerminatedSDurSCeilStatCount,
+      .(Dur.Simple,
+      Ceil.Simple,
+      # StartFiscalYear,
+      Term,
+      DecisionTreeDisplay
+      # Who,
+      # Intl,
+      # SingleOffer,
+      # UCA,
+    ),
+    plyr::summarise,
+    Action.Obligation=sum(Action.Obligation),
+    Count=sum(Count)
+)
+
+uca_term_data<-ddply(
+    uca_term_data,
+      .(Dur.Simple,
+      Ceil.Simple,
+      DecisionTreeDisplay,
+	  SingleOffer,
+    ),
+    plyr::mutate,
+    pObligation=Action.Obligation/sum(Action.Obligation),
+    pCount=Count/sum(Count)
+)
+
+Ypos<-max(subset(uca_term_data,Term=="Complete or Partial Termination")$pCount)*1.5
+Xpos<-levels(uca_term_data$DecisionTreeDisplay)[[1]]
+
+
+uca_term<-ggplot(subset(uca_term_data,Term=="Complete or Partial Termination"),
+                    aes(x=DecisionTreeDisplay,y=pCount,color=DecisionTreeDisplay))+
+    geom_bar(stat="identity")+
+    # geom_line(aes(group=DecisionTreeDisplay,size=0.5))+
+  geom_point(aes(x=DecisionTreeDisplay,y=pCount))+
+    geom_text(data=TerminatedSDurSCeilLabels,
+              aes(x=Xpos,y=Ypos,label=FacetValue),
+              # parse=TRUE,
+              hjust=0,
+              vjust=1,
+              color="black")+
+    facet_grid( Comp + Dur.Simple ~ Ceil.Simple  ) +#
+    scale_x_discrete("Crisis Funding or Comparison Group")+
+    # scale_color_manual("Status", values=c("blue","red"))+
+    # scale_linetype_discrete("Early Results")+
+    scale_shape_discrete("Status")+
+    scale_y_continuous("Percent Terminated",label=comma)+
+    # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1)+
+    theme(legend.position="bottom") #, position=pd
+
+uca_term
 ```
 

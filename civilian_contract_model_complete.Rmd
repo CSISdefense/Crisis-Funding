@@ -1019,6 +1019,9 @@ CivilianModelAndDetail<-CivilianModelAndDetail[,!colnames(CivilianModelAndDetail
       
 )]
 
+DefenseModelAndDetail$Is.Defense<-"Defense"
+CivilianModelAndDetail$Is.Defense<-"Civilian"
+
 FederalModelAndDetail<-rbind(DefenseModelAndDetail,CivilianModelAndDetail)
 
 debug(FormatContractModel)
