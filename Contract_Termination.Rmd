@@ -154,11 +154,13 @@ if(!"Is.Defense" %in% colnames(FederalModelAndDetail)){
   FederalModelAndDetail$Is.Defense<-factor(FederalModelAndDetail$Is.Defense)
 }
 
-FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$StartFiscalYear>=2007 &
+
+FederalModelAndDetail$DecisionTreeDisplay[
                                       FederalModelAndDetail$StartFiscalYear<=2011 &
-                                      FederalModelAndDetail$DecisionTree=="OCO"]<-"OCO ('07-11)"
+                                      FederalModelAndDetail$DecisionTree=="OCO"]<-"Not in Sample"
 FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$StartFiscalYear>=2012 &
-                                      FederalModelAndDetail$StartFiscalYear<=2016]<-
+                                      FederalModelAndDetail$StartFiscalYear<=2016 &
+                                      FederalModelAndDetail$DecisionTree=="OCO"]<-
   "OCO ('12+)"
 FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$DecisionTree=="Disaster"]<-"Disaster ('05+)"
 FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$DecisionTree=="ARRA"]<-"ARRA ('09-'13)"
@@ -175,36 +177,60 @@ FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$DecisionTree=="A
 
 FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$DecisionTree=="All Other" &
                                       FederalModelAndDetail$Intl=="Just U.S." &
-                                      FederalModelAndDetail$Is.Defense=="Defense"
-                                      ]<-"Other U.S. Defense ('07+)"
+                                      FederalModelAndDetail$Is.Defense=="Defense" &
+                                        FederalModelAndDetail$StartFiscalYear>=2012 &
+                                      FederalModelAndDetail$StartFiscalYear<=2016
+                                      ]<-"Other U.S. Defense ('12+)"
 
 FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$DecisionTree=="All Other" &
                                       FederalModelAndDetail$Intl=="Any International" &
-                                      FederalModelAndDetail$Is.Defense=="Defense"
-                                      ]<-"Other Intl. Defense ('07+)"
+                                      FederalModelAndDetail$Is.Defense=="Defense" & 
+                                      FederalModelAndDetail$StartFiscalYear>=2012 &
+                                      FederalModelAndDetail$StartFiscalYear<=2016 
+                                      ]<-"Other Intl. Defense ('12+)"
+
+FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$DecisionTree=="All Other" &
+                                      FederalModelAndDetail$Is.Defense=="Defense" & 
+                                      FederalModelAndDetail$StartFiscalYear<=2011 
+                                      ]<-"Not in Sample"
+
+FederalModelAndDetail$DecisionTreeDisplay[(FederalModelAndDetail$Intl=="Unlabeled") |
+                                            is.na(FederalModelAndDetail$Is.Defense) &
+                                            FederalModelAndDetail$DecisionTree=="All Other" 
+                                      ]<-"Not in Sample"
   
 FederalModelAndDetail$DecisionTreeDisplay<-factor(FederalModelAndDetail$DecisionTreeDisplay)
+
+summary(FederalModelAndDetail$DecisionTreeDisplay)
+View(FederalModelAndDetail[is.na(FederalModelAndDetail$DecisionTreeDisplay),])
+
+
 summary(FederalModelAndDetail$DecisionTree)
 summary(FederalModelAndDetail$DecisionTreeDisplay)
 write.csv(subset(FederalModelAndDetail,Term=="Terminated"),"LargeDataSets//Terminated.csv")
 
 save(FederalModelAndDetail,file="LargeDataSets//FederalModelForTerminations.RData")
+
+
 ```
 
 
 #Analysis
 
-
+##Data preparation
 ```{r SDurSCeilCount, fig.width=6.5,fig.height=5, dpi=600}
-# load(file="LargeDataSets//FederalModelForTerminations.RData")
+load(file="LargeDataSets//FederalModelForTerminations.RData")
 TerminatedSDurSCeilStatCount<-ddply(
-    subset(FederalModelAndDetail,
-           !is.na(Dur.Simple) & 
-               !is.na(Ceil.Simple) &
-               !is.na(Term) &
-               StartFiscalYear>=2007 & 
-               StartFiscalYear<=2015 ),
-           # &                
+  subset(FederalModelAndDetail,
+         !is.na(Dur.Simple) & 
+           !is.na(Ceil.Simple) &
+           !is.na(Term) &
+           StartFiscalYear>=2007 & 
+           StartFiscalYear<=2015 &
+           (Intl!= "Unlabeled" |
+              !is.na(DecisionTreeDisplay))
+  ),
+  # &                
            #     (LastCurrentCompletionDate<=as.Date("2015-09-30") |
            #          IsClosed==1) &
            #     UnmodifiedCurrentCompletionDate<as.Date("2015-09-30")),
@@ -228,8 +254,6 @@ TerminatedSDurSCeilStatCount<-ddply(
 
 
 
-
-
 TerminatedSDurSCeilStatCount$Term<-factor(TerminatedSDurSCeilStatCount$Term,
                                           levels=c("Unterminated",
                                                    "Terminated"),
@@ -239,7 +263,7 @@ TerminatedSDurSCeilStatCount$Term<-factor(TerminatedSDurSCeilStatCount$Term,
 
 
 TerminatedSDurSCeilLabels<-ddply(
-    subset(TerminatedSDurSCeilStatCount),
+    TerminatedSDurSCeilStatCount,
     .(Dur.Simple,Ceil.Simple),
     plyr::summarise,
     FacetCount=paste("Count:",prettyNum(sum(Count),big.mark=",")),
@@ -305,12 +329,13 @@ top_line_term_data<-ddply(
 Ypos<-max(subset(top_line_term_data,Term=="Complete or Partial Termination")$pCount)*1.5
 Xpos<-levels(top_line_term_data$DecisionTreeDisplay)[[1]]
 
+dtd_colors<-prepare_labels_and_colors(top_line_term_data,"DecisionTreeDisplay")
 
 top_line_term<-ggplot(subset(top_line_term_data,Term=="Complete or Partial Termination"),
-                    aes(x=DecisionTreeDisplay,y=pCount,color=DecisionTree))+
-    geom_bar(stat="identity")+
+                    aes(x=DecisionTreeDisplay,y=pCount))+
+    geom_bar(stat="identity", aes(fill=DecisionTreeDisplay))+
     # geom_line(aes(group=DecisionTreeDisplay,size=0.5))+
-  geom_point(aes(x=DecisionTreeDisplay,y=pCount))+
+  # geom_point(aes(x=DecisionTreeDisplay,y=pCount))+
     geom_text(data=TerminatedSDurSCeilLabels,
               aes(x=Xpos,y=Ypos,label=FacetValue),
               # parse=TRUE,
@@ -324,9 +349,17 @@ top_line_term<-ggplot(subset(top_line_term_data,Term=="Complete or Partial Termi
     scale_shape_discrete("Status")+
     scale_y_continuous("Percent Terminated",label=comma)+
     # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1)+
-    theme(legend.position="bottom") #, position=pd
+    theme(legend.position="bottom")+scale_fill_manual(
+        "Crisis or Comparison Dataset"
+        ,  values=c(dtd_colors$RGB)
+        , limits=c(dtd_colors$variable)
+        , labels=c(dtd_colors$Label)
+        
+    ) 
 
 top_line_term
+ggsave("top_line_term.png",top_line_term)
+
 ```
 
 ```{r Comp_Term}
