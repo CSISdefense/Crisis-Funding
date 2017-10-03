@@ -98,16 +98,88 @@ summary_data<-plyr::ddply(full_data,
   Obligation.2016=sum(Obligation.2016)
 )
 
+ summary_data$DecisionTreeDisplay<-as.character( summary_data$DecisionTreeDisplay)
+
+summary_data$DecisionTreeDisplay[
+                                      year(summary_data$Fiscal.Year)<=2011 &
+                                      summary_data$CrisisDisplay=="OCO"]<-"Not in Sample"
+summary_data$DecisionTreeDisplay[year(summary_data$Fiscal.Year)>=2012 &
+                                      year(summary_data$Fiscal.Year)<=2016 &
+                                      summary_data$CrisisDisplay=="OCO"]<-
+  "OCO ('12+)"
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="Disaster"&
+                                        year(summary_data$Fiscal.Year)>=2007]<-"Disaster ('07+)"
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="Disaster"&
+                                        year(summary_data$Fiscal.Year)<2007]<-"Not in Sample"
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="ARRA"]<-"ARRA ('09-'13)"
+
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
+                                      summary_data$International=="Domestic" &
+                                      summary_data$Is.Defense==FALSE
+                                      ]<-"Other U.S. Civilian ('07+)"
+
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
+                                      summary_data$International=="International" &
+                                      summary_data$Is.Defense==FALSE
+                                      ]<-"Other Intl. Civilian ('07+)"
+
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
+                                      summary_data$International=="Domestic" &
+                                      summary_data$Is.Defense==TRUE &
+                                        year(summary_data$Fiscal.Year)>=2012 &
+                                      year(summary_data$Fiscal.Year)<=2016
+                                      ]<-"Other U.S. Defense ('12+)"
+
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
+                                      summary_data$International=="International" &
+                                      summary_data$Is.Defense==TRUE & 
+                                      year(summary_data$Fiscal.Year)>=2012 &
+                                      year(summary_data$Fiscal.Year)<=2016 
+                                      ]<-"Other Intl. Defense ('12+)"
+
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
+                                      summary_data$Is.Defense==TRUE & 
+                                      year(summary_data$Fiscal.Year)<=2011 
+                                      ]<-"Not in Sample"
+
+summary_data$DecisionTreeDisplay[(is.na(summary_data$International)) |
+                                            is.na(summary_data$Is.Defense) &
+                                            summary_data$CrisisDisplay=="All Other" 
+                                      ]<-"Not in Sample"
+  
+summary_data$DecisionTreeDisplay<-factor(summary_data$DecisionTreeDisplay)
+
+summary(summary_data$DecisionTreeDisplay)
+complete_summary_data<-summary_data 
+summary_data<-subset(summary_data,DecisionTreeDisplay != "Not in Sample")
+save(complete_summary_data,summary_data,file="data//summary_data.Rdata")
+
+summary_data$DecisionTreeDisplay<-ordered(summary_data$DecisionTreeDisplay,
+levels=c("Disaster ('07+)",
+  "ARRA ('09-'13)",
+  "OCO ('12+)",
+"Other U.S. Civilian ('07+)",
+"Other Intl. Civilian ('07+)",
+"Other U.S. Defense ('12+)",
+"Other Intl. Defense ('12+)",
+  "Not in Sample"
+))
 
 summary_data<-ddply(summary_data,
                 .(
-                  CrisisDisplay
+                  DecisionTreeDisplay
                   ),
                 plyr::mutate,
                 pDatasetObligation=Obligation.2016/sum(Obligation.2016)
                 )
 
 
+
+
+```
+
+##Toplevel
+```{r Toplevel}
 chapter4topline<-LatticePlotWrapper(
   VAR.color.legend.label="Crisis Category",
   VAR.main.label="",
@@ -139,7 +211,7 @@ ggsave("Output//chapter4topline.png", chapter4topline, width=6.5, height= 4, uni
 
 Country<-ddply(summary_data,
                 .(Fiscal.Year,
-                  CrisisDisplay,
+                  DecisionTreeDisplay,
                   PlaceCountryText,
                   Theater
                   ),
@@ -161,7 +233,7 @@ LatticePlotWrapper(
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="OCOlabelDetail", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay" #VAR.facet.primary
+  VAR.facet.primary="DecisionTreeDisplay" #VAR.facet.primary
   # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -178,7 +250,7 @@ OCOdetailZoom<-LatticePlotWrapper(
   VAR.Y.label="Obligation (2016 $ Billions)",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(DollarsInternational,
-                     (CrisisDisplay=="Confident OCO" | 
+                     (DecisionTreeDisplay=="Confident OCO" | 
                        International=="International") & 
                        !is.na(International)),
   # NA, #VAR.ncol
@@ -186,7 +258,7 @@ OCOdetailZoom<-LatticePlotWrapper(
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="OCOlabelDetail", #VAR.y.series
   VAR.facet.primary="International", #VAR.facet.primary
-  VAR.facet.secondary="CrisisDisplay" # VAR.facet.secondary=NA
+  VAR.facet.secondary="DecisionTreeDisplay" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   # ,DataLabels=NA
@@ -216,7 +288,7 @@ summary_data$No.Competition.sum<-ordered(
 CompetitionSupplyServiceERS<-ddply(summary_data,
                 .(
                   Fiscal.Year,
-                  CrisisDisplay,
+                  DecisionTreeDisplay,
                   No.Competition.sum,
                   SupplyServiceERS
                   ),
@@ -227,7 +299,7 @@ CompetitionSupplyServiceERS<-ddply(summary_data,
 CompetitionSupplyServiceERS<-ddply(CompetitionSupplyServiceERS,
                 .(
                   Fiscal.Year,
-                  CrisisDisplay,
+                  DecisionTreeDisplay,
                   SupplyServiceERS
                   ),
                 plyr::mutate,
@@ -236,7 +308,7 @@ CompetitionSupplyServiceERS<-ddply(CompetitionSupplyServiceERS,
 
 
 
-
+geom.text.size<-2.5
 CompOverall<-  LatticePlotWrapper(
   VAR.color.legend.label="Dataset",
   VAR.main.label="",
@@ -244,28 +316,29 @@ CompOverall<-  LatticePlotWrapper(
   VAR.Y.label="Percent of Obligations",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(summary_data,
-                     CrisisDisplay!="Not in Sample"),
+                     DecisionTreeDisplay!="Not in Sample"),
   # NA, #VAR.ncol
-  VAR.x.variable="CrisisDisplay", #VAR.x.variable
+  VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
   VAR.y.variable="pDatasetObligation", #VAR.y.variable
-  VAR.y.series="CrisisDisplay", #VAR.y.series
+  VAR.y.series="DecisionTreeDisplay", #VAR.y.series
   VAR.facet.primary="No.Competition.sum" #VAR.facet.primary
   # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
    ,DataLabels=TRUE
   #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
+)+
+  # theme(legend.position = "bottom")+
   #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=0))+
-  # theme(axis.text.x = element_text(angle=180))+
+  theme(axis.text.x = element_text(angle=90))+
     scale_y_continuous( labels = percent_format())+
   facet_grid(primary ~ .)
     # )
 CompOverall
-ggsave("Output//CompOverall.png", CompOverall, width=6.5, height= 6, units="in",dpi=300)
+ggsave("Output//CompOverall.png", CompOverall, width=4.5, height= 8, units="in",dpi=300)
 
-geom.text.size<-2
+
   LatticePercentLineWrapper(
   VAR.color.legend.label="Competition",
   VAR.main.label="",
@@ -278,13 +351,14 @@ geom.text.size<-2
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="No.Competition.sum", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
   VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   # ,DataLabels=NA
   #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
+)+
+  # +theme(legend.position = "bottom")+
     scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=270))
 
@@ -298,12 +372,12 @@ LatticePlotWrapper(
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(CompetitionSupplyServiceERS,
                      SupplyServiceERS!="Unlabeled"&
-                       CrisisDisplay=="Confident OCO"),
+                       DecisionTreeDisplay=="Confident OCO"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="No.Competition.sum", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
   VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -319,7 +393,7 @@ LatticePlotWrapper(
 CompetitionDuration<-ddply(summary_data,
                 .(
                   Fiscal.Year,
-                  CrisisDisplay,
+                  DecisionTreeDisplay,
                   UnmodifiedUltimateDurationCategory,
                   Competition.sum
                   ),
@@ -330,7 +404,7 @@ CompetitionDuration<-ddply(summary_data,
 CompetitionDuration<-ddply(CompetitionDuration,
                 .(
                   Fiscal.Year,
-                  CrisisDisplay,
+                  DecisionTreeDisplay,
                   UnmodifiedUltimateDurationCategory
                   ),
                 plyr::mutate,
@@ -352,7 +426,7 @@ LatticePlotWrapper(
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="Competition.sum", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
   VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -373,7 +447,7 @@ LatticePlotWrapper(
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="Competition.sum", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
   VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -398,7 +472,7 @@ LatticePlotWrapper(
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="No.Competition.sum", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
   VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -419,7 +493,7 @@ LatticePlotWrapper(
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="No.Competition.sum", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
   VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -451,7 +525,7 @@ summary(summary_data$isUCA)
 UCASupplyServiceERS<-ddply(summary_data,
                 .(
                   Fiscal.Year,
-                  CrisisDisplay,
+                  DecisionTreeDisplay,
                   isUCA,
                   SupplyServiceERS
                   ),
@@ -462,7 +536,7 @@ UCASupplyServiceERS<-ddply(summary_data,
 UCASupplyServiceERS<-ddply(UCASupplyServiceERS,
                 .(
                   Fiscal.Year,
-                  CrisisDisplay,
+                  DecisionTreeDisplay,
                   SupplyServiceERS
                   ),
                 plyr::mutate,
@@ -483,26 +557,27 @@ UCAoverall<-  LatticePlotWrapper(
   VAR.Y.label="Percent of Obligations",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(summary_data,
-                     CrisisDisplay!="Not in Sample"),
+                     DecisionTreeDisplay!="Not in Sample"),
   # NA, #VAR.ncol
-  VAR.x.variable="CrisisDisplay", #VAR.x.variable
+  VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
   VAR.y.variable="pDatasetObligation", #VAR.y.variable
-  VAR.y.series="CrisisDisplay", #VAR.y.series
+  VAR.y.series="DecisionTreeDisplay", #VAR.y.series
   VAR.facet.primary="isUCA" #VAR.facet.primary
   # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
    ,DataLabels=TRUE
   #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
+)+
+# +theme(legend.position = "bottom")+
   #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=0))+
-  # theme(axis.text.x = element_text(angle=180))+
+  theme(axis.text.x = element_text(angle=90))+
     scale_y_continuous( labels = percent_format())+
   facet_grid(primary ~ .)
     # )
 UCAoverall
-ggsave("Output//UCAoverall.png", UCAoverall, width=6.5, height= 3, units="in",dpi=300)
+ggsave("Output//UCAoverall.png", UCAoverall, width=4.5, height= 5, units="in",dpi=300)
 
 
 LatticePercentLineWrapper(
@@ -516,7 +591,7 @@ LatticePercentLineWrapper(
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="isUCA", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
   VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -532,7 +607,7 @@ LatticePercentLineWrapper(
 UCADuration<-ddply(summary_data,
                 .(
                   Fiscal.Year,
-                  CrisisDisplay,
+                  DecisionTreeDisplay,
                   UnmodifiedUltimateDurationCategory,
                   isUCA
                   ),
@@ -543,7 +618,7 @@ UCADuration<-ddply(summary_data,
 UCADuration<-ddply(UCADuration,
                 .(
                   Fiscal.Year,
-                  CrisisDisplay,
+                  DecisionTreeDisplay,
                   UnmodifiedUltimateDurationCategory
                   ),
                 plyr::mutate,
@@ -561,7 +636,7 @@ LatticePercentLineWrapper(
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="isUCA", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
   VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -586,7 +661,7 @@ LatticePlotWrapper(
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="isUCA", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
   VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -603,11 +678,91 @@ LatticePlotWrapper(
 ```{r Reachback}
 
 
+
+summary_data<-ddply(summary_data,
+                .(
+                  DecisionTreeDisplay,
+                  Reachback
+                  ),
+                plyr::mutate,
+                pDatasetReachbackObligation=Obligation.2016/sum(Obligation.2016)
+                )
+
+
+geom.text.size<-2.5
+ReachbackComp<-  LatticePlotWrapper(
+  VAR.color.legend.label="Dataset",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(summary_data,
+                     !DecisionTreeDisplay %in% c("Not in Sample",
+                       "Disaster ('07+)",
+                       "ARRA ('09-'13)") &
+      Is.Defense==TRUE &
+      !is.na(Reachback)),
+  # NA, #VAR.ncol
+  VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
+  VAR.y.variable="pDatasetReachbackObligation", #VAR.y.variable
+  VAR.y.series="DecisionTreeDisplay", #VAR.y.series
+  VAR.facet.primary="Competition.multisum", #VAR.facet.primary
+  VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+   ,DataLabels=TRUE
+  #                       ,VAR.override.coloration=NA
+)+
+  # theme(legend.position = "bottom")+
+  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=0))+
+  theme(axis.text.x = element_text(angle=90))+
+    scale_y_continuous( labels = percent_format())+
+  facet_grid(primary ~ secondary)
+    # )
+ReachbackComp
+ggsave("Output//ReachbackComp.png", ReachbackComp, width=6.5, height= 8, units="in",dpi=300)
+
+
+summary(summary_data$Reachback)
+
+geom.text.size<-3
+UCAoverall<-  LatticePlotWrapper(
+  VAR.color.legend.label="Dataset",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(summary_data,
+                     DecisionTreeDisplay!="Not in Sample"),
+  # NA, #VAR.ncol
+  VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
+  VAR.y.variable="pDatasetObligation", #VAR.y.variable
+  VAR.y.series="DecisionTreeDisplay", #VAR.y.series
+  VAR.facet.primary="isUCA" #VAR.facet.primary
+  # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+   ,DataLabels=TRUE
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position = "bottom")+
+  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=0))+
+  theme(axis.text.x = element_text(angle=90))+
+    scale_y_continuous( labels = percent_format())+
+  facet_grid(primary ~ .)
+    # )
+UCAoverall
+ggsave("Output//UCAoverall.png", UCAoverall, width=6.5, height= 5, units="in",dpi=300)
+
+
+
+
 #Competition and Reachback
 CompetitionReachback<-ddply(summary_data,
                 .(
                   Fiscal.Year,
-                  CrisisDisplay,
+                  DecisionTreeDisplay,
                   Reachback,
                   No.Competition.sum
                   ),
@@ -618,7 +773,7 @@ CompetitionReachback<-ddply(summary_data,
 CompetitionReachback<-ddply(CompetitionReachback,
                 .(
                   Fiscal.Year,
-                  CrisisDisplay,
+                  DecisionTreeDisplay,
                   Reachback
                   ),
                 plyr::mutate,
@@ -637,7 +792,7 @@ LatticePercentLineWrapper(
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="No.Competition.sum", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
   VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -652,7 +807,7 @@ LatticePercentLineWrapper(
 UCAReachback<-ddply(summary_data,
                 .(
                   Fiscal.Year,
-                  CrisisDisplay,
+                  DecisionTreeDisplay,
                   Reachback,
                   isUCA
                   ),
@@ -663,7 +818,7 @@ UCAReachback<-ddply(summary_data,
 UCAReachback<-ddply(UCAReachback,
                 .(
                   Fiscal.Year,
-                  CrisisDisplay,
+                  DecisionTreeDisplay,
                   Reachback
                   ),
                 plyr::mutate,
@@ -682,7 +837,7 @@ LatticePercentLineWrapper(
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="isUCA", #VAR.y.series
-  VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
+  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
   VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
