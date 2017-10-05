@@ -425,48 +425,14 @@ df.QCrai<-ddply(subset(CompleteModelAndDetail,
                                         !is.na(Dur) & 
                !is.na(Ceil) &
                !is.na(CRai) &
-               StartFiscalYear>=2007 & 
-               StartFiscalYear<=2014 &                
-               (LastCurrentCompletionDate<=as.Date("2015-09-30") |
-                    IsClosed==1) &
-               UnmodifiedCurrentCompletionDate<as.Date("2015-09-30")),
-      .(StartFiscalYear,
+      .(DecisionsTreeDisplay,
                Ceil,
                Dur),
       summarise, 
-      X50 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.5,na.rm=TRUE),
-      X75 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.75,na.rm=TRUE), 
       X80 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.80,na.rm=TRUE), 
-      X90 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.90,na.rm=TRUE), 
-      X95 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.95,na.rm=TRUE),
-      X99 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.99,na.rm=TRUE),
       ContractCount=length(CSIScontractID),
-             Action.Obligation=sum(Action.Obligation),
-      metric="Contracts within Period")
+             Action.Obligation=sum(Action.Obligation))
 
-
-
-df.QCrai<-rbind(df.QCrai,
-                ddply(subset(CompleteModelAndDetail,
-                                               !is.na(Dur) & 
-                                               !is.na(Ceil) &
-                                               !is.na(CRai) &
-                                               StartFiscalYear>=2007 & 
-                                               StartFiscalYear<=2014),
-      .(StartFiscalYear,
-               Ceil,
-               Dur),
-      summarise, 
-      X50 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.5,na.rm=TRUE),
-      X75 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.75,na.rm=TRUE), 
-      X80 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.80,na.rm=TRUE), 
-      X90 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.90,na.rm=TRUE), 
-      X95 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.95,na.rm=TRUE),
-      X99 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.99,na.rm=TRUE),
-      ContractCount=length(CSIScontractID),
-             Action.Obligation=sum(Action.Obligation),
-      metric="Early Results for All Contracts")
-)
 
 df.QCrai<-melt(df.QCrai,variable.name="Quantile",value.name="pCRai",measure.vars=c(
   "X50",

@@ -682,7 +682,8 @@ LatticePlotWrapper(
 summary_data<-ddply(summary_data,
                 .(
                   DecisionTreeDisplay,
-                  Reachback
+                  Reachback,
+                  Is.Defense
                   ),
                 plyr::mutate,
                 pDatasetReachbackObligation=Obligation.2016/sum(Obligation.2016)
@@ -706,7 +707,7 @@ ReachbackComp<-  LatticePlotWrapper(
   VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
   VAR.y.variable="pDatasetReachbackObligation", #VAR.y.variable
   VAR.y.series="DecisionTreeDisplay", #VAR.y.series
-  VAR.facet.primary="Competition.multisum", #VAR.facet.primary
+  VAR.facet.primary="No.Competition.sum", #Competition.multisum", #VAR.facet.primary
   VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -721,8 +722,42 @@ ReachbackComp<-  LatticePlotWrapper(
   facet_grid(primary ~ secondary)
     # )
 ReachbackComp
-ggsave("Output//ReachbackComp.png", ReachbackComp, width=6.5, height= 8, units="in",dpi=300)
+ggsave("Output//ReachbackComp.png", ReachbackComp, width=4.5, height= 8, units="in",dpi=300)
 
+
+geom.text.size<-3
+ReachbackUCA<-  LatticePlotWrapper(
+  VAR.color.legend.label="Dataset",
+  VAR.main.label="",
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=Coloration,
+  VAR.long.DF=subset(summary_data,
+                     !DecisionTreeDisplay %in% c("Not in Sample",
+                       "Disaster ('07+)",
+                       "ARRA ('09-'13)") &
+      Is.Defense==TRUE &
+      !is.na(Reachback)),
+  # NA, #VAR.ncol
+  VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
+  VAR.y.variable="pDatasetReachbackObligation", #VAR.y.variable
+  VAR.y.series="DecisionTreeDisplay", #VAR.y.series
+  VAR.facet.primary="isUCA", #Competition.multisum", #VAR.facet.primary
+  VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+   ,DataLabels=TRUE
+  #                       ,VAR.override.coloration=NA
+)+
+  # theme(legend.position = "bottom")+
+  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=0))+
+  theme(axis.text.x = element_text(angle=90))+
+    scale_y_continuous( labels = percent_format())+
+  facet_grid(primary ~ secondary)
+    # )
+ReachbackUCA
+ggsave("Output//ReachbackUCA.png", ReachbackUCA, width=4.5, height= 4.5, units="in",dpi=300)
 
 summary(summary_data$Reachback)
 

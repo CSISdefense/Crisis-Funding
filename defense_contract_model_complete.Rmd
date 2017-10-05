@@ -914,6 +914,8 @@ colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="LabeledMDAP"]<
 colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="qNChg"]<-"NChg"
 colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="qCRais"]<-"CRai"
 
+
+
 DefenseModelAndDetail<-subset(DefenseModelAndDetail,select=c(CSIScontractID,
   # IsIDV,
   FxCb,
