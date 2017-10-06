@@ -160,9 +160,14 @@ if(!"Is.Defense" %in% colnames(FederalModelAndDetail)){
  FederalModelAndDetail$DecisionTreeDisplay<-as.character( FederalModelAndDetail$DecisionTreeDisplay)
 
 FederalModelAndDetail$DecisionTreeDisplay[
+<<<<<<< HEAD
                                       (FederalModelAndDetail$StartFiscalYear<=2011 |
                                           FederalModelAndDetail$StartFiscalYear>2016
                                       ) &
+=======
+                                      (FederalModelAndDetail$StartFiscalYear<=2011 | 
+                                         FederalModelAndDetail$StartFiscalYear>2016 )&
+>>>>>>> 7a20786559540068f76d32f9d268ba0fe009ebc1
                                       FederalModelAndDetail$DecisionTree=="OCO"]<-"Not in Sample"
 FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$StartFiscalYear>=2012 &
                                       FederalModelAndDetail$StartFiscalYear<=2016 &
@@ -239,7 +244,12 @@ TerminatedSDurSCeilStatCount<-ddply(
            !is.na(Term) &
       DecisionTreeDisplay != "Not in Sample" &
            StartFiscalYear>=2007 & 
+<<<<<<< HEAD
            StartFiscalYear<=2015 
+=======
+           StartFiscalYear<=2015 &
+           (DecisionTreeDisplay != "Not in Sample")
+>>>>>>> 7a20786559540068f76d32f9d268ba0fe009ebc1
   ),
   # &                
            #     (LastCurrentCompletionDate<=as.Date("2015-09-30") |
@@ -563,3 +573,67 @@ ggsave("Output//uca_term.png",uca_term, width=6.5, height= 5, units="in",dpi=300
 
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+#Ceiling Breaches
+
+```{r QuantileSimpleComp}
+df.QCrai.Comp<-ddply(subset(FederalModelAndDetail,
+                                        !is.na(Dur.Simple) & 
+               !is.na(Ceil.Simple) &
+               !is.na(CRai) &
+                 !is.na(DecisionTreeDisplay) &
+                 !is.na(SingleOffer)
+                 ),
+      .(DecisionTreeDisplay,
+               Ceil.Simple,
+               Dur.Simple,
+        SingleOffer),
+      summarise, 
+      crai90 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.90,na.rm=TRUE), 
+      ContractCount=length(CSIScontractID),
+      Action.Obligation=sum(Action.Obligation)
+      )
+
+
+df.QCrai.UCA<-ddply(subset(FederalModelAndDetail,
+                                        !is.na(Dur.Simple) & 
+               !is.na(Ceil.Simple) &
+               !is.na(CRai) &
+                 !is.na(DecisionTreeDisplay) &
+                 !is.na(UCA)
+                 ),
+      .(DecisionTreeDisplay,
+               Ceil.Simple,
+               Dur.Simple,
+        UCA),
+      summarise, 
+      crai90 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.80,na.rm=TRUE), 
+      ContractCount=length(CSIScontractID),
+      Action.Obligation=sum(Action.Obligation)
+      )
+df.QCrai.UCA$P
+
+uca80<-ggplot(subset(df.QCrai.UCA,!is.na(UCA)),
+       aes(x=DecisionTreeDisplay,y=crai90,color=DecisionTreeDisplay))+
+  geom_bar(stat="identity")+
+  facet_grid(Dur.Simple~UCA+Ceil.Simple)+
+               scale_y_continuous("Cost-Ceiling-Raising Change Orders 80th Percentile (Current $ Value)",
+                                  labels=percent)+
+  scale_x_discrete("Crisis Dataset or Comparison Group")+
+  # scale_linetype_discrete("Early Results")+
+  theme(legend.position="none") #, position=pd
+
+ggsave("Output//UCA80.png",uca80,width=6.5, height = 5, units="in", dpi=300)
+
+
+```
