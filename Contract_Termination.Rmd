@@ -71,7 +71,7 @@ These four catetegories and the "Close Out" category are used to mark a contract
 ##Prepare Data
 
 ```{r ReadInData, echo = TRUE}
-  load(file="LargeDataSets/Federal_contract_CSIScontractID_detail.Rdata")
+  load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
 head(FederalModelAndDetail)
 ```
 
@@ -160,19 +160,13 @@ if(!"Is.Defense" %in% colnames(FederalModelAndDetail)){
  FederalModelAndDetail$DecisionTreeDisplay<-as.character( FederalModelAndDetail$DecisionTreeDisplay)
 
 FederalModelAndDetail$DecisionTreeDisplay[
-<<<<<<< HEAD
                                       (FederalModelAndDetail$StartFiscalYear<=2011 |
                                           FederalModelAndDetail$StartFiscalYear>2016
                                       ) &
-=======
-                                      (FederalModelAndDetail$StartFiscalYear<=2011 | 
-                                         FederalModelAndDetail$StartFiscalYear>2016 )&
->>>>>>> 7a20786559540068f76d32f9d268ba0fe009ebc1
                                       FederalModelAndDetail$DecisionTree=="OCO"]<-"Not in Sample"
 FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$StartFiscalYear>=2012 &
                                       FederalModelAndDetail$StartFiscalYear<=2016 &
-                                      FederalModelAndDetail$DecisionTree=="OCO"]<-
-  "OCO ('12+)"
+                                      FederalModelAndDetail$DecisionTree=="OCO"]<-"OCO ('12+)"
 FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$DecisionTree=="Disaster"&
                                         FederalModelAndDetail$StartFiscalYear>=2007]<-"Disaster ('07+)"
 FederalModelAndDetail$DecisionTreeDisplay[FederalModelAndDetail$DecisionTree=="Disaster"&
