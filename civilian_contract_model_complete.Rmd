@@ -595,18 +595,18 @@ NAisSomeCompetition<-(is.na(CivilianContracts$UnmodifiedIsSomeCompetition)|
 CivilianContracts$UnmodifiedIsSomeCompetition[NAisSomeCompetition]<-
   CivilianContracts$IsSomeCompetition[NAisSomeCompetition]
 rm(NAisSomeCompetition)
-# Add this later if you want not full & open
-# CivilianContracts$Comp[CivilianContracts$UnmodifiedIsSomeCompetition=="No Comp."]<-"No Comp."
-# CivilianContracts$Comp[CivilianContracts$UnmodifiedIsSomeCompetition=="Comp." & 
-#                            CivilianContracts$UnmodifiedIsFullAndOpen=="Not Full & Open"]<-"Comp."
-# CivilianContracts$Comp[CivilianContracts$UnmodifiedIsSomeCompetition=="Comp." & 
-#                            CivilianContracts$UnmodifiedIsFullAndOpen=="Comp."]<-"Comp."
-# CivilianContracts$Comp[CivilianContracts$UnmodifiedIsSomeCompetition=="Comp."]<-"Comp."
+#Calculate Comp
+CivilianContracts$Comp[CivilianContracts$UnmodifiedIsSomeCompetition=="No Comp."]<-"No Comp."
+CivilianContracts$Comp[CivilianContracts$UnmodifiedIsSomeCompetition=="Comp." &
+                           CivilianContracts$UnmodifiedIsFullAndOpen=="Not Full & Open"]<-"Comp."
+CivilianContracts$Comp[CivilianContracts$UnmodifiedIsSomeCompetition=="Comp." &
+                           CivilianContracts$UnmodifiedIsFullAndOpen=="Comp."]<-"Comp."
+CivilianContracts$Comp[CivilianContracts$UnmodifiedIsSomeCompetition=="Comp."]<-"Comp."
 
 
-# CivilianContracts$Comp<-factor(CivilianContracts$Comp,
-#                                levels=c("No Comp.","Comp.")
-#                                )
+CivilianContracts$Comp<-factor(CivilianContracts$Comp,
+                               levels=c("No Comp.","Comp.")
+                               )
 
 
 
