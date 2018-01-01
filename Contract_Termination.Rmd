@@ -238,12 +238,8 @@ TerminatedSDurSCeilStatCount<-ddply(
            !is.na(Term) &
       DecisionTreeDisplay != "Not in Sample" &
            StartFiscalYear>=2007 & 
-<<<<<<< HEAD
            StartFiscalYear<=2015 
-=======
-           StartFiscalYear<=2015 &
            (DecisionTreeDisplay != "Not in Sample")
->>>>>>> 7a20786559540068f76d32f9d268ba0fe009ebc1
   ),
   # &                
            #     (LastCurrentCompletionDate<=as.Date("2015-09-30") |
@@ -355,8 +351,7 @@ Xpos<-levels(top_line_term_data$DecisionTreeDisplay)[[1]]
 
 
 dtd_colors$variable
-levels(TerminatedSDurSCeilStatCount$DecisionTreeDisplay)
-<-prepare_labels_and_colors(top_line_term_data,"DecisionTreeDisplay")
+levels(TerminatedSDurSCeilStatCount$DecisionTreeDisplay)<- prepare_labels_and_colors(top_line_term_data,"DecisionTreeDisplay")
 
 top_line_term<-ggplot(subset(top_line_term_data,Term=="Complete or Partial Termination"),
                     aes(x=DecisionTreeDisplay,y=pCount))+
