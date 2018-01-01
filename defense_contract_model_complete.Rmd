@@ -850,7 +850,7 @@ colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="SimpleVehicle"
 colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="LabeledMDAP"]<-"MDAP"
 colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="qNChg"]<-"NChg"
 colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="qCRais"]<-"CRai"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="Start_FiscalYear"]<-"StartFY"
+colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="StartFiscal_Year"]<-"StartFY"
 
 
 
@@ -900,7 +900,7 @@ write.table(DefenseModelAndDetail
   , row.names=FALSE
   , append=FALSE
 )
-save(DefenseModelAndDetail,file="LargeDataSets\\defense_contract_CSIScontractID_detail.Rdata")
+save(DefenseModelAndDetail,file="Data\\defense_contract_CSIScontractID_detail.Rdata")
 
 
 
