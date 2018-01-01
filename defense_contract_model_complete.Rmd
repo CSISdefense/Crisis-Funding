@@ -494,18 +494,19 @@ NAisSomeCompetition<-(is.na(DefenseContracts$UnmodifiedIsSomeCompetition)|
 DefenseContracts$UnmodifiedIsSomeCompetition[NAisSomeCompetition]<-
   DefenseContracts$IsSomeCompetition[NAisSomeCompetition]
 rm(NAisSomeCompetition)
-# Add this later if you want not full & open
-# DefenseContracts$Comp[DefenseContracts$UnmodifiedIsSomeCompetition=="No Comp."]<-"No Comp."
-# DefenseContracts$Comp[DefenseContracts$UnmodifiedIsSomeCompetition=="Comp." & 
-#                            DefenseContracts$UnmodifiedIsFullAndOpen=="Not Full & Open"]<-"Comp."
-# DefenseContracts$Comp[DefenseContracts$UnmodifiedIsSomeCompetition=="Comp." & 
-#                            DefenseContracts$UnmodifiedIsFullAndOpen=="Comp."]<-"Comp."
-# DefenseContracts$Comp[DefenseContracts$UnmodifiedIsSomeCompetition=="Comp."]<-"Comp."
+
+# Calculating Comp
+DefenseContracts$Comp[DefenseContracts$UnmodifiedIsSomeCompetition=="No Comp."]<-"No Comp."
+DefenseContracts$Comp[DefenseContracts$UnmodifiedIsSomeCompetition=="Comp." &
+                           DefenseContracts$UnmodifiedIsFullAndOpen=="Not Full & Open"]<-"Comp."
+DefenseContracts$Comp[DefenseContracts$UnmodifiedIsSomeCompetition=="Comp." &
+                           DefenseContracts$UnmodifiedIsFullAndOpen=="Comp."]<-"Comp."
+DefenseContracts$Comp[DefenseContracts$UnmodifiedIsSomeCompetition=="Comp."]<-"Comp."
 
 
-# DefenseContracts$Comp<-factor(DefenseContracts$Comp,
-#                                levels=c("No Comp.","Comp.")
-#                                )
+DefenseContracts$Comp<-factor(DefenseContracts$Comp,
+                               levels=c("No Comp.","Comp.")
+                               )
 
 
 
@@ -526,7 +527,7 @@ DefenseContracts$qOffers[is.na(DefenseContracts$qOffers)&
 
 
 save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
-
+load(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata")
 ```
 
 ##Competition Vehicle
@@ -827,71 +828,7 @@ save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",Defens
 
 
 ```
-##Model Output
-
-```{r ModelOutput}
-DefenseModel<-subset(DefenseContracts,select=c(IsIDV,
-  FixedOrCost,
-  UnmodifiedIsSomeCompetition,
-  #                         Comp,
-  # LabeledMDAP,
-  SubCustomer.sum,
-  PlatformPortfolio.sum,
-  AnyInternational,
-  SimpleArea,
-  qLowCeiling,
-  qHighCeiling,
-  qDuration,
-  qOffers,
-  SimpleVehicle,
-  IsTerminated,
-  UCA,
-  qCRais,
-  qNChg
-)
-)
-# 
-
-colnames(DefenseModel)[colnames(DefenseModel)=="SubCustomer.sum"]<-"Who"
-colnames(DefenseModel)[colnames(DefenseModel)=="UnmodifiedIsSomeCompetition"]<-"Comp"
-colnames(DefenseModel)[colnames(DefenseModel)=="PlatformPortfolio.sum"]<-"What"
-colnames(DefenseModel)[colnames(DefenseModel)=="IsIDV"]<-"IDV"
-colnames(DefenseModel)[colnames(DefenseModel)=="FixedOrCost"]<-"FxCb"
-colnames(DefenseModel)[colnames(DefenseModel)=="AnyInternational"]<-"Intl"
-colnames(DefenseModel)[colnames(DefenseModel)=="SimpleArea"]<-"PSR"
-colnames(DefenseModel)[colnames(DefenseModel)=="qLowCeiling"]<-"LowCeil"
-colnames(DefenseModel)[colnames(DefenseModel)=="qHighCeiling"]<-"Ceil"
-colnames(DefenseModel)[colnames(DefenseModel)=="qDuration"]<-"Dur"
-# colnames(DefenseModel)[colnames(DefenseModel)=="SingleOffer"]<-"One"
-colnames(DefenseModel)[colnames(DefenseModel)=="qOffers"]<-"Offr"
-colnames(DefenseModel)[colnames(DefenseModel)=="IsTerminated"]<-"Term"
-colnames(DefenseModel)[colnames(DefenseModel)=="SimpleVehicle"]<-"Veh"
-colnames(DefenseModel)[colnames(DefenseModel)=="LabeledMDAP"]<-"MDAP"
-colnames(DefenseModel)[colnames(DefenseModel)=="qNChg"]<-"NChg"
-colnames(DefenseModel)[colnames(DefenseModel)=="qCRais"]<-"CRai"
-
-
-
-
-summary(DefenseModel)
-summary(subset(DefenseModel,is.na(Offr)))
-summary(subset(DefenseContracts,is.na(qOffers)))
-summary(subset(DefenseContracts,is.na(FixedOrCost)&IsFixedPrice==1))
-save(DefenseModel,file="LargeDataSets\\defense_contract_CSIScontractID_model.Rdata")
-write.table(DefenseModel
-  ,file=paste("LargeDataSets\\defense_contract_CSIScontractID_model.csv"
-    ,sep=""
-  )
-  #   ,header=TRUE
-  , sep=","
-  , row.names=FALSE
-  , append=FALSE
-)
-
-
-```
-
-
+##Dataset Output
 
 ```{r DetailedOutput}
 DefenseModelAndDetail<-DefenseContracts
@@ -913,6 +850,7 @@ colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="SimpleVehicle"
 colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="LabeledMDAP"]<-"MDAP"
 colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="qNChg"]<-"NChg"
 colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="qCRais"]<-"CRai"
+colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="Start_FiscalYear"]<-"StartFY"
 
 
 
@@ -920,7 +858,7 @@ DefenseModelAndDetail<-subset(DefenseModelAndDetail,select=c(CSIScontractID,
   # IsIDV,
   FxCb,
   Fee,
-  # Comp,
+  Comp,
   # MDAP,
   # unmodifiedSystemequipmentcode,
   Who,
@@ -932,7 +870,6 @@ DefenseModelAndDetail<-subset(DefenseModelAndDetail,select=c(CSIScontractID,
   Dur,
   SingleOffer,
   Offr,
-  # IsIDV,
   # Soft,
   UCA,
   CRai,
@@ -946,7 +883,8 @@ DefenseModelAndDetail<-subset(DefenseModelAndDetail,select=c(CSIScontractID,
   # pChangeOrderObligated,
   UnmodifiedDays,
   MinOfEffectiveDate,
-  Action.Obligation
+  Action.Obligation,
+  StartFY
 )
 )
 # 
