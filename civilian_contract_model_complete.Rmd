@@ -721,7 +721,9 @@ CivilianContracts$Fee[CivilianContracts$pIsOtherFee>=0.9|
     CivilianContracts$pIsCombination>0.1|
     (is.na(CivilianContracts$Fee) & CivilianContracts$IsLabeledPricing==1)]<-
   "Combination or Other Fee"
-
+CivilianContracts$Fee<-ordered(CivilianContracts$Fee,
+  levels=c("Incentive","Fixed Fee","Award Fee",
+    "FFP or No Fee","Combination or Other Fee"))
 
 CivilianContracts<-subset(CivilianContracts,select=-c(
  
@@ -825,71 +827,7 @@ save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",Civil
 
 
 ```
-##Model Output
-
-```{r ModelOutput}
-CivilianModel<-subset(CivilianContracts,select=c(IsIDV,
-  FixedOrCost,
-  UnmodifiedIsSomeCompetition,
-  #                         Comp,
-  # LabeledMDAP,
-  # SubCustomer.sum,
-  PlatformPortfolio.sum,
-  AnyPlaceInternational,
-  SimpleArea,
-  qLowCeiling,
-  qHighCeiling,
-  qDuration,
-  qOffers,
-  SimpleVehicle,
-  IsTerminated,
-  UCA,
-  qCRais,
-  qNChg
-)
-)
-# 
-
-colnames(CivilianModel)[colnames(CivilianModel)=="SubCustomer.sum"]<-"Who"
-colnames(CivilianModel)[colnames(CivilianModel)=="UnmodifiedIsSomeCompetition"]<-"Comp"
-colnames(CivilianModel)[colnames(CivilianModel)=="PlatformPortfolio.sum"]<-"What"
-colnames(CivilianModel)[colnames(CivilianModel)=="IsIDV"]<-"IDV"
-colnames(CivilianModel)[colnames(CivilianModel)=="FixedOrCost"]<-"FxCb"
-colnames(CivilianModel)[colnames(CivilianModel)=="AnyPlaceInternational"]<-"Intl"
-colnames(CivilianModel)[colnames(CivilianModel)=="SimpleArea"]<-"PSR"
-colnames(CivilianModel)[colnames(CivilianModel)=="qLowCeiling"]<-"LowCeil"
-colnames(CivilianModel)[colnames(CivilianModel)=="qHighCeiling"]<-"Ceil"
-colnames(CivilianModel)[colnames(CivilianModel)=="qDuration"]<-"Dur"
-# colnames(CivilianModel)[colnames(CivilianModel)=="SingleOffer"]<-"One"
-colnames(CivilianModel)[colnames(CivilianModel)=="qOffers"]<-"Offr"
-colnames(CivilianModel)[colnames(CivilianModel)=="IsTerminated"]<-"Term"
-colnames(CivilianModel)[colnames(CivilianModel)=="SimpleVehicle"]<-"Veh"
-colnames(CivilianModel)[colnames(CivilianModel)=="LabeledMDAP"]<-"MDAP"
-colnames(CivilianModel)[colnames(CivilianModel)=="qNChg"]<-"NChg"
-colnames(CivilianModel)[colnames(CivilianModel)=="qCRais"]<-"CRai"
-
-
-
-
-summary(CivilianModel)
-summary(subset(CivilianModel,is.na(Offr)))
-summary(subset(CivilianContracts,is.na(qOffers)))
-summary(subset(CivilianContracts,is.na(FixedOrCost)&IsFixedPrice==1))
-save(CivilianModel,file="LargeDataSets\\Civilian_contract_CSIScontractID_model.Rdata")
-write.table(CivilianModel
-  ,file=paste("LargeDataSets\\Civilian_contract_CSIScontractID_model.csv"
-    ,sep=""
-  )
-  #   ,header=TRUE
-  , sep=","
-  , row.names=FALSE
-  , append=FALSE
-)
-
-
-```
-
-##Model and detail
+##Dataset Output
 
 ```{r DetailedOutput}
 CivilianModelAndDetail<-CivilianContracts
@@ -973,7 +911,7 @@ save(CivilianModelAndDetail,file="LargeDataSets\\Civilian_contract_CSIScontractI
 
 ```
 
-##Merging up
+##Merging up Civilian and Defense
 ```{r CombineDefenseAndCivil}
 
 load(file="LargeDataSets\\Defense_contract_CSIScontractID_detail.Rdata")

@@ -764,6 +764,9 @@ DefenseContracts$Fee[DefenseContracts$pIsOtherFee>=0.9|
     DefenseContracts$pIsCombination>0.1|
     (is.na(DefenseContracts$Fee) & DefenseContracts$IsLabeledPricing==1)]<-
   "Combination or Other Fee"
+DefenseContracts$Fee<-ordered(DefenseContracts$Fee,
+  levels=c("Incentive","Fixed Fee","Award Fee",
+    "FFP or No Fee","Combination or Other Fee"))
 
 
 DefenseContracts<-subset(DefenseContracts,select=-c(
