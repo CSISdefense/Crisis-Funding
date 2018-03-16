@@ -13,10 +13,8 @@ Costly Change Orders (Refined by NPS Study on Crisis-Funded Contracts)
 
 
 ```{r Setup, echo = TRUE}
-Path<-"D:\\Users\\Greg Sanders\\Documents\\Development\\R-scripts-and-data\\"
-# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
-source(paste(Path,"lookups.r",sep=""))
-source(paste(Path,"helper.r",sep=""))
+source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
+source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
 source("ContractCleanup.r")
 
 require(ggplot2)
