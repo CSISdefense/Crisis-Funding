@@ -308,3 +308,68 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
   
   return(datac)
 }
+
+
+
+decision_tree<-function(contract){
+  
+  contract$DecisionTree<-as.character(contract$MaxOfDecisionTree)
+  contract$DecisionTree[
+    contract$DecisionTree=="Excluded"|
+      is.na(contract$DecisionTree)]<-"All Other"
+  contract$DecisionTree<-factor(contract$DecisionTree,levels=c("OCO","Disaster","ARRA","All Other"))
+  
+  
+    contract$DecisionTreeDisplay<-as.character( contract$DecisionTreeDisplay)
+  
+  contract$DecisionTreeDisplay[
+    (contract$StartFiscalYear<=2011 |
+       contract$StartFiscalYear>2016
+    ) &
+      contract$DecisionTree=="OCO"]<-"Not in Sample"
+  contract$DecisionTreeDisplay[contract$StartFiscalYear>=2012 &
+                                              contract$StartFiscalYear<=2016 &
+                                              contract$DecisionTree=="OCO"]<-"OCO ('12+)"
+  contract$DecisionTreeDisplay[contract$DecisionTree=="Disaster"&
+                                              contract$StartFiscalYear>=2007]<-"Disaster ('07+)"
+  contract$DecisionTreeDisplay[contract$DecisionTree=="Disaster"&
+                                              contract$StartFiscalYear<2007]<-"Not in Sample"
+  contract$DecisionTreeDisplay[contract$DecisionTree=="ARRA"]<-"ARRA ('09-'13)"
+  
+  contract$DecisionTreeDisplay[contract$DecisionTree=="All Other" &
+                                              contract$Intl=="Just U.S." &
+                                              contract$Is.Defense=="Civilian"
+                                            ]<-"Other U.S. Civilian ('07+)"
+  
+  contract$DecisionTreeDisplay[contract$DecisionTree=="All Other" &
+                                              contract$Intl=="Any Intl" &
+                                              contract$Is.Defense=="Civilian"
+                                            ]<-"Other Intl. Civilian ('07+)"
+  
+  contract$DecisionTreeDisplay[contract$DecisionTree=="All Other" &
+                                              contract$Intl=="Just U.S." &
+                                              contract$Is.Defense=="Defense" &
+                                              contract$StartFiscalYear>=2012 &
+                                              contract$StartFiscalYear<=2016
+                                            ]<-"Other U.S. Defense ('12+)"
+  
+  contract$DecisionTreeDisplay[contract$DecisionTree=="All Other" &
+                                              contract$Intl=="Any Intl" &
+                                              contract$Is.Defense=="Defense" & 
+                                              contract$StartFiscalYear>=2012 &
+                                              contract$StartFiscalYear<=2016 
+                                            ]<-"Other Intl. Defense ('12+)"
+  
+  contract$DecisionTreeDisplay[contract$DecisionTree=="All Other" &
+                                              contract$Is.Defense=="Defense" & 
+                                              contract$StartFiscalYear<=2011 
+                                            ]<-"Not in Sample"
+  
+  contract$DecisionTreeDisplay[(contract$Intl=="Unlabeled") |
+                                              is.na(contract$Is.Defense) &
+                                              contract$DecisionTree=="All Other" 
+                                            ]<-"Not in Sample"
+  
+  contract$DecisionTreeDisplay<-factor(contract$DecisionTreeDisplay)
+  
+}
