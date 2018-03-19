@@ -82,13 +82,19 @@ CompleteModelAndDetail<-transform_contract(CompleteModelAndDetail)
 
 ```{r DataFrameChangeOrders, echo = TRUE, fig.width=4.5,fig.height=6}
   
-  NChgCeil<-ddply(CompleteModelAndDetail,
-               .(SumOfisChangeOrder,
+NChgCeil<-CompleteModelAndDetail %>% group_by(SumOfisChangeOrder,
                  StartFiscalYear,
-                 Ceil),
-               plyr::summarise,
-               ContractCount=length(CSIScontractID),
+                 Ceil)  %>%
+  summarise(ContractCount=length(CSIScontractID),
                Action.Obligation=sum(Action.Obligation))
+
+  # NChgCeil<-ddply(CompleteModelAndDetail,
+  #              .(SumOfisChangeOrder,
+  #                StartFiscalYear,
+  #                Ceil),
+  #              plyr::summarise,
+  #              ContractCount=length(CSIScontractID),
+  #              Action.Obligation=sum(Action.Obligation))
 
 NChgCeil<-ddply(NChgCeil, 
                 .(Ceil), 
