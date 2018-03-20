@@ -22,6 +22,7 @@ FormatContractModel<-function(dfContract){
   colnames(dfContract)[colnames(dfContract)=="LabeledMDAP"]<-"MDAP"
   colnames(dfContract)[colnames(dfContract)=="qNChg"]<-"NChg"
   colnames(dfContract)[colnames(dfContract)=="qCRais"]<-"CRai"
+  colnames(dfContract)[colnames(dfContract)=="StartFiscalYear"]<-"StartFY"
   
   
   if(is.null(dfContract$Ceil) &
@@ -181,50 +182,20 @@ FormatContractModel<-function(dfContract){
   if(is.null(dfContract$CRai) & 
      "pChangeOrderUnmodifiedBaseAndAll" %in% colnames(dfContract)){
     
-    dfContract$qCRais <- cut2(
+    dfContract$CRais <- cut2(
       dfContract$pChangeOrderUnmodifiedBaseAndAll,c(
         -0.001,
         0.001,
         0.15)
     )
-    colnames(dfContract)[colnames(dfContract)=="qCRais"]<-"CRai"
-    
-    #                                               min(subset(
-    #                                                   dfContract$pChangeOrderObligated,
-    #                                                   dfContract$pChangeOrderObligated>0)),
   }
   
-  if(is.null(dfContract$CRai) & 
-     "pChangeOrderUnmodifiedBaseAndAll" %in% colnames(dfContract)){
-    
-    dfContract$qCRais <- cut2(
-      dfContract$pChangeOrderUnmodifiedBaseAndAll,c(
-        -0.001,
-        0.001,
-        0.15)
-    )
-    colnames(dfContract)[colnames(dfContract)=="qCRais"]<-"CRai"
-    
-    #                                               min(subset(
-    #                                                   dfContract$pChangeOrderObligated,
-    #                                                   dfContract$pChangeOrderObligated>0)),
-  }
-  
-  
-  if(is.null(dfContract$qNChg) & 
+
+  if(is.null(dfContract$NChg)  & 
      "SumOfisChangeOrder" %in% colnames(dfContract)){
     
-    dfContract$qNChg <- cut2(dfContract$SumOfisChangeOrder,c(1,2,3))
+    dfContract$NChg <- cut2(dfContract$SumOfisChangeOrder,c(1,2,3))
     
-    
-    
-    colnames(dfContract)[colnames(dfContract)=="qCRais"]<-"CRai"
-    
-    colnames(dfContract)[colnames(dfContract)=="qNChg"]<-"NChg"
-    
-    #                                               min(subset(
-    #                                                   dfContract$pChangeOrderObligated,
-    #                                                   dfContract$pChangeOrderObligated>0)),
   }
   
   
@@ -245,9 +216,9 @@ FormatContractModel<-function(dfContract){
   
   
   if("MinOfEffectiveDate" %in% colnames(dfContract) & 
-     !"StartFiscalYear" %in% colnames(dfContract))
+     !"StartFY" %in% colnames(dfContract))
     dfContract$MinOfEffectiveDate<-as.Date(as.character(dfContract$MinOfEffectiveDate))
-  dfContract$StartFiscalYear<-DateToFiscalYear(dfContract$MinOfEffectiveDate)
+  dfContract$StartFY<-DateToFiscalYear(dfContract$MinOfEffectiveDate)
   
   
   if("MinOfEffectiveDate" %in% colnames(dfContract) &
@@ -323,17 +294,17 @@ decision_tree<-function(contract){
     contract$DecisionTreeDisplay<-as.character( contract$DecisionTreeDisplay)
   
   contract$DecisionTreeDisplay[
-    (contract$StartFiscalYear<=2011 |
-       contract$StartFiscalYear>2016
+    (contract$StartFY<=2011 |
+       contract$StartFY>2016
     ) &
       contract$DecisionTree=="OCO"]<-"Not in Sample"
-  contract$DecisionTreeDisplay[contract$StartFiscalYear>=2012 &
-                                              contract$StartFiscalYear<=2016 &
+  contract$DecisionTreeDisplay[contract$StartFY>=2012 &
+                                              contract$StartFY<=2016 &
                                               contract$DecisionTree=="OCO"]<-"OCO ('12+)"
   contract$DecisionTreeDisplay[contract$DecisionTree=="Disaster"&
-                                              contract$StartFiscalYear>=2007]<-"Disaster ('07+)"
+                                              contract$StartFY>=2007]<-"Disaster ('07+)"
   contract$DecisionTreeDisplay[contract$DecisionTree=="Disaster"&
-                                              contract$StartFiscalYear<2007]<-"Not in Sample"
+                                              contract$StartFY<2007]<-"Not in Sample"
   contract$DecisionTreeDisplay[contract$DecisionTree=="ARRA"]<-"ARRA ('09-'13)"
   
   contract$DecisionTreeDisplay[contract$DecisionTree=="All Other" &
@@ -349,20 +320,20 @@ decision_tree<-function(contract){
   contract$DecisionTreeDisplay[contract$DecisionTree=="All Other" &
                                               contract$Intl=="Just U.S." &
                                               contract$Is.Defense=="Defense" &
-                                              contract$StartFiscalYear>=2012 &
-                                              contract$StartFiscalYear<=2016
+                                              contract$StartFY>=2012 &
+                                              contract$StartFY<=2016
                                             ]<-"Other U.S. Defense ('12+)"
   
   contract$DecisionTreeDisplay[contract$DecisionTree=="All Other" &
                                               contract$Intl=="Any Intl" &
                                               contract$Is.Defense=="Defense" & 
-                                              contract$StartFiscalYear>=2012 &
-                                              contract$StartFiscalYear<=2016 
+                                              contract$StartFY>=2012 &
+                                              contract$StartFY<=2016 
                                             ]<-"Other Intl. Defense ('12+)"
   
   contract$DecisionTreeDisplay[contract$DecisionTree=="All Other" &
                                               contract$Is.Defense=="Defense" & 
-                                              contract$StartFiscalYear<=2011 
+                                              contract$StartFY<=2011 
                                             ]<-"Not in Sample"
   
   contract$DecisionTreeDisplay[(contract$Intl=="Unlabeled") |

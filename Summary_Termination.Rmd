@@ -22,7 +22,7 @@ library(csis360)
 library(ggplot2)
 library(scales)
 library(Hmisc)
-library(plyr)
+library(dplyr)
 # Coloration<-read.csv(
 #     paste(Path,"Lookups\\","lookup_coloration.csv",sep=""),
 #     header=TRUE, sep=",", na.strings="", dec=".", strip.white=TRUE, 
@@ -31,7 +31,7 @@ library(plyr)
 # 
 # Coloration<-ddply(Coloration
 #                   , c(.(R), .(G), .(B))
-#                   , transform
+#                   , mutate
 #                   , ColorRGB=as.character(
 #                       if(min(is.na(c(R,G,B)))) {NA} 
 #                       else {rgb(max(R),max(G),max(B),max=255)}
@@ -77,12 +77,14 @@ head(FederalModelAndDetail)
 
 #ContractWeighted <- apply_lookups(Path,ContractWeighted)
 
-FederalModelAndDetail<-transform_contract(FederalModelAndDetail)
+# FederalModelAndDetail<-mutate_contract(FederalModelAndDetail)
 
 
 summary(FederalModelAndDetail$DecisionTreeDisplay)
 # FederalModelAndDetail<-subset(FederalModelAndDetail,DecisionTreeDisplay != "Not in Sample")
 # save(complete_FederalModelAndDetail,FederalModelAndDetail,file="data//FederalModelAndDetail.Rdata")
+
+DefenseModelAndDetail<-mutate_contract(DefenseModelAndDetail)
 
 View(FederalModelAndDetail[is.na(FederalModelAndDetail$DecisionTreeDisplay),])
 
@@ -108,8 +110,8 @@ TerminatedSDurSCeilStatCount<-ddply(
            !is.na(Ceil.Simple) &
            !is.na(Term) &
       DecisionTreeDisplay != "Not in Sample" &
-           StartFiscalYear>=2007 & 
-           StartFiscalYear<=2015 
+           StartFY>=2007 & 
+           StartFY<=2015 
            (DecisionTreeDisplay != "Not in Sample")
   ),
   # &                
@@ -118,7 +120,7 @@ TerminatedSDurSCeilStatCount<-ddply(
            #     UnmodifiedCurrentCompletionDate<as.Date("2015-09-30")),
     .(Dur.Simple,
       Ceil.Simple,
-      # StartFiscalYear,
+      # StartFY,
       Term,
       DecisionTreeDisplay,
       # Is.Defense,
@@ -126,7 +128,7 @@ TerminatedSDurSCeilStatCount<-ddply(
       SingleOffer,
       UCA
     ),
-    plyr::summarise,
+    dplyr::summarise,
     Action.Obligation=sum(Action.Obligation),
     Count=length(CSIScontractID),
     metric="Contracts within Period"
@@ -147,7 +149,7 @@ TerminatedSDurSCeilStatCount$Term<-factor(TerminatedSDurSCeilStatCount$Term,
 TerminatedSDurSCeilLabels<-ddply(
     TerminatedSDurSCeilStatCount,
     .(Dur.Simple,Ceil.Simple),
-    plyr::summarise,
+    dplyr::summarise,
     FacetCount=paste("Count:",prettyNum(sum(Count),big.mark=",")),
     FacetValue=paste(FacetCount,"\nObligated: $",round(sum(Action.Obligation)/1000000000,1),"B",sep="")
     )
@@ -168,7 +170,7 @@ TerminatedSDurSCeilStatCount$DecisionTreeDisplay<-factor(TerminatedSDurSCeilStat
 #   VAR.Coloration=Coloration,
 #   VAR.long.DF=TerminatedSDurSCeilStatCount,
 #   # NA, #VAR.ncol
-#   VAR.x.variable="StartFiscalYear", #VAR.x.variable
+#   VAR.x.variable="StartFY", #VAR.x.variable
 #   VAR.y.variable="Count", #VAR.y.variable
 #   VAR.y.series="Term", #VAR.y.series
 #   VAR.facet.primary="Dur.Simple", #VAR.facet.primary
@@ -191,7 +193,7 @@ top_line_term_data<-ddply(
     TerminatedSDurSCeilStatCount,
       .(Dur.Simple,
       Ceil.Simple,
-      # StartFiscalYear,
+      # StartFY,
       Term,
       DecisionTreeDisplay
       # Who,
@@ -199,7 +201,7 @@ top_line_term_data<-ddply(
       # SingleOffer,
       # UCA,
     ),
-    plyr::summarise,
+    dplyr::summarise,
     Action.Obligation=sum(Action.Obligation),
     Count=sum(Count)
 )
@@ -211,7 +213,7 @@ top_line_term_data<-ddply(
       Ceil.Simple,
       DecisionTreeDisplay
     ),
-    plyr::mutate,
+    dplyr::mutate,
     pObligation=Action.Obligation/sum(Action.Obligation),
     pCount=Count/sum(Count)
 )
@@ -269,7 +271,7 @@ comp_term_data<-ddply(
     subset(TerminatedSDurSCeilStatCount,!is.na(SingleOffer)),
       .(Dur.Simple,
       Ceil.Simple,
-      # StartFiscalYear,
+      # StartFY,
       Term,
       DecisionTreeDisplay,
       # Who,
@@ -277,7 +279,7 @@ comp_term_data<-ddply(
       SingleOffer
       # UCA,
     ),
-    plyr::summarise,
+    dplyr::summarise,
     Action.Obligation=sum(Action.Obligation),
     Count=sum(Count)
 )
@@ -289,7 +291,7 @@ comp_term_data<-ddply(
       DecisionTreeDisplay,
 	  SingleOffer
     ),
-    plyr::mutate,
+    dplyr::mutate,
     pObligation=Action.Obligation/sum(Action.Obligation),
     pCount=Count/sum(Count)
 )
@@ -369,7 +371,7 @@ uca_term_data<-ddply(
     subset(TerminatedSDurSCeilStatCount,!is.na(UCA)),
       .(Dur.Simple,
       Ceil.Simple,
-      # StartFiscalYear,
+      # StartFY,
       Term,
       DecisionTreeDisplay,
       # Who,
@@ -377,7 +379,7 @@ uca_term_data<-ddply(
       # SingleOffer,
       UCA
     ),
-    plyr::summarise,
+    dplyr::summarise,
     Action.Obligation=sum(Action.Obligation),
     Count=sum(Count)
 )
@@ -389,7 +391,7 @@ uca_term_data<-ddply(
       DecisionTreeDisplay,
 	  UCA
     ),
-    plyr::mutate,
+    dplyr::mutate,
     pObligation=Action.Obligation/sum(Action.Obligation),
     pCount=Count/sum(Count)
 )
