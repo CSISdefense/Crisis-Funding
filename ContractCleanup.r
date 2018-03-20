@@ -283,7 +283,6 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
 
 
 decision_tree<-function(contract){
-  
   contract$DecisionTree<-as.character(contract$MaxOfDecisionTree)
   contract$DecisionTree[
     contract$DecisionTree=="Excluded"|

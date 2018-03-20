@@ -70,30 +70,31 @@ These four catetegories and the "Close Out" category are used to mark a contract
 
 ```{r ReadInData, echo = TRUE}
   load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
-head(FederalModelAndDetail)
+DefenseModelAndDetail<-transform_contract(DefenseModelAndDetail)
+
+head(DefenseModelAndDetail)
+
 ```
 
 ```{r PrepareData}
 
 #ContractWeighted <- apply_lookups(Path,ContractWeighted)
+debug(decision_tree)
+DefenseModelAndDetail<-decision_tree(DefenseModelAndDetail)
 
-# FederalModelAndDetail<-mutate_contract(FederalModelAndDetail)
-
-
-summary(FederalModelAndDetail$DecisionTreeDisplay)
-# FederalModelAndDetail<-subset(FederalModelAndDetail,DecisionTreeDisplay != "Not in Sample")
-# save(complete_FederalModelAndDetail,FederalModelAndDetail,file="data//FederalModelAndDetail.Rdata")
-
-DefenseModelAndDetail<-mutate_contract(DefenseModelAndDetail)
-
-View(FederalModelAndDetail[is.na(FederalModelAndDetail$DecisionTreeDisplay),])
+summary(DefenseModelAndDetail$DecisionTreeDisplay)
+# DefenseModelAndDetail<-subset(DefenseModelAndDetail,DecisionTreeDisplay != "Not in Sample")
+# save(complete_DefenseModelAndDetail,DefenseModelAndDetail,file="data//DefenseModelAndDetail.Rdata")
 
 
-summary(FederalModelAndDetail$DecisionTree)
-summary(FederalModelAndDetail$DecisionTreeDisplay)
-write.csv(subset(FederalModelAndDetail,Term=="Terminated"),"LargeDataSets//Terminated.csv")
+View(DefenseModelAndDetail[is.na(DefenseModelAndDetail$DecisionTreeDisplay),])
 
-save(FederalModelAndDetail,file="LargeDataSets//FederalModelForTerminations.RData")
+
+summary(DefenseModelAndDetail$DecisionTree)
+summary(DefenseModelAndDetail$DecisionTreeDisplay)
+write.csv(subset(DefenseModelAndDetail,Term=="Terminated"),"LargeDataSets//Terminated.csv")
+
+save(DefenseModelAndDetail,file="LargeDataSets//FederalModelForTerminations.RData")
 
 
 ```
@@ -104,31 +105,28 @@ save(FederalModelAndDetail,file="LargeDataSets//FederalModelForTerminations.RDat
 ##Data preparation
 ```{r SDurSCeilCount, fig.width=6.5,fig.height=5, dpi=600}
 # load(file="LargeDataSets//FederalModelForTerminations.RData")
-TerminatedSDurSCeilStatCount<-ddply(
-  subset(FederalModelAndDetail,
+TerminatedSDurSCeilStatCount<-subset(DefenseModelAndDetail,
          !is.na(Dur.Simple) & 
            !is.na(Ceil.Simple) &
-           !is.na(Term) &
-      DecisionTreeDisplay != "Not in Sample" &
-           StartFY>=2007 & 
-           StartFY<=2015 
-           (DecisionTreeDisplay != "Not in Sample")
-  ),
-  # &                
-           #     (LastCurrentCompletionDate<=as.Date("2015-09-30") |
-           #          IsClosed==1) &
-           #     UnmodifiedCurrentCompletionDate<as.Date("2015-09-30")),
-    .(Dur.Simple,
+           !is.na(Term)) %>% group_by(Dur.Simple,
       Ceil.Simple,
       # StartFY,
       Term,
-      DecisionTreeDisplay,
+      # DecisionTreeDisplay,
       # Is.Defense,
       # Intl,
       SingleOffer,
       UCA
-    ),
-    dplyr::summarise,
+    ) %>%
+      # DecisionTreeDisplay != "Not in Sample" &
+           # StartFY>=2007 & 
+           # StartFY<=2015 
+           # (DecisionTreeDisplay != "Not in Sample")
+  # &                
+           #     (LastCurrentCompletionDate<=as.Date("2015-09-30") |
+           #          IsClosed==1) &
+           #     UnmodifiedCurrentCompletionDate<as.Date("2015-09-30")),
+    dplyr::summarise(
     Action.Obligation=sum(Action.Obligation),
     Count=length(CSIScontractID),
     metric="Contracts within Period"
@@ -146,10 +144,9 @@ TerminatedSDurSCeilStatCount$Term<-factor(TerminatedSDurSCeilStatCount$Term,
                                             ordered=TRUE)
 
 
-TerminatedSDurSCeilLabels<-ddply(
-    TerminatedSDurSCeilStatCount,
-    .(Dur.Simple,Ceil.Simple),
-    dplyr::summarise,
+TerminatedSDurSCeilLabels<-TerminatedSDurSCeilStatCount %>%
+    group_by(Dur.Simple,Ceil.Simple) %>%
+    dplyr::summarise(
     FacetCount=paste("Count:",prettyNum(sum(Count),big.mark=",")),
     FacetValue=paste(FacetCount,"\nObligated: $",round(sum(Action.Obligation)/1000000000,1),"B",sep="")
     )
@@ -189,9 +186,8 @@ TerminatedSDurSCeilStatCount$DecisionTreeDisplay<-factor(TerminatedSDurSCeilStat
 
 ##Top Line Terminations
 ```{r Top_Line_Term}
-top_line_term_data<-ddply(
-    TerminatedSDurSCeilStatCount,
-      .(Dur.Simple,
+top_line_term_data<-  TerminatedSDurSCeilStatCount %>%
+  group_by(Dur.Simple,
       Ceil.Simple,
       # StartFY,
       Term,
@@ -200,20 +196,19 @@ top_line_term_data<-ddply(
       # Intl,
       # SingleOffer,
       # UCA,
-    ),
-    dplyr::summarise,
+    ) %>%
+    dplyr::summarise(
     Action.Obligation=sum(Action.Obligation),
     Count=sum(Count)
 )
 
 
-top_line_term_data<-ddply(
-    top_line_term_data,
-      .(Dur.Simple,
+top_line_term_data<-top_line_term_data %>%
+      group_by(Dur.Simple,
       Ceil.Simple,
       DecisionTreeDisplay
-    ),
-    dplyr::mutate,
+    ) %>%
+    dplyr::mutate(
     pObligation=Action.Obligation/sum(Action.Obligation),
     pCount=Count/sum(Count)
 )
@@ -267,9 +262,8 @@ summary(TerminatedSDurSCeilStatCount$SingleOffer)
 TerminatedSDurSCeilStatCount$SingleOffer<-as.character(TerminatedSDurSCeilStatCount$SingleOffer)
 TerminatedSDurSCeilStatCount$SingleOffer[TerminatedSDurSCeilStatCount$SingleOffer=="None or Unlabeled"]<-NA
 TerminatedSDurSCeilStatCount$SingleOffer[TerminatedSDurSCeilStatCount$SingleOffer=="Single"]<-"None/1 Offer"
-comp_term_data<-ddply(
-    subset(TerminatedSDurSCeilStatCount,!is.na(SingleOffer)),
-      .(Dur.Simple,
+comp_term_data<-subset(TerminatedSDurSCeilStatCount,!is.na(SingleOffer)) %>%
+  group_by(Dur.Simple,
       Ceil.Simple,
       # StartFY,
       Term,
@@ -278,20 +272,19 @@ comp_term_data<-ddply(
       # Intl,
       SingleOffer
       # UCA,
-    ),
-    dplyr::summarise,
+    ) %>%
+    dplyr::summarise(
     Action.Obligation=sum(Action.Obligation),
     Count=sum(Count)
 )
 
-comp_term_data<-ddply(
-    comp_term_data,
-      .(Dur.Simple,
+comp_term_data<-comp_term_data %>%
+      group_by(Dur.Simple,
       Ceil.Simple,
       DecisionTreeDisplay,
 	  SingleOffer
     ),
-    dplyr::mutate,
+    dplyr::mutate(
     pObligation=Action.Obligation/sum(Action.Obligation),
     pCount=Count/sum(Count)
 )
@@ -367,9 +360,8 @@ comp_term
 
 ##UCA
 ```{r UCA_Term}
-uca_term_data<-ddply(
-    subset(TerminatedSDurSCeilStatCount,!is.na(UCA)),
-      .(Dur.Simple,
+uca_term_data<- subset(TerminatedSDurSCeilStatCount,!is.na(UCA)),
+      group_by(Dur.Simple,
       Ceil.Simple,
       # StartFY,
       Term,
@@ -378,20 +370,20 @@ uca_term_data<-ddply(
       # Intl,
       # SingleOffer,
       UCA
-    ),
-    dplyr::summarise,
+    ) %>%
+    dplyr::summarise(
     Action.Obligation=sum(Action.Obligation),
     Count=sum(Count)
 )
 
-uca_term_data<-ddply(
-    uca_term_data,
-      .(Dur.Simple,
+uca_term_data<-
+    uca_term_data%>%
+      group_by(Dur.Simple,
       Ceil.Simple,
       DecisionTreeDisplay,
 	  UCA
-    ),
-    dplyr::mutate,
+    ) %>%
+    dplyr::mutate(
     pObligation=Action.Obligation/sum(Action.Obligation),
     pCount=Count/sum(Count)
 )
@@ -449,36 +441,36 @@ ggsave("Output//uca_term.png",uca_term, width=6.5, height= 5, units="in",dpi=300
 #Ceiling Breaches
 
 ```{r QuantileSimpleComp}
-df.QCrai.Comp<-ddply(subset(FederalModelAndDetail,
+df.QCrai.Comp<-subset(DefenseModelAndDetail,
                                         !is.na(Dur.Simple) & 
                !is.na(Ceil.Simple) &
                !is.na(CRai) &
                  !is.na(DecisionTreeDisplay) &
                  !is.na(SingleOffer)
-                 ),
-      .(DecisionTreeDisplay,
+                 ) %>%
+      group_by(DecisionTreeDisplay,
                Ceil.Simple,
                Dur.Simple,
-        SingleOffer),
-      summarise, 
+        SingleOffer) %>%
+      dplyr::summarise(
       crai90 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.90,na.rm=TRUE), 
       ContractCount=length(CSIScontractID),
       Action.Obligation=sum(Action.Obligation)
       )
 
 
-df.QCrai.UCA<-ddply(subset(FederalModelAndDetail,
+df.QCrai.UCA<-subset(DefenseModelAndDetail,
                                         !is.na(Dur.Simple) & 
                !is.na(Ceil.Simple) &
                !is.na(CRai) &
                  !is.na(DecisionTreeDisplay) &
                  !is.na(UCA)
-                 ),
-      .(DecisionTreeDisplay,
+                 ) %>%
+      group_by(DecisionTreeDisplay,
                Ceil.Simple,
                Dur.Simple,
-        UCA),
-      summarise, 
+        UCA) %>%
+      dplyr::summarise(
       crai90 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.80,na.rm=TRUE), 
       ContractCount=length(CSIScontractID),
       Action.Obligation=sum(Action.Obligation)

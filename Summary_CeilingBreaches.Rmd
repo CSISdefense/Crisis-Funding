@@ -349,16 +349,21 @@ sum(subset(pChgCeil,pChange3Sig>0)$pTotalObligation)
 ```{r Quantile}
 
 df.QCrai<-subset(DefenseModelAndDetail,
-                                        !is.na(Dur) & 
-               !is.na(Ceil) &
-               !is.na(CRai)) %>%
-      group_by(DecisionsTreeDisplay,
-               Ceil,
-               Dur) %>%
-      dplyr::summarise( 
-      X80 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.80,na.rm=TRUE), 
-      ContractCount=length(CSIScontractID),
-             Action.Obligation=sum(Action.Obligation))
+                 !is.na(Dur) & 
+                   !is.na(Ceil) &
+                   !is.na(CRai)) %>%
+  group_by(DecisionsTreeDisplay,
+           Ceil,
+           Dur) %>%
+  dplyr::summarise( 
+    X50 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.50,na.rm=TRUE), 
+    X75 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.75,na.rm=TRUE), 
+    X80 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.80,na.rm=TRUE), 
+    X90 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.90,na.rm=TRUE), 
+    X95 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.95,na.rm=TRUE), 
+    X99 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.99,na.rm=TRUE), 
+    ContractCount=length(CSIScontractID),
+    Action.Obligation=sum(Action.Obligation))
 
 
 df.QCrai<-melt(df.QCrai,variable.name="Quantile",value.name="pCRai",measure.vars=c(
