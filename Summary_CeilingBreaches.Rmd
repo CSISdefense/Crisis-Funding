@@ -352,9 +352,10 @@ df.QCrai<-subset(DefenseModelAndDetail,
                  !is.na(Dur) & 
                    !is.na(Ceil) &
                    !is.na(CRai)) %>%
-  group_by(DecisionsTreeDisplay,
+  group_by(#DecisionsTreeDisplay,
            Ceil,
-           Dur) %>%
+           Dur,
+           StartFY) %>%
   dplyr::summarise( 
     X50 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.50,na.rm=TRUE), 
     X75 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.75,na.rm=TRUE), 
@@ -390,10 +391,10 @@ ggplot(subset(df.QCrai,
   scale_y_continuous(labels=scales::percent)
 
 #Test to see which percentiles register at all.
-df.ecdf<-ddply(DefenseModelAndDetail,
-      .(Ceil,
-               Dur),
-      summarise, 
+df.ecdf<-DefenseModelAndDetail %>%
+      group_by(Ceil,
+               Dur) %>%
+      dplyr::summarise(
       r001 = ecdf(pChangeOrderUnmodifiedBaseAndAll)(0.001),
       r01 = ecdf(pChangeOrderUnmodifiedBaseAndAll)(0.01),
       r05 = ecdf(pChangeOrderUnmodifiedBaseAndAll)(0.01)
@@ -406,7 +407,7 @@ df.ecdf<-ddply(DefenseModelAndDetail,
 
 
 ```{r QuantileSimpleDur}
-df.QCrai.SDur<-ddply(subset(DefenseModelAndDetail,
+df.QCrai.SDur<-subset(DefenseModelAndDetail,
                                         !is.na(Dur.Simple) & 
                !is.na(Ceil.Big) &
                !is.na(CRai) &
@@ -414,11 +415,11 @@ df.QCrai.SDur<-ddply(subset(DefenseModelAndDetail,
                StartFY<=2014 &                
                (LastCurrentCompletionDate<=as.Date("2015-09-30") |
                     IsClosed==1) &
-               UnmodifiedCurrentCompletionDate<as.Date("2015-09-30")),
-      .(StartFY,
+               UnmodifiedCurrentCompletionDate<as.Date("2015-09-30")) %>%
+      group_by(StartFY,
                Ceil.Big,
-               Dur.Simple),
-      summarise, 
+               Dur.Simple) %>%
+      dplyr::summarise(
       X50 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.5,na.rm=TRUE),
       X75 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.75,na.rm=TRUE), 
       X80 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.80,na.rm=TRUE), 
@@ -432,16 +433,16 @@ df.QCrai.SDur<-ddply(subset(DefenseModelAndDetail,
 
 
 df.QCrai.SDur<-rbind(df.QCrai.SDur,
-                ddply(subset(DefenseModelAndDetail,
+                subset(DefenseModelAndDetail,
                                                !is.na(Dur.Simple) & 
                                                !is.na(Ceil.Big) &
                                                !is.na(CRai) &
                                                StartFY>=2007 & 
-                                               StartFY<=2014),
-      .(StartFY,
+                                               StartFY<=2014)%>%
+      group_by(StartFY,
                Ceil.Big,
-               Dur.Simple),
-      summarise, 
+               Dur.Simple)%>%
+      dplyr::summarise(
       X50 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.5,na.rm=TRUE),
       X75 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.75,na.rm=TRUE), 
       X80 = quantile(pChangeOrderUnmodifiedBaseAndAll, probs = 0.80,na.rm=TRUE), 
@@ -479,11 +480,11 @@ df.QCrai.SDur$Quantile<-factor(df.QCrai.SDur$Quantile,
   "99th Percentile")
 )
 
-CRaiSDurCeilLabels<-ddply(
+CRaiSDurCeilLabels<-
   subset(df.QCrai.SDur,Quantile=="50th Percentile" &
-           metric=="Contracts within Period"),
-    .(Dur.Simple,Ceil.Big),
-    dplyr::summarise,
+           metric=="Contracts within Period") %>%
+    group_by(Dur.Simple,Ceil.Big) %>%
+    dplyr::summarise(
     FacetCount=paste("Count:",prettyNum(sum(ContractCount),big.mark=",")),
     FacetValue=paste(FacetCount,"\nObligated: $",round(sum(Action.Obligation)/1000000000,1),"B",sep="")
     )
@@ -533,10 +534,10 @@ ggplot(subset(df.QCrai.SDur,
   scale_y_continuous(labels=scales::percent)
 
 #Test to see which percentiles register at all.
-df.ecdf<-ddply(DefenseModelAndDetail,
-      .(Ceil.Big,
-               Dur.Simple),
-      summarise, 
+df.ecdf<-DefenseModelAndDetail %>%
+      group_by(Ceil.Big,
+               Dur.Simple) %>%
+      dplyr::summarise(
       r001 = ecdf(pChangeOrderUnmodifiedBaseAndAll)(0.001),
       r01 = ecdf(pChangeOrderUnmodifiedBaseAndAll)(0.01),
       r05 = ecdf(pChangeOrderUnmodifiedBaseAndAll)(0.01)
@@ -545,11 +546,10 @@ df.ecdf<-ddply(DefenseModelAndDetail,
 # df.ecdf<-subset(df.ecdf,StartFY>=2007&StartFY<=2014)
 
 
-CRaiSDurCeilFYearSummary<-ddply(
-  subset(df.QCrai.SDur,Quantile=="50th Percentile" &
-           metric=="Contracts within Period"),
-    .(Dur.Simple,Ceil.Big,StartFY),
-    dplyr::summarise,
+CRaiSDurCeilFYearSummary<-subset(df.QCrai.SDur,Quantile=="50th Percentile" &
+           metric=="Contracts within Period")%>%
+    group_by(Dur.Simple,Ceil.Big,StartFY) %>%
+    dplyr::summarise(
     FacetCount=paste("Count:",prettyNum(sum(ContractCount),big.mark=",")),
     FacetValue=paste(FacetCount,"\nObligated: $",round(sum(Action.Obligation)/1000000000,1),"B",sep="")
     )
@@ -576,7 +576,7 @@ DurBoundary<-subset(DefenseModelAndDetail,Ceil=="75m+"&
 #       .(StartFY,
 #                Ceil.Big,
 #                Dur.Simple),
-#       summarise, 
+#       dplyr::summarise(
 #       X50 = quantile(pNewWorkUnmodifiedBaseAndAll, probs = 0.5,na.rm=TRUE),
 #       X75 = quantile(pNewWorkUnmodifiedBaseAndAll, probs = 0.75,na.rm=TRUE), 
 #       X80 = quantile(pNewWorkUnmodifiedBaseAndAll, probs = 0.80,na.rm=TRUE), 
@@ -599,7 +599,7 @@ DurBoundary<-subset(DefenseModelAndDetail,Ceil=="75m+"&
 #       .(StartFY,
 #                Ceil.Big,
 #                Dur.Simple),
-#       summarise, 
+#       dplyr::summarise(
 #       X50 = quantile(pNewWorkUnmodifiedBaseAndAll, probs = 0.5,na.rm=TRUE),
 #       X75 = quantile(pNewWorkUnmodifiedBaseAndAll, probs = 0.75,na.rm=TRUE), 
 #       X80 = quantile(pNewWorkUnmodifiedBaseAndAll, probs = 0.80,na.rm=TRUE), 
@@ -690,7 +690,7 @@ DurBoundary<-subset(DefenseModelAndDetail,Ceil=="75m+"&
 # df.ecdf<-ddply(DefenseModelAndDetail,
 #       .(Ceil.Big,
 #                Dur.Simple),
-#       summarise, 
+#       dplyr::summarise(
 #       r001 = ecdf(pNewWorkUnmodifiedBaseAndAll)(0.001),
 #       r01 = ecdf(pNewWorkUnmodifiedBaseAndAll)(0.01),
 #       r05 = ecdf(pNewWorkUnmodifiedBaseAndAll)(0.01)
