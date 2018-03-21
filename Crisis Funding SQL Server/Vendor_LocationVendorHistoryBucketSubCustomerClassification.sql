@@ -1,4 +1,4 @@
-USE [DIIG]
+USE [CSIS360]
 GO
 
 /****** Object:  View [Vendor].[LocationVendorHistoryBucketSubCustomerClassification]    Script Date: 9/26/2017 5:02:57 AM ******/
@@ -230,7 +230,7 @@ SELECT  [fiscal_year]
       ,[mainaccountcode]
       ,[subaccountcode]
 	  ,[AccountTitle]
-  FROM [DIIG].[Vendor].[LocationVendorHistoryBucketSubCustomerPartial] l
+  FROM [Vendor].[LocationVendorHistoryBucketSubCustomerPartial] l
   left outer join agency.BureauCode bc
   on bc.OMBagencyCode=l.OMBagencycode and
   bc.BureauCode=l.OMBbureaucode

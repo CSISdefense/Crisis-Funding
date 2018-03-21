@@ -1,4 +1,4 @@
-USE [DIIG]
+USE [CSIS360]
 GO
 
 /****** Object:  View [Vendor].[LocationVendorHistoryBucketSubCustomerPartial]    Script Date: 9/26/2017 5:05:38 AM ******/

@@ -290,7 +290,7 @@ decision_tree<-function(contract){
   contract$DecisionTree<-factor(contract$DecisionTree,levels=c("OCO","Disaster","ARRA","All Other"))
   
   
-    contract$DecisionTreeDisplay<-as.character( contract$DecisionTreeDisplay)
+    contract$DecisionTreeDisplay<-as.character( contract$DecisionTree)
   
   contract$DecisionTreeDisplay[
     (contract$StartFY<=2011 |
@@ -341,5 +341,5 @@ decision_tree<-function(contract){
                                             ]<-"Not in Sample"
   
   contract$DecisionTreeDisplay<-factor(contract$DecisionTreeDisplay)
-  
+  contract
 }

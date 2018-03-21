@@ -1,4 +1,4 @@
-USE [DIIG]
+USE [CSIS360]
 GO
 
 /****** Object:  View [Contract].[ContractHistoryPBLscoreSubCustomer]    Script Date: 3/29/2017 5:23:09 AM ******/
@@ -49,7 +49,7 @@ SELECT   CSIScontractID
       ,max(cast([IsOfficialPBL] as smallint)) as [MaxOfIsOfficialPBL]
       ,max(cast([IsPerformanceBasedLogistics] as smallint)) as [MaxOfIsPerformanceBasedLogistics]
 	  ,sum(sumofobligatedAmount) as sumofobligatedAmount
-  FROM [DIIG].[Contract].[CompetitionContractSizeHistoryBucketSubCustomerClassification]
+  FROM [Contract].[CompetitionContractSizeHistoryBucketSubCustomerClassification]
   group by CSIScontractID
   	,fiscal_year
 	,subcustomer

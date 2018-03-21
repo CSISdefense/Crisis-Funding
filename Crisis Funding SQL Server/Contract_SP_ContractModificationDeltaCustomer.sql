@@ -1,4 +1,4 @@
-USE [DIIG]
+USE [CSIS360]
 GO
 
 /****** Object:  StoredProcedure [Contract].[SP_ContractModificationDeltaCustomer]    Script Date: 9/14/2017 4:25:51 PM ******/

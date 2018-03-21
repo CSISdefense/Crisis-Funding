@@ -1,4 +1,4 @@
-USE [DIIG]
+USE [CSIS360]
 GO
 
 /****** Object:  StoredProcedure [Contract].[SP_ContractCompetitionVehicleCustomer]    Script Date: 9/14/2017 4:32:51 PM ******/

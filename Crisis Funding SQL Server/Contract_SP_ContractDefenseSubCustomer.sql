@@ -1,4 +1,4 @@
-USE [DIIG]
+USE [CSIS360]
 GO
 
 /****** Object:  StoredProcedure [Contract].[SP_ContractDefenseSubCustomer]    Script Date: 9/14/2017 4:30:54 PM ******/
@@ -40,7 +40,7 @@ BEGIN
       ,[ObligatedAmountIsNavy]
       ,[ObligatedAmountIsAirForce]
       ,[ObligatedAmountIsOtherDoD]
-  FROM [DIIG].[Contract].[ContractDefenseSubCustomer]
+  FROM [Contract].[ContractDefenseSubCustomer]
 
 
 	END

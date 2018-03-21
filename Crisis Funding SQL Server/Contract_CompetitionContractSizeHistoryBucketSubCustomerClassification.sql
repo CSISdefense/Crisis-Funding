@@ -1,4 +1,4 @@
-USE [DIIG]
+USE [CSIS360]
 GO
 
 /****** Object:  View [Contract].[CompetitionContractSizeHistoryBucketSubCustomerClassification]    Script Date: 3/29/2017 11:28:30 AM ******/

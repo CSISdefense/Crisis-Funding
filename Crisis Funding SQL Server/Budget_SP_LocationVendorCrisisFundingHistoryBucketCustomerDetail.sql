@@ -1,4 +1,4 @@
-USE [DIIG]
+USE [CSIS360]
 GO
 
 /****** Object:  StoredProcedure [budget].[SP_LocationVendorCrisisFundingHistoryBucketCustomer]    Script Date: 9/26/2017 4:56:28 AM ******/
@@ -59,7 +59,7 @@ SELECT [fiscal_year]
       ,sum([obligatedAmount]) as [obligatedAmount]
       ,sum([numberOfActions]) as [numberOfActions]
       
-  FROM [DIIG].[Vendor].[LocationVendorHistoryBucketSubCustomerClassification]
+  FROM [Vendor].[LocationVendorHistoryBucketSubCustomerClassification]
   where (@Customer is null or @Customer=ContractingCustomer)
   and (@StartFiscalYear is null or @StartFiscalYear<=fiscal_year)
   group by [fiscal_year]

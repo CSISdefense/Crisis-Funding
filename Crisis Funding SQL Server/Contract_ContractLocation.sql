@@ -1,4 +1,4 @@
-USE [DIIG]
+USE [CSIS360]
 GO
 
 /****** Object:  View [Contract].[ContractLocation]    Script Date: 3/29/2017 5:32:13 AM ******/

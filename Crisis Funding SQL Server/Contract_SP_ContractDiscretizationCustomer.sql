@@ -1,4 +1,4 @@
-USE [DIIG]
+USE [CSIS360]
 GO
 
 /****** Object:  StoredProcedure [Contract].[SP_ContractIdentifierCustomer]    Script Date: 9/28/2017 6:42:54 PM ******/
@@ -85,7 +85,7 @@ SELECT distinct ccid.[CSIScontractID]
       ,ccid.[SizeOfUnmodifiedSumOfbaseandexercisedoptionsvalue]
       ,ccid.[SumOfUnmodifiedbaseandalloptionsvalue]
       ,ccid.[SizeOfUnmodifiedSumOfbaseandalloptionsvalue]
-  FROM [DIIG].[Contract].[ContractDiscretization] as ccid
+  FROM [Contract].[ContractDiscretization] as ccid
 
   select ccid.CSIScontractID,
 ccid.idvpiid,
@@ -156,7 +156,7 @@ SELECT  ccid.[CSIScontractID]
       ,ccid.[SizeOfUnmodifiedSumOfbaseandexercisedoptionsvalue]
       ,ccid.[SumOfUnmodifiedbaseandalloptionsvalue]
       ,ccid.[SizeOfUnmodifiedSumOfbaseandalloptionsvalue]
-  FROM [DIIG].[Contract].[ContractDiscretization] as ccid
+  FROM [Contract].[ContractDiscretization] as ccid
 order by ccid.CSIScontractID
 
 		--End of your query

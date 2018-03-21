@@ -1,4 +1,4 @@
-USE [DIIG]
+USE [CSIS360]
 GO
 
 /****** Object:  View [Contract].[CSIStransactionIDomnibus]    Script Date: 10/31/2016 5:35:18 AM ******/
@@ -100,7 +100,7 @@ SELECT i.CSISidvpiidID
 	  when li.ContractLabelID is not null
 	  then li.[CrisisFunding]
 	  end as [CrisisFunding]
-  FROM [DIIG].[Contract].[CSIStransactionID] t
+  FROM [Contract].[CSIStransactionID] t
   left outer join COntract.CSIScontractID c
   on c.CSIScontractID = t.CSIScontractID
 left outer join COntract.CSISidvpiidID i
