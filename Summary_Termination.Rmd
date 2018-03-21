@@ -17,7 +17,6 @@ source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat")
 source("ContractCleanup.r")
 
-source("ContractCleanup.r")
 library(csis360)
 library(ggplot2)
 library(scales)
