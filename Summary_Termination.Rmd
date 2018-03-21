@@ -69,31 +69,32 @@ These four catetegories and the "Close Out" category are used to mark a contract
 
 ```{r ReadInData, echo = TRUE}
   load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
-DefenseModelAndDetail<-transform_contract(DefenseModelAndDetail)
-
-head(DefenseModelAndDetail)
+debug(transform_contract)
+FederalModelAndDetail<-transform_contract(FederalModelAndDetail)
+#Unknown or uninitialised column: 'Comp'
+head(FederalModelAndDetail)
 
 ```
 
 ```{r PrepareData}
 
 #ContractWeighted <- apply_lookups(Path,ContractWeighted)
-debug(decision_tree)
-DefenseModelAndDetail<-decision_tree(DefenseModelAndDetail)
 
-summary(DefenseModelAndDetail$DecisionTreeDisplay)
-# DefenseModelAndDetail<-subset(DefenseModelAndDetail,DecisionTreeDisplay != "Not in Sample")
-# save(complete_DefenseModelAndDetail,DefenseModelAndDetail,file="data//DefenseModelAndDetail.Rdata")
+FederalModelAndDetail<-decision_tree(FederalModelAndDetail)
 
-
-View(DefenseModelAndDetail[is.na(DefenseModelAndDetail$DecisionTreeDisplay),])
+summary(FederalModelAndDetail$DecisionTreeDisplay)
+# FederalModelAndDetail<-subset(FederalModelAndDetail,DecisionTreeDisplay != "Not in Sample")
+# save(complete_FederalModelAndDetail,FederalModelAndDetail,file="data//FederalModelAndDetail.Rdata")
 
 
-summary(DefenseModelAndDetail$DecisionTree)
-summary(DefenseModelAndDetail$DecisionTreeDisplay)
-write.csv(subset(DefenseModelAndDetail,Term=="Terminated"),"LargeDataSets//Terminated.csv")
+View(FederalModelAndDetail[is.na(FederalModelAndDetail$DecisionTreeDisplay),])
 
-save(DefenseModelAndDetail,file="LargeDataSets//FederalModelForTerminations.RData")
+
+summary(FederalModelAndDetail$DecisionTree)
+summary(FederalModelAndDetail$DecisionTreeDisplay)
+write.csv(subset(FederalModelAndDetail,Term=="Terminated"),"LargeDataSets//Terminated.csv")
+
+save(FederalModelAndDetail,file="LargeDataSets//FederalModelForTerminations.RData")
 
 
 ```
@@ -104,7 +105,7 @@ save(DefenseModelAndDetail,file="LargeDataSets//FederalModelForTerminations.RDat
 ##Data preparation
 ```{r SDurSCeilCount, fig.width=6.5,fig.height=5, dpi=600}
 # load(file="LargeDataSets//FederalModelForTerminations.RData")
-TerminatedSDurSCeilStatCount<-subset(DefenseModelAndDetail,
+TerminatedSDurSCeilStatCount<-subset(FederalModelAndDetail,
          !is.na(Dur.Simple) & 
            !is.na(Ceil.Simple) &
            !is.na(Term)) %>% group_by(Dur.Simple,
@@ -440,7 +441,7 @@ ggsave("Output//uca_term.png",uca_term, width=6.5, height= 5, units="in",dpi=300
 #Ceiling Breaches
 
 ```{r QuantileSimpleComp}
-df.QCrai.Comp<-subset(DefenseModelAndDetail,
+df.QCrai.Comp<-subset(FederalModelAndDetail,
                                         !is.na(Dur.Simple) & 
                !is.na(Ceil.Simple) &
                !is.na(CRai) &
@@ -458,7 +459,7 @@ df.QCrai.Comp<-subset(DefenseModelAndDetail,
       )
 
 
-df.QCrai.UCA<-subset(DefenseModelAndDetail,
+df.QCrai.UCA<-subset(FederalModelAndDetail,
                                         !is.na(Dur.Simple) & 
                !is.na(Ceil.Simple) &
                !is.na(CRai) &

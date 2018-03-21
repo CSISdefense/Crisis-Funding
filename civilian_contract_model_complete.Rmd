@@ -39,7 +39,7 @@ source(paste(Path,"lookups.r",sep=""))
 ```{r DetailCustomer}
 
 CivilianContracts <-readr::read_delim(
-  "LargeDataSets\\Civilian_contract_SP_ContractSampleCriteriaDetailsCustomer.csv",
+  "Data\\Civilian_contract_SP_ContractSampleCriteriaDetailsCustomer.csv",
   col_names=TRUE, 
   delim=",",
   # , dec=".",
@@ -67,7 +67,7 @@ CivilianContracts<-subset(CivilianContracts,
 # ,LastSignedLastDateToOrder
 #                                                       ,LastUltimateCompletionDate
 # ))
-save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
 
 
 ```
@@ -79,7 +79,7 @@ save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",Civil
 CivilianContracts<-csis360::read_and_join_experiment(data=CivilianContracts,
     lookup_file="Civilian_Contract_SP_ContractDetailsCustomer.csv",
   path="",
-  directory = "LargeDataSets/",
+  directory = "Data/",
   by="CSIScontractID",
   new_var_checked=FALSE
 )
@@ -102,7 +102,7 @@ CivilianContracts<-subset(CivilianContracts,select=-c(
 #   #     ,LastCurrentCompletionDate
 #     )]
 
-save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
 ```
 
 ## ContractingDelta
@@ -112,7 +112,7 @@ save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",Civil
 CivilianContracts<-csis360::read_and_join_experiment(CivilianContracts,
   "Civilian_contract_SP_ContractModificationDeltaCustomer.csv",
   "",
-  "LargeDataSets\\",
+  "Data\\",
   by="CSIScontractID",
   new_var_checked=FALSE
 )
@@ -132,7 +132,7 @@ CivilianContracts<-CivilianContracts[,!colnames(CivilianContracts) %in%
     "NewWorkBaseAndExercisedOptionsValue"    
     # "NewWorkBaseAndAllOptionsValue",
     )]
-save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
 ```
 ##Location
 ```{r Location}
@@ -141,7 +141,7 @@ save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",Civil
 CivilianContracts<-csis360::read_and_join_experiment(CivilianContracts,
   "Civilian_contract_SP_ContractLocationCustomer.txt"
   ,""
-  ,"LargeDataSets\\"
+  ,"Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -186,11 +186,11 @@ CivilianContracts<-CivilianContracts[,!colnames(CivilianContracts) %in%
   # "UnmodifiedPlaceCountryISO3",
   "PlaceCountryISO3"
     )]
-# load(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata")
+# load(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata")
 
 
 
-save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
 
 
 ```
@@ -202,7 +202,7 @@ save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",Civil
 CivilianContracts<-csis360::read_and_join_experiment(data=CivilianContracts
   ,"Civilian_Contract_SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt"
   ,path=""
-  ,"LargeDataSets\\"
+  ,"Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -348,7 +348,7 @@ CivilianContracts<-CivilianContracts[,!colnames(CivilianContracts) %in%
   "LastUltimateCompletionDate"
     )]
 
-save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
 ```
 
 ##BucketPlatform
@@ -356,7 +356,7 @@ save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",Civil
 CivilianContracts<-csis360::read_and_join_experiment(data=CivilianContracts
   ,"Civilian_Contract_SP_ContractBucketPlatformCustomer.txt"
   ,path=""
-  ,"LargeDataSets\\"
+  ,"Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -499,17 +499,18 @@ CivilianContracts$AnyPlaceInternational<-droplevels(CivilianContracts$AnyPlaceIn
 CivilianContracts$SimpleArea<-droplevels(CivilianContracts$SimpleArea)
 
 
-save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
 
 ```
 
 ##Competition Vehicle
 ```{r CompetitionVehicle}
 #data\\Civilian_contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.csv
+debug(read_and_join_experiment)
 CivilianContracts<-csis360::read_and_join_experiment(data=CivilianContracts
-  ,"Civilian_contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.csv"
+  ,"Civilian_contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.txt"
   ,path=""
-  ,"LargeDataSets\\"
+  ,"Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -518,7 +519,7 @@ CivilianContracts<-csis360::read_and_join_experiment(data=CivilianContracts
 CivilianContracts<-csis360::read_and_join_experiment(data=CivilianContracts
   ,"Civilian_contract_SP_ContractCompetitionVehicleCustomer.txt"
   ,path=""
-  ,"LargeDataSets\\"
+  ,"Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -640,7 +641,7 @@ CivilianContracts<-CivilianContracts[,!colnames(CivilianContracts) %in%
 )]
 
   
-save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
 
 ```
 
@@ -651,7 +652,7 @@ save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",Civil
 CivilianContracts<-csis360::read_and_join_experiment(data=CivilianContracts
   ,"Civilian_Contract_SP_ContractPricingCustomer.csv"
   ,path=""
-  ,"LargeDataSets\\"
+  ,"Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -770,11 +771,11 @@ CivilianContracts<-CivilianContracts[,!colnames(CivilianContracts) %in%
   # FixedOrCost,
   # Fee
     )]
-# load(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata")
+# load(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata")
 
 
 
-save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
 
 ```
 #Final Cleanup and Output
@@ -823,7 +824,7 @@ CivilianContracts$PlatformPortfolio.sum<-factor(CivilianContracts$PlatformPortfo
 
 
 
-save(file="LargeDataSets\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
+save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
 
 
 ```
@@ -902,7 +903,7 @@ write.table(CivilianModelAndDetail
   , row.names=FALSE
   , append=FALSE
 )
-save(CivilianModelAndDetail,file="LargeDataSets\\Civilian_contract_CSIScontractID_detail.Rdata")
+save(CivilianModelAndDetail,file="Data\\Civilian_contract_CSIScontractID_detail.Rdata")
 
 
 #Strip out the cuts
@@ -914,7 +915,7 @@ save(CivilianModelAndDetail,file="LargeDataSets\\Civilian_contract_CSIScontractI
 ##Merging up Civilian and Defense
 ```{r CombineDefenseAndCivil}
 
-load(file="LargeDataSets\\Defense_contract_CSIScontractID_detail.Rdata")
+load(file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
 
 
 DefenseModelAndDetail$Who<-factor(DefenseModelAndDetail$Who,
@@ -968,12 +969,12 @@ FederalModelAndDetail<-FormatContractModel(FederalModelAndDetail)
 FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDetail,
     lookup_file="Overall_Contract_SP_ContractBudgetDecisionTree.txt",
   path="",
-  directory = "LargeDataSets/",
+  directory = "Data/",
   by="CSIScontractID",
   new_var_checked=FALSE
 )
 summary(FederalModelAndDetail)
-save(FederalModelAndDetail,file="LargeDataSets\\Federal_contract_CSIScontractID_detail.Rdata")
+save(FederalModelAndDetail,file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
 
 
 
