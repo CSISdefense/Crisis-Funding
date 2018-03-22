@@ -834,27 +834,7 @@ save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",Defens
 ##Dataset Output
 
 ```{r DetailedOutput}
-DefenseModelAndDetail<-DefenseContracts
-
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="SubCustomer.sum"]<-"Who"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="UnmodifiedIsSomeCompetition"]<-"Comp"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="PlatformPortfolio.sum"]<-"What"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="IsIDV"]<-"IDV"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="FixedOrCost"]<-"FxCb"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="AnyInternational"]<-"Intl"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="SimpleArea"]<-"PSR"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="qLowCeiling"]<-"LowCeil"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="qHighCeiling"]<-"Ceil"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="qDuration"]<-"Dur"
-# colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="SingleOffer"]<-"One"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="qOffers"]<-"Offr"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="IsTerminated"]<-"Term"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="SimpleVehicle"]<-"Veh"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="LabeledMDAP"]<-"MDAP"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="qNChg"]<-"NChg"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="qCRais"]<-"CRai"
-colnames(DefenseModelAndDetail)[colnames(DefenseModelAndDetail)=="StartFiscal_Year"]<-"StartFY"
-
+DefenseModelAndDetail<-rename_dataset(DefenseContracts)
 
 
 DefenseModelAndDetail<-subset(DefenseModelAndDetail,select=c(CSIScontractID,

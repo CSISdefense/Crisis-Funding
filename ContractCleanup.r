@@ -2,27 +2,34 @@ library(lubridate)
 library(csis360)
 library(Hmisc)
 
+
+rename_dataset<-function(contract){
+  
+  colnames(contract)[colnames(contract)=="SubCustomer.sum"]<-"Who"
+  colnames(contract)[colnames(contract)=="UnmodifiedIsSomeCompetition"]<-"Comp"
+  colnames(contract)[colnames(contract)=="PlatformPortfolio.sum"]<-"What"
+  colnames(contract)[colnames(contract)=="IsIDV"]<-"IDV"
+  colnames(contract)[colnames(contract)=="FixedOrCost"]<-"FxCb"
+  colnames(contract)[colnames(contract)=="AnyInternational"]<-"Intl"
+  colnames(contract)[colnames(contract)=="SimpleArea"]<-"PSR"
+  colnames(contract)[colnames(contract)=="qLowCeiling"]<-"LowCeil"
+  colnames(contract)[colnames(contract)=="qHighCeiling"]<-"Ceil"
+  colnames(contract)[colnames(contract)=="qDuration"]<-"Dur"
+  # colnames(contract)[colnames(contract)=="SingleOffer"]<-"One"
+  colnames(contract)[colnames(contract)=="qOffers"]<-"Offr"
+  colnames(contract)[colnames(contract)=="IsTerminated"]<-"Term"
+  colnames(contract)[colnames(contract)=="SimpleVehicle"]<-"Veh"
+  colnames(contract)[colnames(contract)=="LabeledMDAP"]<-"MDAP"
+  colnames(contract)[colnames(contract)=="qNChg"]<-"NChg"
+  colnames(contract)[colnames(contract)=="qCRais"]<-"CRai"
+  colnames(contract)[colnames(contract)=="StartFiscal_Year"]<-"StartFY"
+  colnames(contract)[colnames(contract)=="StartFiscalYear"]<-"StartFY"
+  
+  contract
+}
+
 FormatContractModel<-function(dfContract){
-  colnames(dfContract)[colnames(dfContract)=="SubCustomer.sum"]<-"Who"
-  colnames(dfContract)[colnames(dfContract)=="UnmodifiedIsSomeCompetition"]<-"Comp"
-  colnames(dfContract)[colnames(dfContract)=="PlatformPortfolio.sum"]<-"What"
-  colnames(dfContract)[colnames(dfContract)=="IsIDV"]<-"IDV"
-  colnames(dfContract)[colnames(dfContract)=="FixedOrCost"]<-"FxCb"
-  colnames(dfContract)[colnames(dfContract)=="AnyInternational"]<-"Intl"
-  colnames(dfContract)[colnames(dfContract)=="SimpleArea"]<-"PSR"
-  colnames(dfContract)[colnames(dfContract)=="qLowCeiling"]<-"LowCeil"
-  colnames(dfContract)[colnames(dfContract)=="qHighCeiling"]<-"Ceil"
-  colnames(dfContract)[colnames(dfContract)=="qLinked"]<-"Link"
-  colnames(dfContract)[colnames(dfContract)=="qDuration"]<-"Dur"
-  # colnames(dfContract)[colnames(dfContract)=="SingleOffer"]<-"One"
-  colnames(dfContract)[colnames(dfContract)=="qOffers"]<-"Offr"
-  colnames(dfContract)[colnames(dfContract)=="IsTerminated"]<-"Term"
-  colnames(dfContract)[colnames(dfContract)=="SoftwareEng"]<-"Soft"
-  colnames(dfContract)[colnames(dfContract)=="SimpleVehicle"]<-"Veh"
-  colnames(dfContract)[colnames(dfContract)=="LabeledMDAP"]<-"MDAP"
-  colnames(dfContract)[colnames(dfContract)=="qNChg"]<-"NChg"
-  colnames(dfContract)[colnames(dfContract)=="qCRais"]<-"CRai"
-  colnames(dfContract)[colnames(dfContract)=="StartFiscalYear"]<-"StartFY"
+
   
   
   if(is.null(dfContract$Ceil) &

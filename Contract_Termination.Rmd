@@ -55,50 +55,51 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 
 
 ```{r ReadInData, echo = TRUE}
-  load(file="Data/defense_contract_CSIScontractID_detail.Rdata")
-  
+  load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
 
-head(DefenseModelAndDetail)
+head(FederalModelAndDetail)
 # undebug(transform_contract)
-DefenseModelAndDetail<-transform_contract(DefenseModelAndDetail)
+FederalModelAndDetail<-transform_contract(FederalModelAndDetail)
+
+FederalModelAndDetail<-decision_tree(FederalModelAndDetail)
 
 
 ```
 
 
-DefenseModelAndDetails$
+FederalModelAndDetails$
 
 
-NA_stats(DefenseModelAndDetail,"b_Term")
+NA_stats(FederalModelAndDetail,"b_Term")
 
-* b_Term is a binary variable that has a value of 1 for any contracts that have experienced a partial or complete termination, 0 otherwise. ('r summary(DefenseModelAndDetail$b_Term)
-NA_stats(DefenseModelAndDetail,"b_Term"))
-* b_Comp is a binary variable based on competition. It has a value of 0 for uncompeted contracts and a value of 1 for competition, regardless of number of offers. 'r  summary(DefenseModelAndDetail$b_Comp);
-NA_stats(DefenseModelAndDetail,"b_Comp")'
-* n_Comp is a numeric variable based on competition and number of offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for multi-offer competition. 'r summary(DefenseModelAndDetail$n_Comp);
-NA_stats(DefenseModelAndDetail,"n_Comp")'
-* n_Offr is a numeric variable based on competition and with more granularity on number offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for 2-offers, 3 for 3-4 offers, and 4 for 5+ offers. 'r summary(DefenseModelAndDetail$n_Offr);
-NA_stats(DefenseModelAndDetail,"n_Offr")'
-* l_Offr is the natural log of the number of offers received. Uncompeted contracts are classified as having received one offer. 'r summary(DefenseModelAndDetail$l_Offr);
-NA_stats(DefenseModelAndDetail,"l_Offr")'
-* cl_Ceil is the natural log of the initial contract cost ceiling, in then-year dollars. 'r centered_log_description(DefenseModelAndDetail$l_Ceil,"dollars");
-NA_stats(DefenseModelAndDetail,"l_Ceil")'
-* cl_Days is the natural log of the initial maximum duration of the contract, in days. The variable is centered, by subtracting its mean ('r centered_log_description(DefenseModelAndDetail$l_Days,"days");
-NA_stats(DefenseModelAndDetail,"l_Days")' 
-* SIDV, MIDV, and OIDV are dummy variables based on the contract vehicle. They correspond to Single-Award IDVs, Multi-Award IDVs, and Other IDVs, respectively, having a value of 1 when the task order has that vehicle type, and having a 0 other. The remaining types, definitive contracts and purchase orders, are intentionally left out. ('r summary(DefenseModelAndDetail$SIDV);
-summary(DefenseModelAndDetail$MIDV);
-summary(DefenseModelAndDetail$OIDV);
-NA_stats(DefenseModelAndDetail,"Veh")'
-* n_Fixed is a numeric variable based on contract pricing. It has a value of 0 for cost-based, 0.5 or "combination or other", 1 for any fixed price (excluding fixed-price level of effort which is classified as cost-based). ('r summary(DefenseModelAndDetail$n_Fixed);
-NA_stats(DefenseModelAndDetail,"n_Fixed")')
-* n_Incent is a numeric variable based on fee type. Ig has a value. 1 for incentive fee or cost sharing, 0.5 or "combination or other", 0 for all remaining types. ('r summary(DefenseModelAndDetail$n_Incent);
-NA_stats(DefenseModelAndDetail,"n_Incent")')
+* b_Term is a binary variable that has a value of 1 for any contracts that have experienced a partial or complete termination, 0 otherwise. ('r summary(FederalModelAndDetail$b_Term)
+NA_stats(FederalModelAndDetail,"b_Term"))
+* b_Comp is a binary variable based on competition. It has a value of 0 for uncompeted contracts and a value of 1 for competition, regardless of number of offers. 'r  summary(FederalModelAndDetail$b_Comp);
+NA_stats(FederalModelAndDetail,"b_Comp")'
+* n_Comp is a numeric variable based on competition and number of offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for multi-offer competition. 'r summary(FederalModelAndDetail$n_Comp);
+NA_stats(FederalModelAndDetail,"n_Comp")'
+* n_Offr is a numeric variable based on competition and with more granularity on number offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for 2-offers, 3 for 3-4 offers, and 4 for 5+ offers. 'r summary(FederalModelAndDetail$n_Offr);
+NA_stats(FederalModelAndDetail,"n_Offr")'
+* l_Offr is the natural log of the number of offers received. Uncompeted contracts are classified as having received one offer. 'r summary(FederalModelAndDetail$l_Offr)
+NA_stats(FederalModelAndDetail,"l_Offr")'
+* cl_Ceil is the natural log of the initial contract cost ceiling, in then-year dollars. 'r centered_log_description(FederalModelAndDetail$l_Ceil,"dollars")
+NA_stats(FederalModelAndDetail,"l_Ceil")'
+* cl_Days is the natural log of the initial maximum duration of the contract, in days. The variable is centered, by subtracting its mean ('r centered_log_description(FederalModelAndDetail$l_Days,"days");
+NA_stats(FederalModelAndDetail,"l_Days")' 
+* SIDV, MIDV, and OIDV are dummy variables based on the contract vehicle. They correspond to Single-Award IDVs, Multi-Award IDVs, and Other IDVs, respectively, having a value of 1 when the task order has that vehicle type, and having a 0 other. The remaining types, definitive contracts and purchase orders, are intentionally left out. ('r summary(FederalModelAndDetail$SIDV);
+summary(FederalModelAndDetail$MIDV);
+summary(FederalModelAndDetail$OIDV);
+NA_stats(FederalModelAndDetail,"Veh")'
+* n_Fixed is a numeric variable based on contract pricing. It has a value of 0 for cost-based, 0.5 or "combination or other", 1 for any fixed price (excluding fixed-price level of effort which is classified as cost-based). ('r summary(FederalModelAndDetail$n_Fixed);
+NA_stats(FederalModelAndDetail,"n_Fixed")')
+* n_Incent is a numeric variable based on fee type. Ig has a value. 1 for incentive fee or cost sharing, 0.5 or "combination or other", 0 for all remaining types. ('r summary(FederalModelAndDetail$n_Incent);
+NA_stats(FederalModelAndDetail,"n_Incent")')
 * b_UCA is a binary variable with a value of 1 for contracts/task orders that begin as letter contracts or undefinitized contract awards (UCA) and a value of 0 otherwise. 'r
-summary(DefenseModelAndDetail$b_UCA);
-NA_stats(DefenseModelAndDetail,"b_UCA")'
+summary(FederalModelAndDetail$b_UCA);
+NA_stats(FederalModelAndDetail,"b_UCA")'
 * b_Intl is a binary variable with a value of 1 for contracts/task orders with any transactions performed internationally and a value of 0 otherwise. 'r
-summary(DefenseModelAndDetail$b_Intl);
-NA_stats(DefenseModelAndDetail,"b_Intl")'
+summary(FederalModelAndDetail$b_Intl);
+NA_stats(FederalModelAndDetail,"b_Intl")'
 
 
 In addition, l_Ceil and l_Days are rescaled to have an average value of 0 and a standard deviation of one. This standardizes interpretation and prevents a "very large eigen value" error later when l_Ceil:lDay is introduced.
@@ -110,19 +111,21 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 ```{r Sample}
 
 
-Term_smp<-DefenseModelAndDetail[!is.na(DefenseModelAndDetail$b_Term)&
-                                  !is.na(DefenseModelAndDetail$Comp),]
+Term_smp<-FederalModelAndDetail[!is.na(FederalModelAndDetail$b_Term)
+                                # &
+                                  # !is.na(FederalModelAndDetail$Comp)
+                                ,]
 
 Term_smp<-Term_smp[sample(nrow(Term_smp),250000),]
 
 
 
 
-summary(Term_smp$b_Comp )
-summary(Term_smp$n_Comp )
-summary(Term_smp$Comp )
-summary(Term_smp$CompOffr )
-summary(Term_smp$EffComp )
+# summary(Term_smp$b_Comp )
+# summary(Term_smp$n_Comp )
+# summary(Term_smp$Comp )
+# summary(Term_smp$CompOffr )
+# summary(Term_smp$EffComp )
 
 head(Term_smp)
 
@@ -137,14 +140,14 @@ head(Term_smp)
 # deflators_retrieved$cutoff_3500<-3500*deflators_retrieved$Deflator.2016
 # deflators_retrieved<-subset(deflators_retrieved,select=c(Fiscal.Year,cutoff_3500))
 # colnames(deflators_retrieved)[1]<-"StartFY"
-# DefenseModelAndDetail<-plyr::join(DefenseModelAndDetail,deflators_retrieved)
+# FederalModelAndDetail<-plyr::join(FederalModelAndDetail,deflators_retrieved)
 # #Frequency Plot for logged ceiling
-# DefenseModelAndDetail$UnmodifiedContractBaseAndAllOptionsValue
-# Term_smp<-DefenseModelAndDetail[
-#   !is.na(DefenseModelAndDetail$b_Term)&
-#     !is.na(DefenseModelAndDetail$Comp)&
-#     DefenseModelAndDetail$UnmodifiedContractBaseAndAllOptionsValue>=
-#     DefenseModelAndDetail$cutoff_3500,]
+# FederalModelAndDetail$UnmodifiedContractBaseAndAllOptionsValue
+# Term_smp<-FederalModelAndDetail[
+#   !is.na(FederalModelAndDetail$b_Term)&
+#     !is.na(FederalModelAndDetail$Comp)&
+#     FederalModelAndDetail$UnmodifiedContractBaseAndAllOptionsValue>=
+#     FederalModelAndDetail$cutoff_3500,]
 # 
 # Term_smp<-Term_smp[sample(nrow(Term_smp),250000),]
 # 

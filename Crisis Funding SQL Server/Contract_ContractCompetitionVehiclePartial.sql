@@ -93,11 +93,11 @@ SELECT ctid.CSIScontractID
 	Left JOIN FPDSTypeTable.multipleorsingleawardidc as Cmulti
 		on C.multipleorsingleawardidc=Cmulti.multipleorsingleawardidc
 	Left JOIN FPDSTypeTable.multipleorsingleawardidc as IDVmulti
-		on isnull(idvmod.multipleorsingleawardidc,idv.multipleorsingleawardidc)=IDVMulti.multipleorsingleawardidc
+		on coalesce(idvmod.multipleorsingleawardidc,idv.multipleorsingleawardidc)=IDVMulti.multipleorsingleawardidc
 	Left JOIN FPDSTypeTable.ContractActionType as Ctype
 		on C.ContractActionType=Ctype.unseperated
 	Left JOIN FPDSTypeTable.ContractActionType as IDVtype
-		on isnull(idvmod.ContractActionType,idv.ContractActionType)=IDVtype.unseperated
+		on coalesce(idvmod.ContractActionType,idv.ContractActionType)=IDVtype.unseperated
 	left outer join FPDSTypeTable.lettercontract UCA
 		on c.lettercontract=UCA.LetterContract
 

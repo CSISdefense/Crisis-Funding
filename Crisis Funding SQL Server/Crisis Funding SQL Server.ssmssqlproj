@@ -3,14 +3,14 @@
   <Items>
     <LogicalFolder Name="Connections" Type="2" Sorted="true">
       <Items>
-        <ConnectionNode Name="VMDatabase:CSIS\gsanders">
-          <Created>2017-09-14T15:01:56.0324566-04:00</Created>
+        <ConnectionNode Name="vmsqldiig.database.windows.net:gsanders@csis.org">
+          <Created>2018-03-21T10:52:41.6377008-04:00</Created>
           <Type>SQL</Type>
-          <Server>VMDatabase</Server>
-          <UserName />
-          <Authentication>Windows Authentication</Authentication>
-          <InitialDB>DIIG</InitialDB>
-          <LoginTimeout>15</LoginTimeout>
+          <Server>vmsqldiig.database.windows.net</Server>
+          <UserName>gsanders@csis.org</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB>CSIS360</InitialDB>
+          <LoginTimeout>30</LoginTimeout>
           <ExecutionTimeout>0</ExecutionTimeout>
           <ConnectionProtocol>NotSpecified</ConnectionProtocol>
           <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
@@ -20,164 +20,164 @@
     <LogicalFolder Name="Queries" Type="0" Sorted="true">
       <Items>
         <FileNode Name="Assistance_SP_ProcessARRA.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Assistance_SP_ProcessARRA.sql</FullPath>
         </FileNode>
         <FileNode Name="Assistance_TransferARRA.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Assistance_TransferARRA.sql</FullPath>
         </FileNode>
         <FileNode Name="Budget_SP_CrisisFundingExploration.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Budget_SP_CrisisFundingExploration.sql</FullPath>
         </FileNode>
         <FileNode Name="Budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractBudgetDecisionTree.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractBudgetDecisionTree.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_CompetitionContractSizeHistoryBucketSubCustomerClassification.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_CompetitionContractSizeHistoryBucketSubCustomerClassification.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_ContractHistoryCrisisFundingScoreSubCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_ContractHistoryCrisisFundingScoreSubCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_ContractHistoryPBLscoreSubCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_ContractHistoryPBLscoreSubCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_ContractHistoryPBLscoreSubCustomerDetail.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_ContractHistoryPBLscoreSubCustomerDetail.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_ContractLocation.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_ContractLocation.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_CSIStransactionIDlabel.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_CSIStransactionIDlabel.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractBucketPlatformCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractBucketPlatformCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractCompetitionVehicleCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
-          <AssociatedConnUserName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:vmsqldiig.database.windows.net:False:gsanders@csis.org</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>vmsqldiig.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>gsanders@csis.org</AssociatedConnUserName>
           <FullPath>Contract_SP_ContractCompetitionVehicleCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractDefenseSubCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractDefenseSubCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractDetailsCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractDetailsCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractDetailsR&amp;DCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractDetailsR&amp;DCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractDiscretizationCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractDiscretizationCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractInterlinkedUnmodifiedSystemEquipment.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractInterlinkedUnmodifiedSystemEquipment.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractLocationCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractLocationCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractModificationDeltaCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractModificationDeltaCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractPricingCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractPricingCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractSampleCriteriaDetailsCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractSampleCriteriaDetailsCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractUnmodifiedAndOutcomeDetailsCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractUnmodifiedAndOutcomeDetailsCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractUnmodifiedCompetitionVehicleCustomer.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Contract_SP_ContractUnmodifiedCompetitionVehicleCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Vendor_LocationVendorHistoryBucketSubCustomerClassification.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Vendor_LocationVendorHistoryBucketSubCustomerClassification.sql</FullPath>
         </FileNode>
         <FileNode Name="Vendor_LocationVendorHistoryBucketSubCustomerPartial.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:VMDatabase:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>VMDatabase</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Vendor_LocationVendorHistoryBucketSubCustomerPartial.sql</FullPath>
         </FileNode>

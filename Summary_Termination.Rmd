@@ -79,7 +79,7 @@ head(FederalModelAndDetail)
 ```{r PrepareData}
 
 #ContractWeighted <- apply_lookups(Path,ContractWeighted)
-
+#Is.Defense left out
 FederalModelAndDetail<-decision_tree(FederalModelAndDetail)
 
 summary(FederalModelAndDetail$DecisionTreeDisplay)

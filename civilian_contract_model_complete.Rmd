@@ -28,7 +28,7 @@ Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 
 # Path<-"~\\FPDS\\R scripts and data\\"
 # Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
-
+source("ContractCleanup.r")
 source(paste(Path,"helper.r",sep=""))
 source(paste(Path,"lookups.r",sep=""))
 
@@ -507,7 +507,7 @@ save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContra
 ```{r CompetitionVehicle}
 #data\\Civilian_contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.csv
 debug(read_and_join_experiment)
-CivilianContracts<-csis360::read_and_join_experiment(data=CivilianContracts
+CivilianContracts<-read_and_join_experiment(data=CivilianContracts
   ,"Civilian_contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.txt"
   ,path=""
   ,"Data\\"
@@ -822,7 +822,7 @@ CivilianContracts$PlatformPortfolio.sum<-factor(CivilianContracts$PlatformPortfo
                                 labels = c("Unterminated", "Terminated")
     )
 
-
+CivilianContracts<-rename_dataset(CivilianContracts)
 
 save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
 
@@ -831,29 +831,8 @@ save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContra
 ##Dataset Output
 
 ```{r DetailedOutput}
-CivilianModelAndDetail<-CivilianContracts
 
-CivilianContracts<-apply_lookups(Path,CivilianContracts)
-
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="SubCustomer.sum"]<-"Who"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="UnmodifiedIsSomeCompetition"]<-"Comp"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="PlatformPortfolio.sum"]<-"What"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="IsIDV"]<-"IDV"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="FixedOrCost"]<-"FxCb"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="AnyPlaceInternational"]<-"Intl"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="SimpleArea"]<-"PSR"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="qLowCeiling"]<-"LowCeil"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="qHighCeiling"]<-"Ceil"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="qDuration"]<-"Dur"
-# colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="SingleOffer"]<-"One"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="qOffers"]<-"Offr"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="IsTerminated"]<-"Term"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="SimpleVehicle"]<-"Veh"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="LabeledMDAP"]<-"MDAP"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="qNChg"]<-"NChg"
-colnames(CivilianModelAndDetail)[colnames(CivilianModelAndDetail)=="qCRais"]<-"CRai"
-
-CivilianModelAndDetail<-subset(CivilianModelAndDetail,select=c(CSIScontractID,
+CivilianModelAndDetail<-subset(CivilianContracts,select=c(CSIScontractID,
   # IsIDV,
   FxCb,
   Fee,
@@ -973,6 +952,12 @@ FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDet
   by="CSIScontractID",
   new_var_checked=FALSE
 )
+FederalModelAndDetail$MaxOfDecisionTree<-factor(FederalModelAndDetail$MaxOfDecisionTree)
+FederalModelAndDetail$MaxOfDecisionTreeStep4 <-factor(FederalModelAndDetail$MaxOfDecisionTreeStep4 )
+FederalModelAndDetail$MinOfDecisionTree <-factor(FederalModelAndDetail$MinOfDecisionTree )
+FederalModelAndDetail$MinOfDecisionTreeStep4 <-factor(FederalModelAndDetail$MinOfDecisionTreeStep4 )
+
+
 summary(FederalModelAndDetail)
 save(FederalModelAndDetail,file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
 
