@@ -810,6 +810,61 @@ DefenseContracts<-subset(DefenseContracts,select=-c(
 )
 )
 ```
+
+## Details
+```{r Details}
+# load(file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
+DefenseModelAndDetail<-plyr::join(DefenseModelAndDetail,test)
+test<-read_delim("Data\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
+                 na=c("NA","NULL"),
+                 col_types="icdcdcdcd")
+                   # c(col_integer(),
+                   #   col_character(),
+                   #   col_double(),
+                   #   col_character(),
+                   #   col_double(),
+                   #   col_character(),
+                   #   col_double(),
+                   #   col_character(),
+                   #   col_double()))
+DefenseModelAndDetail<-csis360::read_and_join_experiment(data=DefenseModelAndDetail
+  ,"Contract.SP_ContractTopPSCofficeNAICS.txt"
+  ,path=""
+  ,"Data\\"
+  ,by="CSIScontractID"
+  ,new_var_checked=FALSE
+)
+
+DefenseModelAndDetail$topContractingOfficeAgencyID<-factor(
+  DefenseModelAndDetail$topContractingOfficeAgencyID
+)
+DefenseModelAndDetail$topContractingOfficeID<-factor(
+  DefenseModelAndDetail$topContractingOfficeID
+)
+DefenseModelAndDetail$topProductOrServiceCode<-factor(
+  DefenseModelAndDetail$topProductOrServiceCode
+)
+DefenseModelAndDetail$topPrincipalNAICScode<-factor(
+  DefenseModelAndDetail$topPrincipalNAICScode
+)
+
+
+DefenseModelAndDetail<-DefenseModelAndDetail[,!colnames(DefenseModelAndDetail) %in% 
+    c(
+      # "topContractingOfficeAgencyID",
+      "topContractingOfficeAgencyIDamount"      ,
+      # "topContractingOfficeID",
+      "topContractingOfficeAmount"  ,
+      # "topProductOrServiceCode",
+      "topProductOrServiceAmount"               ,
+      # "topPrincipalNAICScode",
+      "topPrincipalNAICSamount")]
+# load(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata")
+
+
+```
+
+
 #Final Cleanup and Output
 ##Applying lookups
 ```{r PostApply}
@@ -867,7 +922,11 @@ DefenseModelAndDetail<-subset(DefenseModelAndDetail,select=c(CSIScontractID,
   UnmodifiedDays,
   MinOfEffectiveDate,
   Action.Obligation,
-  StartFY
+  StartFY,
+  Agency,
+  Office,
+  ProdServ,
+  NAICS
 )
 )
 # 

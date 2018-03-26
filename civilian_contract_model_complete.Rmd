@@ -778,6 +778,60 @@ CivilianContracts<-CivilianContracts[,!colnames(CivilianContracts) %in%
 save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
 
 ```
+
+## Details
+```{r Details}
+load(file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
+FederalModelAndDetail<-plyr::join(FederalModelAndDetail,test)
+test<-read_delim("Data\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
+                 na=c("NA","NULL"),
+                 col_types="icdcdcdcd")
+                   # c(col_integer(),
+                   #   col_character(),
+                   #   col_double(),
+                   #   col_character(),
+                   #   col_double(),
+                   #   col_character(),
+                   #   col_double(),
+                   #   col_character(),
+                   #   col_double()))
+FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDetail
+  ,"Contract.SP_ContractTopPSCofficeNAICS.txt"
+  ,path=""
+  ,"Data\\"
+  ,by="CSIScontractID"
+  ,new_var_checked=FALSE
+)
+
+FederalModelAndDetail$topContractingOfficeAgencyID<-factor(
+  FederalModelAndDetail$topContractingOfficeAgencyID
+)
+FederalModelAndDetail$topContractingOfficeID<-factor(
+  FederalModelAndDetail$topContractingOfficeID
+)
+FederalModelAndDetail$topProductOrServiceCode<-factor(
+  FederalModelAndDetail$topProductOrServiceCode
+)
+FederalModelAndDetail$topPrincipalNAICScode<-factor(
+  FederalModelAndDetail$topPrincipalNAICScode
+)
+
+
+FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %in% 
+    c(
+      # "topContractingOfficeAgencyID",
+      "topContractingOfficeAgencyIDamount"      ,
+      # "topContractingOfficeID",
+      "topContractingOfficeAmount"  ,
+      # "topProductOrServiceCode",
+      "topProductOrServiceAmount"               ,
+      # "topPrincipalNAICScode",
+      "topPrincipalNAICSamount")]
+# load(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata")
+
+
+```
+
 #Final Cleanup and Output
 ##Applying lookups
 ```{r PostApply}
@@ -825,7 +879,7 @@ CivilianContracts$PlatformPortfolio.sum<-factor(CivilianContracts$PlatformPortfo
 CivilianContracts<-rename_dataset(CivilianContracts)
 
 save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",CivilianContracts)
-
+# FederalModelAndDetail<-rename_dataset(FederalModelAndDetail)
 
 ```
 ##Dataset Output
@@ -862,7 +916,11 @@ CivilianModelAndDetail<-subset(CivilianContracts,select=c(CSIScontractID,
   # pChangeOrderObligated,
   UnmodifiedDays,
   MinOfEffectiveDate,
-  Action.Obligation
+  Action.Obligation,
+  Agency,
+  Office,
+  ProdServ,
+  NAICS
 )
 )
 # 
