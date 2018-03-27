@@ -45,9 +45,11 @@ BEGIN
       ,[UnmodifiedIsOnlyOneSource]
       ,[UnmodifiedIsFollowonToCompetedAction]
       ,[Unmodifiedmultipleorsingleawardidc]
-      ,[Unmodifiedaddmultipleorsingawardidc]
-      ,[UnmodifiedAwardOrIDVcontractactiontype]
-	  ,cc.MaxOfIsUndefinitizedAction
+      --,[Unmodifiedaddmultipleorsingawardidc]
+	  ,unmodifiedaward_type_code
+	  ,unmodifiedidv_type_code
+      --,[UnmodifiedAwardOrIDVcontractactiontype]
+	  --,cc.MaxOfIsUndefinitizedAction
 from contract.fpds f
 inner join contract.CSIStransactionID ct
 on ct.CSIStransactionID=f.CSIStransactionID
@@ -67,9 +69,11 @@ where a.customer=@Customer
       ,[UnmodifiedIsOnlyOneSource]
       ,[UnmodifiedIsFollowonToCompetedAction]
       ,[Unmodifiedmultipleorsingleawardidc]
-      ,[Unmodifiedaddmultipleorsingawardidc]
-      ,[UnmodifiedAwardOrIDVcontractactiontype]
-	  ,cc.MaxOfIsUndefinitizedAction
+      --,[Unmodifiedaddmultipleorsingawardidc]
+      --,[UnmodifiedAwardOrIDVcontractactiontype]
+	  	  ,unmodifiedaward_type_code
+	  ,unmodifiedidv_type_code
+	  --,cc.MaxOfIsUndefinitizedAction
 from contract.ContractUnmodifiedCompetitionVehicle cc
 
 		--End of your query
