@@ -1,4 +1,4 @@
-/****** Object:  View [Contract].[ContractCompetitionVehicle]    Script Date: 3/26/2018 11:40:57 PM ******/
+/****** Object:  View [Contract].[ContractUnmodifiedCompetitionVehicle]    Script Date: 3/27/2018 12:22:17 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -12,51 +12,42 @@ GO
 
 
 
-
-
-ALTER VIEW [Contract].[ContractCompetitionVehicle]
+ALTER VIEW [Contract].[ContractUnmodifiedCompetitionVehicle]
 AS
 select M.CSIScontractID
 --NumberOfOffersReceived
 ,iif(M.MinOfNumberOfOffersReceived=MaxOfNumberOfOffersReceived,
 	MaxOfNumberOfOffersReceived
-	,NULL) as NumberOfOffersReceived
-,iif(M.MinOfUseFairOpportunity=MaxOfUseFairOpportunity,
-	MaxOfUseFairOpportunity
-	,NULL) as UseFairOpportunity
+	,NULL) as UnmodifiedNumberOfOffersReceived
 --IsFullAndOpen
 ,iif(M.MinOfIsFullAndOpen=MaxOfIsFullAndOpen,
 	MaxOfIsFullAndOpen
-	,NULL) as IsFullAndOpen
+	,NULL) as UnmodifiedIsFullAndOpen
 --IsSomeCompetition	
-,ObligatedAmountIsSomeCompetition
 ,iif(M.MinOfIsSomeCompetition	=MaxOfIsSomeCompetition	,
 	MaxOfIsSomeCompetition	
-	,NULL) as IsSomeCompetition	
+	,NULL) as UnmodifiedIsSomeCompetition	
 --IsOnlyOneSource=MaxOfIsOnlyOneSource
 ,iif(M.MinOfIsOnlyOneSource=MaxOfIsOnlyOneSource,
 	MaxOfIsOnlyOneSource
-	,NULL) as IsOnlyOneSource
+	,NULL) as UnmodifiedIsOnlyOneSource
 --IsFollowonToCompetedAction
 ,iif(M.MinOfIsFollowonToCompetedAction=MaxOfIsFollowonToCompetedAction,
 	MaxOfIsFollowonToCompetedAction
-	,NULL) as IsFollowonToCompetedAction
---IsIDV
-,iif(M.MinOfIsIDV=MaxOfIsIDV,
-	MaxOfIsIDV
-	,NULL) as IsIDV
+	,NULL) as UnmodifiedIsFollowonToCompetedAction
 --multipleorsingleawardidc
 ,iif(M.MinOfmultipleorsingleawardidc=MaxOfmultipleorsingleawardidc,
 	MaxOfmultipleorsingleawardidc
-	,NULL) as MultipleOrSingleAwardIDC
+	,NULL) as Unmodifiedmultipleorsingleawardidc
 --addmultipleorsingawardidc
 --,iif(M.MinOfaddmultipleorsingawardidc=MaxOfaddmultipleorsingawardidc,
 --	MaxOfaddmultipleorsingawardidc
---	,NULL) as AddMultipleOrSingleAwardIDC
---AwardOrIDVcontractactiontype
+--	,NULL) as Unmodifiedaddmultipleorsingawardidc
+----AwardOrIDVcontractactiontype
 --,iif(M.MinOfAwardOrIDVcontractactiontype=MaxOfAwardOrIDVcontractactiontype,
 --	MaxOfAwardOrIDVcontractactiontype
---	,NULL) as AwardOrIDVcontractActionType
+--	,NULL) as UnmodifiedAwardOrIDVcontractactiontype
+--	,MaxOfIsUndefinitizedAction
 --Award_Type_Code
 ,iif(M.MinOfAward_Type_Code=MaxOfAward_Type_Code,
 	MaxOfAward_Type_Code
@@ -76,9 +67,6 @@ from (SELECT
 	--Number Of Offers
 	, Min(nullif(C.numberofoffersreceived,0)) AS MinOfNumberOfOffersReceived
 	, Max(nullif(C.numberofoffersreceived,0)) AS MaxOfNumberOfOffersReceived
-	--UseFairOpportunity
-	, min(c.UseFairOpportunity) as MinOfUseFairOpportunity
-	, max(c.UseFairOpportunity) as MaxOfUseFairOpportunity
 	--Competition Binaries IsFullAndOpen
 	, Min(convert(int,iif(c.UseFairOpportunity=1
 		,0
@@ -90,11 +78,6 @@ from (SELECT
 	))) AS MaxOfIsFullAndOpen
 	
 	--Competition Binaries IsSomeCompetition
-	,sum(iif((c.UseFairOpportunity=1 and isnull(c.FairIsSomeCompetition,c.ExtentIsSomeCompetition)=1) or 
-			(c.UseFairOpportunity=0 and isnull(c.ExtentIsSomeCompetition,c.FairIsSomeCompetition)=1)
-			,ObligatedAmount
-			,NULL) 
-	) as ObligatedAmountIsSomeCompetition
 	,min(convert(int,iif(c.UseFairOpportunity=1
 		,isnull(c.FairIsSomeCompetition,c.ExtentIsSomeCompetition)
 		,isnull(c.ExtentIsSomeCompetition,c.FairIsSomeCompetition)
@@ -124,19 +107,19 @@ from (SELECT
 	--Vehicle
 	, Min(C.multipleorsingleawardidc) AS MinOfmultipleorsingleawardidc
 	, Max(C.multipleorsingleawardidc) AS MaxOfmultipleorsingleawardidc
-	, Min(convert(int,C.IsIDV)) AS MinOfIsIDV
-	, Max(convert(int,C.IsIDV)) AS MaxOfIsIDV
 	--, Min(convert(int,C.addmultipleorsingawardidc)) AS MinOfaddmultipleorsingawardidc
 	--, Max(convert(int,C.addmultipleorsingawardidc)) AS MaxOfaddmultipleorsingawardidc
-	, Min(C.Award_Type_Code) AS MinOfAward_Type_Code
+	--, Min(C.AwardOrIDVcontractactiontype) AS MinOfAwardOrIDVcontractactiontype
+	--, Max(C.AwardOrIDVcontractactiontype) AS MaxOfAwardOrIDVcontractactiontype
+	, Max(convert(int,C.IsUndefinitizedAction)) as MaxOfIsUndefinitizedAction
+		, Min(C.Award_Type_Code) AS MinOfAward_Type_Code
 	, Max(C.Award_Type_Code) AS MaxOfAward_Type_Code
 		, Min(C.idv_type_code) AS MinOfidv_type_code
 	, Max(C.idv_type_code) AS MaxOfidv_type_code
 
   FROM contract.[ContractCompetitionVehiclePartial] as C
+  where c.[IsUnmodified]=1
 group by CSIScontractID ) as M
-
-
 
 
 

@@ -49,8 +49,9 @@ BEGIN
       ,IsFollowonToCompetedAction
 	  ,cc.IsIDV
       ,cc.multipleorsingleawardidc
-      ,AddMultipleOrSingleAwardIDC
-      ,cc.AwardOrIDVcontractActionType
+      ,cc.Award_Type_Code
+	  ,cc.IDV_Type_Code
+      --,cc.AwardOrIDVcontractActionType
 	  
 from contract.fpds f
 inner join contract.CSIStransactionID ct
@@ -73,8 +74,10 @@ where a.IsDefense=@IsDefense
       ,IsFollowonToCompetedAction
 	  ,cc.IsIDV
       ,cc.multipleorsingleawardidc
-      ,AddMultipleOrSingleAwardIDC
-      ,cc.AwardOrIDVcontractActionType
+      --,AddMultipleOrSingleAwardIDC
+      --,cc.AwardOrIDVcontractActionType
+	        ,cc.Award_Type_Code
+	  ,cc.IDV_Type_Code
 from contract.ContractCompetitionVehicle cc
 
 		--End of your query

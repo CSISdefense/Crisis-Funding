@@ -24,6 +24,10 @@ rename_dataset<-function(contract){
   colnames(contract)[colnames(contract)=="qCRais"]<-"CRai"
   colnames(contract)[colnames(contract)=="StartFiscal_Year"]<-"StartFY"
   colnames(contract)[colnames(contract)=="StartFiscalYear"]<-"StartFY"
+  colnames(contract)[colnames(contract)=="topContractingOfficeAgencyID"]<-"Agency"
+  colnames(contract)[colnames(contract)=="topContractingOfficeIDt "]<-"Office"
+  colnames(contract)[colnames(contract)=="topProductOrServiceCode"]<-"ProdServ"
+  colnames(contract)[colnames(contract)=="topPrincipalNAICScode"]<-"NAICS"
   
   contract
 }
