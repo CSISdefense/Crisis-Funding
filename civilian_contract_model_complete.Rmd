@@ -24,13 +24,13 @@ options(warn=1)
 
 #*************************************Lookup Files*****************************************************
 
-Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
-
+Path<-"https://github.com/CSISdefense/R-scripts-and-data/blob/master/"
+# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"~\\FPDS\\R scripts and data\\"
 # Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
 source("ContractCleanup.r")
-source(paste(Path,"helper.r",sep=""))
-source(paste(Path,"lookups.r",sep=""))
+source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
+source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
 
 ```
 
@@ -499,16 +499,30 @@ FederalModelAndDetail$AnyPlaceInternational<-droplevels(FederalModelAndDetail$An
 FederalModelAndDetail$SimpleArea<-droplevels(FederalModelAndDetail$SimpleArea)
 
 
-save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",FederalModelAndDetail)
+save(file="Data\\Federal_contract_CSIScontractID_detail.Rdata",FederalModelAndDetail)
 
 ```
 
 ##Competition Vehicle
 ```{r CompetitionVehicle}
 #data\\Civilian_contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.csv
-debug(read_and_join_experiment)
+
+FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %in% 
+    c(
+      "UnmodifiedIsFullAndOpen",
+  "UnmodifiedIsOnlyOneSource",
+  "UnmodifiedIsFollowonToCompetedAction",
+      "Unmodifiedmultipleorsingleawardidc",
+      "Unmodifiedaddmultipleorsingawardidc",
+  "IsFullAndOpen",
+  "IsFollowonToCompetedAction",
+      "multipleorsingleawardidc",
+      "AddMultipleOrSingleAwardIDC"
+)]
+
+
 FederalModelAndDetail<-read_and_join_experiment(data=FederalModelAndDetail
-  ,"Civilian_contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.txt"
+  ,"Contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.txt"
   ,path=""
   ,"Data\\"
   ,by="CSIScontractID"
@@ -517,13 +531,15 @@ FederalModelAndDetail<-read_and_join_experiment(data=FederalModelAndDetail
 
 #Civilian_contract_SP_ContractCompetitionVehicleCustomer.csv
 FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDetail
-  ,"Civilian_contract_SP_ContractCompetitionVehicleCustomer.txt"
+  ,"Contract.SP_ContractCompetitionVehicleCustomer.txt"
   ,path=""
   ,"Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
 
+
+#Number of Offers
 FederalModelAndDetail$UnmodifiedNumberOfOffersReceived<-FactorToNumber(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived)
 
 FederalModelAndDetail$NumberOfOffersReceived<-FactorToNumber(FederalModelAndDetail$NumberOfOffersReceived)
@@ -538,77 +554,6 @@ rm(NAnumberOfOffers)
 
 FederalModelAndDetail$qOffers <- cut2(FederalModelAndDetail$NumberOfOffersReceived,cuts=c(1,2,3,5))
 
-if(is.numeric(FederalModelAndDetail$IsIDV)){
-  FederalModelAndDetail$IsIDV<-factor(FederalModelAndDetail$IsIDV,levels=c(0,1),labels=c("Def/Pur","IDV"))
-}
-
-
-
-FederalModelAndDetail$UnmodifiedNumberOfOffersReceived[is.na(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived)&
-    !is.na(FederalModelAndDetail$UnmodifiedIsSomeCompetition)&
-    FederalModelAndDetail$UnmodifiedIsSomeCompetition=="No Comp."
-  ]<-1
-
-
-
-
-
-FederalModelAndDetail$SingleOffer<-factor(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived==1,
-  levels=c(TRUE,FALSE),
-  labels=c("Single","Multi")
-)
-
-FederalModelAndDetail$SingleOffer[is.na(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived)]<-NA
-
-FederalModelAndDetail$SimpleVehicle<-NA
-FederalModelAndDetail$SimpleVehicle[FederalModelAndDetail$AwardOrIDVcontractActionType %in% c("Definitive Contract",
-  "Purchase Order")]<-"Def/Pur"
-FederalModelAndDetail$SimpleVehicle[FederalModelAndDetail$AwardOrIDVcontractActionType 
-  %in% c("Basic Ordering Agreement",
-    "Blanket Purchase Agreement",
-    "Federal Supply Schedule",
-    "Government Wide Acquisition Contract")]<-"Other IDV"
-FederalModelAndDetail$SimpleVehicle[FederalModelAndDetail$AwardOrIDVcontractActionType == "Letter Contract"]<-"Letter"
-FederalModelAndDetail$SimpleVehicle[FederalModelAndDetail$AwardOrIDVcontractActionType %in%
-    c("Indefinite Delivery Contract",
-      "Delivery Order")]<-
-  as.character(FederalModelAndDetail$multipleorsingleawardidc[FederalModelAndDetail$AwardOrIDVcontractActionType %in%
-      c("Indefinite Delivery Contract",
-        "Delivery Order")])
-
-FederalModelAndDetail$SimpleVehicle<-factor(FederalModelAndDetail$SimpleVehicle)
-summary(FederalModelAndDetail$SimpleVehicle)
-str(FederalModelAndDetail$SimpleVehicle)
-
-summary(FederalModelAndDetail[is.na(FederalModelAndDetail$SimpleVehicle),"AwardOrIDVcontractActionType"])
-
-
-FederalModelAndDetail$UCA<-factor(FederalModelAndDetail$MaxOfIsUndefinitizedAction,
-  levels=c(0,1),
-  labels=c("Not UCA","UCA")
-)
-
-#IsSomeCompetition Impute missing values when labeled entries have a consistent value.
-NAisSomeCompetition<-(is.na(FederalModelAndDetail$UnmodifiedIsSomeCompetition)|
-    FederalModelAndDetail$UnmodifiedIsSomeCompetition=="Unlabeled")&
-  (FederalModelAndDetail$IsSomeCompetition!="Mixed or \nUnlabeled"&
-      !is.na(FederalModelAndDetail$IsSomeCompetition))
-FederalModelAndDetail$UnmodifiedIsSomeCompetition[NAisSomeCompetition]<-
-  FederalModelAndDetail$IsSomeCompetition[NAisSomeCompetition]
-rm(NAisSomeCompetition)
-#Calculate Comp
-FederalModelAndDetail$Comp[FederalModelAndDetail$UnmodifiedIsSomeCompetition=="No Comp."]<-"No Comp."
-FederalModelAndDetail$Comp[FederalModelAndDetail$UnmodifiedIsSomeCompetition=="Comp." &
-                           FederalModelAndDetail$UnmodifiedIsFullAndOpen=="Not Full & Open"]<-"Comp."
-FederalModelAndDetail$Comp[FederalModelAndDetail$UnmodifiedIsSomeCompetition=="Comp." &
-                           FederalModelAndDetail$UnmodifiedIsFullAndOpen=="Comp."]<-"Comp."
-FederalModelAndDetail$Comp[FederalModelAndDetail$UnmodifiedIsSomeCompetition=="Comp."]<-"Comp."
-
-
-FederalModelAndDetail$Comp<-factor(FederalModelAndDetail$Comp,
-                               levels=c("No Comp.","Comp.")
-                               )
-
 
 
 if (all(levels(FederalModelAndDetail$qOffers)==c("  1","  2","[  3,  5)","[  5,999]"))){
@@ -619,36 +564,175 @@ if (all(levels(FederalModelAndDetail$qOffers)==c("  1","  2","[  3,  5)","[  5,9
   )
 }
 
+FederalModelAndDetail$UnmodifiedNumberOfOffersReceived[is.na(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived)&
+    !is.na(FederalModelAndDetail$UnmodifiedIsSomeCompetition)&
+    FederalModelAndDetail$UnmodifiedIsSomeCompetition==0
+  ]<-1
+
+
+
+#Competition
+
+# FederalModelAndDetail$SingleOffer<-factor(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived==1,
+#   levels=c(TRUE,FALSE),
+#   labels=c("Single","Multi")
+# )
+# 
+# FederalModelAndDetail$SingleOffer[is.na(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived)]<-NA
+
+#IsSomeCompetition Impute missing values when labeled entries have a consistent value.
+NAisSomeCompetition<-is.na(FederalModelAndDetail$UnmodifiedIsSomeCompetition)
+FederalModelAndDetail$UnmodifiedIsSomeCompetition[NAisSomeCompetition]<-
+  FederalModelAndDetail$IsSomeCompetition[NAisSomeCompetition]
+rm(NAisSomeCompetition)
+
+#Calculate Comp
+FederalModelAndDetail$Comp[FederalModelAndDetail$UnmodifiedIsSomeCompetition==0]<-"No Comp."
+# FederalModelAndDetail$Comp[FederalModelAndDetail$UnmodifiedIsSomeCompetition=="Comp." &
+#                            FederalModelAndDetail$UnmodifiedIsFullAndOpen=="Not Full & Open"]<-"Comp."
+# FederalModelAndDetail$Comp[FederalModelAndDetail$UnmodifiedIsSomeCompetition=="Comp." &
+#                            FederalModelAndDetail$UnmodifiedIsFullAndOpen=="Comp."]<-"Comp."
+FederalModelAndDetail$Comp[FederalModelAndDetail$UnmodifiedIsSomeCompetition==1]<-"Comp."
+
+#Competition and Offer  
+FederalModelAndDetail$EffComp<-FederalModelAndDetail$Comp
+
+FederalModelAndDetail$EffComp[FederalModelAndDetail$Comp=="Comp." & !is.na(FederalModelAndDetail$Comp)]<-
+  ifelse(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived[FederalModelAndDetail$Comp=="Comp." & !is.na(FederalModelAndDetail$Comp)]>1,"2+ Offers","1 Offer")
+
+FederalModelAndDetail$Comp<-factor(FederalModelAndDetail$Comp,
+                               levels=c("No Comp.","Comp.")
+                                                              )
+FederalModelAndDetail$EffComp<-factor(FederalModelAndDetail$EffComp,
+                               levels=c("No Comp.","1 Offer","2+ Offers")
+                               )
 
 FederalModelAndDetail$qOffers[is.na(FederalModelAndDetail$qOffers)&
     !is.na(FederalModelAndDetail$UnmodifiedIsSomeCompetition)&
-    FederalModelAndDetail$UnmodifiedIsSomeCompetition=="No Comp."
+    FederalModelAndDetail$UnmodifiedIsSomeCompetition==0
   ]<-"1"
+
+
+#Vehicle
+#Award_Type_Code Impute missing values when labeled entries have a consistent value.
+FederalModelAndDetail$unmodifiedaward_type_code[
+  is.na(FederalModelAndDetail$unmodifiedaward_type_code)]<-
+  FederalModelAndDetail$Award_Type_Code[
+    is.na(FederalModelAndDetail$unmodifiedaward_type_code)]
+
+
+#idv_type_code Impute missing values when labeled entries have a consistent value.
+FederalModelAndDetail$unmodifiedidv_type_code[
+  is.na(FederalModelAndDetail$unmodifiedidv_type_code)]<-
+  FederalModelAndDetail$IDV_Type_Code[
+    is.na(FederalModelAndDetail$unmodifiedidv_type_code)]
+
+
+#Unmodifiedmultipleorsingleawardidc Impute missing values when labeled entries have a consistent value.
+FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc[
+  is.na(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc)]<-
+  FederalModelAndDetail$multipleorsingleawardidc[
+    is.na(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc)]
+
+#Assign Is IDV
+#A = BPA Call, C = Delivery Order
+FederalModelAndDetail$IsIDV[!is.na(FederalModelAndDetail$unmodifiedaward_type_code) &
+                               FederalModelAndDetail$unmodifiedaward_type_code %in% c("A","C")]<-1
+#B = Purchase Order, D = Definitive Contract
+FederalModelAndDetail$IsIDV[!is.na(FederalModelAndDetail$unmodifiedaward_type_code) &
+                               FederalModelAndDetail$unmodifiedaward_type_code %in% c("B","D")]<-0
+FederalModelAndDetail$IsIDV[!is.na(FederalModelAndDetail$unmodifiedidv_type_code)]<-1
+
+if(is.numeric(FederalModelAndDetail$IsIDV)){
+  FederalModelAndDetail$IsIDV<-factor(FederalModelAndDetail$IsIDV,levels=c(0,1),labels=c("Def/Pur","IDV"))
+}
+
+
+#Simple Vehicle, which consolidates IDV and award types
+FederalModelAndDetail$SimpleVehicle[
+  !is.na(FederalModelAndDetail$unmodifiedaward_type_code) &
+    FederalModelAndDetail$unmodifiedaward_type_code %in% c("B","D")]<-"Def/Pur"
+
+
+FederalModelAndDetail$SimpleVehicle[
+  !is.na(FederalModelAndDetail$unmodifiedidv_type_code) &
+    FederalModelAndDetail$unmodifiedidv_type_code %in% c("B") &
+    !is.na(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc)]<-
+  paste(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc[
+     !is.na(FederalModelAndDetail$unmodifiedidv_type_code) &
+    FederalModelAndDetail$unmodifiedidv_type_code %in% c("B") &
+    !is.na(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc)
+  ],"IDC")
+
+#IDV_type_Code D = BOA, E=BPA, Award_Type_code A=BPA Call
+FederalModelAndDetail$SimpleVehicle[
+  !is.na(FederalModelAndDetail$unmodifiedidv_type_code) &
+    FederalModelAndDetail$unmodifiedidv_type_code %in% c("D","E") |
+  !is.na(FederalModelAndDetail$unmodifiedaward_type_code) &
+    FederalModelAndDetail$unmodifiedaward_type_code %in% c("A") 
+    ]<-
+  "BPA/BOA"
+#IDV_type_cde A=GWAC C=FSS
+FederalModelAndDetail$SimpleVehicle[
+  !is.na(FederalModelAndDetail$unmodifiedidv_type_code)
+  & FederalModelAndDetail$unmodifiedidv_type_code 
+  %in% c('A','C')]<-"FSS/GWAC"
+
+#Imputing that when Multiple Award/Single Award is known, but IDV_type_code is not
+#that the vehicle type is an IDC
+FederalModelAndDetail$SimpleVehicle[
+  is.na(FederalModelAndDetail$SimpleVehicle)&
+  is.na(FederalModelAndDetail$unmodifiedidv_type_code) &
+    !is.na(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc)]<-
+  paste(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc[
+  is.na(FederalModelAndDetail$SimpleVehicle)&
+  is.na(FederalModelAndDetail$unmodifiedidv_type_code) &
+    !is.na(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc)],"IDC")
+
+FederalModelAndDetail$SimpleVehicle<-factor(FederalModelAndDetail$SimpleVehicle)
+summary(FederalModelAndDetail$SimpleVehicle)
+#Imputing that when the simple vehicle is a kind of IDV, IsIDV should follow as well
+FederalModelAndDetail$IsIDV[
+  is.na(FederalModelAndDetail$IsIDV)&
+    FederalModelAndDetail$SimpleVehicle %in% c(
+      'BPA/BOA','FSS/GWAC','MULTIPLE AWARD IDC','SINGLE AWARD IDC'
+    )]<-"IDV"
+
+
 
 
 
 FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %in% 
     c(
   #     UnmodifiedIsFullAndOpen,
-  "UnmodifiedIsOnlyOneSource",
+  # "UnmodifiedIsOnlyOneSource",
   "UnmodifiedIsFollowonToCompetedAction",
-  #     Unmodifiedmultipleorsingleawardidc,
-  #     Unmodifiedaddmultipleorsingawardidc,
-  "IsFullAndOpen",
-  "IsFollowonToCompetedAction"
-  #     multipleorsingleawardidc,
-  #     AddMultipleOrSingleAwardIDC
+      "Unmodifiedmultipleorsingleawardidc",
+      "Unmodifiedaddmultipleorsingawardidc",
+  # "IsFullAndOpen",
+  # IsOnlyOneSource 
+  # "IsFollowonToCompetedAction"
+      "multipleorsingleawardidc",
+      "AddMultipleOrSingleAwardIDC",
+  "Award_Type_Code",
+  "unmodifiedaward_type_code",
+  "IDV_Type_Code",
+  # "UnmodifiedNumberOfOffersReceived",
+  "unmodifiedidv_type_code",
+  "NumberOfOffersReceived"
 )]
-
+str(FederalModelAndDetail)
   
-save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",FederalModelAndDetail)
+save(file="Data\\Federal_contract_CSIScontractID_detail.Rdata",FederalModelAndDetail)
 
 ```
 
 
 ##Pricing
 ```{r Pricing}
+# load(file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
 
+FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %in% 
    c(
   "Pricing.Mechanism.Code",
   "UnmodifiedTypeOfContractPricing",
@@ -696,9 +780,6 @@ FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDet
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
-
-#IsLabeledPricing Can drop this the next time we download, as there's an Isnull(,0 there now)
-FederalModelAndDetail$IsLabeledPricing[is.nan(FederalModelAndDetail$IsLabeledPricing)|is.na(FederalModelAndDetail$IsLabeledPricing)] <- 0
 
 #Process FixedOrCost
 FederalModelAndDetail$ObligatedAmountIsFixedPrice<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsFixedPrice)
@@ -766,10 +847,31 @@ FederalModelAndDetail$Fee<-ordered(FederalModelAndDetail$Fee,
   levels=c("Incentive","Fixed Fee","Award Fee",
     "FFP or No Fee","Combination or Other Fee"))
 
-FederalModelAndDetail<-subset(FederalModelAndDetail,select=-c(
- 
+
+
+#Undefinitized Contract Awards
+# FederalModelAndDetail$SimpleVehicle[FederalModelAndDetail$AwardOrIDVcontractActionType == "Letter Contract"]<-"Letter"
+# FederalModelAndDetail$SimpleVehicle[FederalModelAndDetail$AwardOrIDVcontractActionType %in%
+#     c("Indefinite Delivery Contract",
+#       "Delivery Order")]<-
+#   as.character(FederalModelAndDetail$multipleorsingleawardidc[FederalModelAndDetail$AwardOrIDVcontractActionType %in%
+#       c("Indefinite Delivery Contract",
+#         "Delivery Order")])
+
+
+#Imput UCA unmodified values when consistent for the remainder of the vehicle
+FederalModelAndDetail$UnmodifiedIsUCA[is.na(FederalModelAndDetail$UnmodifiedIsUCA)&
+  !is.na(FederalModelAndDetail$IsUCA)]<-
+  FederalModelAndDetail$UCA[is.na(FederalModelAndDetail$UnmodifiedIsUCA)&
+  !is.na(FederalModelAndDetail$IsUCA)]
+
+
+
+FederalModelAndDetail$UCA<-factor(FederalModelAndDetail$UnmodifiedIsUCA,
+  levels=c(0,1),
+  labels=c("Not UCA","UCA")
 )
-)
+
 
 FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %in% 
     c(
@@ -799,7 +901,7 @@ FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %
   "UnmodifiedIsFixedFee",
   "ObligatedAmountIsOtherFee",
   # IsOtherFee,
-  "UnmodifiedIsOtherFee"
+  "UnmodifiedIsOtherFee",
   # pIsFixedPrice,
   # pIsCostBased,
   # pIsCombination,
@@ -809,13 +911,14 @@ FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %
   # pIsFixedFee,
   # pIsOtherFee,
   # FixedOrCost,
-  # Fee
+  # Fee,
+  "UnmodifiedIsUCA",
+  "IsUCA"
     )]
-# load(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata")
 
+str(FederalModelAndDetail)
 
-
-save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",FederalModelAndDetail)
+# save(file="Data\\Federal_contract_CSIScontractID_detail.Rdata",FederalModelAndDetail)
 
 ```
 
