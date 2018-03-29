@@ -23,14 +23,13 @@ options(error=recover)
 options(warn=1)
 
 #*************************************Lookup Files*****************************************************
-
-Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
-
+Path<-"https://github.com/CSISdefense/R-scripts-and-data/blob/master/"
+# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"~\\FPDS\\R scripts and data\\"
 # Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
-
-source(paste(Path,"helper.r",sep=""))
-source(paste(Path,"lookups.r",sep=""))
+source("ContractCleanup.r")
+source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
+source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
 
 ```
 
@@ -39,7 +38,7 @@ source(paste(Path,"lookups.r",sep=""))
 ```{r DetailCustomer}
 # defense_contract_SP_ContractSampleCriteriaDetailsCustomer
 DefenseContracts <-readr::read_delim(
-  "LargeDataSets\\defense_contract_SP_ContractSampleCriteriaDetailsCustomer.csv",
+  "Data\\defense_contract_SP_ContractSampleCriteriaDetailsCustomer.csv",
   col_names=TRUE, 
   delim=",",
   # , dec=".",
@@ -67,8 +66,8 @@ DefenseContracts<-subset(DefenseContracts,
 # ,LastSignedLastDateToOrder
 #                                                       ,LastUltimateCompletionDate
 # ))
-save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
-load(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata")
+save(file="Data\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
+load(file="Data\\defense_contract_CSIScontractID_complete.Rdata")
 
 ```
 
@@ -81,7 +80,7 @@ load(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata")
 DefenseContracts<-csis360::read_and_join_experiment(data=DefenseContracts,
     lookup_file="Defense_Contract_SP_ContractDetailsCustomer.csv",
   path="",
-  directory = "LargeDataSets/",
+  directory = "Data/",
   by="CSIScontractID",
   new_var_checked=FALSE
 )
@@ -104,7 +103,7 @@ DefenseContracts<-subset(DefenseContracts,select=-c(
 #   #     ,LastCurrentCompletionDate
 #     )]
 
-save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
+save(file="Data\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
 ```
 
 ## ContractingDelta
@@ -114,7 +113,7 @@ save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",Defens
 DefenseContracts<-csis360::read_and_join_experiment(DefenseContracts,
   "defense_contract_SP_ContractModificationDeltaCustomer.csv",
   "",
-  "LargeDataSets\\",
+  "Data\\",
   by="CSIScontractID",
   new_var_checked=FALSE
 )
@@ -134,50 +133,86 @@ DefenseContracts<-DefenseContracts[,!colnames(DefenseContracts) %in%
     "NewWorkBaseAndExercisedOptionsValue"    
     # "NewWorkBaseAndAllOptionsValue",
     )]
-save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
+save(file="Data\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
 ```
 ##Location
 ```{r Location}
-
+# debug(read_and_join_experiment)
 #defense_contract_SP_ContractLocationCustomer.csv
 DefenseContracts<-csis360::read_and_join_experiment(DefenseContracts,
-  "defense_contract_SP_ContractLocationCustomer.csv"
-  ,""
-  ,"LargeDataSets\\"
+  "Contract.SP_ContractLocationCustomer.txt"
+  ,path=""
+  ,dir="Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
+  # ,zip_file="Contract.SP_ContractLocationCustomer.zip"
 )
 
 DefenseContracts<-csis360::standardize_variable_names(DefenseContracts)
 
-DefenseContracts$ObligatedAmountIsInternational<-FactorToNumber(DefenseContracts$ObligatedAmountIsInternational)
-DefenseContracts$pIsInternational<-DefenseContracts$ObligatedAmountIsInternational/
-  DefenseContracts$Action.Obligation
-DefenseContracts$pIsInternational[is.na(DefenseContracts$ObligatedAmountIsInternational)] <- 0
 
-if(is.numeric(DefenseContracts$AnyInternational)){
-  DefenseContracts$AnyInternational<-factor(DefenseContracts$AnyInternational,
+
+# DefenseContracts$pIsInternational<-
+#   as.double(DefenseContracts$ObligatedAmountPlaceIsInternational)/
+#   as.double(DefenseContracts$Action.Obligation)
+# length(DefenseContracts$pIsInternational[
+#   # is.na(DefenseContracts$pIsInternational)&
+#     DefenseContracts$PlaceIsInternational==1
+# ])<-0
+# summary(DefenseContracts$pIsInternational)
+# summary(DefenseContracts$PlaceIsInternational)
+# summary(subset(DefenseContracts,is.finite(pIsInternational)))
+# 
+# ggplot(DefenseContracts, aes(x=ObligatedAmountPlaceIsInternational))+geom_histogram()
+
+# summary(DefenseContracts$ObligatedAmountPlaceIsInternational)
+# summary(DefenseContracts$PlaceIsInternational)
+
+DefenseContracts$AnyPlaceInternational[is.na(DefenseContracts$PlaceIsInternational) &
+    is.na(DefenseContracts$UnmodifiedPlaceIsInternational)]<-NA
+
+summary(DefenseContracts$AnyPlaceInternational)
+summary(DefenseContracts$PlaceIsInternational)
+summary(DefenseContracts$UnmodifiedPlaceIsInternational)
+
+if(is.numeric(DefenseContracts$AnyPlaceInternational)){
+  DefenseContracts$AnyPlaceInternational<-factor(DefenseContracts$AnyPlaceInternational,
     exclude=NULL,
     levels=c(0,1,NA),
-    labels=c("Just U.S.","Any International","Unlabeled")
+    labels=c("Just U.S.","Any International",NA)
   )
 }
-DefenseContracts$AnyInternational[DefenseContracts$pIsInternational<=0 & 
-    DefenseContracts$AnyInternational=="Any International" &
-    DefenseContracts$UnmodifiedIsInternational==0]<-"Just U.S."
+
+summary(DefenseContracts$AnyPlaceInternational)
 
 DefenseContracts$UnmodifiedPlaceCountryISO3<-factor(DefenseContracts$UnmodifiedPlaceCountryISO3)
 
+
+
 DefenseContracts<-DefenseContracts[,!colnames(DefenseContracts) %in% 
     c(
-  "UnmodifiedIsInternational",
-  "IsInternational",
-  "ObligatedAmountIsInternational",
+  # "PlaceCountryISO3",
   # "UnmodifiedPlaceCountryISO3",
-  "PlaceCountryISO3"
+  "ObligatedAmountPlaceIsInternational"     ,
+   # "AnyPlaceInternational",
+  "PlaceIsInternational"  ,
+  "UnmodifiedPlaceIsInternational",
+   "VendorCountryISO3",
+  "UnmodifiedVendorCountryISO3" ,
+  "ObligatedAmountVendorIsInternational"  ,
+   "AnyVendorInternational",
+  "VendorIsInternational",
+  "UnmodifiedVendorIsInternational"         ,
+   "OriginCountryISO3",
+  "UnmodifiedOriginCountryISO3",
+  "ObligatedAmountOriginIsInternational"    ,
+   "AnyOriginInternational",
+  "OriginIsInternational",
+  "UnmodifiedOriginIsInternational" ,
+  "pIsInternational" #This just isn't working
     )]
 
-save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
+save(file="Data\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
 
 
 ```
@@ -189,7 +224,7 @@ save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",Defens
 DefenseContracts<-csis360::read_and_join_experiment(data=DefenseContracts
   ,"Defense_contract_SP_ContractUnmodifiedandOutcomeDetailsCustomer.csv"
   ,path=""
-  ,"LargeDataSets\\"
+  ,"Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -337,8 +372,8 @@ DefenseContracts<-DefenseContracts[,!colnames(DefenseContracts) %in%
   "LastUltimateCompletionDate"
     )]
 
-save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
-load(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata")
+save(file="Data\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
+load(file="Data\\defense_contract_CSIScontractID_complete.Rdata")
 ```
 
 ##BucketPlatform
@@ -347,7 +382,7 @@ load(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata")
 DefenseContracts<-csis360::read_and_join_experiment(data=DefenseContracts
   ,"defense_contract_SP_ContractBucketPlatformCustomer.csv"
   ,path=""
-  ,"LargeDataSets\\"
+  ,"Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -526,8 +561,8 @@ DefenseContracts$qOffers[is.na(DefenseContracts$qOffers)&
 
 
 
-save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
-load(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata")
+save(file="Data\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
+load(file="Data\\defense_contract_CSIScontractID_complete.Rdata")
 ```
 
 ##Competition Vehicle
@@ -536,7 +571,7 @@ load(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata")
 DefenseContracts<-csis360::read_and_join_experiment(data=DefenseContracts
   ,"defense_contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.csv"
   ,path=""
-  ,"LargeDataSets\\"
+  ,"Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -545,7 +580,7 @@ DefenseContracts<-csis360::read_and_join_experiment(data=DefenseContracts
 DefenseContracts<-csis360::read_and_join_experiment(data=DefenseContracts
   ,"defense_contract_SP_ContractCompetitionVehicleCustomer.csv"
   ,path=""
-  ,"LargeDataSets\\"
+  ,"Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -627,14 +662,14 @@ DefenseContracts<-subset(DefenseContracts,select=-c(
   #     AddMultipleOrSingleAwardIDC
 )
 )
-save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
+save(file="Data\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
 ```
 ##SubCustomer
 ```{r SubCustomer}
 DefenseContracts<-csis360::read_and_join_experiment(data=DefenseContracts
   ,"Defense_Contract_SP_ContractDefenseSubCustomer.csv"
   ,path=""
-  ,"LargeDataSets\\"
+  ,"Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -683,7 +718,7 @@ DefenseContracts$SubCustomer.sum[DefenseContracts$pIsArmy+DefenseContracts$pIsNa
 
 
 names(DefenseContracts)
-save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
+save(file="Data\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
 
 
 ```
@@ -694,7 +729,7 @@ save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",Defens
 DefenseContracts<-csis360::read_and_join_experiment(data=DefenseContracts
   ,"defense_contract_SP_ContractPricingCustomer.csv"
   ,path=""
-  ,"LargeDataSets\\"
+  ,"Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -878,11 +913,11 @@ DefenseContracts$SubCustomer.sum<-factor(DefenseContracts$SubCustomer.sum)
 DefenseContracts$SubCustomer.sum<-droplevels(DefenseContracts$SubCustomer.sum)
 DefenseContracts$PlatformPortfolio.sum<-factor(DefenseContracts$PlatformPortfolio.sum)
 
-DefenseContracts$AnyInternational<-droplevels(DefenseContracts$AnyInternational)
+DefenseContracts$AnyPlaceInternational<-droplevels(DefenseContracts$AnyPlaceInternational)
 DefenseContracts$SimpleArea<-droplevels(DefenseContracts$SimpleArea)
 DefenseContracts$SubCustomer.sum<-droplevels(DefenseContracts$SubCustomer.sum)
 DefenseContracts$PlatformPortfolio.sum<-droplevels(DefenseContracts$PlatformPortfolio.sum)
-save(file="LargeDataSets\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
+save(file="Data\\defense_contract_CSIScontractID_complete.Rdata",DefenseContracts)
 
 
 ```
@@ -926,7 +961,9 @@ DefenseModelAndDetail<-subset(DefenseModelAndDetail,select=c(CSIScontractID,
   Agency,
   Office,
   ProdServ,
-  NAICS
+  NAICS,
+  Where,
+  Intl
 )
 )
 # 
