@@ -55,8 +55,8 @@ BEGIN
       ,[ObligatedAmountIsOtherFee]
       ,[IsOtherFee]
       ,[UnmodifiedIsOtherFee]
-	  ,IsUndefinitizedContractAction
-	  ,UnmodifiedIsUndefinitizedContractAction
+	  ,IsUCA
+	  ,UnmodifiedIsUCA
 from contract.fpds f
 inner join contract.CSIStransactionID ct
 on ct.CSIStransactionID=f.CSIStransactionID
@@ -96,6 +96,8 @@ where a.IsDefense=@IsDefense
       ,[ObligatedAmountIsOtherFee]
       ,[IsOtherFee]
       ,[UnmodifiedIsOtherFee]
+	    ,IsUCA
+	  ,UnmodifiedIsUCA
 from contract.ContractPricing cc
 
 		--End of your query

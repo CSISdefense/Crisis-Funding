@@ -86,14 +86,14 @@ select M.CSIScontractID
 ,iif(M.MinOfUnmodifiedIsOtherFee=MaxOfUnmodifiedIsOtherFee,
 	MaxOfUnmodifiedIsOtherFee
 	,NULL) as UnmodifiedIsOtherFee
---IsUndefinitizedAction
-,ObligatedAmountIsUndefinitizedAction
-,iif(M.MinOfIsUndefinitizedAction=MaxOfIsUndefinitizedAction,
-	MaxOfIsUndefinitizedAction
-	,NULL) as IsUndefinitizedAction
-,iif(M.MinOfUnmodifiedIsUndefinitizedAction=MaxOfUnmodifiedIsUndefinitizedAction,
-	MaxOfUnmodifiedIsUndefinitizedAction
-	,NULL) as UnmodifiedIsUndefinitizedAction
+--IsUCA
+,ObligatedAmountIsUCA
+,iif(M.MinOfIsUCA=MaxOfIsUCA,
+	MaxOfIsUCA
+	,NULL) as IsUCA
+,iif(M.MinOfUnmodifiedIsUCA=MaxOfUnmodifiedIsUCA,
+	MaxOfUnmodifiedIsUCA
+	,NULL) as UnmodifiedIsUCA
 
 from (SELECT      
 	ctid.CSIScontractID
@@ -152,12 +152,12 @@ from (SELECT
 	, Max(convert(int,t.IsOtherFee)) AS MaxOfIsOtherFee
 			, Min(iif(C.modnumber='0' or C.modnumber is null,convert(int,t.IsOtherFee),NULL)) AS MinOfUnmodifiedIsOtherFee
 		, Max(iif(C.modnumber='0' or C.modnumber is null,convert(int,t.IsOtherFee),NULL)) AS MaxOfUnmodifiedIsOtherFee
-	--IsUndefinitizedAction
-	,sum(iif(UCA.IsUndefinitizedAction=1,ObligatedAmount,NULL)) as ObligatedAmountIsUndefinitizedAction
-	, Min(convert(int,UCA.IsUndefinitizedAction)) AS MinOfIsUndefinitizedAction
-	, Max(convert(int,UCA.IsUndefinitizedAction)) AS MaxOfIsUndefinitizedAction
-			, Min(iif(C.modnumber='0' or C.modnumber is null,convert(int,UCA.IsUndefinitizedAction),NULL)) AS MinOfUnmodifiedIsUndefinitizedAction
-		, Max(iif(C.modnumber='0' or C.modnumber is null,convert(int,UCA.IsUndefinitizedAction),NULL)) AS MaxOfUnmodifiedIsUndefinitizedAction
+	--IsUCA
+	,sum(iif(UCA.IsUndefinitizedAction=1,ObligatedAmount,NULL)) as ObligatedAmountIsUCA
+	, Min(convert(int,UCA.IsUndefinitizedAction)) AS MinOfIsUCA
+	, Max(convert(int,UCA.IsUndefinitizedAction)) AS MaxOfIsUCA
+			, Min(iif(C.modnumber='0' or C.modnumber is null,convert(int,UCA.IsUndefinitizedAction),NULL)) AS MinOfUnmodifiedIsUCA
+		, Max(iif(C.modnumber='0' or C.modnumber is null,convert(int,UCA.IsUndefinitizedAction),NULL)) AS MaxOfUnmodifiedIsUCA
 
 
   FROM contract.FPDS as C
