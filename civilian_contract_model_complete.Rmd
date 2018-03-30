@@ -1094,55 +1094,55 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ```{r CombineDefenseAndCivil}
 
 load(file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
-
-DefenseModelAndDetail$Who<-factor(DefenseModelAndDetail$Who,
-  levels=c("Civilian",levels(DefenseModelAndDetail$Who)))
-CivilianModelAndDetail$Who<-factor("Civilian",levels(DefenseModelAndDetail$Who))
-fed<-rbind(DefenseModelAndDetail,CivilianModelAndDetail)
-summary(CivilianModelAndDetail$Term)
-summary(DefenseModelAndDetail$Term)
-summary(CivilianModelAndDetail$Veh)
-summary(DefenseModelAndDetail$Veh)
-
-
-summary(DefenseModelAndDetail)
-summary(CivilianModelAndDetail)
- 
-
-
-
-
-DefenseModelAndDetail<-DefenseModelAndDetail[,!colnames(DefenseModelAndDetail) %in% 
-    c(
-"LowCeil",
-      "Ceil",
-      "CRai",
-      "NChg",
-      "Dur"
-      
-)]
-CivilianModelAndDetail<-CivilianModelAndDetail[,!colnames(CivilianModelAndDetail) %in% 
-    c(
-"LowCeil",
-      "Ceil",
-      "CRai",
-      "NChg",
-      "Dur"
-      
-)]
-
-DefenseModelAndDetail$Is.Defense<-"Defense"
-CivilianModelAndDetail$Is.Defense<-"Civilian"
-
-fed<-rbind(DefenseModelAndDetail,CivilianModelAndDetail)
-
-
-fed<-FormatContractModel(fed)
-
-save(fed,file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
-str(fed)
-str(fed_full)
-summary(fed$Who)
-
+# 
+# DefenseModelAndDetail$Who<-factor(DefenseModelAndDetail$Who,
+#   levels=c("Civilian",levels(DefenseModelAndDetail$Who)))
+# CivilianModelAndDetail$Who<-factor("Civilian",levels(DefenseModelAndDetail$Who))
+# fed<-rbind(DefenseModelAndDetail,CivilianModelAndDetail)
+# summary(CivilianModelAndDetail$Term)
+# summary(DefenseModelAndDetail$Term)
+# summary(CivilianModelAndDetail$Veh)
+# summary(DefenseModelAndDetail$Veh)
+# 
+# 
+# summary(DefenseModelAndDetail)
+# summary(CivilianModelAndDetail)
+#  
+# 
+# 
+# 
+# 
+# DefenseModelAndDetail<-DefenseModelAndDetail[,!colnames(DefenseModelAndDetail) %in% 
+#     c(
+# "LowCeil",
+#       "Ceil",
+#       "CRai",
+#       "NChg",
+#       "Dur"
+#       
+# )]
+# CivilianModelAndDetail<-CivilianModelAndDetail[,!colnames(CivilianModelAndDetail) %in% 
+#     c(
+# "LowCeil",
+#       "Ceil",
+#       "CRai",
+#       "NChg",
+#       "Dur"
+#       
+# )]
+# 
+# DefenseModelAndDetail$Is.Defense<-"Defense"
+# CivilianModelAndDetail$Is.Defense<-"Civilian"
+# 
+# fed<-rbind(DefenseModelAndDetail,CivilianModelAndDetail)
+# 
+# 
+# fed<-FormatContractModel(fed)
+# 
+# save(fed,file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
+# str(fed)
+# str(fed_full)
+# summary(fed$Who)
+# 
 
 ```
