@@ -10,7 +10,6 @@ rename_dataset<-function(contract){
   colnames(contract)[colnames(contract)=="PlatformPortfolio.sum"]<-"What"
   colnames(contract)[colnames(contract)=="IsIDV"]<-"IDV"
   colnames(contract)[colnames(contract)=="FixedOrCost"]<-"FxCb"
-  colnames(contract)[colnames(contract)=="AnyInternational"]<-"Intl"
   colnames(contract)[colnames(contract)=="AnyPlaceInternational"]<-"Intl"
   colnames(contract)[colnames(contract)=="SimpleArea"]<-"PSR"
   colnames(contract)[colnames(contract)=="qLowCeiling"]<-"LowCeil"

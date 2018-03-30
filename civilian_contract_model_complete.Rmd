@@ -362,8 +362,15 @@ fed_full$qCRais <- cut2(
 #                                                   fed_full$pChangeOrderObligated,
 #                                                   fed_full$pChangeOrderObligated>0)),
 
-summary(subset(fed_full$qCRais,fed_full$SumOfisChangeOrder>0    ))
 
+if(is.numeric(fed_full$IsTerminated)){
+    fed_full$IsTerminated<-factor(fed_full$IsTerminated,
+                                levels = c(0,1),
+                                labels = c("Unterminated", "Terminated")
+    )
+}
+
+summary(subset(fed_full$qCRais,fed_full$SumOfisChangeOrder>0    ))
 
 fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
@@ -745,47 +752,6 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ```{r Pricing}
 # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
 
-fed_full<-fed_full[,!colnames(fed_full) %in% 
-   c(
-  "Pricing.Mechanism.Code",
-  "UnmodifiedTypeOfContractPricing",
-  "IsLabeledPricing",
-  "ObligatedAmountIsFixedPrice",
-  "IsFixedPrice",
-  "UnmodifiedIsFixedPrice",
-  "ObligatedAmountIsCostBased",
-  "IsCostBased",
-  "UnmodifiedIsCostBased",
-  "ObligatedAmountIsCombination",
-  "IsCombination",
-  "UnmodifiedIsCombination",
-  "ObligatedAmountIsIncentive",
-  "IsIncentive",
-  "UnmodifiedIsIncentive",
-  "ObligatedAmountIsAwardFee",
-  "IsAwardFee",
-  "UnmodifiedIsAwardFee",
-  "ObligatedAmountIsFFPorNoFee",
-  "IsFFPorNoFee",
-  "UnmodifiedIsFFPorNoFee",
-  "ObligatedAmountIsFixedFee",
-  "IsFixedFee",
-  "UnmodifiedIsFixedFee",
-  "ObligatedAmountIsOtherFee",
-  "IsOtherFee",
-  "UnmodifiedIsOtherFee",
-  "pIsFixedPrice",
-  "pIsCostBased",
-  "pIsCombination",
-  "pIsIncentive",
-  "pIsAwardFee",
-  "pIsFFPorNoFee",
-  "pIsFixedFee",
-  "pIsOtherFee",
-  "FixedOrCost",
-  "Fee"
-    )]
-
 fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"Contract.SP_ContractPricingCustomer.txt"
   ,path=""
@@ -929,8 +895,6 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
   # pIsOtherFee,
   # FixedOrCost,
   # Fee,
-  "UnmodifiedIsUCA",
-  "IsUCA"
     )]
 
 str(fed_full)
@@ -992,6 +956,26 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
 
 ```
 
+## Decision Tree
+```{r DecisionTree}
+
+
+fed<-csis360::read_and_join_experiment(data=fed,
+    lookup_file="Overall_Contract_SP_ContractBudgetDecisionTree.txt",
+  path="",
+  directory = "Data/",
+  by="CSIScontractID",
+  new_var_checked=FALSE
+)
+fed$MaxOfDecisionTree<-factor(fed$MaxOfDecisionTree)
+fed$MaxOfDecisionTreeStep4 <-factor(fed$MaxOfDecisionTreeStep4 )
+fed$MinOfDecisionTree <-factor(fed$MinOfDecisionTree )
+fed$MinOfDecisionTreeStep4 <-factor(fed$MinOfDecisionTreeStep4 )
+
+
+
+```
+
 #Final Cleanup and Output
 ##Applying lookups
 ```{r PostApply}
@@ -1031,12 +1015,7 @@ fed_full<-csis360::read_and_join(
   )
 fed_full$PlatformPortfolio.sum<-factor(fed_full$PlatformPortfolio.sum)
 
-    fed_full$IsTerminated<-factor(fed_full$IsTerminated,
-                                levels = c(0,1),
-                                labels = c("Unterminated", "Terminated")
-    )
 
-fed_full<-rename_dataset(fed_full)
 
 save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 # fed_full<-rename_dataset(fed_full)
@@ -1044,7 +1023,7 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ```
 ##Dataset Output
 
-```{r DetailedOutput}
+```{r DatasetOutput}
 fed<-rename_dataset(fed_full)
 fed<-fed[,colnames(fed) %in% c(
   # IsIDV,
@@ -1054,7 +1033,7 @@ fed<-fed[,colnames(fed) %in% c(
   "Comp",
   # MDAP,
   # unmodifiedSystemequipmentcode,
-  # Who,
+  "Who",
   "Veh",
   "PSR",
   "What",
@@ -1083,18 +1062,18 @@ fed<-fed[,colnames(fed) %in% c(
   "Agency",
   "Office",
   "ProdServ",
-  "NAICS"
+  "NAICS",
+  "MaxOfDecisionTree",
+  "MaxOfDecisionTreeStep4",
+  "MinOfDecisionTree",
+  "MinOfDecisionTreeStep4"
 )]
 # 
 
-    # CivilianModelAndDetail$Term<-factor(CivilianModelAndDetail$Term,
-    #                             levels = c(0,1),
-    #                             labels = c("Unterminated", "Terminated")
-    # )
+   
 
-
-write.table(CivilianModelAndDetail
-  ,file=paste("data\\Civilian_contract_CSIScontractID_detail.csv"
+write.table(Fed
+  ,file=paste("data\\Federak_contract_CSIScontractID_detail.csv"
     ,sep=""
   )
   #   ,header=TRUE
@@ -1102,7 +1081,7 @@ write.table(CivilianModelAndDetail
   , row.names=FALSE
   , append=FALSE
 )
-save(CivilianModelAndDetail,file="Data\\Civilian_contract_CSIScontractID_detail.Rdata")
+# ][save(CivilianModelAndDetail,file="Data\\Civilian_contract_CSIScontractID_detail.Rdata")
 save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 #Strip out the cuts
@@ -1115,7 +1094,6 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ```{r CombineDefenseAndCivil}
 
 load(file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
-fed<-fed_full
 
 DefenseModelAndDetail$Who<-factor(DefenseModelAndDetail$Who,
   levels=c("Civilian",levels(DefenseModelAndDetail$Who)))
@@ -1130,10 +1108,6 @@ summary(DefenseModelAndDetail$Veh)
 summary(DefenseModelAndDetail)
 summary(CivilianModelAndDetail)
  
-CivilianModelAndDetail$Term<-factor(CivilianModelAndDetail$Term,
-                                levels = c(0,1),
-                                labels = c("Unterminated", "Terminated")
-    )
 
 
 
@@ -1162,26 +1136,13 @@ CivilianModelAndDetail$Is.Defense<-"Civilian"
 
 fed<-rbind(DefenseModelAndDetail,CivilianModelAndDetail)
 
-debug(FormatContractModel)
+
 fed<-FormatContractModel(fed)
 
-fed<-csis360::read_and_join_experiment(data=fed,
-    lookup_file="Overall_Contract_SP_ContractBudgetDecisionTree.txt",
-  path="",
-  directory = "Data/",
-  by="CSIScontractID",
-  new_var_checked=FALSE
-)
-fed$MaxOfDecisionTree<-factor(fed$MaxOfDecisionTree)
-fed$MaxOfDecisionTreeStep4 <-factor(fed$MaxOfDecisionTreeStep4 )
-fed$MinOfDecisionTree <-factor(fed$MinOfDecisionTree )
-fed$MinOfDecisionTreeStep4 <-factor(fed$MinOfDecisionTreeStep4 )
-
-
-summary(fed)
-save(fed,file="Data\\Federal_contract_CSIScontractID_detail")
-
-
+save(fed,file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
+str(fed)
+str(fed_full)
+summary(fed$Who)
 
 
 ```
