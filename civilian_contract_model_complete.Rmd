@@ -38,7 +38,7 @@ source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/
 ##Sample Criteria
 ```{r DetailCustomer}
 
-FederalModelAndDetail <-readr::read_delim(
+fed_full <-readr::read_delim(
   "Data\\Civilian_contract_SP_ContractSampleCriteriaDetailsCustomer.csv",
   col_names=TRUE, 
   delim=",",
@@ -48,13 +48,13 @@ FederalModelAndDetail <-readr::read_delim(
   # stringsAsFactors=FALSE
 )
 
-FederalModelAndDetail<-csis360::standardize_variable_names(FederalModelAndDetail)
+fed_full<-csis360::standardize_variable_names(fed_full)
 
 
 #Limit to completed contracts that start in 2007 or later
-FederalModelAndDetail$LastCurrentCompletionDate<-strptime(FederalModelAndDetail$LastCurrentCompletionDate,"%Y-%m-%d") 
+fed_full$LastCurrentCompletionDate<-strptime(fed_full$LastCurrentCompletionDate,"%Y-%m-%d") 
 #Drop contracts starting before the study period
-FederalModelAndDetail<-subset(FederalModelAndDetail,
+fed_full<-subset(fed_full,
   StartFiscal_Year>=2007 
   &
     (LastCurrentCompletionDate<=strptime("2015-09-30","%Y-%m-%d") | IsClosed==1)
@@ -62,12 +62,12 @@ FederalModelAndDetail<-subset(FederalModelAndDetail,
 
 
 
-# FederalModelAndDetail<-subset(FederalModelAndDetail,select=-c(StartFiscal_Year
+# fed_full<-subset(fed_full,select=-c(StartFiscal_Year
 # ,IsClosed
 # ,LastSignedLastDateToOrder
 #                                                       ,LastUltimateCompletionDate
 # ))
-save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",FederalModelAndDetail)
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 
 ```
@@ -76,7 +76,7 @@ save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",FederalModelAn
 
 ```{r ContractDetailsCustomer}
 
-FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDetail,
+fed_full<-csis360::read_and_join_experiment(data=fed_full,
     lookup_file="Civilian_Contract_SP_ContractDetailsCustomer.csv",
   path="",
   directory = "Data/",
@@ -84,16 +84,16 @@ FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDet
   new_var_checked=FALSE
 )
 
-FederalModelAndDetail<-csis360::standardize_variable_names(FederalModelAndDetail)
+fed_full<-csis360::standardize_variable_names(fed_full)
 
-FederalModelAndDetail<-subset(FederalModelAndDetail,select=-c(
+fed_full<-subset(fed_full,select=-c(
   Number.Of.Actions,
   #     Action.Obligation,
   StartFiscal_Year
   #     MinOfSignedDate,
   #     ,LastCurrentCompletionDate
 ))
-# FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %in% 
+# fed_full<-fed_full[,!colnames(fed_full) %in% 
 #     c(
 #         # Number.Of.Actions,
 #   #     Action.Obligation,
@@ -102,14 +102,14 @@ FederalModelAndDetail<-subset(FederalModelAndDetail,select=-c(
 #   #     ,LastCurrentCompletionDate
 #     )]
 
-save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",FederalModelAndDetail)
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ```
 
 ## ContractingDelta
 ```{r ContractingDelta}
 
 #Civilian_contract_SP_ContractModificationDeltaCustomer.csv
-FederalModelAndDetail<-csis360::read_and_join_experiment(FederalModelAndDetail,
+fed_full<-csis360::read_and_join_experiment(fed_full,
   "Civilian_contract_SP_ContractModificationDeltaCustomer.csv",
   "",
   "Data\\",
@@ -117,13 +117,13 @@ FederalModelAndDetail<-csis360::read_and_join_experiment(FederalModelAndDetail,
   new_var_checked=FALSE
 )
 
-FederalModelAndDetail<-csis360::standardize_variable_names(FederalModelAndDetail)
+fed_full<-csis360::standardize_variable_names(fed_full)
 
-FederalModelAndDetail$ChangeOrderObligatedAmount<-FactorToNumber(FederalModelAndDetail$ChangeOrderObligatedAmount)
-FederalModelAndDetail$ChangeOrderBaseAndAllOptionsValue<-FactorToNumber(FederalModelAndDetail$ChangeOrderBaseAndAllOptionsValue)
+fed_full$ChangeOrderObligatedAmount<-FactorToNumber(fed_full$ChangeOrderObligatedAmount)
+fed_full$ChangeOrderBaseAndAllOptionsValue<-FactorToNumber(fed_full$ChangeOrderBaseAndAllOptionsValue)
 
 
-FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %in% 
+fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
     "ChangeOrderObligatedAmount"             ,
     "ChangeOrderBaseAndExercisedOptionsValue",
@@ -132,13 +132,13 @@ FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %
     "NewWorkBaseAndExercisedOptionsValue"    
     # "NewWorkBaseAndAllOptionsValue",
     )]
-save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",FederalModelAndDetail)
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ```
 ##Location
 ```{r Location}
 
 #Civilian_contract_SP_ContractLocationCustomer.csv
-FederalModelAndDetail<-csis360::read_and_join_experiment(FederalModelAndDetail,
+fed_full<-csis360::read_and_join_experiment(fed_full,
   "Civilian_contract_SP_ContractLocationCustomer.txt"
   ,""
   ,"Data\\"
@@ -146,33 +146,33 @@ FederalModelAndDetail<-csis360::read_and_join_experiment(FederalModelAndDetail,
   ,new_var_checked=FALSE
 )
 
-FederalModelAndDetail<-csis360::standardize_variable_names(FederalModelAndDetail)
+fed_full<-csis360::standardize_variable_names(fed_full)
 
-FederalModelAndDetail$ObligatedAmountIsInternational<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsInternational)
-FederalModelAndDetail$pIsInternational<-FederalModelAndDetail$ObligatedAmountPlaceIsInternational/
-  FederalModelAndDetail$Action.Obligation
-FederalModelAndDetail$pIsInternational[is.na(FederalModelAndDetail$ObligatedAmountPlaceIsInternational)] <- 0
+fed_full$ObligatedAmountIsInternational<-FactorToNumber(fed_full$ObligatedAmountIsInternational)
+fed_full$pIsInternational<-fed_full$ObligatedAmountPlaceIsInternational/
+  fed_full$Action.Obligation
+fed_full$pIsInternational[is.na(fed_full$ObligatedAmountPlaceIsInternational)] <- 0
 
-if(is.numeric(FederalModelAndDetail$AnyPlaceInternational)){
-  FederalModelAndDetail$AnyPlaceInternational<-factor(FederalModelAndDetail$AnyPlaceInternational,
+if(is.numeric(fed_full$AnyPlaceInternational)){
+  fed_full$AnyPlaceInternational<-factor(fed_full$AnyPlaceInternational,
     exclude=NULL,
     levels=c(0,1,NA),
     labels=c("Just U.S.","Any International","Unlabeled")
   )
 }
-FederalModelAndDetail$AnyPlaceInternational[FederalModelAndDetail$pIsInternational<=0 & 
-    FederalModelAndDetail$AnyPlaceInternational=="Any International" &
-    FederalModelAndDetail$UnmodifiedPlaceIsInternational==0]<-"Just U.S."
+fed_full$AnyPlaceInternational[fed_full$pIsInternational<=0 & 
+    fed_full$AnyPlaceInternational=="Any International" &
+    fed_full$UnmodifiedPlaceIsInternational==0]<-"Just U.S."
 
-FederalModelAndDetail$UnmodifiedPlaceCountryISO3<-factor(FederalModelAndDetail$UnmodifiedPlaceCountryISO3)
-FederalModelAndDetail$UnmodifiedVendorCountryISO3<-factor(FederalModelAndDetail$UnmodifiedVendorCountryISO3)
-FederalModelAndDetail$VendorCountryISO3<-factor(FederalModelAndDetail$VendorCountryISO3)
-FederalModelAndDetail$UnmodifiedOriginCountryISO3<-factor(FederalModelAndDetail$UnmodifiedOriginCountryISO3)
-FederalModelAndDetail$OriginCountryISO3<-factor(FederalModelAndDetail$OriginCountryISO3)
+fed_full$UnmodifiedPlaceCountryISO3<-factor(fed_full$UnmodifiedPlaceCountryISO3)
+fed_full$UnmodifiedVendorCountryISO3<-factor(fed_full$UnmodifiedVendorCountryISO3)
+fed_full$VendorCountryISO3<-factor(fed_full$VendorCountryISO3)
+fed_full$UnmodifiedOriginCountryISO3<-factor(fed_full$UnmodifiedOriginCountryISO3)
+fed_full$OriginCountryISO3<-factor(fed_full$OriginCountryISO3)
 UnmodifiedVendorCountryISO3
 
 
-FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %in% 
+fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
   "UnmodifiedPlaceIsInternational",
   "PlaceIsInternational",
@@ -186,11 +186,11 @@ FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %
   # "UnmodifiedPlaceCountryISO3",
   "PlaceCountryISO3"
     )]
-# load(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata")
+# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
 
 
 
-save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",FederalModelAndDetail)
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 
 ```
@@ -199,7 +199,7 @@ save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",FederalModelAn
 ```{r Outcome}
 #"data\\Civilian_contract_SP_ContractUnmodifiedandOutcomeDetailsCustomer.csv"
 
-FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDetail
+fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"Civilian_Contract_SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt"
   ,path=""
   ,"Data\\"
@@ -207,40 +207,40 @@ FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDet
   ,new_var_checked=FALSE
 )
 
-FederalModelAndDetail<-csis360::standardize_variable_names(FederalModelAndDetail)
+fed_full<-csis360::standardize_variable_names(fed_full)
 
 
-FederalModelAndDetail$UnmodifiedCurrentCompletionDate<-
-  strptime(FederalModelAndDetail$UnmodifiedCurrentCompletionDate,"%Y-%m-%d") 
+fed_full$UnmodifiedCurrentCompletionDate<-
+  strptime(fed_full$UnmodifiedCurrentCompletionDate,"%Y-%m-%d") 
 
 #Calculate the number of days the contract lasts.
-FederalModelAndDetail$UnmodifiedDays<-as.numeric(
-  difftime(strptime(FederalModelAndDetail$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")
-    , strptime(FederalModelAndDetail$MinOfEffectiveDate,"%Y-%m-%d")
+fed_full$UnmodifiedDays<-as.numeric(
+  difftime(strptime(fed_full$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")
+    , strptime(fed_full$MinOfEffectiveDate,"%Y-%m-%d")
     , unit="days"
   ))+1
 
 # 
-# CDuration<-as.duration(strptime(FederalModelAndDetail$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")-
-#                 strptime(FederalModelAndDetail$MinOfEffectiveDate,"%Y-%m-%d"))
+# CDuration<-as.duration(strptime(fed_full$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")-
+#                 strptime(fed_full$MinOfEffectiveDate,"%Y-%m-%d"))
 # 
 # CPeriod<-as.period(
-#     CInterval<-new_interval(ymd(FederalModelAndDetail$UnmodifiedCurrentCompletionDate),
-#                 ymd(FederalModelAndDetail$MinOfEffectiveDate))
+#     CInterval<-new_interval(ymd(fed_full$UnmodifiedCurrentCompletionDate),
+#                 ymd(fed_full$MinOfEffectiveDate))
 # 
 # 
 # 
 # summary(dYears)
 
 #Break the count of days into four categories.
-FederalModelAndDetail$qDuration<-cut2(FederalModelAndDetail$UnmodifiedDays,cuts=c(61,214,366,732))
+fed_full$qDuration<-cut2(fed_full$UnmodifiedDays,cuts=c(61,214,366,732))
 
 
 
 
 
-if (levels(FederalModelAndDetail$qDuration)[[2]]=="[   61,  214)"){
-  FederalModelAndDetail$qDuration<-factor(FederalModelAndDetail$qDuration, 
+if (levels(fed_full$qDuration)[[2]]=="[   61,  214)"){
+  fed_full$qDuration<-factor(fed_full$qDuration, 
     
     levels=c("[    0,   61)",
       "[   61,  214)",
@@ -259,20 +259,20 @@ if (levels(FederalModelAndDetail$qDuration)[[2]]=="[   61,  214)"){
 
 lowroundedcutoffs<-c(15000,100000,1000000,30000000)
 highroundedcutoffs<-c(15000,100000,1000000,10000000,75000000)
-FederalModelAndDetail$qLowCeiling <- cut2(FederalModelAndDetail$UnmodifiedContractBaseAndAllOptionsValue,cuts=lowroundedcutoffs)
-FederalModelAndDetail$qHighCeiling <- cut2(FederalModelAndDetail$UnmodifiedContractBaseAndAllOptionsValue,cuts=highroundedcutoffs)
+fed_full$qLowCeiling <- cut2(fed_full$UnmodifiedContractBaseAndAllOptionsValue,cuts=lowroundedcutoffs)
+fed_full$qHighCeiling <- cut2(fed_full$UnmodifiedContractBaseAndAllOptionsValue,cuts=highroundedcutoffs)
 rm(lowroundedcutoffs,highroundedcutoffs)
 
 
 
 
-if (all(levels(FederalModelAndDetail$qHighCeiling)==c("[0.00e+00,1.50e+04)",
+if (all(levels(fed_full$qHighCeiling)==c("[0.00e+00,1.50e+04)",
   "[1.50e+04,1.00e+05)",
   "[1.00e+05,1.00e+06)",
   "[1.00e+06,1.00e+07)",
   "[1.00e+07,7.50e+07)",
   "[7.50e+07,3.36e+12]"))){
-  FederalModelAndDetail$qHighCeiling<-factor(FederalModelAndDetail$qHighCeiling, 
+  fed_full$qHighCeiling<-factor(fed_full$qHighCeiling, 
     
     levels=c("[0.00e+00,1.50e+04)",
       "[1.50e+04,1.00e+05)",
@@ -290,12 +290,12 @@ if (all(levels(FederalModelAndDetail$qHighCeiling)==c("[0.00e+00,1.50e+04)",
   )
 }
 
-if (all(levels(FederalModelAndDetail$qLowCeiling)==c("[0.00e+00,1.50e+04)",
+if (all(levels(fed_full$qLowCeiling)==c("[0.00e+00,1.50e+04)",
   "[1.50e+04,1.00e+05)",
   "[1.00e+05,1.00e+06)",
   "[1.00e+06,3.00e+07)",
   "[3.00e+07,3.36e+12]"))){
-  FederalModelAndDetail$qLowCeiling<-factor(FederalModelAndDetail$qLowCeiling, 
+  fed_full$qLowCeiling<-factor(fed_full$qLowCeiling, 
     
     levels=c("[0.00e+00,1.50e+04)",
       "[1.50e+04,1.00e+05)",
@@ -313,33 +313,33 @@ if (all(levels(FederalModelAndDetail$qLowCeiling)==c("[0.00e+00,1.50e+04)",
 
 
 
-FederalModelAndDetail$qNChg <- cut2(FederalModelAndDetail$SumOfisChangeOrder,c(1,2,3))
+fed_full$qNChg <- cut2(fed_full$SumOfisChangeOrder,c(1,2,3))
 
 
-# FederalModelAndDetail$pChangeOrderObligated<-FederalModelAndDetail$ChangeOrderObligatedAmount/
-#   FederalModelAndDetail$Action.Obligation
-# FederalModelAndDetail$pChangeOrderObligated[is.na(FederalModelAndDetail$pChangeOrderObligated)&
-#     FederalModelAndDetail$SumOfisChangeOrder==0]<-0
-FederalModelAndDetail$pChangeOrderUnmodifiedBaseAndAll<-FederalModelAndDetail$ChangeOrderBaseAndAllOptionsValue/
-  FederalModelAndDetail$UnmodifiedContractBaseAndAllOptionsValue
-FederalModelAndDetail$pChangeOrderUnmodifiedBaseAndAll[
-  is.na(FederalModelAndDetail$pChangeOrderUnmodifiedBaseAndAll) & FederalModelAndDetail$SumOfisChangeOrder==0]<-0
+# fed_full$pChangeOrderObligated<-fed_full$ChangeOrderObligatedAmount/
+#   fed_full$Action.Obligation
+# fed_full$pChangeOrderObligated[is.na(fed_full$pChangeOrderObligated)&
+#     fed_full$SumOfisChangeOrder==0]<-0
+fed_full$pChangeOrderUnmodifiedBaseAndAll<-fed_full$ChangeOrderBaseAndAllOptionsValue/
+  fed_full$UnmodifiedContractBaseAndAllOptionsValue
+fed_full$pChangeOrderUnmodifiedBaseAndAll[
+  is.na(fed_full$pChangeOrderUnmodifiedBaseAndAll) & fed_full$SumOfisChangeOrder==0]<-0
 
 
-FederalModelAndDetail$qCRais <- cut2(
-  FederalModelAndDetail$pChangeOrderUnmodifiedBaseAndAll,c(
+fed_full$qCRais <- cut2(
+  fed_full$pChangeOrderUnmodifiedBaseAndAll,c(
     -0.001,
     0.001,
     0.15)
 )
 #                                               min(subset(
-#                                                   FederalModelAndDetail$pChangeOrderObligated,
-#                                                   FederalModelAndDetail$pChangeOrderObligated>0)),
+#                                                   fed_full$pChangeOrderObligated,
+#                                                   fed_full$pChangeOrderObligated>0)),
 
-summary(subset(FederalModelAndDetail$qCRais,FederalModelAndDetail$SumOfisChangeOrder>0    ))
+summary(subset(fed_full$qCRais,fed_full$SumOfisChangeOrder>0    ))
 
 
-FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %in% 
+fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
   #     UnmodifiedDays,
   #     UnmodifiedCurrentCompletionDate
@@ -348,12 +348,12 @@ FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %
   "LastUltimateCompletionDate"
     )]
 
-save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",FederalModelAndDetail)
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ```
 
 ##BucketPlatform
 ```{r BucketPlatform}
-FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDetail
+fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"Civilian_Contract_SP_ContractBucketPlatformCustomer.txt"
   ,path=""
   ,"Data\\"
@@ -361,119 +361,119 @@ FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDet
   ,new_var_checked=FALSE
 )
 # 
-# FederalModelAndDetail$ObligatedAmountIsProducts<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsProducts)
+# fed_full$ObligatedAmountIsProducts<-FactorToNumber(fed_full$ObligatedAmountIsProducts)
 # 
-# FederalModelAndDetail$ObligatedAmountIsServices<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsServices)
+# fed_full$ObligatedAmountIsServices<-FactorToNumber(fed_full$ObligatedAmountIsServices)
 # 
-# FederalModelAndDetail$ObligatedAmountIsRnD<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsRnD)
+# fed_full$ObligatedAmountIsRnD<-FactorToNumber(fed_full$ObligatedAmountIsRnD)
 # 
-# FederalModelAndDetail$pIsProducts <- FederalModelAndDetail$ObligatedAmountIsProducts/FederalModelAndDetail$Action.Obligation
-# FederalModelAndDetail$pIsProducts[is.na(FederalModelAndDetail$ObligatedAmountIsProducts)] <- 0
+# fed_full$pIsProducts <- fed_full$ObligatedAmountIsProducts/fed_full$Action.Obligation
+# fed_full$pIsProducts[is.na(fed_full$ObligatedAmountIsProducts)] <- 0
 # 
-# FederalModelAndDetail$pIsServices <- FederalModelAndDetail$ObligatedAmountIsServices/FederalModelAndDetail$Action.Obligation
-# FederalModelAndDetail$pIsServices[is.na(FederalModelAndDetail$ObligatedAmountIsServices)] <- 0
+# fed_full$pIsServices <- fed_full$ObligatedAmountIsServices/fed_full$Action.Obligation
+# fed_full$pIsServices[is.na(fed_full$ObligatedAmountIsServices)] <- 0
 # 
-# FederalModelAndDetail$pIsRnD <- FederalModelAndDetail$ObligatedAmountIsRnD/FederalModelAndDetail$Action.Obligation
-# FederalModelAndDetail$pIsRnD[is.na(FederalModelAndDetail$ObligatedAmountIsRnD)] <- 0
+# fed_full$pIsRnD <- fed_full$ObligatedAmountIsRnD/fed_full$Action.Obligation
+# fed_full$pIsRnD[is.na(fed_full$ObligatedAmountIsRnD)] <- 0
 
 #Need to update these to the new platform portfolios
 # 
 # 
-# FederalModelAndDetail$ObligatedAmountIsLand<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsLand)
+# fed_full$ObligatedAmountIsLand<-FactorToNumber(fed_full$ObligatedAmountIsLand)
 # 
-# FederalModelAndDetail$ObligatedAmountIsVessel<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsVessel)
-# 
-# 
-# FederalModelAndDetail$ObligatedAmountIsVessel<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsAir)
-# 
-# FederalModelAndDetail$ObligatedAmountIsVessel<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsOtherPP)
-# 
-# FederalModelAndDetail$ObligatedAmountIsWnA<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsWnA)
-# 
-# FederalModelAndDetail$ObligatedAmountIsMnS<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsMnS)
-# 
-# FederalModelAndDetail$ObligatedAmountIsEnC<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsEnC)
-# 
-# FederalModelAndDetail$ObligatedAmountIsFRSnC<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsFRSnC)
+# fed_full$ObligatedAmountIsVessel<-FactorToNumber(fed_full$ObligatedAmountIsVessel)
 # 
 # 
-# FederalModelAndDetail$pIsLand <- FederalModelAndDetail$ObligatedAmountIsLand/FederalModelAndDetail$Action.Obligation
-# FederalModelAndDetail$pIsLand[is.nan(FederalModelAndDetail$pIsLand)|is.infinite(FederalModelAndDetail$pIsLand)|is.na(FederalModelAndDetail$ObligatedAmountIsLand)] <- 0
+# fed_full$ObligatedAmountIsVessel<-FactorToNumber(fed_full$ObligatedAmountIsAir)
 # 
-# FederalModelAndDetail$pIsVessel <- FederalModelAndDetail$ObligatedAmountIsVessel/FederalModelAndDetail$Action.Obligation
-# FederalModelAndDetail$pIsVessel[is.nan(FederalModelAndDetail$pIsVessel)|is.infinite(FederalModelAndDetail$pIsVessel)|is.na(FederalModelAndDetail$ObligatedAmountIsVessel)] <- 0
+# fed_full$ObligatedAmountIsVessel<-FactorToNumber(fed_full$ObligatedAmountIsOtherPP)
 # 
-# FederalModelAndDetail$pIsOtherPP <- FederalModelAndDetail$ObligatedAmountIsOtherPP/FederalModelAndDetail$Action.Obligation
-# FederalModelAndDetail$pIsOtherPP[is.nan(FederalModelAndDetail$pIsOtherPP)|is.infinite(FederalModelAndDetail$pIsOtherPP)|is.na(FederalModelAndDetail$ObligatedAmountIsOtherPP)] <- 0
+# fed_full$ObligatedAmountIsWnA<-FactorToNumber(fed_full$ObligatedAmountIsWnA)
 # 
-# FederalModelAndDetail$pIsAir <- FederalModelAndDetail$ObligatedAmountIsAir/FederalModelAndDetail$Action.Obligation
-# FederalModelAndDetail$pIsAir[is.nan(FederalModelAndDetail$pIsAir)|is.infinite(FederalModelAndDetail$pIsAir)|is.na(FederalModelAndDetail$ObligatedAmountIsAir)] <- 0
+# fed_full$ObligatedAmountIsMnS<-FactorToNumber(fed_full$ObligatedAmountIsMnS)
 # 
-# FederalModelAndDetail$pIsEnC <- FederalModelAndDetail$ObligatedAmountIsEnC/FederalModelAndDetail$Action.Obligation
-# FederalModelAndDetail$pIsEnC[is.nan(FederalModelAndDetail$pIsEnC)|is.infinite(FederalModelAndDetail$pIsEnC)|is.na(FederalModelAndDetail$ObligatedAmountIsEnC)] <- 0
+# fed_full$ObligatedAmountIsEnC<-FactorToNumber(fed_full$ObligatedAmountIsEnC)
 # 
-# FederalModelAndDetail$pIsFRSnC <- FederalModelAndDetail$ObligatedAmountIsFRSnC/FederalModelAndDetail$Action.Obligation
-# FederalModelAndDetail$pIsFRSnC[is.nan(FederalModelAndDetail$pIsFRSnC)|is.infinite(FederalModelAndDetail$pIsFRSnC)|is.na(FederalModelAndDetail$ObligatedAmountIsFRSnC)] <- 0
+# fed_full$ObligatedAmountIsFRSnC<-FactorToNumber(fed_full$ObligatedAmountIsFRSnC)
 # 
 # 
-# FederalModelAndDetail$pIsMnS <- FederalModelAndDetail$ObligatedAmountIsMnS/FederalModelAndDetail$Action.Obligation
-# FederalModelAndDetail$pIsMnS[is.nan(FederalModelAndDetail$pIsMnS)|is.infinite(FederalModelAndDetail$pIsMnS)|is.na(FederalModelAndDetail$ObligatedAmountIsMnS)] <- 0
+# fed_full$pIsLand <- fed_full$ObligatedAmountIsLand/fed_full$Action.Obligation
+# fed_full$pIsLand[is.nan(fed_full$pIsLand)|is.infinite(fed_full$pIsLand)|is.na(fed_full$ObligatedAmountIsLand)] <- 0
+# 
+# fed_full$pIsVessel <- fed_full$ObligatedAmountIsVessel/fed_full$Action.Obligation
+# fed_full$pIsVessel[is.nan(fed_full$pIsVessel)|is.infinite(fed_full$pIsVessel)|is.na(fed_full$ObligatedAmountIsVessel)] <- 0
+# 
+# fed_full$pIsOtherPP <- fed_full$ObligatedAmountIsOtherPP/fed_full$Action.Obligation
+# fed_full$pIsOtherPP[is.nan(fed_full$pIsOtherPP)|is.infinite(fed_full$pIsOtherPP)|is.na(fed_full$ObligatedAmountIsOtherPP)] <- 0
+# 
+# fed_full$pIsAir <- fed_full$ObligatedAmountIsAir/fed_full$Action.Obligation
+# fed_full$pIsAir[is.nan(fed_full$pIsAir)|is.infinite(fed_full$pIsAir)|is.na(fed_full$ObligatedAmountIsAir)] <- 0
+# 
+# fed_full$pIsEnC <- fed_full$ObligatedAmountIsEnC/fed_full$Action.Obligation
+# fed_full$pIsEnC[is.nan(fed_full$pIsEnC)|is.infinite(fed_full$pIsEnC)|is.na(fed_full$ObligatedAmountIsEnC)] <- 0
+# 
+# fed_full$pIsFRSnC <- fed_full$ObligatedAmountIsFRSnC/fed_full$Action.Obligation
+# fed_full$pIsFRSnC[is.nan(fed_full$pIsFRSnC)|is.infinite(fed_full$pIsFRSnC)|is.na(fed_full$ObligatedAmountIsFRSnC)] <- 0
+# 
+# 
+# fed_full$pIsMnS <- fed_full$ObligatedAmountIsMnS/fed_full$Action.Obligation
+# fed_full$pIsMnS[is.nan(fed_full$pIsMnS)|is.infinite(fed_full$pIsMnS)|is.na(fed_full$ObligatedAmountIsMnS)] <- 0
 
 
 # TempList<-c("PlatformPortfolio","UnmodifiedPlatformPortfolio","ObligatedAmountIsAir","ObligatedAmountIsEnC","ObligatedAmountIsFRSnC","ObligatedAmountIsLand","ObligatedAmountIsMnS","ObligatedAmountIsOtherPP","ObligatedAmountIsVessel","ObligatedAmountIsWnA","ProductOrServiceArea","UnmodifiedProductOrServiceArea","SimpleArea","UnmodifiedSimpleArea","ObligatedAmountIsProducts","ObligatedAmountIsServices","ObligatedAmountIsRnD","MaxOfIsPossibleSoftwareEngineering")
 
-# TempList<-TempList[TempList %in% names(FederalModelAndDetail)]
-# FederalModelAndDetail<-subset(FederalModelAndDetail,select=-c(PlatformPortfolio,
+# TempList<-TempList[TempList %in% names(fed_full)]
+# fed_full<-subset(fed_full,select=-c(PlatformPortfolio,
 #                                                       UnmodifiedPlatformPortfolio,
 #                                                       SimpleArea,UnmodifiedSimpleArea ))
 
-NASimpleArea<-(FederalModelAndDetail$SimpleArea=="Mixed or Unlabeled" | is.na(FederalModelAndDetail$SimpleArea))&
-  !is.na(FederalModelAndDetail$UnmodifiedSimpleArea) & FederalModelAndDetail$UnmodifiedSimpleArea!="NULL"
-FederalModelAndDetail$SimpleArea[NASimpleArea]<-FederalModelAndDetail$UnmodifiedSimpleArea[NASimpleArea]
-# FederalModelAndDetail$SimpleArea[FederalModelAndDetail$SimpleArea=="Mixed or Unlabeled" & FederalModelAndDetail$pIsProducts>0.5]<-"Products"
-# FederalModelAndDetail$SimpleArea[FederalModelAndDetail$SimpleArea=="Mixed or Unlabeled" & FederalModelAndDetail$pIsServices>0.5]<-"Services"
-# FederalModelAndDetail$SimpleArea[FederalModelAndDetail$SimpleArea=="Mixed or Unlabeled" & FederalModelAndDetail$pIsRnD>0.5]<-"R&D"
+NASimpleArea<-(fed_full$SimpleArea=="Mixed or Unlabeled" | is.na(fed_full$SimpleArea))&
+  !is.na(fed_full$UnmodifiedSimpleArea) & fed_full$UnmodifiedSimpleArea!="NULL"
+fed_full$SimpleArea[NASimpleArea]<-fed_full$UnmodifiedSimpleArea[NASimpleArea]
+# fed_full$SimpleArea[fed_full$SimpleArea=="Mixed or Unlabeled" & fed_full$pIsProducts>0.5]<-"Products"
+# fed_full$SimpleArea[fed_full$SimpleArea=="Mixed or Unlabeled" & fed_full$pIsServices>0.5]<-"Services"
+# fed_full$SimpleArea[fed_full$SimpleArea=="Mixed or Unlabeled" & fed_full$pIsRnD>0.5]<-"R&D"
 
 
 
-# FederalModelAndDetail$PlatformPortfolio.sum[FederalModelAndDetail$pIsLand>=0.75&
-#     FederalModelAndDetail$PlatformPortfolio.sum=="Unlabeled"]<-"Land Vehicles"
-# FederalModelAndDetail$PlatformPortfolio.sum[FederalModelAndDetail$pIsVessel>=0.75&
-#     FederalModelAndDetail$PlatformPortfolio.sum=="Unlabeled"]<-"Ships & Submarines"
-# FederalModelAndDetail$PlatformPortfolio.sum[FederalModelAndDetail$pIsAir>=0.75&
-#     FederalModelAndDetail$PlatformPortfolio.sum=="Unlabeled"]<-"Aircraft and Drones"
-# FederalModelAndDetail$PlatformPortfolio.sum[FederalModelAndDetail$pIsOtherPP>=0.75&
-#     FederalModelAndDetail$PlatformPortfolio.sum=="Unlabeled"]<-"Other"
-# FederalModelAndDetail$PlatformPortfolio.sum[FederalModelAndDetail$pIsWnA>=0.75&
-#     FederalModelAndDetail$PlatformPortfolio.sum=="Unlabeled"]<-"Weapons and Ammunition"
-# FederalModelAndDetail$PlatformPortfolio.sum[FederalModelAndDetail$pIsMnS>=0.75&
-#     FederalModelAndDetail$PlatformPortfolio.sum=="Unlabeled"]<-"Missile and Space Systems"
-# FederalModelAndDetail$PlatformPortfolio.sum[FederalModelAndDetail$pIsEnC>=0.75&
-#     FederalModelAndDetail$PlatformPortfolio.sum=="Unlabeled"]<-"Electronics and Communications"
-# FederalModelAndDetail$PlatformPortfolio.sum[FederalModelAndDetail$pIsFRSnC>=0.75&
-#     FederalModelAndDetail$PlatformPortfolio.sum=="Unlabeled"]<-"Facilities and Construction"
+# fed_full$PlatformPortfolio.sum[fed_full$pIsLand>=0.75&
+#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Land Vehicles"
+# fed_full$PlatformPortfolio.sum[fed_full$pIsVessel>=0.75&
+#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Ships & Submarines"
+# fed_full$PlatformPortfolio.sum[fed_full$pIsAir>=0.75&
+#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Aircraft and Drones"
+# fed_full$PlatformPortfolio.sum[fed_full$pIsOtherPP>=0.75&
+#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Other"
+# fed_full$PlatformPortfolio.sum[fed_full$pIsWnA>=0.75&
+#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Weapons and Ammunition"
+# fed_full$PlatformPortfolio.sum[fed_full$pIsMnS>=0.75&
+#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Missile and Space Systems"
+# fed_full$PlatformPortfolio.sum[fed_full$pIsEnC>=0.75&
+#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Electronics and Communications"
+# fed_full$PlatformPortfolio.sum[fed_full$pIsFRSnC>=0.75&
+#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Facilities and Construction"
 # 
-# FederalModelAndDetail$SoftwareEng<-factor(FederalModelAndDetail$MaxOfIsPossibleSoftwareEngineering,
+# fed_full$SoftwareEng<-factor(fed_full$MaxOfIsPossibleSoftwareEngineering,
 #   levels=c(0,1),
 #   labels=c("Not Software Eng.","Possible Software Eng.")
 # )
 # 
-# FederalModelAndDetail$SoftwareEng[is.na(FederalModelAndDetail$SoftwareEng)&
-#     !is.na(FederalModelAndDetail$SimpleArea)]<-"Not Software Eng."
+# fed_full$SoftwareEng[is.na(fed_full$SoftwareEng)&
+#     !is.na(fed_full$SimpleArea)]<-"Not Software Eng."
 
 
 
-FederalModelAndDetail$PlatformPortfolio<-factor(FederalModelAndDetail$PlatformPortfolio)
-FederalModelAndDetail$UnmodifiedPlatformPortfolio<-factor(FederalModelAndDetail$UnmodifiedPlatformPortfolio)
+fed_full$PlatformPortfolio<-factor(fed_full$PlatformPortfolio)
+fed_full$UnmodifiedPlatformPortfolio<-factor(fed_full$UnmodifiedPlatformPortfolio)
 
-FederalModelAndDetail$ProductOrServiceArea<-factor(FederalModelAndDetail$ProductOrServiceArea)
-FederalModelAndDetail$UnmodifiedProductOrServiceArea<-factor(FederalModelAndDetail$UnmodifiedProductOrServiceArea)
+fed_full$ProductOrServiceArea<-factor(fed_full$ProductOrServiceArea)
+fed_full$UnmodifiedProductOrServiceArea<-factor(fed_full$UnmodifiedProductOrServiceArea)
 
-FederalModelAndDetail$SimpleArea<-factor(FederalModelAndDetail$SimpleArea)
-FederalModelAndDetail$UnmodifiedSimpleArea<-factor(FederalModelAndDetail$UnmodifiedSimpleArea)
+fed_full$SimpleArea<-factor(fed_full$SimpleArea)
+fed_full$UnmodifiedSimpleArea<-factor(fed_full$UnmodifiedSimpleArea)
 
 
-FederalModelAndDetail<-subset(FederalModelAndDetail,select=-c(
+fed_full<-subset(fed_full,select=-c(
   # UnmodifiedSimpleArea,
   # SimpleArea,
   MaxOfIsPossibleSoftwareEngineering
@@ -493,13 +493,13 @@ FederalModelAndDetail<-subset(FederalModelAndDetail,select=-c(
 ))
 
 
-FederalModelAndDetail$AnyPlaceInternational<-droplevels(FederalModelAndDetail$AnyPlaceInternational)
+fed_full$AnyPlaceInternational<-droplevels(fed_full$AnyPlaceInternational)
 
 
-FederalModelAndDetail$SimpleArea<-droplevels(FederalModelAndDetail$SimpleArea)
+fed_full$SimpleArea<-droplevels(fed_full$SimpleArea)
 
 
-save(file="Data\\Federal_contract_CSIScontractID_detail.Rdata",FederalModelAndDetail)
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 ```
 
@@ -507,21 +507,8 @@ save(file="Data\\Federal_contract_CSIScontractID_detail.Rdata",FederalModelAndDe
 ```{r CompetitionVehicle}
 #data\\Civilian_contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.csv
 
-FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %in% 
-    c(
-      "UnmodifiedIsFullAndOpen",
-  "UnmodifiedIsOnlyOneSource",
-  "UnmodifiedIsFollowonToCompetedAction",
-      "Unmodifiedmultipleorsingleawardidc",
-      "Unmodifiedaddmultipleorsingawardidc",
-  "IsFullAndOpen",
-  "IsFollowonToCompetedAction",
-      "multipleorsingleawardidc",
-      "AddMultipleOrSingleAwardIDC"
-)]
 
-
-FederalModelAndDetail<-read_and_join_experiment(data=FederalModelAndDetail
+fed_full<-read_and_join_experiment(data=fed_full
   ,"Contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.txt"
   ,path=""
   ,"Data\\"
@@ -530,7 +517,7 @@ FederalModelAndDetail<-read_and_join_experiment(data=FederalModelAndDetail
 )
 
 #Civilian_contract_SP_ContractCompetitionVehicleCustomer.csv
-FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDetail
+fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"Contract.SP_ContractCompetitionVehicleCustomer.txt"
   ,path=""
   ,"Data\\"
@@ -540,161 +527,161 @@ FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDet
 
 
 #Number of Offers
-FederalModelAndDetail$UnmodifiedNumberOfOffersReceived<-FactorToNumber(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived)
+fed_full$UnmodifiedNumberOfOffersReceived<-FactorToNumber(fed_full$UnmodifiedNumberOfOffersReceived)
 
-FederalModelAndDetail$NumberOfOffersReceived<-FactorToNumber(FederalModelAndDetail$NumberOfOffersReceived)
-FederalModelAndDetail$UnmodifiedNumberOfOffersReceived[is.null(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived)]<-NA
-FederalModelAndDetail$NumberOfOffersReceived[is.null(FederalModelAndDetail$NumberOfOffersReceived)]<-NA
+fed_full$NumberOfOffersReceived<-FactorToNumber(fed_full$NumberOfOffersReceived)
+fed_full$UnmodifiedNumberOfOffersReceived[is.null(fed_full$UnmodifiedNumberOfOffersReceived)]<-NA
+fed_full$NumberOfOffersReceived[is.null(fed_full$NumberOfOffersReceived)]<-NA
 
-NAnumberOfOffers<-is.na(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived)&
-  !is.na(FederalModelAndDetail$NumberOfOffersReceived)
-FederalModelAndDetail$UnmodifiedNumberOfOffersReceived[NAnumberOfOffers]<-
-  FederalModelAndDetail$NumberOfOffersReceived[NAnumberOfOffers]
+NAnumberOfOffers<-is.na(fed_full$UnmodifiedNumberOfOffersReceived)&
+  !is.na(fed_full$NumberOfOffersReceived)
+fed_full$UnmodifiedNumberOfOffersReceived[NAnumberOfOffers]<-
+  fed_full$NumberOfOffersReceived[NAnumberOfOffers]
 rm(NAnumberOfOffers)
 
-FederalModelAndDetail$qOffers <- cut2(FederalModelAndDetail$NumberOfOffersReceived,cuts=c(1,2,3,5))
+fed_full$qOffers <- cut2(fed_full$NumberOfOffersReceived,cuts=c(1,2,3,5))
 
 
 
-if (all(levels(FederalModelAndDetail$qOffers)==c("  1","  2","[  3,  5)","[  5,999]"))){
-  FederalModelAndDetail$qOffers<-factor(FederalModelAndDetail$qOffers, 
+if (all(levels(fed_full$qOffers)==c("  1","  2","[  3,  5)","[  5,999]"))){
+  fed_full$qOffers<-factor(fed_full$qOffers, 
     levels=c("  1","  2","[  3,  5)","[  5,999]"),
     labels=c("1","2","3-4","5+"),
     ordered=TRUE
   )
 }
 
-FederalModelAndDetail$UnmodifiedNumberOfOffersReceived[is.na(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived)&
-    !is.na(FederalModelAndDetail$UnmodifiedIsSomeCompetition)&
-    FederalModelAndDetail$UnmodifiedIsSomeCompetition==0
+fed_full$UnmodifiedNumberOfOffersReceived[is.na(fed_full$UnmodifiedNumberOfOffersReceived)&
+    !is.na(fed_full$UnmodifiedIsSomeCompetition)&
+    fed_full$UnmodifiedIsSomeCompetition==0
   ]<-1
 
 
 
 #Competition
 
-# FederalModelAndDetail$SingleOffer<-factor(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived==1,
+# fed_full$SingleOffer<-factor(fed_full$UnmodifiedNumberOfOffersReceived==1,
 #   levels=c(TRUE,FALSE),
 #   labels=c("Single","Multi")
 # )
 # 
-# FederalModelAndDetail$SingleOffer[is.na(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived)]<-NA
+# fed_full$SingleOffer[is.na(fed_full$UnmodifiedNumberOfOffersReceived)]<-NA
 
 #IsSomeCompetition Impute missing values when labeled entries have a consistent value.
-NAisSomeCompetition<-is.na(FederalModelAndDetail$UnmodifiedIsSomeCompetition)
-FederalModelAndDetail$UnmodifiedIsSomeCompetition[NAisSomeCompetition]<-
-  FederalModelAndDetail$IsSomeCompetition[NAisSomeCompetition]
+NAisSomeCompetition<-is.na(fed_full$UnmodifiedIsSomeCompetition)
+fed_full$UnmodifiedIsSomeCompetition[NAisSomeCompetition]<-
+  fed_full$IsSomeCompetition[NAisSomeCompetition]
 rm(NAisSomeCompetition)
 
 #Calculate Comp
-FederalModelAndDetail$Comp[FederalModelAndDetail$UnmodifiedIsSomeCompetition==0]<-"No Comp."
-# FederalModelAndDetail$Comp[FederalModelAndDetail$UnmodifiedIsSomeCompetition=="Comp." &
-#                            FederalModelAndDetail$UnmodifiedIsFullAndOpen=="Not Full & Open"]<-"Comp."
-# FederalModelAndDetail$Comp[FederalModelAndDetail$UnmodifiedIsSomeCompetition=="Comp." &
-#                            FederalModelAndDetail$UnmodifiedIsFullAndOpen=="Comp."]<-"Comp."
-FederalModelAndDetail$Comp[FederalModelAndDetail$UnmodifiedIsSomeCompetition==1]<-"Comp."
+fed_full$Comp[fed_full$UnmodifiedIsSomeCompetition==0]<-"No Comp."
+# fed_full$Comp[fed_full$UnmodifiedIsSomeCompetition=="Comp." &
+#                            fed_full$UnmodifiedIsFullAndOpen=="Not Full & Open"]<-"Comp."
+# fed_full$Comp[fed_full$UnmodifiedIsSomeCompetition=="Comp." &
+#                            fed_full$UnmodifiedIsFullAndOpen=="Comp."]<-"Comp."
+fed_full$Comp[fed_full$UnmodifiedIsSomeCompetition==1]<-"Comp."
 
 #Competition and Offer  
-FederalModelAndDetail$EffComp<-FederalModelAndDetail$Comp
+fed_full$EffComp<-fed_full$Comp
 
-FederalModelAndDetail$EffComp[FederalModelAndDetail$Comp=="Comp." & !is.na(FederalModelAndDetail$Comp)]<-
-  ifelse(FederalModelAndDetail$UnmodifiedNumberOfOffersReceived[FederalModelAndDetail$Comp=="Comp." & !is.na(FederalModelAndDetail$Comp)]>1,"2+ Offers","1 Offer")
+fed_full$EffComp[fed_full$Comp=="Comp." & !is.na(fed_full$Comp)]<-
+  ifelse(fed_full$UnmodifiedNumberOfOffersReceived[fed_full$Comp=="Comp." & !is.na(fed_full$Comp)]>1,"2+ Offers","1 Offer")
 
-FederalModelAndDetail$Comp<-factor(FederalModelAndDetail$Comp,
+fed_full$Comp<-factor(fed_full$Comp,
                                levels=c("No Comp.","Comp.")
                                                               )
-FederalModelAndDetail$EffComp<-factor(FederalModelAndDetail$EffComp,
+fed_full$EffComp<-factor(fed_full$EffComp,
                                levels=c("No Comp.","1 Offer","2+ Offers")
                                )
 
-FederalModelAndDetail$qOffers[is.na(FederalModelAndDetail$qOffers)&
-    !is.na(FederalModelAndDetail$UnmodifiedIsSomeCompetition)&
-    FederalModelAndDetail$UnmodifiedIsSomeCompetition==0
+fed_full$qOffers[is.na(fed_full$qOffers)&
+    !is.na(fed_full$UnmodifiedIsSomeCompetition)&
+    fed_full$UnmodifiedIsSomeCompetition==0
   ]<-"1"
 
 
 #Vehicle
 #Award_Type_Code Impute missing values when labeled entries have a consistent value.
-FederalModelAndDetail$unmodifiedaward_type_code[
-  is.na(FederalModelAndDetail$unmodifiedaward_type_code)]<-
-  FederalModelAndDetail$Award_Type_Code[
-    is.na(FederalModelAndDetail$unmodifiedaward_type_code)]
+fed_full$unmodifiedaward_type_code[
+  is.na(fed_full$unmodifiedaward_type_code)]<-
+  fed_full$Award_Type_Code[
+    is.na(fed_full$unmodifiedaward_type_code)]
 
 
 #idv_type_code Impute missing values when labeled entries have a consistent value.
-FederalModelAndDetail$unmodifiedidv_type_code[
-  is.na(FederalModelAndDetail$unmodifiedidv_type_code)]<-
-  FederalModelAndDetail$IDV_Type_Code[
-    is.na(FederalModelAndDetail$unmodifiedidv_type_code)]
+fed_full$unmodifiedidv_type_code[
+  is.na(fed_full$unmodifiedidv_type_code)]<-
+  fed_full$IDV_Type_Code[
+    is.na(fed_full$unmodifiedidv_type_code)]
 
 
 #Unmodifiedmultipleorsingleawardidc Impute missing values when labeled entries have a consistent value.
-FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc[
-  is.na(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc)]<-
-  FederalModelAndDetail$multipleorsingleawardidc[
-    is.na(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc)]
+fed_full$Unmodifiedmultipleorsingleawardidc[
+  is.na(fed_full$Unmodifiedmultipleorsingleawardidc)]<-
+  fed_full$multipleorsingleawardidc[
+    is.na(fed_full$Unmodifiedmultipleorsingleawardidc)]
 
 #Assign Is IDV
 #A = BPA Call, C = Delivery Order
-FederalModelAndDetail$IsIDV[!is.na(FederalModelAndDetail$unmodifiedaward_type_code) &
-                               FederalModelAndDetail$unmodifiedaward_type_code %in% c("A","C")]<-1
+fed_full$IsIDV[!is.na(fed_full$unmodifiedaward_type_code) &
+                               fed_full$unmodifiedaward_type_code %in% c("A","C")]<-1
 #B = Purchase Order, D = Definitive Contract
-FederalModelAndDetail$IsIDV[!is.na(FederalModelAndDetail$unmodifiedaward_type_code) &
-                               FederalModelAndDetail$unmodifiedaward_type_code %in% c("B","D")]<-0
-FederalModelAndDetail$IsIDV[!is.na(FederalModelAndDetail$unmodifiedidv_type_code)]<-1
+fed_full$IsIDV[!is.na(fed_full$unmodifiedaward_type_code) &
+                               fed_full$unmodifiedaward_type_code %in% c("B","D")]<-0
+fed_full$IsIDV[!is.na(fed_full$unmodifiedidv_type_code)]<-1
 
-if(is.numeric(FederalModelAndDetail$IsIDV)){
-  FederalModelAndDetail$IsIDV<-factor(FederalModelAndDetail$IsIDV,levels=c(0,1),labels=c("Def/Pur","IDV"))
+if(is.numeric(fed_full$IsIDV)){
+  fed_full$IsIDV<-factor(fed_full$IsIDV,levels=c(0,1),labels=c("Def/Pur","IDV"))
 }
 
 
 #Simple Vehicle, which consolidates IDV and award types
-FederalModelAndDetail$SimpleVehicle[
-  !is.na(FederalModelAndDetail$unmodifiedaward_type_code) &
-    FederalModelAndDetail$unmodifiedaward_type_code %in% c("B","D")]<-"Def/Pur"
+fed_full$SimpleVehicle[
+  !is.na(fed_full$unmodifiedaward_type_code) &
+    fed_full$unmodifiedaward_type_code %in% c("B","D")]<-"Def/Pur"
 
 
-FederalModelAndDetail$SimpleVehicle[
-  !is.na(FederalModelAndDetail$unmodifiedidv_type_code) &
-    FederalModelAndDetail$unmodifiedidv_type_code %in% c("B") &
-    !is.na(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc)]<-
-  paste(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc[
-     !is.na(FederalModelAndDetail$unmodifiedidv_type_code) &
-    FederalModelAndDetail$unmodifiedidv_type_code %in% c("B") &
-    !is.na(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc)
+fed_full$SimpleVehicle[
+  !is.na(fed_full$unmodifiedidv_type_code) &
+    fed_full$unmodifiedidv_type_code %in% c("B") &
+    !is.na(fed_full$Unmodifiedmultipleorsingleawardidc)]<-
+  paste(fed_full$Unmodifiedmultipleorsingleawardidc[
+     !is.na(fed_full$unmodifiedidv_type_code) &
+    fed_full$unmodifiedidv_type_code %in% c("B") &
+    !is.na(fed_full$Unmodifiedmultipleorsingleawardidc)
   ],"IDC")
 
 #IDV_type_Code D = BOA, E=BPA, Award_Type_code A=BPA Call
-FederalModelAndDetail$SimpleVehicle[
-  !is.na(FederalModelAndDetail$unmodifiedidv_type_code) &
-    FederalModelAndDetail$unmodifiedidv_type_code %in% c("D","E") |
-  !is.na(FederalModelAndDetail$unmodifiedaward_type_code) &
-    FederalModelAndDetail$unmodifiedaward_type_code %in% c("A") 
+fed_full$SimpleVehicle[
+  !is.na(fed_full$unmodifiedidv_type_code) &
+    fed_full$unmodifiedidv_type_code %in% c("D","E") |
+  !is.na(fed_full$unmodifiedaward_type_code) &
+    fed_full$unmodifiedaward_type_code %in% c("A") 
     ]<-
   "BPA/BOA"
 #IDV_type_cde A=GWAC C=FSS
-FederalModelAndDetail$SimpleVehicle[
-  !is.na(FederalModelAndDetail$unmodifiedidv_type_code)
-  & FederalModelAndDetail$unmodifiedidv_type_code 
+fed_full$SimpleVehicle[
+  !is.na(fed_full$unmodifiedidv_type_code)
+  & fed_full$unmodifiedidv_type_code 
   %in% c('A','C')]<-"FSS/GWAC"
 
 #Imputing that when Multiple Award/Single Award is known, but IDV_type_code is not
 #that the vehicle type is an IDC
-FederalModelAndDetail$SimpleVehicle[
-  is.na(FederalModelAndDetail$SimpleVehicle)&
-  is.na(FederalModelAndDetail$unmodifiedidv_type_code) &
-    !is.na(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc)]<-
-  paste(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc[
-  is.na(FederalModelAndDetail$SimpleVehicle)&
-  is.na(FederalModelAndDetail$unmodifiedidv_type_code) &
-    !is.na(FederalModelAndDetail$Unmodifiedmultipleorsingleawardidc)],"IDC")
+fed_full$SimpleVehicle[
+  is.na(fed_full$SimpleVehicle)&
+  is.na(fed_full$unmodifiedidv_type_code) &
+    !is.na(fed_full$Unmodifiedmultipleorsingleawardidc)]<-
+  paste(fed_full$Unmodifiedmultipleorsingleawardidc[
+  is.na(fed_full$SimpleVehicle)&
+  is.na(fed_full$unmodifiedidv_type_code) &
+    !is.na(fed_full$Unmodifiedmultipleorsingleawardidc)],"IDC")
 
-FederalModelAndDetail$SimpleVehicle<-factor(FederalModelAndDetail$SimpleVehicle)
-summary(FederalModelAndDetail$SimpleVehicle)
+fed_full$SimpleVehicle<-factor(fed_full$SimpleVehicle)
+summary(fed_full$SimpleVehicle)
 #Imputing that when the simple vehicle is a kind of IDV, IsIDV should follow as well
-FederalModelAndDetail$IsIDV[
-  is.na(FederalModelAndDetail$IsIDV)&
-    FederalModelAndDetail$SimpleVehicle %in% c(
+fed_full$IsIDV[
+  is.na(fed_full$IsIDV)&
+    fed_full$SimpleVehicle %in% c(
       'BPA/BOA','FSS/GWAC','MULTIPLE AWARD IDC','SINGLE AWARD IDC'
     )]<-"IDV"
 
@@ -702,7 +689,7 @@ FederalModelAndDetail$IsIDV[
 
 
 
-FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %in% 
+fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
   #     UnmodifiedIsFullAndOpen,
   # "UnmodifiedIsOnlyOneSource",
@@ -721,18 +708,18 @@ FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %
   "unmodifiedidv_type_code",
   "NumberOfOffersReceived"
 )]
-str(FederalModelAndDetail)
+str(fed_full)
   
-save(file="Data\\Federal_contract_CSIScontractID_detail.Rdata",FederalModelAndDetail)
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 ```
 
 
 ##Pricing
 ```{r Pricing}
-# load(file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
+# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
 
-FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %in% 
+fed_full<-fed_full[,!colnames(fed_full) %in% 
    c(
   "Pricing.Mechanism.Code",
   "UnmodifiedTypeOfContractPricing",
@@ -773,7 +760,7 @@ FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %
   "Fee"
     )]
 
-FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDetail
+fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"Contract.SP_ContractPricingCustomer.txt"
   ,path=""
   ,"Data\\"
@@ -782,98 +769,98 @@ FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDet
 )
 
 #Process FixedOrCost
-FederalModelAndDetail$ObligatedAmountIsFixedPrice<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsFixedPrice)
-FederalModelAndDetail$pIsFixedPrice <- FederalModelAndDetail$ObligatedAmountIsFixedPrice/FederalModelAndDetail$Action.Obligation
-FederalModelAndDetail$pIsFixedPrice[is.nan(FederalModelAndDetail$ObligatedAmountIsFixedPrice)|is.na(FederalModelAndDetail$ObligatedAmountIsFixedPrice)] <- 0
+fed_full$ObligatedAmountIsFixedPrice<-FactorToNumber(fed_full$ObligatedAmountIsFixedPrice)
+fed_full$pIsFixedPrice <- fed_full$ObligatedAmountIsFixedPrice/fed_full$Action.Obligation
+fed_full$pIsFixedPrice[is.nan(fed_full$ObligatedAmountIsFixedPrice)|is.na(fed_full$ObligatedAmountIsFixedPrice)] <- 0
 
 
-FederalModelAndDetail$ObligatedAmountIsCostBased<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsCostBased)
-FederalModelAndDetail$pIsCostBased <- FederalModelAndDetail$ObligatedAmountIsCostBased/FederalModelAndDetail$Action.Obligation
-FederalModelAndDetail$pIsCostBased[is.nan(FederalModelAndDetail$ObligatedAmountIsCostBased)|is.na(FederalModelAndDetail$ObligatedAmountIsCostBased)] <- 0
+fed_full$ObligatedAmountIsCostBased<-FactorToNumber(fed_full$ObligatedAmountIsCostBased)
+fed_full$pIsCostBased <- fed_full$ObligatedAmountIsCostBased/fed_full$Action.Obligation
+fed_full$pIsCostBased[is.nan(fed_full$ObligatedAmountIsCostBased)|is.na(fed_full$ObligatedAmountIsCostBased)] <- 0
 
-FederalModelAndDetail$ObligatedAmountIsCombination<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsCombination)
-FederalModelAndDetail$pIsCombination <- FederalModelAndDetail$ObligatedAmountIsCombination/FederalModelAndDetail$Action.Obligation
-FederalModelAndDetail$pIsCombination[is.nan(FederalModelAndDetail$ObligatedAmountIsCombination)|is.na(FederalModelAndDetail$ObligatedAmountIsCombination)] <- 0
+fed_full$ObligatedAmountIsCombination<-FactorToNumber(fed_full$ObligatedAmountIsCombination)
+fed_full$pIsCombination <- fed_full$ObligatedAmountIsCombination/fed_full$Action.Obligation
+fed_full$pIsCombination[is.nan(fed_full$ObligatedAmountIsCombination)|is.na(fed_full$ObligatedAmountIsCombination)] <- 0
 
 #Assign FixedOrCost
-FederalModelAndDetail$FixedOrCost[FederalModelAndDetail$pIsFixedPrice>0  |
-    FederalModelAndDetail$pIsCostBased>0 | 
-    FederalModelAndDetail$pIsCombination>0]<-"Combination or Other"
+fed_full$FixedOrCost[fed_full$pIsFixedPrice>0  |
+    fed_full$pIsCostBased>0 | 
+    fed_full$pIsCombination>0]<-"Combination or Other"
 
-FederalModelAndDetail$FixedOrCost[FederalModelAndDetail$pIsFixedPrice>=0.95|(FederalModelAndDetail$IsFixedPrice==1 & (FederalModelAndDetail$pIsCombination<=0.05))]<-"Fixed-Price"
-FederalModelAndDetail$FixedOrCost[FederalModelAndDetail$pIsCostBased>=0.95|(FederalModelAndDetail$IsCostBased==1 & (FederalModelAndDetail$pIsCombination<=0.05))]<-"Cost-Based"
-FederalModelAndDetail$FixedOrCost<-factor(FederalModelAndDetail$FixedOrCost,levels=c("Fixed-Price","Cost-Based","Combination or Other"))
+fed_full$FixedOrCost[fed_full$pIsFixedPrice>=0.95|(fed_full$IsFixedPrice==1 & (fed_full$pIsCombination<=0.05))]<-"Fixed-Price"
+fed_full$FixedOrCost[fed_full$pIsCostBased>=0.95|(fed_full$IsCostBased==1 & (fed_full$pIsCombination<=0.05))]<-"Cost-Based"
+fed_full$FixedOrCost<-factor(fed_full$FixedOrCost,levels=c("Fixed-Price","Cost-Based","Combination or Other"))
 
 #Process Fee
-FederalModelAndDetail$ObligatedAmountIsIncentive<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsIncentive)
-FederalModelAndDetail$pIsIncentive <- FederalModelAndDetail$ObligatedAmountIsIncentive/FederalModelAndDetail$Action.Obligation
-FederalModelAndDetail$pIsIncentive[is.nan(FederalModelAndDetail$ObligatedAmountIsIncentive)|is.na(FederalModelAndDetail$ObligatedAmountIsIncentive)] <- 0
+fed_full$ObligatedAmountIsIncentive<-FactorToNumber(fed_full$ObligatedAmountIsIncentive)
+fed_full$pIsIncentive <- fed_full$ObligatedAmountIsIncentive/fed_full$Action.Obligation
+fed_full$pIsIncentive[is.nan(fed_full$ObligatedAmountIsIncentive)|is.na(fed_full$ObligatedAmountIsIncentive)] <- 0
 
-FederalModelAndDetail$ObligatedAmountIsAwardFee<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsAwardFee)
-FederalModelAndDetail$pIsAwardFee <- FederalModelAndDetail$ObligatedAmountIsAwardFee/FederalModelAndDetail$Action.Obligation
-FederalModelAndDetail$pIsAwardFee[is.nan(FederalModelAndDetail$ObligatedAmountIsAwardFee)|is.na(FederalModelAndDetail$ObligatedAmountIsAwardFee)] <- 0
+fed_full$ObligatedAmountIsAwardFee<-FactorToNumber(fed_full$ObligatedAmountIsAwardFee)
+fed_full$pIsAwardFee <- fed_full$ObligatedAmountIsAwardFee/fed_full$Action.Obligation
+fed_full$pIsAwardFee[is.nan(fed_full$ObligatedAmountIsAwardFee)|is.na(fed_full$ObligatedAmountIsAwardFee)] <- 0
 
-FederalModelAndDetail$ObligatedAmountIsFFPorNoFee<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsFFPorNoFee)
-FederalModelAndDetail$pIsFFPorNoFee <- FederalModelAndDetail$ObligatedAmountIsFFPorNoFee/FederalModelAndDetail$Action.Obligation
-FederalModelAndDetail$pIsFFPorNoFee[is.nan(FederalModelAndDetail$ObligatedAmountIsFFPorNoFee)|is.na(FederalModelAndDetail$ObligatedAmountIsFFPorNoFee)] <- 0
+fed_full$ObligatedAmountIsFFPorNoFee<-FactorToNumber(fed_full$ObligatedAmountIsFFPorNoFee)
+fed_full$pIsFFPorNoFee <- fed_full$ObligatedAmountIsFFPorNoFee/fed_full$Action.Obligation
+fed_full$pIsFFPorNoFee[is.nan(fed_full$ObligatedAmountIsFFPorNoFee)|is.na(fed_full$ObligatedAmountIsFFPorNoFee)] <- 0
 
 
-FederalModelAndDetail$ObligatedAmountIsFixedFee<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsFixedFee)
-FederalModelAndDetail$pIsFixedFee <- FederalModelAndDetail$ObligatedAmountIsFixedFee/FederalModelAndDetail$Action.Obligation
-FederalModelAndDetail$pIsFixedFee[is.nan(FederalModelAndDetail$ObligatedAmountIsFixedFee)|is.na(FederalModelAndDetail$ObligatedAmountIsFixedFee)] <- 0
+fed_full$ObligatedAmountIsFixedFee<-FactorToNumber(fed_full$ObligatedAmountIsFixedFee)
+fed_full$pIsFixedFee <- fed_full$ObligatedAmountIsFixedFee/fed_full$Action.Obligation
+fed_full$pIsFixedFee[is.nan(fed_full$ObligatedAmountIsFixedFee)|is.na(fed_full$ObligatedAmountIsFixedFee)] <- 0
 
-FederalModelAndDetail$ObligatedAmountIsOtherFee<-FactorToNumber(FederalModelAndDetail$ObligatedAmountIsOtherFee)
-FederalModelAndDetail$pIsOtherFee <- FederalModelAndDetail$ObligatedAmountIsOtherFee/FederalModelAndDetail$Action.Obligation
-FederalModelAndDetail$pIsOtherFee[is.nan(FederalModelAndDetail$ObligatedAmountIsOtherFee)|is.na(FederalModelAndDetail$ObligatedAmountIsOtherFee)] <- 0
+fed_full$ObligatedAmountIsOtherFee<-FactorToNumber(fed_full$ObligatedAmountIsOtherFee)
+fed_full$pIsOtherFee <- fed_full$ObligatedAmountIsOtherFee/fed_full$Action.Obligation
+fed_full$pIsOtherFee[is.nan(fed_full$ObligatedAmountIsOtherFee)|is.na(fed_full$ObligatedAmountIsOtherFee)] <- 0
 
 
 #AssignFee
-FederalModelAndDetail$Fee<-NA
-FederalModelAndDetail$Fee[FederalModelAndDetail$pIsAwardFee>=0.9|(FederalModelAndDetail$IsAwardFee==1
-  & FederalModelAndDetail$pIsCombination<=0.05)]<-"Award Fee"
-FederalModelAndDetail$Fee[FederalModelAndDetail$pIsIncentive>=0.9|(FederalModelAndDetail$IsIncentive==1
-  & FederalModelAndDetail$pIsCombination<=0.05)]<-"Incentive"
-FederalModelAndDetail$Fee[FederalModelAndDetail$pIsFFPorNoFee>=0.9|(FederalModelAndDetail$IsFFPorNoFee==1
-  & FederalModelAndDetail$pIsCombination<=0.05)]<-"FFP or No Fee"
-FederalModelAndDetail$Fee[FederalModelAndDetail$pIsFixedFee>=0.9|(FederalModelAndDetail$IsFixedFee==1
-  & FederalModelAndDetail$pIsCombination<=0.05)]<-"Fixed Fee"
+fed_full$Fee<-NA
+fed_full$Fee[fed_full$pIsAwardFee>=0.9|(fed_full$IsAwardFee==1
+  & fed_full$pIsCombination<=0.05)]<-"Award Fee"
+fed_full$Fee[fed_full$pIsIncentive>=0.9|(fed_full$IsIncentive==1
+  & fed_full$pIsCombination<=0.05)]<-"Incentive"
+fed_full$Fee[fed_full$pIsFFPorNoFee>=0.9|(fed_full$IsFFPorNoFee==1
+  & fed_full$pIsCombination<=0.05)]<-"FFP or No Fee"
+fed_full$Fee[fed_full$pIsFixedFee>=0.9|(fed_full$IsFixedFee==1
+  & fed_full$pIsCombination<=0.05)]<-"Fixed Fee"
 
-FederalModelAndDetail$Fee[FederalModelAndDetail$pIsOtherFee>=0.9|
-    FederalModelAndDetail$IsOtherFee==1 | 
-    FederalModelAndDetail$pIsCombination>0.1|
-    (is.na(FederalModelAndDetail$Fee) & FederalModelAndDetail$IsLabeledPricing==1)]<-
+fed_full$Fee[fed_full$pIsOtherFee>=0.9|
+    fed_full$IsOtherFee==1 | 
+    fed_full$pIsCombination>0.1|
+    (is.na(fed_full$Fee) & fed_full$IsLabeledPricing==1)]<-
   "Combination or Other Fee"
-FederalModelAndDetail$Fee<-ordered(FederalModelAndDetail$Fee,
+fed_full$Fee<-ordered(fed_full$Fee,
   levels=c("Incentive","Fixed Fee","Award Fee",
     "FFP or No Fee","Combination or Other Fee"))
 
 
 
 #Undefinitized Contract Awards
-# FederalModelAndDetail$SimpleVehicle[FederalModelAndDetail$AwardOrIDVcontractActionType == "Letter Contract"]<-"Letter"
-# FederalModelAndDetail$SimpleVehicle[FederalModelAndDetail$AwardOrIDVcontractActionType %in%
+# fed_full$SimpleVehicle[fed_full$AwardOrIDVcontractActionType == "Letter Contract"]<-"Letter"
+# fed_full$SimpleVehicle[fed_full$AwardOrIDVcontractActionType %in%
 #     c("Indefinite Delivery Contract",
 #       "Delivery Order")]<-
-#   as.character(FederalModelAndDetail$multipleorsingleawardidc[FederalModelAndDetail$AwardOrIDVcontractActionType %in%
+#   as.character(fed_full$multipleorsingleawardidc[fed_full$AwardOrIDVcontractActionType %in%
 #       c("Indefinite Delivery Contract",
 #         "Delivery Order")])
 
 
 #Imput UCA unmodified values when consistent for the remainder of the vehicle
-FederalModelAndDetail$UnmodifiedIsUCA[is.na(FederalModelAndDetail$UnmodifiedIsUCA)&
-  !is.na(FederalModelAndDetail$IsUCA)]<-
-  FederalModelAndDetail$UCA[is.na(FederalModelAndDetail$UnmodifiedIsUCA)&
-  !is.na(FederalModelAndDetail$IsUCA)]
+fed_full$UnmodifiedIsUCA[is.na(fed_full$UnmodifiedIsUCA)&
+  !is.na(fed_full$IsUCA)]<-
+  fed_full$UCA[is.na(fed_full$UnmodifiedIsUCA)&
+  !is.na(fed_full$IsUCA)]
 
 
 
-FederalModelAndDetail$UCA<-factor(FederalModelAndDetail$UnmodifiedIsUCA,
+fed_full$UCA<-factor(fed_full$UnmodifiedIsUCA,
   levels=c(0,1),
   labels=c("Not UCA","UCA")
 )
 
 
-FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %in% 
+fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
   # Pricing.Mechanism.Code,
   "UnmodifiedTypeOfContractPricing",
@@ -916,16 +903,16 @@ FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %
   "IsUCA"
     )]
 
-str(FederalModelAndDetail)
+str(fed_full)
 
-# save(file="Data\\Federal_contract_CSIScontractID_detail.Rdata",FederalModelAndDetail)
+# save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 ```
 
 ## Details
 ```{r Details}
 # load(file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
-FederalModelAndDetail<-plyr::join(FederalModelAndDetail,test)
+fed_full<-plyr::join(fed_full,test)
 test<-read_delim("Data\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
                  na=c("NA","NULL"),
                  col_types="icdcdcdcd")
@@ -938,7 +925,7 @@ test<-read_delim("Data\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
                    #   col_double(),
                    #   col_character(),
                    #   col_double()))
-FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDetail
+fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"Contract.SP_ContractTopPSCofficeNAICS.txt"
   ,path=""
   ,"Data\\"
@@ -946,21 +933,21 @@ FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDet
   ,new_var_checked=FALSE
 )
 
-FederalModelAndDetail$topContractingOfficeAgencyID<-factor(
-  FederalModelAndDetail$topContractingOfficeAgencyID
+fed_full$topContractingOfficeAgencyID<-factor(
+  fed_full$topContractingOfficeAgencyID
 )
-FederalModelAndDetail$topContractingOfficeID<-factor(
-  FederalModelAndDetail$topContractingOfficeID
+fed_full$topContractingOfficeID<-factor(
+  fed_full$topContractingOfficeID
 )
-FederalModelAndDetail$topProductOrServiceCode<-factor(
-  FederalModelAndDetail$topProductOrServiceCode
+fed_full$topProductOrServiceCode<-factor(
+  fed_full$topProductOrServiceCode
 )
-FederalModelAndDetail$topPrincipalNAICScode<-factor(
-  FederalModelAndDetail$topPrincipalNAICScode
+fed_full$topPrincipalNAICScode<-factor(
+  fed_full$topPrincipalNAICScode
 )
 
 
-FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %in% 
+fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
       # "topContractingOfficeAgencyID",
       "topContractingOfficeAgencyIDamount"      ,
@@ -970,7 +957,7 @@ FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %
       "topProductOrServiceAmount"               ,
       # "topPrincipalNAICScode",
       "topPrincipalNAICSamount")]
-# load(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata")
+# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
 
 
 ```
@@ -981,13 +968,13 @@ FederalModelAndDetail<-FederalModelAndDetail[,!colnames(FederalModelAndDetail) %
 # debug(apply_lookups)
 
 
-FederalModelAndDetail<-apply_lookups(Path,FederalModelAndDetail)
+fed_full<-apply_lookups(Path,fed_full)
 
 
 
 
-# FederalModelAndDetail<-csis360::read_and_join(
-#   FederalModelAndDetail,
+# fed_full<-csis360::read_and_join(
+#   fed_full,
 #   "Lookup_SubCustomer.csv",
 #   by=c("Customer","SubCustomer"),
 #   # replace_na_var=NULL,
@@ -997,13 +984,13 @@ FederalModelAndDetail<-apply_lookups(Path,FederalModelAndDetail)
 #   # skip_check_var="CHPKisCrisisFunding"
 #   )
 
-# FederalModelAndDetail$SubCustomer.sum<-factor(FederalModelAndDetail$SubCustomer.sum)
-# FederalModelAndDetail$SubCustomer.sum<-droplevels(FederalModelAndDetail$SubCustomer.sum)
-# FederalModelAndDetail$SubCustomer.sum<-droplevels(FederalModelAndDetail$SubCustomer.sum)
+# fed_full$SubCustomer.sum<-factor(fed_full$SubCustomer.sum)
+# fed_full$SubCustomer.sum<-droplevels(fed_full$SubCustomer.sum)
+# fed_full$SubCustomer.sum<-droplevels(fed_full$SubCustomer.sum)
 
 
-FederalModelAndDetail<-csis360::read_and_join(
-  FederalModelAndDetail,
+fed_full<-csis360::read_and_join(
+  fed_full,
   "LOOKUP_PlatformPortfolio.csv",
   by="PlatformPortfolio",
   # replace_na_var=NULL,
@@ -1012,24 +999,24 @@ FederalModelAndDetail<-csis360::read_and_join(
   # new_var_checked=TRUE,
   # skip_check_var="CHPKisCrisisFunding"
   )
-FederalModelAndDetail$PlatformPortfolio.sum<-factor(FederalModelAndDetail$PlatformPortfolio.sum)
+fed_full$PlatformPortfolio.sum<-factor(fed_full$PlatformPortfolio.sum)
 
-    FederalModelAndDetail$IsTerminated<-factor(FederalModelAndDetail$IsTerminated,
+    fed_full$IsTerminated<-factor(fed_full$IsTerminated,
                                 levels = c(0,1),
                                 labels = c("Unterminated", "Terminated")
     )
 
-FederalModelAndDetail<-rename_dataset(FederalModelAndDetail)
+fed_full<-rename_dataset(fed_full)
 
-save(file="Data\\Civilian_contract_CSIScontractID_complete.Rdata",FederalModelAndDetail)
-# FederalModelAndDetail<-rename_dataset(FederalModelAndDetail)
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+# fed_full<-rename_dataset(fed_full)
 
 ```
 ##Dataset Output
 
 ```{r DetailedOutput}
 
-CivilianModelAndDetail<-subset(FederalModelAndDetail,select=c(CSIScontractID,
+CivilianModelAndDetail<-subset(fed_full,select=c(CSIScontractID,
   # IsIDV,
   FxCb,
   Fee,
@@ -1096,12 +1083,12 @@ save(CivilianModelAndDetail,file="Data\\Civilian_contract_CSIScontractID_detail.
 ```{r CombineDefenseAndCivil}
 
 load(file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
-
+fed<-fed_full
 
 DefenseModelAndDetail$Who<-factor(DefenseModelAndDetail$Who,
   levels=c("Civilian",levels(DefenseModelAndDetail$Who)))
 CivilianModelAndDetail$Who<-factor("Civilian",levels(DefenseModelAndDetail$Who))
-FederalModelAndDetail<-rbind(DefenseModelAndDetail,CivilianModelAndDetail)
+fed<-rbind(DefenseModelAndDetail,CivilianModelAndDetail)
 summary(CivilianModelAndDetail$Term)
 summary(DefenseModelAndDetail$Term)
 summary(CivilianModelAndDetail$Veh)
@@ -1141,26 +1128,26 @@ CivilianModelAndDetail<-CivilianModelAndDetail[,!colnames(CivilianModelAndDetail
 DefenseModelAndDetail$Is.Defense<-"Defense"
 CivilianModelAndDetail$Is.Defense<-"Civilian"
 
-FederalModelAndDetail<-rbind(DefenseModelAndDetail,CivilianModelAndDetail)
+fed<-rbind(DefenseModelAndDetail,CivilianModelAndDetail)
 
 debug(FormatContractModel)
-FederalModelAndDetail<-FormatContractModel(FederalModelAndDetail)
+fed<-FormatContractModel(fed)
 
-FederalModelAndDetail<-csis360::read_and_join_experiment(data=FederalModelAndDetail,
+fed<-csis360::read_and_join_experiment(data=fed,
     lookup_file="Overall_Contract_SP_ContractBudgetDecisionTree.txt",
   path="",
   directory = "Data/",
   by="CSIScontractID",
   new_var_checked=FALSE
 )
-FederalModelAndDetail$MaxOfDecisionTree<-factor(FederalModelAndDetail$MaxOfDecisionTree)
-FederalModelAndDetail$MaxOfDecisionTreeStep4 <-factor(FederalModelAndDetail$MaxOfDecisionTreeStep4 )
-FederalModelAndDetail$MinOfDecisionTree <-factor(FederalModelAndDetail$MinOfDecisionTree )
-FederalModelAndDetail$MinOfDecisionTreeStep4 <-factor(FederalModelAndDetail$MinOfDecisionTreeStep4 )
+fed$MaxOfDecisionTree<-factor(fed$MaxOfDecisionTree)
+fed$MaxOfDecisionTreeStep4 <-factor(fed$MaxOfDecisionTreeStep4 )
+fed$MinOfDecisionTree <-factor(fed$MinOfDecisionTree )
+fed$MinOfDecisionTreeStep4 <-factor(fed$MinOfDecisionTreeStep4 )
 
 
-summary(FederalModelAndDetail)
-save(FederalModelAndDetail,file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
+summary(fed)
+save(fed,file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
 
 
 
