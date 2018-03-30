@@ -28,31 +28,31 @@ SELECT ctid.CSIScontractID
 				--Number Of Offers
 		, C.numberofoffersreceived	
 		,CASE 
-		--Award or IDV Type show only (‘Definitive Contract’, ‘IDC’, ‘Purchase Order’)
+		--Award or IDV Type show only (ï¿½Definitive Contractï¿½, ï¿½IDCï¿½, ï¿½Purchase Orderï¿½)
 			WHEN ctype.ForAwardUseExtentCompeted=1
 				then 0 --Use extent competed
-				--Award or IDV Type show only (‘Delivery Order’, ‘BPA Call’)
-				--IDV Part 8 or Part 13 show only (‘Part 13’)
+				--Award or IDV Type show only (ï¿½Delivery Orderï¿½, ï¿½BPA Callï¿½)
+				--IDV Part 8 or Part 13 show only (ï¿½Part 13ï¿½)
 				--When  **Part 8 or Part 13  is not available!**
 				--then 0 --Use extent competed
 
-				--Award or IDV Type show only (‘Delivery Order’)
-				--IDV Multiple or Single Award IDV show only (‘S’)
+				--Award or IDV Type show only (ï¿½Delivery Orderï¿½)
+				--IDV Multiple or Single Award IDV show only (ï¿½Sï¿½)
 			when ctype.isdeliveryorder=1
 					and isnull(IDVmulti.ismultipleaward, Cmulti.ismultipleaward) =0
 				then 0	
-				--Fair Opportunity / Limited Sources show only (‘Fair Opportunity Given’)
-				--Award or IDV Type show only (‘Delivery Order’)
-				--IDV Type show only (‘FSS’, ‘GWAC’, ‘IDC’)
-				--	IDV Multiple or Single Award IDV show only (‘M’)
+				--Fair Opportunity / Limited Sources show only (ï¿½Fair Opportunity Givenï¿½)
+				--Award or IDV Type show only (ï¿½Delivery Orderï¿½)
+				--IDV Type show only (ï¿½FSSï¿½, ï¿½GWACï¿½, ï¿½IDCï¿½)
+				--	IDV Multiple or Single Award IDV show only (ï¿½Mï¿½)
 			when idvtype.ForIDVUseFairOpportunity=1 and 
 					ctype.isdeliveryorder=1 and 
 					isnull(IDVmulti.ismultipleaward, Cmulti.ismultipleaward) =1
 				then 1 --Use fair opportunity
 
-			--	Number of Offers Received show only (‘1’)
-			-- Award or IDV Type show only (‘BPA Call’, ‘BPA’)
-			-- Part 8 or Part 13 show only (‘Part 8’)
+			--	Number of Offers Received show only (ï¿½1ï¿½)
+			-- Award or IDV Type show only (ï¿½BPA Callï¿½, ï¿½BPAï¿½)
+			-- Part 8 or Part 13 show only (ï¿½Part 8ï¿½)
 			--When  **Part 8 or Part 13  is not available!**
 			--then 0 --Use extent competed
 			when fairopp.statutoryexceptiontofairopportunitytext is not null

@@ -139,55 +139,81 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 #Civilian_contract_SP_ContractLocationCustomer.csv
 fed_full<-csis360::read_and_join_experiment(fed_full,
-  "Civilian_contract_SP_ContractLocationCustomer.txt"
-  ,""
-  ,"Data\\"
+    "Contract.SP_ContractLocationCustomer.txt"
+  ,path=""
+  ,dir="Data\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
+  # ,zip_file="Contract.SP_ContractLocationCustomer.zip"
 )
 
 fed_full<-csis360::standardize_variable_names(fed_full)
 
-fed_full$ObligatedAmountIsInternational<-FactorToNumber(fed_full$ObligatedAmountIsInternational)
-fed_full$pIsInternational<-fed_full$ObligatedAmountPlaceIsInternational/
-  fed_full$Action.Obligation
-fed_full$pIsInternational[is.na(fed_full$ObligatedAmountPlaceIsInternational)] <- 0
+
+
+# fed_full$pIsInternational<-
+#   as.double(fed_full$ObligatedAmountPlaceIsInternational)/
+#   as.double(fed_full$Action.Obligation)
+# length(fed_full$pIsInternational[
+#   # is.na(fed_full$pIsInternational)&
+#     fed_full$PlaceIsInternational==1
+# ])<-0
+# summary(fed_full$pIsInternational)
+# summary(fed_full$PlaceIsInternational)
+# summary(subset(fed_full,is.finite(pIsInternational)))
+# 
+# ggplot(fed_full, aes(x=ObligatedAmountPlaceIsInternational))+geom_histogram()
+
+# summary(fed_full$ObligatedAmountPlaceIsInternational)
+# summary(fed_full$PlaceIsInternational)
+
+fed_full$AnyPlaceInternational[is.na(fed_full$PlaceIsInternational) &
+    is.na(fed_full$UnmodifiedPlaceIsInternational)]<-NA
+
+summary(fed_full$AnyPlaceInternational)
+summary(fed_full$PlaceIsInternational)
+summary(fed_full$UnmodifiedPlaceIsInternational)
+summary(factor(fed_full$PlaceCountryISO3))
+summary(factor(fed_full$UnmodifiedPlaceCountryISO3))
+
 
 if(is.numeric(fed_full$AnyPlaceInternational)){
   fed_full$AnyPlaceInternational<-factor(fed_full$AnyPlaceInternational,
     exclude=NULL,
     levels=c(0,1,NA),
-    labels=c("Just U.S.","Any International","Unlabeled")
+    labels=c("Just U.S.","Any International",NA)
   )
 }
-fed_full$AnyPlaceInternational[fed_full$pIsInternational<=0 & 
-    fed_full$AnyPlaceInternational=="Any International" &
-    fed_full$UnmodifiedPlaceIsInternational==0]<-"Just U.S."
 
+summary(fed_full$AnyPlaceInternational)
+fed_full$UnmodifiedPlaceCountryISO3[is.na(fed_full$UnmodifiedPlaceCountryISO3)]<-
+  fed_full$PlaceCountryISO3[is.na(fed_full$UnmodifiedPlaceCountryISO3)]
 fed_full$UnmodifiedPlaceCountryISO3<-factor(fed_full$UnmodifiedPlaceCountryISO3)
-fed_full$UnmodifiedVendorCountryISO3<-factor(fed_full$UnmodifiedVendorCountryISO3)
-fed_full$VendorCountryISO3<-factor(fed_full$VendorCountryISO3)
-fed_full$UnmodifiedOriginCountryISO3<-factor(fed_full$UnmodifiedOriginCountryISO3)
-fed_full$OriginCountryISO3<-factor(fed_full$OriginCountryISO3)
-UnmodifiedVendorCountryISO3
+
 
 
 fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
-  "UnmodifiedPlaceIsInternational",
-  "PlaceIsInternational",
-  "ObligatedAmountPlaceIsInternational",
-        # "UnmodifiedVendorIsInternational",
-  # "VendorIsInternational",
-  "ObligatedAmountVendorIsInternational",
-      # "UnmodifiedOriginIsInternational",
-  # "OriginIsInternational",
-  "ObligatedAmountOriginIsInternational",
+  # "PlaceCountryISO3",
   # "UnmodifiedPlaceCountryISO3",
-  "PlaceCountryISO3"
+  "ObligatedAmountPlaceIsInternational"     ,
+   # "AnyPlaceInternational",
+  "PlaceIsInternational"  ,
+  "UnmodifiedPlaceIsInternational",
+   "VendorCountryISO3",
+  "UnmodifiedVendorCountryISO3" ,
+  "ObligatedAmountVendorIsInternational"  ,
+   "AnyVendorInternational",
+  "VendorIsInternational",
+  "UnmodifiedVendorIsInternational"         ,
+   "OriginCountryISO3",
+  "UnmodifiedOriginCountryISO3",
+  "ObligatedAmountOriginIsInternational"    ,
+   "AnyOriginInternational",
+  "OriginIsInternational",
+  "UnmodifiedOriginIsInternational" ,
+  "pIsInternational" #This just isn't working
     )]
-# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
-
 
 
 save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
@@ -636,12 +662,12 @@ if(is.numeric(fed_full$IsIDV)){
 
 
 #Simple Vehicle, which consolidates IDV and award types
-fed_full$SimpleVehicle[
+fed_full$Veh[
   !is.na(fed_full$unmodifiedaward_type_code) &
     fed_full$unmodifiedaward_type_code %in% c("B","D")]<-"Def/Pur"
 
 
-fed_full$SimpleVehicle[
+fed_full$Veh[
   !is.na(fed_full$unmodifiedidv_type_code) &
     fed_full$unmodifiedidv_type_code %in% c("B") &
     !is.na(fed_full$Unmodifiedmultipleorsingleawardidc)]<-
@@ -652,7 +678,7 @@ fed_full$SimpleVehicle[
   ],"IDC")
 
 #IDV_type_Code D = BOA, E=BPA, Award_Type_code A=BPA Call
-fed_full$SimpleVehicle[
+fed_full$Veh[
   !is.na(fed_full$unmodifiedidv_type_code) &
     fed_full$unmodifiedidv_type_code %in% c("D","E") |
   !is.na(fed_full$unmodifiedaward_type_code) &
@@ -660,28 +686,28 @@ fed_full$SimpleVehicle[
     ]<-
   "BPA/BOA"
 #IDV_type_cde A=GWAC C=FSS
-fed_full$SimpleVehicle[
+fed_full$Veh[
   !is.na(fed_full$unmodifiedidv_type_code)
   & fed_full$unmodifiedidv_type_code 
   %in% c('A','C')]<-"FSS/GWAC"
 
 #Imputing that when Multiple Award/Single Award is known, but IDV_type_code is not
 #that the vehicle type is an IDC
-fed_full$SimpleVehicle[
-  is.na(fed_full$SimpleVehicle)&
+fed_full$Veh[
+  is.na(fed_full$Veh)&
   is.na(fed_full$unmodifiedidv_type_code) &
     !is.na(fed_full$Unmodifiedmultipleorsingleawardidc)]<-
   paste(fed_full$Unmodifiedmultipleorsingleawardidc[
-  is.na(fed_full$SimpleVehicle)&
+  is.na(fed_full$Veh)&
   is.na(fed_full$unmodifiedidv_type_code) &
     !is.na(fed_full$Unmodifiedmultipleorsingleawardidc)],"IDC")
 
-fed_full$SimpleVehicle<-factor(fed_full$SimpleVehicle)
-summary(fed_full$SimpleVehicle)
+fed_full$Veh<-factor(fed_full$Veh)
+summary(fed_full$Veh)
 #Imputing that when the simple vehicle is a kind of IDV, IsIDV should follow as well
 fed_full$IsIDV[
   is.na(fed_full$IsIDV)&
-    fed_full$SimpleVehicle %in% c(
+    fed_full$Veh %in% c(
       'BPA/BOA','FSS/GWAC','MULTIPLE AWARD IDC','SINGLE AWARD IDC'
     )]<-"IDV"
 
@@ -837,8 +863,8 @@ fed_full$Fee<-ordered(fed_full$Fee,
 
 
 #Undefinitized Contract Awards
-# fed_full$SimpleVehicle[fed_full$AwardOrIDVcontractActionType == "Letter Contract"]<-"Letter"
-# fed_full$SimpleVehicle[fed_full$AwardOrIDVcontractActionType %in%
+# fed_full$Veh[fed_full$AwardOrIDVcontractActionType == "Letter Contract"]<-"Letter"
+# fed_full$Veh[fed_full$AwardOrIDVcontractActionType %in%
 #     c("Indefinite Delivery Contract",
 #       "Delivery Order")]<-
 #   as.character(fed_full$multipleorsingleawardidc[fed_full$AwardOrIDVcontractActionType %in%
@@ -859,6 +885,10 @@ fed_full$UCA<-factor(fed_full$UnmodifiedIsUCA,
   labels=c("Not UCA","UCA")
 )
 
+#Imputing to make up for absence of 
+#There's no obligations in the dataset to UCAs using the regulated vehicle of FSS/GWAC
+fed_full$UCA[is.na(fed_full$UCA)&
+               fed_full$Veh=="FSS/GWAC"]<-"Not UCA"
 
 fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
@@ -1015,44 +1045,46 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ##Dataset Output
 
 ```{r DetailedOutput}
-
-CivilianModelAndDetail<-subset(fed_full,select=c(CSIScontractID,
+fed<-rename_dataset(fed_full)
+fed<-fed[,colnames(fed) %in% c(
   # IsIDV,
-  FxCb,
-  Fee,
-  # Comp,
+  "FxCb",
+  "Fee",
+  "UCA",
+  "Comp",
   # MDAP,
   # unmodifiedSystemequipmentcode,
   # Who,
-  What,
-  Intl,
-  PSR,
-  LowCeil,
-  Ceil,
-  Dur,
-  SingleOffer,
-  Offr,
+  "Veh",
+  "PSR",
+  "What",
+  "Where",
+  "Intl",
+  "LowCeil",
+  "Ceil",
+  "Dur",
+  # SingleOffer,
+  "Offr",
   # IsIDV,
   # Soft,
-  UCA,
-  CRai,
-  NChg,
-  Veh,
-  UnmodifiedNumberOfOffersReceived,
-  Term,
-  UnmodifiedContractBaseAndAllOptionsValue,
-  SumOfisChangeOrder,
-  pChangeOrderUnmodifiedBaseAndAll,
+
+  "CRai",
+  "NChg",
+  "Term",
+  
+  "UnmodifiedNumberOfOffersReceived",
+  "UnmodifiedContractBaseAndAllOptionsValue",
+  "SumOfisChangeOrder",
+  "pChangeOrderUnmodifiedBaseAndAll",
   # pChangeOrderObligated,
-  UnmodifiedDays,
-  MinOfEffectiveDate,
-  Action.Obligation,
-  Agency,
-  Office,
-  ProdServ,
-  NAICS
-)
-)
+  "UnmodifiedDays",
+  "MinOfEffectiveDate",
+  "Action.Obligation",
+  "Agency",
+  "Office",
+  "ProdServ",
+  "NAICS"
+)]
 # 
 
     # CivilianModelAndDetail$Term<-factor(CivilianModelAndDetail$Term,
@@ -1071,7 +1103,7 @@ write.table(CivilianModelAndDetail
   , append=FALSE
 )
 save(CivilianModelAndDetail,file="Data\\Civilian_contract_CSIScontractID_detail.Rdata")
-
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 #Strip out the cuts
 
@@ -1147,7 +1179,7 @@ fed$MinOfDecisionTreeStep4 <-factor(fed$MinOfDecisionTreeStep4 )
 
 
 summary(fed)
-save(fed,file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+save(fed,file="Data\\Federal_contract_CSIScontractID_detail")
 
 
 

@@ -6,11 +6,12 @@ library(Hmisc)
 rename_dataset<-function(contract){
   
   colnames(contract)[colnames(contract)=="SubCustomer.sum"]<-"Who"
-  colnames(contract)[colnames(contract)=="UnmodifiedIsSomeCompetition"]<-"Comp"
+  # colnames(contract)[colnames(contract)=="UnmodifiedIsSomeCompetition"]<-"Comp"
   colnames(contract)[colnames(contract)=="PlatformPortfolio.sum"]<-"What"
   colnames(contract)[colnames(contract)=="IsIDV"]<-"IDV"
   colnames(contract)[colnames(contract)=="FixedOrCost"]<-"FxCb"
   colnames(contract)[colnames(contract)=="AnyInternational"]<-"Intl"
+  colnames(contract)[colnames(contract)=="AnyPlaceInternational"]<-"Intl"
   colnames(contract)[colnames(contract)=="SimpleArea"]<-"PSR"
   colnames(contract)[colnames(contract)=="qLowCeiling"]<-"LowCeil"
   colnames(contract)[colnames(contract)=="qHighCeiling"]<-"Ceil"
@@ -25,9 +26,11 @@ rename_dataset<-function(contract){
   colnames(contract)[colnames(contract)=="StartFiscal_Year"]<-"StartFY"
   colnames(contract)[colnames(contract)=="StartFiscalYear"]<-"StartFY"
   colnames(contract)[colnames(contract)=="topContractingOfficeAgencyID"]<-"Agency"
-  colnames(contract)[colnames(contract)=="topContractingOfficeIDt "]<-"Office"
+  colnames(contract)[colnames(contract)=="topContractingOfficeID"]<-"Office"
   colnames(contract)[colnames(contract)=="topProductOrServiceCode"]<-"ProdServ"
   colnames(contract)[colnames(contract)=="topPrincipalNAICScode"]<-"NAICS"
+  colnames(contract)[colnames(contract)=="UnmodifiedPlaceCountryISO3"]<-"Where"
+
   
   contract
 }
