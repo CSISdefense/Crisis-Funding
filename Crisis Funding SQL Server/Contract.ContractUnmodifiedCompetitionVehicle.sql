@@ -51,11 +51,11 @@ select M.CSIScontractID
 --Award_Type_Code
 ,iif(M.MinOfAward_Type_Code=MaxOfAward_Type_Code,
 	MaxOfAward_Type_Code
-	,NULL) as Award_Type_Code
+	,NULL) as unmodifiedAward_Type_Code
 --MaxOfidv_type_code
 ,iif(M.MinOfidv_type_code=MaxOfidv_type_code,
 	MaxOfidv_type_code
-	,NULL) as idv_type_code
+	,NULL) as unmodifiedidv_type_code
 
 from (SELECT      
 	c.CSIScontractID

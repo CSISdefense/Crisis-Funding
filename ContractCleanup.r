@@ -356,3 +356,30 @@ decision_tree<-function(contract){
   contract$DecisionTreeDisplay<-factor(contract$DecisionTreeDisplay)
   contract
 }
+
+
+percent_obligated<-function(data,
+                            num_col,
+                            denom_col,
+                            unmodified_col=NA,
+                            overall_col=NA){
+  data$p_obligated<-as.double(FactorToNumber(data[,num_col]))/
+    as.double(FactorToNumber(data[,denom_col]))
+  data$p_obligated[data$p_obligated>1]<-1
+  data$p_obligated[data$p_obligated<0]<-NA
+  if(!is.na(overall_col)&is.na(unmodified_col)){
+    data[is.na(data$p_obligated),percent_col]<-
+      data[is.na(data$p_obligated),overall_col]
+  }
+  else if (!is.na(unmodified_col)){
+    if(!is.na(overall_col)){
+      data[is.na(data[,unmodified_col]),unmodified_col]<-
+        as.double(data[is.na(data[,unmodified_col]),overall_col])
+    }
+    data$p_obligated[is.na(data$p_obligated)]<-
+      as.double(data[is.na(data$p_obligated),unmodified_col])
+  }
+  data$p_obligated
+}
+                               
+                                          
