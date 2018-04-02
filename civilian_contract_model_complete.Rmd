@@ -11,7 +11,7 @@ When you click the **Knit** button a document will be generated that includes bo
 
 ```{r}
 #*************************************Required Libraries******************************************
-require(plyr)
+require(dplyr)
 require(grid)
 require(reshape2)
 require(stringr)
@@ -760,74 +760,106 @@ fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,new_var_checked=FALSE
 )
 
-#Process FixedOrCost
-fed_full$ObligatedAmountIsFixedPrice<-FactorToNumber(fed_full$ObligatedAmountIsFixedPrice)
-fed_full$pIsFixedPrice <- fed_full$ObligatedAmountIsFixedPrice/fed_full$Action.Obligation
-fed_full$pIsFixedPrice[is.nan(fed_full$ObligatedAmountIsFixedPrice)|is.na(fed_full$ObligatedAmountIsFixedPrice)] <- 0
+#Process Fixed Or Cost
+fed_full$pIsFixedPrice<-percent_obligated(fed_full,
+                                          "ObligatedAmountIsFixedPrice",
+                                            "Action.Obligation",
+                                          "UnmodifiedIsFixedPrice",
+                                          "IsFixedPrice")
+
+fed_full$pIsCostBased<-percent_obligated(fed_full,
+                                          "ObligatedAmountIsCostBased",
+                                            "Action.Obligation",
+                                          "UnmodifiedIsCostBased",
+                                          "IsCostBased")
 
 
-fed_full$ObligatedAmountIsCostBased<-FactorToNumber(fed_full$ObligatedAmountIsCostBased)
-fed_full$pIsCostBased <- fed_full$ObligatedAmountIsCostBased/fed_full$Action.Obligation
-fed_full$pIsCostBased[is.nan(fed_full$ObligatedAmountIsCostBased)|is.na(fed_full$ObligatedAmountIsCostBased)] <- 0
+fed_full$pIsCombination<-percent_obligated(fed_full,
+                                          "ObligatedAmountIsCombination",
+                                            "Action.Obligation",
+                                          "UnmodifiedIsCombination",
+                                          "IsCombination")
 
-fed_full$ObligatedAmountIsCombination<-FactorToNumber(fed_full$ObligatedAmountIsCombination)
-fed_full$pIsCombination <- fed_full$ObligatedAmountIsCombination/fed_full$Action.Obligation
-fed_full$pIsCombination[is.nan(fed_full$ObligatedAmountIsCombination)|is.na(fed_full$ObligatedAmountIsCombination)] <- 0
 
-#Assign FixedOrCost
-fed_full$FixedOrCost[fed_full$pIsFixedPrice>0  |
+
+#Assign FxCb
+fed_full$FxCb[fed_full$pIsFixedPrice>0  |
     fed_full$pIsCostBased>0 | 
-    fed_full$pIsCombination>0]<-"Combination or Other"
+    fed_full$pIsCombination>0 | 
+      fed_full$pIsOtherFee>0]<-"Combination or Other"
 
-fed_full$FixedOrCost[fed_full$pIsFixedPrice>=0.95|(fed_full$IsFixedPrice==1 & (fed_full$pIsCombination<=0.05))]<-"Fixed-Price"
-fed_full$FixedOrCost[fed_full$pIsCostBased>=0.95|(fed_full$IsCostBased==1 & (fed_full$pIsCombination<=0.05))]<-"Cost-Based"
-fed_full$FixedOrCost<-factor(fed_full$FixedOrCost,levels=c("Fixed-Price","Cost-Based","Combination or Other"))
-
+fed_full$FxCb[fed_full$pIsFixedPrice>=0.95|(fed_full$IsFixedPrice==1 & (fed_full$pIsCombination<=0.05 | is.na(fed_full$pIsCombination)))]<-"Fixed-Price"
+fed_full$FxCb[fed_full$pIsCostBased>=0.95|(fed_full$IsCostBased==1 & (fed_full$pIsCombination<=0.05 | is.na(fed_full$pIsCombination)))]<-"Cost-Based"
+fed_full$FxCb<-factor(fed_full$FxCb,levels=c("Fixed-Price","Cost-Based","Combination or Other"))
 #Process Fee
-fed_full$ObligatedAmountIsIncentive<-FactorToNumber(fed_full$ObligatedAmountIsIncentive)
-fed_full$pIsIncentive <- fed_full$ObligatedAmountIsIncentive/fed_full$Action.Obligation
-fed_full$pIsIncentive[is.nan(fed_full$ObligatedAmountIsIncentive)|is.na(fed_full$ObligatedAmountIsIncentive)] <- 0
 
-fed_full$ObligatedAmountIsAwardFee<-FactorToNumber(fed_full$ObligatedAmountIsAwardFee)
-fed_full$pIsAwardFee <- fed_full$ObligatedAmountIsAwardFee/fed_full$Action.Obligation
-fed_full$pIsAwardFee[is.nan(fed_full$ObligatedAmountIsAwardFee)|is.na(fed_full$ObligatedAmountIsAwardFee)] <- 0
-
-fed_full$ObligatedAmountIsFFPorNoFee<-FactorToNumber(fed_full$ObligatedAmountIsFFPorNoFee)
-fed_full$pIsFFPorNoFee <- fed_full$ObligatedAmountIsFFPorNoFee/fed_full$Action.Obligation
-fed_full$pIsFFPorNoFee[is.nan(fed_full$ObligatedAmountIsFFPorNoFee)|is.na(fed_full$ObligatedAmountIsFFPorNoFee)] <- 0
+View(subset(fed_full,is.na(FxCb) & !is.na(FxCb)))
+fed_full$pIsIncentive<-percent_obligated(fed_full,
+                                          "ObligatedAmountIsIncentive",
+                                            "Action.Obligation",
+                                          "UnmodifiedIsIncentive",
+                                          "IsIncentive")
 
 
-fed_full$ObligatedAmountIsFixedFee<-FactorToNumber(fed_full$ObligatedAmountIsFixedFee)
-fed_full$pIsFixedFee <- fed_full$ObligatedAmountIsFixedFee/fed_full$Action.Obligation
-fed_full$pIsFixedFee[is.nan(fed_full$ObligatedAmountIsFixedFee)|is.na(fed_full$ObligatedAmountIsFixedFee)] <- 0
+fed_full$pIsAwardFee<-percent_obligated(fed_full,
+                                          "ObligatedAmountIsAwardFee",
+                                            "Action.Obligation",
+                                          "UnmodifiedIsAwardFee",
+                                          "IsAwardFee")
 
-fed_full$ObligatedAmountIsOtherFee<-FactorToNumber(fed_full$ObligatedAmountIsOtherFee)
-fed_full$pIsOtherFee <- fed_full$ObligatedAmountIsOtherFee/fed_full$Action.Obligation
-fed_full$pIsOtherFee[is.nan(fed_full$ObligatedAmountIsOtherFee)|is.na(fed_full$ObligatedAmountIsOtherFee)] <- 0
+
+
+fed_full$pIsFFPorNoFee<-percent_obligated(fed_full,
+                                          "ObligatedAmountIsFFPorNoFee",
+                                            "Action.Obligation",
+                                          "UnmodifiedIsFFPorNoFee",
+                                          "IsFFPorNoFee")
+
+
+fed_full$pIsFixedFee<-percent_obligated(fed_full,
+                                          "ObligatedAmountIsFixedFee",
+                                            "Action.Obligation",
+                                          "UnmodifiedIsFixedFee",
+                                          "IsFixedFee")
+
+
+
+
+fed_full$pIsOtherFee<-percent_obligated(fed_full,
+                                          "ObligatedAmountIsOtherFee",
+                                            "Action.Obligation",
+                                          "UnmodifiedIsOtherFee",
+                                          "IsOtherFee")
 
 
 #AssignFee
-fed_full$Fee<-NA
-fed_full$Fee[fed_full$pIsAwardFee>=0.9|(fed_full$IsAwardFee==1
-  & fed_full$pIsCombination<=0.05)]<-"Award Fee"
-fed_full$Fee[fed_full$pIsIncentive>=0.9|(fed_full$IsIncentive==1
-  & fed_full$pIsCombination<=0.05)]<-"Incentive"
-fed_full$Fee[fed_full$pIsFFPorNoFee>=0.9|(fed_full$IsFFPorNoFee==1
-  & fed_full$pIsCombination<=0.05)]<-"FFP or No Fee"
-fed_full$Fee[fed_full$pIsFixedFee>=0.9|(fed_full$IsFixedFee==1
-  & fed_full$pIsCombination<=0.05)]<-"Fixed Fee"
 
-fed_full$Fee[fed_full$pIsOtherFee>=0.9|
-    fed_full$IsOtherFee==1 | 
-    fed_full$pIsCombination>0.1|
-    (is.na(fed_full$Fee) & fed_full$IsLabeledPricing==1)]<-
-  "Combination or Other Fee"
+fed_full$Fee[fed_full$pIsAwardFee>0  |
+    fed_full$pIsIncentive>0 | 
+    fed_full$pIsFFPorNoFee>0 |
+      fed_full$pIsFixedFee>0 |
+      fed_full$pIsOtherFee>0 |
+      fed_full$pIsCombination>0]<-"Combination"
+
+fed_full$Fee[fed_full$pIsAwardFee>=0.9|(fed_full$IsAwardFee==1
+  & (fed_full$pIsCombination<=0.05 | is.na(fed_full$pIsCombination))) ]<-"Award Fee"
+fed_full$Fee[fed_full$pIsIncentive>=0.9|(fed_full$IsIncentive==1
+  & (fed_full$pIsCombination<=0.05 | is.na(fed_full$pIsCombination)))]<-"Incentive"
+fed_full$Fee[fed_full$pIsFFPorNoFee>=0.9|(fed_full$IsFFPorNoFee==1
+  & (fed_full$pIsCombination<=0.05 | is.na(fed_full$pIsCombination)))]<-"FFP or No Fee"
+fed_full$Fee[fed_full$pIsFixedFee>=0.9|(fed_full$IsFixedFee==1
+  & (fed_full$pIsCombination<=0.05 | is.na(fed_full$pIsCombination)))]<-"Fixed Fee"
+fed_full$Fee[fed_full$pIsOtherFee>=0.9|(fed_full$IsOtherFee==1
+  & (fed_full$pIsCombination<=0.05 | is.na(fed_full$pIsCombination)))]<-"Other Fee"
+
+
 fed_full$Fee<-ordered(fed_full$Fee,
   levels=c("Incentive","Fixed Fee","Award Fee",
-    "FFP or No Fee","Combination or Other Fee"))
+    "FFP or No Fee","Other Fee","Combination"))
 
 
-
+summary(fed_full$Fee)
+summary(fed_full$FxCb)
 #Undefinitized Contract Awards
 # fed_full$Veh[fed_full$AwardOrIDVcontractActionType == "Letter Contract"]<-"Letter"
 # fed_full$Veh[fed_full$AwardOrIDVcontractActionType %in%
@@ -855,7 +887,7 @@ fed_full$UCA<-factor(fed_full$UnmodifiedIsUCA,
 #There's no obligations in the dataset to UCAs using the regulated vehicle of FSS/GWAC
 fed_full$UCA[is.na(fed_full$UCA)&
                fed_full$Veh=="FSS/GWAC"]<-"Not UCA"
-
+summary(fed_full$UCA)
 fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
   # Pricing.Mechanism.Code,
@@ -884,7 +916,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
   "UnmodifiedIsFixedFee",
   "ObligatedAmountIsOtherFee",
   # IsOtherFee,
-  "UnmodifiedIsOtherFee",
+  "UnmodifiedIsOtherFee"
   # pIsFixedPrice,
   # pIsCostBased,
   # pIsCombination,
@@ -893,19 +925,18 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
   # pIsFFPorNoFee,
   # pIsFixedFee,
   # pIsOtherFee,
-  # FixedOrCost,
+  # FxCb,
   # Fee,
     )]
 
 str(fed_full)
 
-# save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
-
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ```
 
 ## Details
 ```{r Details}
-# load(file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
+# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
 fed_full<-plyr::join(fed_full,test)
 test<-read_delim("Data\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
                  na=c("NA","NULL"),
@@ -1031,6 +1062,7 @@ fed<-fed[,colnames(fed) %in% c(
   "Fee",
   "UCA",
   "Comp",
+  "EffComp",
   # MDAP,
   # unmodifiedSystemequipmentcode,
   "Who",
@@ -1064,16 +1096,16 @@ fed<-fed[,colnames(fed) %in% c(
   "ProdServ",
   "NAICS",
   "MaxOfDecisionTree",
-  "MaxOfDecisionTreeStep4",
-  "MinOfDecisionTree",
-  "MinOfDecisionTreeStep4"
+  # "MaxOfDecisionTreeStep4",
+  "MinOfDecisionTree"
+  # "MinOfDecisionTreeStep4"
 )]
 # 
 
    
 
-write.table(Fed
-  ,file=paste("data\\Federak_contract_CSIScontractID_detail.csv"
+write.table(fed
+  ,file=paste("data\\Federal_contract_CSIScontractID_detail.csv"
     ,sep=""
   )
   #   ,header=TRUE
@@ -1082,8 +1114,12 @@ write.table(Fed
   , append=FALSE
 )
 # ][save(CivilianModelAndDetail,file="Data\\Civilian_contract_CSIScontractID_detail.Rdata")
-save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
+summary(fed$Agency[fed$Who=="Uncategorized"])
+def<-fed[fed$Who!="Civilian",]
+save(def,file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
+ save(fed,file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
+  
 #Strip out the cuts
 
 
@@ -1093,7 +1129,7 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ##Merging up Civilian and Defense
 ```{r CombineDefenseAndCivil}
 
-load(file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
+# load(file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
 # 
 # DefenseModelAndDetail$Who<-factor(DefenseModelAndDetail$Who,
 #   levels=c("Civilian",levels(DefenseModelAndDetail$Who)))

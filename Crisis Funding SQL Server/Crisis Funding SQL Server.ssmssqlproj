@@ -80,9 +80,9 @@
           <FullPath>Contract_ContractHistoryPBLscoreSubCustomerDetail.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_ContractLocation.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
-          <AssociatedConnUserName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:vmsqldiig.database.windows.net:False:gsanders@csis.org</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>vmsqldiig.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>gsanders@csis.org</AssociatedConnUserName>
           <FullPath>Contract_ContractLocation.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_CSIStransactionIDlabel.sql">
@@ -146,9 +146,9 @@
           <FullPath>Contract_SP_ContractModificationDeltaCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractPricingCustomer.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
-          <AssociatedConnUserName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:vmsqldiig.database.windows.net:False:gsanders@csis.org</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>vmsqldiig.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>gsanders@csis.org</AssociatedConnUserName>
           <FullPath>Contract_SP_ContractPricingCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractSampleCriteriaDetailsCustomer.sql">
@@ -164,9 +164,9 @@
           <FullPath>Contract_SP_ContractUnmodifiedAndOutcomeDetailsCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractUnmodifiedCompetitionVehicleCustomer.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
-          <AssociatedConnUserName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:vmsqldiig.database.windows.net:False:gsanders@csis.org</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>vmsqldiig.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>gsanders@csis.org</AssociatedConnUserName>
           <FullPath>Contract_SP_ContractUnmodifiedCompetitionVehicleCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Vendor_LocationVendorHistoryBucketSubCustomerClassification.sql">
