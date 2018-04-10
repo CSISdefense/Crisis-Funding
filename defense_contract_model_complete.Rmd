@@ -53,8 +53,7 @@ save(file="Data\\def_all_complete.Rdata",def_full)
 ```{r Scope}
 # load(file="Data\\def_all_complete.Rdata")
 
-def_full<-input_initial_scope(def_full,
-                      drop_incomplete=FALSE)
+def_full<-input_initial_scope(def_full)
 
 save(file="Data\\def_all_complete.Rdata",def_full)
 ```

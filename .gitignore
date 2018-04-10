@@ -23,3 +23,7 @@ Data/Contract_SP_ContractUnmodifiedCompetitionVehicleCustomer\.txt
 Data/Federal_contract_CSIScontractID_detail\.csv
 
 \.RDataTmp1
+
+Data/Contract\.SP_ContractSampleCriteriaDetailsCustomer\.txt
+
+Data/Contract\.SP_ContractUnmodifiedandOutcomeDetailsCustomer\.txt
