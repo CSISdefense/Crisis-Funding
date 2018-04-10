@@ -1,9 +1,10 @@
-/****** Object:  View [Contract].[ContractUnmodifiedCompetitionVehicle]    Script Date: 3/27/2018 12:22:17 AM ******/
+/****** Object:  View [Contract].[ContractUnmodifiedCompetitionVehicle]    Script Date: 4/10/2018 5:34:23 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -35,6 +36,10 @@ select M.CSIScontractID
 ,iif(M.MinOfIsFollowonToCompetedAction=MaxOfIsFollowonToCompetedAction,
 	MaxOfIsFollowonToCompetedAction
 	,NULL) as UnmodifiedIsFollowonToCompetedAction
+--IsUrgency
+,iif(M.MinOfIsUrgency=MaxOfIsUrgency,
+	MaxOfIsUrgency
+	,NULL) as UnmodifiedIsUrgency
 --multipleorsingleawardidc
 ,iif(M.MinOfmultipleorsingleawardidc=MaxOfmultipleorsingleawardidc,
 	MaxOfmultipleorsingleawardidc
@@ -104,6 +109,15 @@ from (SELECT
 		,coalesce(c.FairIsfollowontocompetedaction,c.Extentisfollowontocompetedaction,c.isfollowontocompetedaction)
 		,coalesce(c.Extentisfollowontocompetedaction,c.isfollowontocompetedaction,c.FairIsfollowontocompetedaction)
 	))) as MaxOfIsFollowonToCompetedAction
+	--Competition Binaries IsUrgency
+	,max(convert(int,iif(c.UseFairOpportunity=1
+		,coalesce(c.FairIsUrgency,c.IsUrgency)
+		,coalesce(c.IsUrgency,c.FairIsUrgency)
+	))) as MaxOfIsUrgency
+	,min(convert(int,iif(c.UseFairOpportunity=1
+		,coalesce(c.FairIsUrgency,c.IsUrgency)
+		,coalesce(c.IsUrgency,c.FairIsUrgency)
+	))) as MinOfIsUrgency
 	--Vehicle
 	, Min(C.multipleorsingleawardidc) AS MinOfmultipleorsingleawardidc
 	, Max(C.multipleorsingleawardidc) AS MaxOfmultipleorsingleawardidc
@@ -111,7 +125,7 @@ from (SELECT
 	--, Max(convert(int,C.addmultipleorsingawardidc)) AS MaxOfaddmultipleorsingawardidc
 	--, Min(C.AwardOrIDVcontractactiontype) AS MinOfAwardOrIDVcontractactiontype
 	--, Max(C.AwardOrIDVcontractactiontype) AS MaxOfAwardOrIDVcontractactiontype
-	, Max(convert(int,C.IsUndefinitizedAction)) as MaxOfIsUndefinitizedAction
+	--, Max(convert(int,C.IsUndefinitizedAction)) as MaxOfIsUndefinitizedAction
 		, Min(C.Award_Type_Code) AS MinOfAward_Type_Code
 	, Max(C.Award_Type_Code) AS MaxOfAward_Type_Code
 		, Min(C.idv_type_code) AS MinOfidv_type_code

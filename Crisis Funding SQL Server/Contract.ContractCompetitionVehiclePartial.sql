@@ -1,9 +1,10 @@
-/****** Object:  View [Contract].[ContractCompetitionVehiclePartial]    Script Date: 4/2/2018 12:52:38 PM ******/
+/****** Object:  View [Contract].[ContractCompetitionVehiclePartial]    Script Date: 4/10/2018 5:21:00 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -18,6 +19,7 @@ SELECT ctid.CSIScontractID
 		,iif(C.modnumber='0' or C.modnumber is null,1,0) as IsUnmodified
   		,notcompeted.isfollowontocompetedaction
 		,notcompeted.is6_302_1exception
+		,notcompeted.IsUrgency
 		,competed.IsFullAndOpen as ExtentIsFullAndOpen
 		,competed.IsSomeCompetition as ExtentIsSomeCompetition
 		,competed.isfollowontocompetedaction as ExtentIsfollowontocompetedaction
@@ -25,15 +27,16 @@ SELECT ctid.CSIScontractID
 		,Fairopp.isfollowontocompetedaction as FairIsfollowontocompetedaction
 		,Fairopp.isonlyonesource as FairIsonlyonesource
 		,Fairopp.IsSomeCompetition as FairIsSomeCompetition
+				,Fairopp.IsUrgency as FairIsUrgency
 		,setaside.typeofsetaside2category
 				--Number Of Offers
 		, C.numberofoffersreceived	
 			,CASE 
-				--Award or IDV Type show only (â€˜Definitive Contractâ€™, â€˜Purchase Orderâ€™)
+				--Award or IDV Type show only (‘Definitive Contract’, ‘Purchase Order’)
 				WHEN atype.UseExtentCompeted=1
 				then 0 --Use extent competed
 				
-				--IDV Type show only (â€˜FSSâ€™, â€˜GWACâ€™)
+				--IDV Type show only (‘FSS’, ‘GWAC’)
 				when idvtype.UseFairOpportunity=1  
 				then 1 --Use fair opportunity
 

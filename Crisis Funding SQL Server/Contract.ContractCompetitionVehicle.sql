@@ -1,9 +1,10 @@
-/****** Object:  View [Contract].[ContractCompetitionVehicle]    Script Date: 3/26/2018 11:40:57 PM ******/
+/****** Object:  View [Contract].[ContractCompetitionVehicle]    Script Date: 4/10/2018 5:38:41 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -41,6 +42,10 @@ select M.CSIScontractID
 ,iif(M.MinOfIsFollowonToCompetedAction=MaxOfIsFollowonToCompetedAction,
 	MaxOfIsFollowonToCompetedAction
 	,NULL) as IsFollowonToCompetedAction
+--IsUrgency
+,iif(M.MinOfIsUrgency=MaxOfIsUrgency,
+	MaxOfIsUrgency
+	,NULL) as IsUrgency
 --IsIDV
 ,iif(M.MinOfIsIDV=MaxOfIsIDV,
 	MaxOfIsIDV
@@ -121,6 +126,15 @@ from (SELECT
 		,coalesce(c.FairIsfollowontocompetedaction,c.Extentisfollowontocompetedaction,c.isfollowontocompetedaction)
 		,coalesce(c.Extentisfollowontocompetedaction,c.isfollowontocompetedaction,c.FairIsfollowontocompetedaction)
 	))) as MaxOfIsFollowonToCompetedAction
+		--Competition Binaries IsUrgency
+	,max(convert(int,iif(c.UseFairOpportunity=1
+		,coalesce(c.FairIsUrgency,c.IsUrgency)
+		,coalesce(c.IsUrgency,c.FairIsUrgency)
+	))) as MaxOfIsUrgency
+	,min(convert(int,iif(c.UseFairOpportunity=1
+		,coalesce(c.FairIsUrgency,c.IsUrgency)
+		,coalesce(c.IsUrgency,c.FairIsUrgency)
+	))) as MinOfIsUrgency
 	--Vehicle
 	, Min(C.multipleorsingleawardidc) AS MinOfmultipleorsingleawardidc
 	, Max(C.multipleorsingleawardidc) AS MaxOfmultipleorsingleawardidc

@@ -47,6 +47,7 @@ BEGIN
 	  ,ObligatedAmountIsSomeCompetition
       ,IsOnlyOneSource
       ,IsFollowonToCompetedAction
+	  ,IsUrgency
 	  ,cc.IsIDV
       ,cc.multipleorsingleawardidc
       ,cc.Award_Type_Code
@@ -72,6 +73,7 @@ where a.IsDefense=@IsDefense
 	  ,ObligatedAmountIsSomeCompetition
       ,IsOnlyOneSource
       ,IsFollowonToCompetedAction
+	  ,IsUrgency
 	  ,cc.IsIDV
       ,cc.multipleorsingleawardidc
       --,AddMultipleOrSingleAwardIDC

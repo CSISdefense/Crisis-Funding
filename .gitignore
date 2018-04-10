@@ -27,3 +27,5 @@ Data/Federal_contract_CSIScontractID_detail\.csv
 Data/Contract\.SP_ContractSampleCriteriaDetailsCustomer\.txt
 
 Data/Contract\.SP_ContractUnmodifiedandOutcomeDetailsCustomer\.txt
+
+Data/Contract\.SP_ContractUnmodifiedCompetitionVehicleCustomer\.txt

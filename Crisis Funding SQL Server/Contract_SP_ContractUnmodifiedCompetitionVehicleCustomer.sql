@@ -12,10 +12,6 @@ GO
 
 
 
-
-
-
-
 -- =============================================
 -- Author:		Greg Sanders
 -- Create date: 2/01/2013
@@ -44,6 +40,7 @@ BEGIN
       ,[UnmodifiedIsSomeCompetition]
       ,[UnmodifiedIsOnlyOneSource]
       ,[UnmodifiedIsFollowonToCompetedAction]
+	  ,[UnmodifiedIsUrgency]
       ,[Unmodifiedmultipleorsingleawardidc]
       --,[Unmodifiedaddmultipleorsingawardidc]
 	  ,unmodifiedaward_type_code
@@ -68,6 +65,7 @@ where a.customer=@Customer
       ,[UnmodifiedIsSomeCompetition]
       ,[UnmodifiedIsOnlyOneSource]
       ,[UnmodifiedIsFollowonToCompetedAction]
+	  	  ,[UnmodifiedIsUrgency]
       ,[Unmodifiedmultipleorsingleawardidc]
       --,[Unmodifiedaddmultipleorsingawardidc]
       --,[UnmodifiedAwardOrIDVcontractactiontype]
