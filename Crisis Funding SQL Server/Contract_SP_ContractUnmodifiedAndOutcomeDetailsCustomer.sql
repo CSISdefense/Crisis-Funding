@@ -17,7 +17,7 @@ GO
 -- =============================================
 ALTER PROCEDURE [Contract].[SP_ContractUnmodifiedandOutcomeDetailsCustomer]
 	-- Add the parameters for the stored procedure here
-	@Customer varchar(255)
+	@IsDefense varchar(255)
 	--@ServicesOnly Bit
 
 AS
@@ -28,7 +28,7 @@ BEGIN
 
 	-- Insert statements for procedure here
 
-	IF (@Customer is not null) --Begin sub path where only services only one Customer will be returned
+	IF (@IsDefense is not null) --Begin sub path where only services only one Customer will be returned
 	BEGIN
 		--Copy the start of your query here
 	 
@@ -36,6 +36,7 @@ BEGIN
 ,cc.SumOfUnmodifiedobligatedAmount
 ,cc.SumOfUnmodifiedbaseandexercisedoptionsvalue
 ,cc.SumOfUnmodifiedbaseandalloptionsvalue
+,cc.ChangeOrderBaseAndAllOptionsValue
 ,cc.UnmodifiedNumberOfOffersReceived
 ,cc.UnmodifiedCurrentCompletionDate
 ,cc.UnmodifiedUltimateCompletionDate
@@ -54,7 +55,7 @@ inner join contract.ContractDiscretization cc
 on ct.CSIScontractID=cc.CSIScontractID
 inner join FPDSTypeTable.agencyid a
 on f.contractingofficeagencyid=a.AgencyID
-where a.customer=@Customer
+where a.customer=@IsDefense
 	END
 	ELSE --Begin sub path wall Customers will be returned
 		BEGIN
@@ -63,7 +64,11 @@ where a.customer=@Customer
 ,cc.SumOfUnmodifiedobligatedAmount
 ,cc.SumOfUnmodifiedbaseandexercisedoptionsvalue
 ,cc.SumOfUnmodifiedbaseandalloptionsvalue
+,cc.ChangeOrderBaseAndAllOptionsValue
 ,cc.UnmodifiedNumberOfOffersReceived
+,cc.UnmodifiedCurrentCompletionDate
+,cc.UnmodifiedUltimateCompletionDate
+,cc.UnmodifiedLastDateToOrder
 , cc.IsClosed
 		, cc.IsModified
 		, cc.IsTerminated

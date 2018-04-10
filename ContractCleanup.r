@@ -356,3 +356,247 @@ decision_tree<-function(contract){
   contract$DecisionTreeDisplay<-factor(contract$DecisionTreeDisplay)
   contract
 }
+
+
+percent_obligated<-function(data,
+                            num_col,
+                            denom_col,
+                            unmodified_col=NA,
+                            overall_col=NA){
+  data$p_obligated<-as.double(FactorToNumber(data[,num_col]))/
+    as.double(FactorToNumber(data[,denom_col]))
+  data$p_obligated[data$p_obligated>1]<-1
+  data$p_obligated[data$p_obligated<0]<-NA
+  if(!is.na(overall_col)&is.na(unmodified_col)){
+    data[is.na(data$p_obligated),percent_col]<-
+      data[is.na(data$p_obligated),overall_col]
+  }
+  else if (!is.na(unmodified_col)){
+    if(!is.na(overall_col)){
+      data[is.na(data[,unmodified_col]),unmodified_col]<-
+        as.double(data[is.na(data[,unmodified_col]),overall_col])
+    }
+    data$p_obligated[is.na(data$p_obligated)]<-
+      as.double(data[is.na(data$p_obligated),unmodified_col])
+  }
+  data$p_obligated
+}
+
+impute_unmodified<-function(unmodified,
+                            full){
+  NAlist<-is.na(unmodified)&
+    !is.na(full)
+  unmodified[NAlist]<-
+    full[NAlist]
+      
+  unmodified
+}
+
+input_sample_criteria<-function(contract=NULL,
+                                file="contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
+                                dir="Data\\",
+                                drop_incomplete=TRUE,
+                                last_year=2015,
+                                retain_all=FALSE
+                                ){
+  if(!exists("contract")){
+    contract <-readr::read_delim(
+      paste(file,dir,sep=""),
+      col_names=TRUE, 
+      delim="\t",
+      # , dec=".",
+      trim_ws=TRUE,
+      na=c("NULL","NA")
+      # stringsAsFactors=FALSE
+    )
+  } else{
+    contract<-csis360::read_and_join_experiment(data=contract
+                                                ,file
+                                                ,path=""
+                                                ,dir
+                                                ,by="CSIScontractID"
+                                                ,new_var_checked=FALSE
+    )
+  }
+  
+  contract<-csis360::standardize_variable_names(contract)
+  
+  if(drop_incomplete==TRUE){
+    #Limit to completed contracts that start in 2007 or later
+    contract$LastCurrentCompletionDate<-strptime(contract$LastCurrentCompletionDate,"%Y-%m-%d") 
+    #Drop contracts starting before the study period and not clearly end within it
+    contract<-subset(contract, StartFiscal_Year>=2007   &
+                       (LastCurrentCompletionDate<=paste(last_year,"09-30",sep="-") | IsClosed==1)
+    )
+  }
+  
+  if(is.numeric(contract$Term)){
+    contract$Term<-factor(contract$Term,
+                          levels = c(0,1),
+                          labels = c("Unterminated", "Terminated")
+    )
+  }
+  
+  # contract<-subset(contract,select=-c(StartFiscal_Year
+  # ,IsClosed
+  # ,LastSignedLastDateToOrder
+  #                                                       ,LastUltimateCompletionDate
+  # ))
+  
+  if(retain_all==FALSE){
+    contract<-contract[,!colnames(contract) %in% 
+                         c(
+                           # "StartFiscal_Year",
+                           # "SumofObligatedAmount",
+                           # "IsClosed"             ,
+                           "LastSignedLastDateToOrder",
+                           "LastUltimateCompletionDate",
+                           # "LastCurrentCompletionDate",
+                           # "MinOfSignedDate",
+                           # "MinOfEffectiveDate",
+                           "UnmodifiedContractObligatedAmount.1",
+                           "UnmodifiedContractBaseAndExercisedOptionsValue.1",
+                           "UnmodifiedContractBaseAndAllOptionsValue.2"
+                         )]
+  }
+  contract
+}
+
+
+input_initial_scope<-function(contract,
+                                file="Contract.SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt",
+                                dir="Data\\",
+                                retain_all=FALSE
+){
+    contract<-csis360::read_and_join_experiment(data=contract
+                                                ,file
+                                                ,path=""
+                                                ,dir
+                                                ,by="CSIScontractID"
+                                                ,new_var_checked=FALSE
+    )
+    
+    contract<-csis360::standardize_variable_names(contract)
+    
+    
+    contract$UnmodifiedCurrentCompletionDate<-
+      strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d") 
+    
+    #Calculate the number of days the contract lasts.
+    contract$UnmodifiedDays<-as.numeric(
+      difftime(strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")
+               , strptime(contract$MinOfEffectiveDate,"%Y-%m-%d")
+               , unit="days"
+      ))+1
+    
+    # 
+    # CDuration<-as.duration(strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")-
+    #                 strptime(contract$MinOfEffectiveDate,"%Y-%m-%d"))
+    # 
+    # CPeriod<-as.period(
+    #     CInterval<-new_interval(ymd(contract$UnmodifiedCurrentCompletionDate),
+    #                 ymd(contract$MinOfEffectiveDate))
+    # 
+    # 
+    # 
+    # summary(dYears)
+    
+    #Break the count of days into four categories.
+    contract$qDuration<-cut2(contract$UnmodifiedDays,cuts=c(61,214,366,732))
+    
+    
+    
+    
+    
+    if (levels(contract$qDuration)[[2]]=="[   61,  214)"){
+      contract$qDuration<-factor(contract$qDuration, 
+                                 
+                                 levels=c("[    0,   61)",
+                                          "[   61,  214)",
+                                          "[  214,  366)",
+                                          "[  366,  732)",
+                                          "[  732,33192]"),
+                                 labels=c("[0 months,~2 months)",
+                                          "[~2 months,~7 months)",
+                                          "[~7 months-~1 year]",
+                                          "(~1 year,~2 years]",
+                                          "(~2 years+]"),
+                                 ordered=TRUE
+      )
+    }
+    
+    
+    lowroundedcutoffs<-c(15000,100000,1000000,30000000)
+    highroundedcutoffs<-c(15000,100000,1000000,10000000,75000000)
+    contract$qLowCeiling <- cut2(contract$UnmodifiedContractBaseAndAllOptionsValue,cuts=lowroundedcutoffs)
+    contract$qHighCeiling <- cut2(contract$UnmodifiedContractBaseAndAllOptionsValue,cuts=highroundedcutoffs)
+    rm(lowroundedcutoffs,highroundedcutoffs)
+    
+    
+    
+    
+    if (all(levels(contract$qHighCeiling)==c("[0.00e+00,1.50e+04)",
+                                             "[1.50e+04,1.00e+05)",
+                                             "[1.00e+05,1.00e+06)",
+                                             "[1.00e+06,1.00e+07)",
+                                             "[1.00e+07,7.50e+07)",
+                                             "[7.50e+07,3.36e+12]"))){
+      contract$qHighCeiling<-factor(contract$qHighCeiling, 
+                                    
+                                    levels=c("[0.00e+00,1.50e+04)",
+                                             "[1.50e+04,1.00e+05)",
+                                             "[1.00e+05,1.00e+06)",
+                                             "[1.00e+06,1.00e+07)",
+                                             "[1.00e+07,7.50e+07)",
+                                             "[7.50e+07,3.36e+12]"),
+                                    labels=c("[0,15k)",
+                                             "[15k,100k)",
+                                             "[100k,1m)",
+                                             "[1m,10m)",
+                                             "[10m,75m)",
+                                             "[75m+]"),
+                                    ordered=TRUE
+      )
+    }
+    
+    if (all(levels(contract$qLowCeiling)==c("[0.00e+00,1.50e+04)",
+                                            "[1.50e+04,1.00e+05)",
+                                            "[1.00e+05,1.00e+06)",
+                                            "[1.00e+06,3.00e+07)",
+                                            "[3.00e+07,3.36e+12]"))){
+      contract$qLowCeiling<-factor(contract$qLowCeiling, 
+                                   
+                                   levels=c("[0.00e+00,1.50e+04)",
+                                            "[1.50e+04,1.00e+05)",
+                                            "[1.00e+05,1.00e+06)",
+                                            "[1.00e+06,3.00e+07)",
+                                            "[3.00e+07,3.36e+12]"),
+                                   labels=c("[0,15k)",
+                                            "[15k,100k)",
+                                            "[100k,1m)",
+                                            "[1m,30m)",
+                                            "[30m+]"),
+                                   ordered=TRUE
+      )
+    }
+    
+    
+    
+    
+    
+    
+    summary(subset(contract$qCRais,contract$SumOfisChangeOrder>0    ))
+    
+   
+  if(retain_all==FALSE){
+    contract<-contract[,!colnames(contract) %in% 
+                         c(
+                           #     UnmodifiedDays,
+                           # UnmodifiedCurrentCompletionDate
+                           # "MinOfEffectiveDate",
+                           "LastUltimateCompletionDate"
+                         )]
+    
+  }
+  contract
+}
