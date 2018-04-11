@@ -605,11 +605,6 @@ fed_full$UnmodifiedIsSomeCompetition<-impute_unmodified(
   fed_full$IsSomeCompetition
 )
 
-#Impute missing urgency values
-fed_full$UnmodifiedIsUrgency<-impute_unmodified(
-  fed_full$UnmodifiedIsUrgency,
-  fed_full$IsUrgency
-)
 
 #Set is some competion = 1 when it is blank and there are multiple offers
 
@@ -657,7 +652,22 @@ fed_full$EffComp<-factor(fed_full$EffComp,
                                )
 
 
+#Impute missing urgency values
+fed_full$UnmodifiedIsUrgency<-impute_unmodified(
+  fed_full$UnmodifiedIsUrgency,
+  fed_full$IsUrgency
+)
+#If there's competition, than the urgency exception wasn't used
+fed_full$UnmodifiedIsUrgency[is.na(fed_full$UnmodifiedIsUrgency)&
+                               !is.na(fed_full$UnmodifiedIsSomeCompetition)&
+                               fed_full$UnmodifiedIsSomeCompetition==1]<-0
 
+
+fed_full$Urg[fed_full$UnmodifiedIsUrgency==0]<-"Not Urgency"
+fed_full$Urg[fed_full$UnmodifiedIsUrgency==1]<-"Urgency Except."
+fed_full$Urg<-factor(fed_full$Urg,
+                               levels=c("Not Urgency","Urgency Except.")
+                               )
 
 #Vehicle
 #Award_Type_Code Impute missing values when labeled entries have a consistent value.
@@ -753,10 +763,12 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
   # "UnmodifiedIsOnlyOneSource",
   "UnmodifiedIsFollowonToCompetedAction",
       "Unmodifiedmultipleorsingleawardidc",
+        # "UnmodifiedIsUrgency",
       "Unmodifiedaddmultipleorsingawardidc",
   # "IsFullAndOpen",
   # IsOnlyOneSource 
   # "IsFollowonToCompetedAction"
+    "IsUrgency",
       "multipleorsingleawardidc",
       "AddMultipleOrSingleAwardIDC",
   "Award_Type_Code",
@@ -764,7 +776,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
   "IDV_Type_Code",
   # "UnmodifiedNumberOfOffersReceived",
   "unmodifiedidv_type_code",
-  "NumberOfOffersReceived",
+  "NumberOfOffersReceived"
 )]
 str(fed_full)
   
