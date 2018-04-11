@@ -194,8 +194,8 @@ discrete_fitted_cbre_model(fed_smp,"cb_Comp") +
 ```
 Competition is associated with a significantly higher rate of terminations. This is surprising based on the literature.The next step is to check alternate formulations. There's not yet enough in this model for any meaningful residual models. The next step is to look at a more detailed model, where single offer competition is broken out as a middle option between competition and no competion.
 
-###Model 02B: No Competition / Single Offer / Competition
-```{r Model02B}
+###Model 02C: No Competition / Single Offer / Competition
+```{r Model02C}
 
 #Frequency Plot
 freq_discrete_cbre_plot(fed_smp,"EffComp")
@@ -205,17 +205,17 @@ freq_discrete_cbre_plot(fed_smp,"EffComp")
 discrete_percent_cbre_plot(fed_smp,"EffComp")
 
 #Model
-CBre_02B <- glm (data=fed_smp,
+CBre_02C <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO +n_Comp,
                    # ARRA:n_Comp + Dis:n_Comp + OCO:n_Comp,
                  family=binomial(link="logit"))
-display(CBre_02B)
+display(CBre_02C)
 
 #Plot the Fitted
 #Add the fitted regression line
 # discrete_fitted_cbre_model(fed_smp,"n_Comp") +
-#   stat_function(fun = fit_curve, args=list(a=coef(CBre_02B)[1],
-#                                            b=coef(CBre_02B)[2]),
+#   stat_function(fun = fit_curve, args=list(a=coef(CBre_02C)[1],
+#                                            b=coef(CBre_02C)[2]),
 #                 color="blue")
 
 
@@ -226,8 +226,8 @@ display(CBre_02B)
 
 The correlation between the three categories of competition has a larger  coefficent and standard error, in a perplexing direction. The next step looks at the number of offers in greater detail.
 
-###Model 02C: No Competition / Number of Offer Categories 
-```{r Model02C}
+###Model 02E: No Competition / Number of Offer Categories 
+```{r Model02E}
 #Frequency Plot
 freq_discrete_cbre_plot(fed_smp,"CompOffr")
 
@@ -235,9 +235,9 @@ freq_discrete_cbre_plot(fed_smp,"CompOffr")
 discrete_percent_cbre_plot(fed_smp,"CompOffr")
 
 #Model
-CBre_02C <- glm (data=fed_smp,
+CBre_02E <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO +cn_Offr, family=binomial(link="logit"))
-display(CBre_02C)
+display(CBre_02E)
 
 
 
@@ -249,8 +249,8 @@ As measured by residual deviance, this variable has slightly less predictive pow
 Instead, the last variant to be checked is the number of offers directly. This is handled logarithmicly because the differences between number of offers at the bottom end of the scale mtters much more than at the high end of the scale. In this method, contracts that were not open to competition are grouped with contracts that received only a single offer.
 
 
-###Model 02D: Number of Offer Categories 
-```{r Model02D}
+###Model 02G: Number of Offer Categories 
+```{r Model02G}
 
 #Frequency Plot
 freq_continuous_cbre_plot(fed_smp,"l_Offr")
@@ -269,9 +269,9 @@ binned_percent_cbre_plot(fed_smp,"l_Offr","Veh")
 
 
 #Model
-CBre_02D <- glm (data=fed_smp,
+CBre_02G <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO +cl_Offr, family=binomial(link="logit"))
-display(CBre_02D)
+display(CBre_02G)
 
 #Variant Model
 fed_smp$clsqr_Offer<-fed_smp$cl_Offr^2
@@ -280,24 +280,24 @@ CBre_11E <- glm (data=fed_smp,
 display(CBre_11E)
 
 #Plot the data and fitted curve
-CBre_02D_plot<-ggplot(data=fed_smp,
+CBre_02G_plot<-ggplot(data=fed_smp,
        aes(y=j_Term,x=cl_Offr))+geom_jitter(alpha=0.11,height=0)+scale_y_sqrt() +
   labs(title="Fitted Linear Model", caption="Source: FPDS, CSIS Analysis")
 
 #Plot the Fitted
 #Add the fitted regression line
 discrete_fitted_cbre_model(fed_smp,"cl_Offr") +
-  stat_function(fun = fit_curve, args=list(a=coef(CBre_02D)[1],
-                                           b=coef(CBre_02D)[2]),
+  stat_function(fun = fit_curve, args=list(a=coef(CBre_02G)[1],
+                                           b=coef(CBre_02G)[2]),
                              color="blue")
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_residuals(CBre_02D)
+binned_fitted_versus_residuals(CBre_02G)
 
 
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre_02D,bins=3)+
+residuals_cbre_plot(CBre_02G,bins=3)+
   labs(x="Estimated  Pr (Termination)")
 
 
@@ -379,27 +379,27 @@ freq_continuous_cbre_plot(fed_smp,"lsqr_Ceil")
 binned_percent_cbre_plot(fed_smp,"lsqr_Ceil")
 
 #Model
-CBre_02B <- glm (data=fed_smp,
+CBre_02C <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + cl_Ceil + clsqr_Ceil, family=binomial(link="logit"))
-display(CBre_02B)
+display(CBre_02C)
 
 #Plot the fitted model plot
-CBre_02B_curve<-function(x, Comp){invlogit(cbind(1,Comp,x, x^2) %*%  coef(CBre_02B))}
+CBre_02C_curve<-function(x, Comp){invlogit(cbind(1,Comp,x, x^2) %*%  coef(CBre_02C))}
 
 #Competition curves
-fitted_cbre_model(fed_smp,"cl_Ceil") + stat_function(fun = CBre_02B_curve, 
+fitted_cbre_model(fed_smp,"cl_Ceil") + stat_function(fun = CBre_02C_curve, 
                              args=list(Comp=0),color="blue")+
-  stat_function(fun = CBre_02B_curve, 
+  stat_function(fun = CBre_02C_curve, 
                              args=list(Comp=2),color="blue")
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_residuals(CBre_02B)
+binned_fitted_versus_residuals(CBre_02C)
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre_02B)+
+residuals_cbre_plot(CBre_02C)+
   labs(x="Estimated  Pr (Termination)")
 
-residuals_cbre_plot(CBre_02B,"cl_Ceil")+
+residuals_cbre_plot(CBre_02C,"cl_Ceil")+
   labs(x="Centered Log(Ceiling)")
 
 ```
@@ -417,26 +417,26 @@ freq_continuous_cbre_plot(fed_smp,"l_Ceil","EffComp")
 binned_percent_cbre_plot(fed_smp,"l_Ceil","EffComp")
 
 #Create the model
-CBre_02C <- glm (data=fed_smp,
+CBre_02E <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + cl_Ceil + clsqr_Ceil + n_Comp:cl_Ceil, family=binomial(link="logit"))
-display(CBre_02C)
+display(CBre_02E)
 
-CBre_02C_curve<-function(x, Comp){invlogit(cbind(1,Comp,x,x^2,Comp*x) %*%  coef(CBre_02C))}
+CBre_02E_curve<-function(x, Comp){invlogit(cbind(1,Comp,x,x^2,Comp*x) %*%  coef(CBre_02E))}
 
 #Competition Curves
-fitted_cbre_model(fed_smp,"cl_Ceil") + stat_function(fun = CBre_02C_curve, 
+fitted_cbre_model(fed_smp,"cl_Ceil") + stat_function(fun = CBre_02E_curve, 
                              args=list(Comp=0),color="blue")+
-  stat_function(fun = CBre_02C_curve, 
+  stat_function(fun = CBre_02E_curve, 
                              args=list(Comp=2),color="blue")
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_residuals(CBre_02C)
+binned_fitted_versus_residuals(CBre_02E)
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre_02C)+
+residuals_cbre_plot(CBre_02E)+
   labs(x="Estimated  Pr (Termination)")
 
-residuals_cbre_plot(CBre_02C,"cl_Ceil")+
+residuals_cbre_plot(CBre_02E,"cl_Ceil")+
   labs(x="Centered Log(Ceiling)")
 ```
 The interaction went in the expected direction, but is surprisingly powerful. Competition heightens the importance of contract ceiling, and larger contract ceilings mitigate the importance of competition. The other powerful part of this interaction was the dramatic increase in the coefficient for competition and the comparative reduction in the correlation of ceiling.
@@ -456,36 +456,36 @@ binned_percent_cbre_plot(fed_smp,"l_Days")
 
 
 #Model
-CBre_02D <- glm (data=fed_smp,
+CBre_02G <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + clsqr_Ceil + cl_Days + clsqr_Ceil +
                    n_Comp:cl_Ceil , family=binomial(link="logit"))
-display(CBre_02D)
+display(CBre_02G)
 
 
-CBre_02D_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_02D))}
+CBre_02G_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_02G))}
 
 #Competition Curves
-fitted_cbre_model(fed_smp,"cl_Days") + stat_function(fun = CBre_02D_curve, 
+fitted_cbre_model(fed_smp,"cl_Days") + stat_function(fun = CBre_02G_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_02D_curve, 
+  stat_function(fun = CBre_02G_curve, 
                              args=list(Comp=2,Ceil=0),color="blue")
 
 #Ceiling Curves
-fitted_cbre_model(fed_smp,"cl_Days") +  stat_function(fun = CBre_02D_curve, 
+fitted_cbre_model(fed_smp,"cl_Days") +  stat_function(fun = CBre_02G_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_02D_curve, 
+  stat_function(fun = CBre_02G_curve, 
                              args=list(Comp=0,Ceil=1),color="blue")
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_residuals(CBre_02D)
+binned_fitted_versus_residuals(CBre_02G)
 
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre_02D)+
+residuals_cbre_plot(CBre_02G)+
   labs(x="Estimated  Pr (Termination)")
 # debug(binned.resids)
-# residuals_cbre_plot(CBre_02D,"cl_Days")+
+# residuals_cbre_plot(CBre_02G,"cl_Days")+
   # labs(x="Centered Log(Ceiling)")
 
 
