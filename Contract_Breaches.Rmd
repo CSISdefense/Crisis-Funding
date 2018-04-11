@@ -73,9 +73,8 @@ NA_stats(fed,"b_CBre")')
 NA_stats(fed,"b_Comp")'
 * n_Comp is a numeric variable based on competition and number of offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for multi-offer competition. 'r summary(fed$EffComp);
 NA_stats(fed,"n_Comp")' 
-* n_Offr is a numeric variable based on competition and with more granularity on number offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for 2-offers, 3 for 3-4 offers, and 4 for 5+ offers. 'r summary
-(fed$n_Offr);
-NA_stats(fed,"n_Offr")' *****PROBLEM******
+* n_Offr is a numeric variable based on competition and with more granularity on number offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for 2-offers, 3 for 3-4 offers, and 4 for 5+ offers. 'r summary(fed$n_Offr);
+NA_stats(fed,"n_Offr")' 
 * l_Offr is the natural log of the number of offers received. Uncompeted contracts are classified as having received one offer. 'r summary(fed$l_Offr)
 NA_stats(fed,"l_Offr")'
 * cl_Ceil is the natural log of the initial contract cost ceiling, in then-year dollars. 'r centered_log_description(fed$l_Ceil,"dollars")

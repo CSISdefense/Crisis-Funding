@@ -638,14 +638,14 @@ fed_full$Comp<-factor(fed_full$Comp,
                                                               )
 
 
-#Produce EffComop factor
+#Produce EffComp factor
 
 #Competition and Offer  
 fed_full$EffComp<-as.character(fed_full$Comp)
 
 fed_full$EffComp[fed_full$Comp=="Comp." & !is.na(fed_full$Comp)]<-
-  ifelse(fed_full$UnmodifiedNumberOfOffersReceived[fed_full$Comp=="Comp." & 
-                                                     !is.na(fed_full$Comp)]>1,"2+ Offers","1 Offer")
+  ifelse(fed_full$UnmodifiedNumberOfOffersReceived[
+    fed_full$Comp=="Comp." & !is.na(fed_full$Comp)]>1,"2+ Offers","1 Offer")
 
 fed_full$EffComp<-factor(fed_full$EffComp,
                                levels=c("No Comp.","1 Offer","2+ Offers")
