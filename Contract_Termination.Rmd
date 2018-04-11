@@ -114,7 +114,7 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 # summary(fed_smp$EffComp )
 
 complete<-!is.na(fed$b_Term)&
-  !is.na(fed$b_CBre)&
+  !is.na(fed$b_Term)&
   (!is.na(fed$b_Comp) | !is.na(fed$l_Offr))&
   !is.na(fed$l_Ceil)&
   !is.na(fed$l_Days)&
@@ -181,7 +181,7 @@ discrete_percent_term_plot(fed_smp,"Comp")
 
 #Model
 Term_02A <- glm (data=fed_smp,
-                 b_Term ~ ARRA + Dis + OCO +cb_Comp, family=binomial(link="logit"))
+                 b_Term ~ ARRA + Dis + OCO +cb_Comp+b_Urg, family=binomial(link="logit"))
 display(Term_02A)
 
 #Plot the new variable and coefficients
@@ -194,8 +194,34 @@ discrete_fitted_term_model(fed_smp,"cb_Comp") +
 ```
 Competition is associated with a significantly higher rate of terminations. This is surprising based on the literature.The next step is to check alternate formulations. There's not yet enough in this model for any meaningful residual models. The next step is to look at a more detailed model, where single offer competition is broken out as a middle option between competition and no competion.
 
-###Model 02B: No Competition / Single Offer / Competition
+
+###Model 02B: No Competition / Competition
 ```{r Model02B}
+
+#Frequency Plot
+freq_discrete_term_plot(fed_smp,"Comp")
+
+#Percent Terminated Plot
+discrete_percent_term_plot(fed_smp,"Comp")
+
+#Model
+Term_02B <- glm (data=fed_smp,
+                 b_Term ~ ARRA + Dis + OCO +cb_Comp +
+                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO, 
+                 family=binomial(link="logit"))
+display(Term_02B)
+
+#Plot the new variable and coefficients
+#Add the fitted regression line
+discrete_fitted_term_model(fed_smp,"cb_Comp") + 
+  stat_function(fun = fit_curve, args=list(a=coef(Term_02B)[1],                                                        b=coef(Term_02B)[2]),color="blue")
+
+
+
+```
+
+###Model 02C: No Competition / Single Offer / Competition
+```{r Model02C}
 
 #Frequency Plot
 freq_discrete_term_plot(fed_smp,"EffComp")
@@ -205,17 +231,46 @@ freq_discrete_term_plot(fed_smp,"EffComp")
 discrete_percent_term_plot(fed_smp,"EffComp")
 
 #Model
-Term_02B <- glm (data=fed_smp,
-                 b_Term ~ ARRA + Dis + OCO +n_Comp,
-                   # ARRA:n_Comp + Dis:n_Comp + OCO:n_Comp,
+Term_02C <- glm (data=fed_smp,
+                 b_Term ~ ARRA + Dis + OCO +n_Comp + b_Urg,
                  family=binomial(link="logit"))
-display(Term_02B)
+display(Term_02C)
 
 #Plot the Fitted
 #Add the fitted regression line
 # discrete_fitted_term_model(fed_smp,"n_Comp") +
-#   stat_function(fun = fit_curve, args=list(a=coef(Term_02B)[1],
-#                                            b=coef(Term_02B)[2]),
+#   stat_function(fun = fit_curve, args=list(a=coef(Term_02C)[1],
+#                                            b=coef(Term_02C)[2]),
+#                 color="blue")
+
+
+
+
+```
+
+
+###Model 02D: No Competition / Single Offer / Competition
+```{r Model02D}
+
+#Frequency Plot
+freq_discrete_term_plot(fed_smp,"EffComp")
+
+
+#Percent Terminated Plot
+discrete_percent_term_plot(fed_smp,"EffComp")
+
+#Model
+Term_02D <- glm (data=fed_smp,
+                 b_Term ~ ARRA + Dis + OCO +n_Comp+
+                   ARRA:n_Comp + Dis:n_Comp + OCO:n_Comp,
+                 family=binomial(link="logit"))
+display(Term_02D)
+
+#Plot the Fitted
+#Add the fitted regression line
+# discrete_fitted_term_model(fed_smp,"n_Comp") +
+#   stat_function(fun = fit_curve, args=list(a=coef(Term_02D)[1],
+#                                            b=coef(Term_02D)[2]),
 #                 color="blue")
 
 
@@ -226,8 +281,8 @@ display(Term_02B)
 
 The correlation between the three categories of competition has a larger  coefficent and standard error, in a perplexing direction. The next step looks at the number of offers in greater detail.
 
-###Model 02C: No Competition / Number of Offer Categories 
-```{r Model02C}
+###Model 02E: No Competition / Number of Offer Categories 
+```{r Model02E}
 #Frequency Plot
 freq_discrete_term_plot(fed_smp,"CompOffr")
 
@@ -235,9 +290,9 @@ freq_discrete_term_plot(fed_smp,"CompOffr")
 discrete_percent_term_plot(fed_smp,"CompOffr")
 
 #Model
-Term_02C <- glm (data=fed_smp,
+Term_02E <- glm (data=fed_smp,
                  b_Term ~ ARRA + Dis + OCO +cn_Offr, family=binomial(link="logit"))
-display(Term_02C)
+display(Term_02E)
 
 
 
@@ -248,9 +303,27 @@ As measured by residual deviance, this variable has slightly less predictive pow
 
 Instead, the last variant to be checked is the number of offers directly. This is handled logarithmicly because the differences between number of offers at the bottom end of the scale mtters much more than at the high end of the scale. In this method, contracts that were not open to competition are grouped with contracts that received only a single offer.
 
+###Model 02F: No Competition / Number of Offer Categories 
+```{r Model02F}
+#Frequency Plot
+freq_discrete_term_plot(fed_smp,"CompOffr")
 
-###Model 02D: Number of Offer Categories 
-```{r Model02D}
+#Percent Terminated Plot
+discrete_percent_term_plot(fed_smp,"CompOffr")
+
+#Model
+Term_02F <- glm (data=fed_smp,
+                 b_Term ~ ARRA + Dis + OCO +cn_Offr+
+                   cn_Offr:ARRA + cn_Offr:Dis + cn_Offr:OCO, family=binomial(link="logit"))
+display(Term_02F)
+
+
+
+
+```
+
+###Model 02G: Number of Offer Categories 
+```{r Model02G}
 
 #Frequency Plot
 freq_continuous_term_plot(fed_smp,"l_Offr")
@@ -269,35 +342,35 @@ binned_percent_term_plot(fed_smp,"l_Offr","Veh")
 
 
 #Model
-Term_02D <- glm (data=fed_smp,
+Term_02G <- glm (data=fed_smp,
                  b_Term ~ ARRA + Dis + OCO +cl_Offr, family=binomial(link="logit"))
-display(Term_02D)
+display(Term_02G)
 
 #Variant Model
 fed_smp$clsqr_Offer<-fed_smp$cl_Offr^2
-Term_11E <- glm (data=fed_smp,
+CBre_11E <- glm (data=fed_smp,
                  b_Term ~ ARRA + Dis + OCO +cl_Offr +clsqr_Offer, family=binomial(link="logit"))
-display(Term_11E)
+display(CBre_11E)
 
 #Plot the data and fitted curve
-Term_02D_plot<-ggplot(data=fed_smp,
+Term_02G_plot<-ggplot(data=fed_smp,
        aes(y=j_Term,x=cl_Offr))+geom_jitter(alpha=0.11,height=0)+scale_y_sqrt() +
   labs(title="Fitted Linear Model", caption="Source: FPDS, CSIS Analysis")
 
 #Plot the Fitted
 #Add the fitted regression line
 discrete_fitted_term_model(fed_smp,"cl_Offr") +
-  stat_function(fun = fit_curve, args=list(a=coef(Term_02D)[1],
-                                           b=coef(Term_02D)[2]),
+  stat_function(fun = fit_curve, args=list(a=coef(Term_02G)[1],
+                                           b=coef(Term_02G)[2]),
                              color="blue")
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_residuals(Term_02D)
+binned_fitted_versus_term_residuals(Term_02G)
 
 
 
 #Plot residuals versus fitted
-residuals_term_plot(Term_02D,bins=3)+
+residuals_term_plot(Term_02G,bins=3)+
   labs(x="Estimated  Pr (Termination)")
 
 
@@ -312,6 +385,47 @@ A variety of binned percent terminated graphs found that in the middle range of 
 The difference between single-offer and effective competition is worth exploring, even if it lowers the significance of the starting model. Happily, this decision is supported by the fact that this three category variable offers the greatest reduction in residual deviance. However, lacking a specific theoretical argument for the importance of a greater number of offers, and given the results, the more detailed competition breakdowns will not be used. This may be an issue worth exploring more in a future work.
 
 The greatest distinctiveness can be found in types of indefinite delivery vehicles. Definitive contracts and purchase orders show a higher termination rate as the number of offers increase. However, for single and multiple award IDVs, there's a decline in terminations rates correlated with low levels of competition, that often fades and even reverses as the number of offers increases. However, the results do not seem consistent with am exponential relationship.
+
+###Model 02H: Number of Offer Categories 
+```{r Model02H}
+
+#Model
+Term_02H <- glm (data=fed_smp,
+                 b_Term ~ ARRA + Dis + OCO +cl_Offr+
+                   cl_Offr:ARRA + cl_Offr:Dis + cl_Offr:OCO, family=binomial(link="logit"))
+display(Term_02H)
+
+#Variant Model
+fed_smp$clsqr_Offer<-fed_smp$cl_Offr^2
+CBre_11E <- glm (data=fed_smp,
+                 b_Term ~ ARRA + Dis + OCO +cl_Offr +clsqr_Offer, family=binomial(link="logit"))
+display(CBre_11E)
+
+#Plot the data and fitted curve
+Term_02H_plot<-ggplot(data=fed_smp,
+       aes(y=j_Term,x=cl_Offr))+geom_jitter(alpha=0.11,height=0)+scale_y_sqrt() +
+  labs(title="Fitted Linear Model", caption="Source: FPDS, CSIS Analysis")
+
+#Plot the Fitted
+#Add the fitted regression line
+discrete_fitted_term_model(fed_smp,"cl_Offr") +
+  stat_function(fun = fit_curve, args=list(a=coef(Term_02H)[1],
+                                           b=coef(Term_02H)[2]),
+                             color="blue")
+
+#Plot the fitted values vs actual results
+binned_fitted_versus_term_residuals(Term_02H)
+
+
+
+#Plot residuals versus fitted
+residuals_term_plot(Term_02H,bins=3)+
+  labs(x="Estimated  Pr (Termination)")
+
+
+
+
+```
 
 ##Scope Variables
 ###Model 12A: Cost Ceiling

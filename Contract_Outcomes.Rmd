@@ -61,10 +61,15 @@ head(fed)
 fed<-csis360::transform_contract(fed)
 
  #b_CBre
-summary(fed_smp$b_Urg)
+summary(fed$b_Urg)
+fed$b_Urg<-NA
+  fed$b_Urg<-ifelse(fed$Urg=="Urgency Except.",1,NA)
+  fed$b_Urg[fed$Urg=="Not Urgency"]<-0
 
-  fed_smp$b_Urg<-ifelse(fed_smp$Urg=="Urgency Except.",1,NA)
-  fed_smp$b_Urg[fed_smp$Urg=="Not Urgency"]<-0
+  fed$Crisis<-as.character(fed$MaxOfDecisionTree)
+fed$Crisis[fed$Crisis=="Excluded" | is.na(fed$Crisis)]<-"Other"
+fed$Crisis<-factor(fed$Crisis)
+summary(fed$Crisis)
 
 # fed<-decision_tree(fed)
 
@@ -115,37 +120,48 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 ###Computational Sample Creation
 ```{r Sample}
 
-# summary(fed_smp$b_Comp )
-# summary(fed_smp$n_Comp )
-# summary(fed_smp$Comp )
-# summary(fed_smp$CompOffr )
-# summary(fed_smp$EffComp )
+crisis<-fed[fed$Crisis %in% c("ARRA","Disaster"),]
+oco<-fed[fed$Crisis %in% c("OCO"),]
+oco<-oco[sample(nrow(oco),100000),]
+crisis<-rbind(crisis,oco)
+rm(oco)
+other<-fed[fed$Crisis %in% c("Other"),]
+other<-other[sample(nrow(other),100000),]
+crisis<-rbind(crisis,other)
+rm(other)
+# summary(crisis$b_Comp )
+# summary(crisis$n_Comp )
+# summary(crisis$Comp )
+# summary(crisis$CompOffr )
+# summary(crisis$EffComp )
 
-complete<-!is.na(fed$b_Term)&
-  !is.na(fed$b_CBre)&
-  (!is.na(fed$b_Comp) | !is.na(fed$l_Offr))&
-  !is.na(fed$l_Ceil)&
-  !is.na(fed$l_Days)&
-  !is.na(fed$Veh) &
-  !is.na(fed$n_Fixed)&
-  !is.na(fed$b_Intl)&
-  !is.na(fed$b_UCA)&
-  !is.na(fed$ProdServ)&
-  !is.na(fed$ARRA)&
-!is.na(fed$Dis)&
-!is.na(fed$OCO)
-  # !is.na(fed$cl_HHI_lag1)
+complete<-!is.na(crisis$b_Term)&
+  !is.na(crisis$b_CBre)&
+  (!is.na(crisis$n_Comp)|!is.na(crisis$b_Comp))&
+  !is.na(crisis$l_Ceil)&
+  !is.na(crisis$l_Days)&
+  !is.na(crisis$Veh) &
+  !is.na(crisis$n_Fixed)&
+  !is.na(crisis$b_Intl)&
+  !is.na(crisis$b_UCA)&
+  !is.na(crisis$ProdServ)&
+  !is.na(crisis$ARRA)&
+!is.na(crisis$Dis)&
+!is.na(crisis$OCO)
+  # !is.na(crisis$cl_HHI_lag1)
 
-fed_smp<-fed[complete,]
-fed_smp<-fed_smp[sample(nrow(fed_smp),250000),]
+summary(crisis$Crisis)
+
+# crisis<-crisis[complete,]
+
 
 #8818392  to 8818392
-nrow(fed[!complete,])/nrow(fed)
-sum(fed[!complete,]$Action.Obligation,na.rm=TRUE)/sum(fed$Action.Obligation,na.rm=TRUE)
+nrow(crisis[!complete,])/nrow(crisis)
+sum(crisis[!complete,]$Action.Obligation,na.rm=TRUE)/sum(crisis$Action.Obligation,na.rm=TRUE)
 
+crisis_smp<-crisis[complete,]
 
-
-head(fed_smp)
+head(crisis_smp)
 
 ```
 
@@ -156,17 +172,17 @@ head(fed_smp)
 ##Crisis Dataset
 ### Model 01A Crisis Dataset
 ```{r Model01A}
-levels(fed_smp$MaxOfDecisionTree)[levels(fed_smp$MaxOfDecisionTree)=="Excluded"]<-
+levels(crisis_smp$MaxOfDecisionTree)[levels(crisis_smp$MaxOfDecisionTree)=="Excluded"]<-
   "None"
-fed_smp$MaxOfDecisionTree[is.na(fed_smp$MaxOfDecisionTree)]<-"None"
+crisis_smp$MaxOfDecisionTree[is.na(crisis_smp$MaxOfDecisionTree)]<-"None"
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"MaxOfDecisionTree")
+freq_discrete_cbre_plot(crisis_smp,"MaxOfDecisionTree")
 
 #Percent Terminated Plot
-discrete_percent_cbre_plot(fed_smp,"MaxOfDecisionTree")
+discrete_percent_cbre_plot(crisis_smp,"MaxOfDecisionTree")
 
 #Model
-CBre_11A <- glm (data=fed_smp,
+CBre_11A <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO, family=binomial(link="logit"))
 display(CBre_11A)
 
@@ -181,74 +197,135 @@ Competition has the potential to reduce terminations by giving the government mo
 ###Model 02A: No Competition / Competition
 ```{r Model02A}
 
-#Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"Comp")
+#Terminations
+gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"Comp"),
+                        discrete_percent_term_plot(crisis_smp,"Comp"))
 
-#Percent Terminated Plot
-discrete_percent_cbre_plot(fed_smp,"Comp")
+gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"Urg"),
+                        discrete_percent_term_plot(crisis_smp,"Urg"))
+
+
+#Ceiling Breaches
+gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"Comp"),
+             discrete_percent_cbre_plot(crisis_smp,"Comp"))
+
+gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"Urg"),
+             discrete_percent_cbre_plot(crisis_smp,"Urg"))
+
+
 
 #Model
-CBre03A <- glm (data=fed_smp,
-                 b_CBre ~ ARRA + Dis + OCO +cb_Comp+b_Urg, family=binomial(link="logit"))
-display(CBre03A)
+CBre_02A <- glm (data=crisis_smp,
+                 b_CBre ~ ARRA + Dis + OCO +cb_Comp, family=binomial(link="logit"))
+display(CBre_02A)
 
-#Plot the new variable and coefficients
-#Add the fitted regression line
-discrete_fitted_cbre_model(fed_smp,"cb_Comp") + 
-  stat_function(fun = fit_curve, args=list(a=coef(CBre03A)[1],                                                        b=coef(CBre03A)[2]),color="blue")
+Term_02A <- glm (data=crisis_smp,
+                 b_Term ~ ARRA + Dis + OCO +cb_Comp, family=binomial(link="logit"))
+display(Term_02A)
 
 
+stargazer::stargazer(CBre_02A,Term_02A,type="text",
+                     digits=2)
+
+
+#Plot the fitted values vs actual results
+gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_02A),
+                        binned_fitted_versus_term_residuals(Term_02A)
+                        )
+
+# residuals_cbre_plot(CBre_02A)+
+  # labs(x="Estimated  Pr (Ceiling Breach)"),
+# residuals_cbre_plot(Term_02A)+
+  # labs(x="Estimated  Pr (Termination)"),
+
+
+#Plot residuals versus fitted
+# residuals_cbre_plot(CBre_03B)+
+  # labs(x="Estimated  Pr (Ceiling Breach)")
+
+# residuals_cbre_plot(CBre_03B,"cl_Ceil")+
+  # labs(x="Centered Log(Ceiling)")
+  
 
 ```
-Competition is associated with a significantly higher rate of terminations. This is surprising based on the literature.The next step is to check alternate formulations. There's not yet enough in this model for any meaningful residual models. The next step is to look at a more detailed model, where single offer competition is broken out as a middle option between competition and no competion.
+Binary competition is associated with a significantly decreased risk of ceiling breaches but a slightly greater risk of terminations. Urgency is associated with a lower risk of termination and a lower risk of ceiling breaches, though neither is significant. The increased risk of ceiling breach is the only finding in line with the hypotheses. The next step is to add interactions between the competition and the crisis datasets.
 
 
 ###Model 02B: No Competition / Competition
 ```{r Model02B}
 
-#Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"Comp")
+#Ceiling Breaches
+gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"Comp","Crisis"),
+                        discrete_percent_cbre_plot(crisis_smp,"Comp","Crisis"))
+                        
+#Terminations
+gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"Comp","Crisis"),
+                        discrete_percent_term_plot(crisis_smp,"Comp","Crisis"))
+
+                        
+freq_discrete_term_plot(crisis_smp,"Comp","MaxOfDecisionTree")
 
 #Percent Terminated Plot
-discrete_percent_cbre_plot(fed_smp,"Comp")
+discrete_percent_cbre_plot(crisis_smp,"Comp")
 
 #Model
-CBre03B <- glm (data=fed_smp,
+CBre_02B <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO +cb_Comp +
                    cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO, 
                  family=binomial(link="logit"))
-display(CBre03B)
+display(CBre_02B)
+
+Term_02B <- glm (data=crisis_smp,
+                 b_Term ~ ARRA + Dis + OCO +cb_Comp +
+                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO, 
+                 family=binomial(link="logit"))
+display(Term_02B)
+
+
+stargazer::stargazer(CBre_02B,Term_02B,type="text",
+                     digits=2)
+
+
 
 #Plot the new variable and coefficients
 #Add the fitted regression line
-discrete_fitted_cbre_model(fed_smp,"cb_Comp") + 
-  stat_function(fun = fit_curve, args=list(a=coef(CBre03B)[1],                                                        b=coef(CBre03B)[2]),color="blue")
-
+discrete_fitted_cbre_model(crisis_smp,"cb_Comp") + 
+  stat_function(fun = fit_curve, args=list(a=coef(CBre_02B)[1],                                                        b=coef(CBre_02B)[2]),color="blue")
+str(crisis_smp)
 
 
 ```
 
+The next step is to look at a more detailed model, where single offer competition is broken out as a middle option between competition and no competion.
+
+
 ###Model 02C: No Competition / Single Offer / Competition
 ```{r Model02C}
 
-#Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"EffComp")
+#Ceiling Breaches
+gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"EffComp"),
+             discrete_percent_cbre_plot(crisis_smp,"EffComp"))
 
 
-#Percent Terminated Plot
-discrete_percent_cbre_plot(fed_smp,"EffComp")
+#Terminations
+gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"EffComp"),
+                        discrete_percent_term_plot(crisis_smp,"EffComp"))
+
+
+
+
 
 #Model
-CBre03C <- glm (data=fed_smp,
+CBre_02C <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO +n_Comp + b_Urg,
                  family=binomial(link="logit"))
-display(CBre03C)
+display(CBre_02C)
 
 #Plot the Fitted
 #Add the fitted regression line
-# discrete_fitted_cbre_model(fed_smp,"n_Comp") +
-#   stat_function(fun = fit_curve, args=list(a=coef(CBre03C)[1],
-#                                            b=coef(CBre03C)[2]),
+# discrete_fitted_cbre_model(crisis_smp,"n_Comp") +
+#   stat_function(fun = fit_curve, args=list(a=coef(CBre_02C)[1],
+#                                            b=coef(CBre_02C)[2]),
 #                 color="blue")
 
 
@@ -261,24 +338,24 @@ display(CBre03C)
 ```{r Model02D}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"EffComp")
+freq_discrete_cbre_plot(crisis_smp,"EffComp")
 
 
 #Percent Terminated Plot
-discrete_percent_cbre_plot(fed_smp,"EffComp")
+discrete_percent_cbre_plot(crisis_smp,"EffComp")
 
 #Model
-CBre03D <- glm (data=fed_smp,
+CBre_02D <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO +n_Comp+
                    ARRA:n_Comp + Dis:n_Comp + OCO:n_Comp,
                  family=binomial(link="logit"))
-display(CBre03D)
+display(CBre_02D)
 
 #Plot the Fitted
 #Add the fitted regression line
-# discrete_fitted_cbre_model(fed_smp,"n_Comp") +
-#   stat_function(fun = fit_curve, args=list(a=coef(CBre03D)[1],
-#                                            b=coef(CBre03D)[2]),
+# discrete_fitted_cbre_model(crisis_smp,"n_Comp") +
+#   stat_function(fun = fit_curve, args=list(a=coef(CBre_02D)[1],
+#                                            b=coef(CBre_02D)[2]),
 #                 color="blue")
 
 
@@ -292,15 +369,15 @@ The correlation between the three categories of competition has a larger  coeffi
 ###Model 02E: No Competition / Number of Offer Categories 
 ```{r Model02E}
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"CompOffr")
+freq_discrete_cbre_plot(crisis_smp,"CompOffr")
 
 #Percent Terminated Plot
-discrete_percent_cbre_plot(fed_smp,"CompOffr")
+discrete_percent_cbre_plot(crisis_smp,"CompOffr")
 
 #Model
-CBre03E <- glm (data=fed_smp,
+CBre_02E <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO +cn_Offr, family=binomial(link="logit"))
-display(CBre03E)
+display(CBre_02E)
 
 
 
@@ -314,16 +391,16 @@ Instead, the last variant to be checked is the number of offers directly. This i
 ###Model 02F: No Competition / Number of Offer Categories 
 ```{r Model02F}
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"CompOffr")
+freq_discrete_cbre_plot(crisis_smp,"CompOffr")
 
 #Percent Terminated Plot
-discrete_percent_cbre_plot(fed_smp,"CompOffr")
+discrete_percent_cbre_plot(crisis_smp,"CompOffr")
 
 #Model
-CBre03F <- glm (data=fed_smp,
+CBre_02F <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO +cn_Offr+
                    cn_Offr:ARRA + cn_Offr:Dis + cn_Offr:OCO, family=binomial(link="logit"))
-display(CBre03F)
+display(CBre_02F)
 
 
 
@@ -334,51 +411,51 @@ display(CBre03F)
 ```{r Model02G}
 
 #Frequency Plot
-freq_continuous_cbre_plot(fed_smp,"l_Offr")
+freq_continuous_cbre_plot(crisis_smp,"l_Offr")
 
 #Percent Terminated Plot 
-binned_percent_cbre_plot(fed_smp,"l_Offr")
+binned_percent_cbre_plot(crisis_smp,"l_Offr")
 
 #Percent Terminated Plot
-binned_percent_cbre_plot(fed_smp,"l_Offr","FxCb")
+binned_percent_cbre_plot(crisis_smp,"l_Offr","FxCb")
 
 #Percent Terminated Plot
-binned_percent_cbre_plot(fed_smp,"l_Offr","PSR")
+binned_percent_cbre_plot(crisis_smp,"l_Offr","PSR")
 
 #Percent Terminated Plot
-binned_percent_cbre_plot(fed_smp,"l_Offr","Veh")
+binned_percent_cbre_plot(crisis_smp,"l_Offr","Veh")
 
 
 #Model
-CBre03G <- glm (data=fed_smp,
+CBre_02G <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO +cl_Offr, family=binomial(link="logit"))
-display(CBre03G)
+display(CBre_02G)
 
 #Variant Model
-fed_smp$clsqr_Offer<-fed_smp$cl_Offr^2
-CBre_11E <- glm (data=fed_smp,
+crisis_smp$clsqr_Offer<-crisis_smp$cl_Offr^2
+CBre_11E <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO +cl_Offr +clsqr_Offer, family=binomial(link="logit"))
 display(CBre_11E)
 
 #Plot the data and fitted curve
-CBre03G_plot<-ggplot(data=fed_smp,
+CBre_02G_plot<-ggplot(data=crisis_smp,
        aes(y=j_Term,x=cl_Offr))+geom_jitter(alpha=0.11,height=0)+scale_y_sqrt() +
   labs(title="Fitted Linear Model", caption="Source: FPDS, CSIS Analysis")
 
 #Plot the Fitted
 #Add the fitted regression line
-discrete_fitted_cbre_model(fed_smp,"cl_Offr") +
-  stat_function(fun = fit_curve, args=list(a=coef(CBre03G)[1],
-                                           b=coef(CBre03G)[2]),
+discrete_fitted_cbre_model(crisis_smp,"cl_Offr") +
+  stat_function(fun = fit_curve, args=list(a=coef(CBre_02G)[1],
+                                           b=coef(CBre_02G)[2]),
                              color="blue")
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre03G)
+binned_fitted_versus_cbre_residuals(CBre_02G)
 
 
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre03G,bins=3)+
+residuals_cbre_plot(CBre_02G,bins=3)+
   labs(x="Estimated  Pr (Termination)")
 
 
@@ -398,36 +475,36 @@ The greatest distinctiveness can be found in types of indefinite delivery vehicl
 ```{r Model02H}
 
 #Model
-CBre03H <- glm (data=fed_smp,
+CBre_02H <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO +cl_Offr+
                    cl_Offr:ARRA + cl_Offr:Dis + cl_Offr:OCO, family=binomial(link="logit"))
-display(CBre03H)
+display(CBre_02H)
 
 #Variant Model
-fed_smp$clsqr_Offer<-fed_smp$cl_Offr^2
-CBre_11E <- glm (data=fed_smp,
+crisis_smp$clsqr_Offer<-crisis_smp$cl_Offr^2
+CBre_11E <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO +cl_Offr +clsqr_Offer, family=binomial(link="logit"))
 display(CBre_11E)
 
 #Plot the data and fitted curve
-CBre03H_plot<-ggplot(data=fed_smp,
+CBre_02H_plot<-ggplot(data=crisis_smp,
        aes(y=j_Term,x=cl_Offr))+geom_jitter(alpha=0.11,height=0)+scale_y_sqrt() +
   labs(title="Fitted Linear Model", caption="Source: FPDS, CSIS Analysis")
 
 #Plot the Fitted
 #Add the fitted regression line
-discrete_fitted_cbre_model(fed_smp,"cl_Offr") +
-  stat_function(fun = fit_curve, args=list(a=coef(CBre03H)[1],
-                                           b=coef(CBre03H)[2]),
+discrete_fitted_cbre_model(crisis_smp,"cl_Offr") +
+  stat_function(fun = fit_curve, args=list(a=coef(CBre_02H)[1],
+                                           b=coef(CBre_02H)[2]),
                              color="blue")
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre03H)
+binned_fitted_versus_cbre_residuals(CBre_02H)
 
 
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre03H,bins=3)+
+residuals_cbre_plot(CBre_02H,bins=3)+
   labs(x="Estimated  Pr (Termination)")
 
 
@@ -442,20 +519,20 @@ The model starts by examing the influence of large ceilings on contracts, the co
 
 ```{r Model03A}
 #Frequency Plot for unlogged ceiling
-freq_continuous_cbre_plot(fed_smp,"UnmodifiedContractBaseAndAllOptionsValue",
+freq_continuous_cbre_plot(crisis_smp,"UnmodifiedContractBaseAndAllOptionsValue",
                bins=1000)
-freq_continuous_cbre_plot(subset(fed_smp,UnmodifiedContractBaseAndAllOptionsValue<100000000),
+freq_continuous_cbre_plot(subset(crisis_smp,UnmodifiedContractBaseAndAllOptionsValue<100000000),
                "UnmodifiedContractBaseAndAllOptionsValue",
                bins=1000)
 
 #Frequency Plot for logged ceiling
-freq_continuous_cbre_plot(fed_smp,"l_Ceil")
+freq_continuous_cbre_plot(crisis_smp,"l_Ceil")
 
 #Percent Terminated Plot
-binned_percent_cbre_plot(fed_smp,"l_Ceil")
+binned_percent_cbre_plot(crisis_smp,"l_Ceil")
 
 #Model
-CBre_03B <- glm (data=fed_smp,
+CBre_03B <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + cl_Ceil, family=binomial(link="logit"))
 display(CBre_03B)
 
@@ -464,7 +541,7 @@ display(CBre_03B)
 CBre_03B_curve<-function(x, Comp){invlogit(cbind(1,Comp,x) %*%  coef(CBre_03B))}
 
 #Competition curves
-fitted_cbre_model(fed_smp,"cl_Ceil") + stat_function(fun = CBre_03B_curve, 
+fitted_cbre_model(crisis_smp,"cl_Ceil") + stat_function(fun = CBre_03B_curve, 
                              args=list(Comp=0),color="blue")+
   stat_function(fun = CBre_03B_curve, 
                              args=list(Comp=2),color="blue")
@@ -495,13 +572,13 @@ Contract ceiling has a significant relationship, though the residuals show a pos
 
 
 #Frequency Plot
-freq_continuous_cbre_plot(fed_smp,"lsqr_Ceil")
+freq_continuous_cbre_plot(crisis_smp,"lsqr_Ceil")
 
 #Percent Terminated Plot
-binned_percent_cbre_plot(fed_smp,"lsqr_Ceil")
+binned_percent_cbre_plot(crisis_smp,"lsqr_Ceil")
 
 #Model
-CBre_03D <- glm (data=fed_smp,
+CBre_03D <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + cl_Ceil + clsqr_Ceil, family=binomial(link="logit"))
 display(CBre_03D)
 
@@ -509,7 +586,7 @@ display(CBre_03D)
 CBre_03D_curve<-function(x, Comp){invlogit(cbind(1,Comp,x, x^2) %*%  coef(CBre_03D))}
 
 #Competition curves
-fitted_cbre_model(fed_smp,"cl_Ceil") + stat_function(fun = CBre_03D_curve, 
+fitted_cbre_model(crisis_smp,"cl_Ceil") + stat_function(fun = CBre_03D_curve, 
                              args=list(Comp=0),color="blue")+
   stat_function(fun = CBre_03D_curve, 
                              args=list(Comp=2),color="blue")
@@ -533,20 +610,20 @@ Contracts with very small or very large ceilings appear have a negative coeffici
 ```{r Model03C}
 
 #Frequency Plot
-freq_continuous_cbre_plot(fed_smp,"l_Ceil","EffComp")
+freq_continuous_cbre_plot(crisis_smp,"l_Ceil","EffComp")
 
 #Plot the percent terminated across cost ceiling and competition
-binned_percent_cbre_plot(fed_smp,"l_Ceil","EffComp")
+binned_percent_cbre_plot(crisis_smp,"l_Ceil","EffComp")
 
 #Create the model
-CBre_03E <- glm (data=fed_smp,
+CBre_03E <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + cl_Ceil + clsqr_Ceil + n_Comp:cl_Ceil, family=binomial(link="logit"))
 display(CBre_03E)
 
 CBre_03E_curve<-function(x, Comp){invlogit(cbind(1,Comp,x,x^2,Comp*x) %*%  coef(CBre_03E))}
 
 #Competition Curves
-fitted_cbre_model(fed_smp,"cl_Ceil") + stat_function(fun = CBre_03E_curve, 
+fitted_cbre_model(crisis_smp,"cl_Ceil") + stat_function(fun = CBre_03E_curve, 
                              args=list(Comp=0),color="blue")+
   stat_function(fun = CBre_03E_curve, 
                              args=list(Comp=2),color="blue")
@@ -567,18 +644,18 @@ The interaction went in the expected direction, but is surprisingly powerful. Co
 
 ```{r Model03D}
 #Frequency Plot for max duration
-freq_continuous_cbre_plot(fed_smp,"UnmodifiedDays",
+freq_continuous_cbre_plot(crisis_smp,"UnmodifiedDays",
                bins=1000)
 
 #Frequency Plot for logged max duration
-freq_continuous_cbre_plot(fed_smp,"l_Days")
+freq_continuous_cbre_plot(crisis_smp,"l_Days")
 
 #Percent Terminated Plot
-binned_percent_cbre_plot(fed_smp,"l_Days")
+binned_percent_cbre_plot(crisis_smp,"l_Days")
 
 
 #Model
-CBre_03G <- glm (data=fed_smp,
+CBre_03G <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + clsqr_Ceil + cl_Days + clsqr_Ceil +
                    n_Comp:cl_Ceil , family=binomial(link="logit"))
@@ -588,13 +665,13 @@ display(CBre_03G)
 CBre_03G_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_03G))}
 
 #Competition Curves
-fitted_cbre_model(fed_smp,"cl_Days") + stat_function(fun = CBre_03G_curve, 
+fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_03G_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
   stat_function(fun = CBre_03G_curve, 
                              args=list(Comp=2,Ceil=0),color="blue")
 
 #Ceiling Curves
-fitted_cbre_model(fed_smp,"cl_Days") +  stat_function(fun = CBre_03G_curve, 
+fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_03G_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
   stat_function(fun = CBre_03G_curve, 
                              args=list(Comp=0,Ceil=1),color="blue")
@@ -619,14 +696,14 @@ The initial model results are surprising as ceiling change direction, reducing a
 ```{r Mode03E}
 
 #First a quick scatter plot for terminations by duration and ceiling
-ggplot(data=subset(fed_smp,!is.na(l_Ceil)),
+ggplot(data=subset(crisis_smp,!is.na(l_Ceil)),
        aes(x=l_Days,y=l_Ceil))+geom_point(alpha=0.1)+facet_grid(Term~.)+
   labs(title="Frequency by Termination",
           caption="Source: FPDS, CSIS Analysis")
 
 
 #Create the model
-CBre_03E <- glm (data=fed_smp,
+CBre_03E <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + clsqr_Ceil + cl_Days+
                    n_Comp:cl_Ceil  + cl_Ceil:cl_Days, family=binomial(link="logit"))
@@ -639,13 +716,13 @@ CBre_03E_curve<-function(x, Comp,Ceil){invlogit(
 
 
 #Competition Curves
-fitted_cbre_model(fed_smp,"cl_Days") + stat_function(fun = CBre_03E_curve, 
+fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_03E_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
   stat_function(fun = CBre_03E_curve, 
                              args=list(Comp=2,Ceil=0),color="blue")
 
 #Ceiling Curves
-fitted_cbre_model(fed_smp,"cl_Days") +  stat_function(fun = CBre_03E_curve, 
+fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_03E_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
   stat_function(fun = CBre_03E_curve, 
                              args=list(Comp=0,Ceil=1),color="blue")
@@ -674,14 +751,14 @@ The interaction of ceiling and duration is correlated with a lower rate of termi
 
 
 #Frequency Plot
-freq_continuous_cbre_plot(fed_smp,"lsqr_Days")
+freq_continuous_cbre_plot(crisis_smp,"lsqr_Days")
 
 #Percent Terminated Plot
-binned_percent_cbre_plot(fed_smp,"lsqr_Days")
+binned_percent_cbre_plot(crisis_smp,"lsqr_Days")
 
 
 #Create the model
-CBre_03F <- glm (data=fed_smp,
+CBre_03F <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
                    n_Comp:cl_Ceil  + cl_Ceil:cl_Days, family=binomial(link="logit"))
@@ -692,7 +769,7 @@ CBre_03F_curve<-function(x, Comp,Ceil){invlogit(
         Comp*Ceil,x*Ceil) %*%  coef(CBre_03F))}
 
 #Competition curves
-fitted_cbre_model(fed_smp,"cl_Ceil") + stat_function(fun = CBre_03F_curve, 
+fitted_cbre_model(crisis_smp,"cl_Ceil") + stat_function(fun = CBre_03F_curve, 
                              args=list(Comp=0),color="blue")+
   stat_function(fun = CBre_03F_curve, 
                              args=list(Comp=2),color="blue")
@@ -720,7 +797,7 @@ Adding log(initial duration)^2 does seem to address the troubling pattern presen
 ```{r Model03G}
 
 #Create the model
-CBre_03G <- glm (data=fed_smp,
+CBre_03G <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ clsqr_Days +
                    n_Comp:cl_Ceil  + cl_Ceil:cl_Days, family=binomial(link="logit"))
@@ -731,7 +808,7 @@ CBre_03G_curve<-function(x, Comp,Ceil){invlogit(
         Comp*Ceil,x*Ceil) %*%  coef(CBre_03E))}
 
 #Competition curves
-fitted_cbre_model(fed_smp,"cl_Ceil") + stat_function(fun = CBre_03G_curve, 
+fitted_cbre_model(crisis_smp,"cl_Ceil") + stat_function(fun = CBre_03G_curve, 
                              args=list(Comp=0),color="blue")+
   stat_function(fun = CBre_03G_curve, 
                              args=list(Comp=2),color="blue")
@@ -754,13 +831,13 @@ While the effect on the residual deviance is fairly minor, it does still appear 
 ```{r Mode03H}
 
 #Frequency Plot
-freq_continuous_cbre_plot(fed_smp,"l_Days","EffComp")
+freq_continuous_cbre_plot(crisis_smp,"l_Days","EffComp")
 
 #Plot the percent terminated across cost ceiling and competition
-binned_percent_cbre_plot(fed_smp,"l_Days","EffComp")
+binned_percent_cbre_plot(crisis_smp,"l_Days","EffComp")
 
 #Create the model
-CBre_03H <- glm (data=fed_smp,
+CBre_03H <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
                    n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days, family=binomial(link="logit"))
@@ -771,7 +848,7 @@ CBre_03H_curve<-function(x, Comp,Ceil){invlogit(
         Comp*Ceil,x*Ceil,x*Comp) %*%  coef(CBre_03H))}
 
 #Competition curves
-fitted_cbre_model(fed_smp,"cl_Days") + stat_function(fun = CBre_03H_curve, 
+fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_03H_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
   stat_function(fun = CBre_03H_curve, 
                              args=list(Comp=2,Ceil=0),color="blue")
@@ -799,14 +876,14 @@ Our dataset includes both stand alone contract awards and task orders that are u
 
 ```{r Model13A}
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"Veh")
+freq_discrete_cbre_plot(crisis_smp,"Veh")
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"Veh")
+discrete_percent_cbre_plot(crisis_smp,"Veh")
 
 
 #Create the model
-CBre_03A <- glm (data=fed_smp,
+CBre_03A <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -819,7 +896,7 @@ CBre_03A_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
         Comp*Ceil,Days*Ceil,Days*Comp) %*%  coef(CBre_03A))}
 
 #Competition curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_03A_SIDV_curve, 
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,OIDV=0),color="blue")+
@@ -833,7 +910,7 @@ CBre_03A_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
 
 #Plot the model and Vehicle for MIDV
 #Competition curves
-discrete_fitted_cbre_model(fed_smp,"MIDV") +
+discrete_fitted_cbre_model(crisis_smp,"MIDV") +
   stat_function(fun = CBre_03A_MIDV_curve, 
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,OIDV=0),color="blue")+
@@ -847,7 +924,7 @@ CBre_03A_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
 
 #Plot the model and Vehicle for OIDV
 #Competition curves
-discrete_fitted_cbre_model(fed_smp,"OIDV") +
+discrete_fitted_cbre_model(crisis_smp,"OIDV") +
   stat_function(fun = CBre_03A_OIDV_curve, 
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,MIDV=0),color="blue")+
@@ -878,14 +955,14 @@ This may reflect that the Ceiling and Days entries reflect only the task order a
 ```{r Model13B}
 
 #Frequency Plot
-freq_continuous_cbre_plot(fed_smp,"l_Days","Veh")
+freq_continuous_cbre_plot(crisis_smp,"l_Days","Veh")
 
 
 #Percent Terminated Plot 
-binned_percent_cbre_plot(fed_smp,"l_Days","Veh")
+binned_percent_cbre_plot(crisis_smp,"l_Days","Veh")
 
 #Create the model
-CBre_03B <- glm (data=fed_smp,
+CBre_03B <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -900,7 +977,7 @@ CBre_03B_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
         Days*x,Days*MIDV,Days*OIDV) %*%  coef(CBre_03B))}
 
 #Duration curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_03B_SIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=-1,
                                        MIDV=0,OIDV=0),color="blue")+
@@ -916,7 +993,7 @@ CBre_03B_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
 
 #Plot the model and Vehicle for MIDV
 #Duration Curves
-discrete_fitted_cbre_model(fed_smp,"MIDV") +
+discrete_fitted_cbre_model(crisis_smp,"MIDV") +
   stat_function(fun = CBre_03B_MIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=-1,
                                        SIDV=0,OIDV=0),color="blue")+
@@ -932,7 +1009,7 @@ CBre_03B_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
 
 #Plot the model and Vehicle for OIDV
 #Duration curves
-discrete_fitted_cbre_model(fed_smp,"OIDV") +
+discrete_fitted_cbre_model(crisis_smp,"OIDV") +
   stat_function(fun = CBre_03B_OIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=-1,
                                        SIDV=0,MIDV=0),color="blue")+
@@ -948,7 +1025,7 @@ binned_fitted_versus_cbre_residuals(CBre_03B)
 residuals_cbre_plot(CBre_03B)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -970,14 +1047,14 @@ The next step is to check interactions with the contract vehicles. Each has a sl
 ```{r Model13C}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"EffComp","Veh")
+freq_discrete_cbre_plot(crisis_smp,"EffComp","Veh")
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"EffComp","Veh")
+discrete_percent_cbre_plot(crisis_smp,"EffComp","Veh")
 
 
 #Create the model
-CBre_03C <- glm (data=fed_smp,
+CBre_03C <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -994,7 +1071,7 @@ CBre_03C_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
         Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_03C))}
 
 #Competition curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_03C_SIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,OIDV=0),color="blue")+
@@ -1011,7 +1088,7 @@ CBre_03C_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
 
 #Plot the model and Vehicle for MIDV
 #Competition Curves
-discrete_fitted_cbre_model(fed_smp,"MIDV") +
+discrete_fitted_cbre_model(crisis_smp,"MIDV") +
   stat_function(fun = CBre_03C_MIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,OIDV=0),color="blue")+
@@ -1028,7 +1105,7 @@ CBre_03C_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
 
 #Plot the model and Vehicle for OIDV
 #Competition curves
-discrete_fitted_cbre_model(fed_smp,"OIDV") +
+discrete_fitted_cbre_model(crisis_smp,"OIDV") +
   stat_function(fun = CBre_03C_OIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,MIDV=0),color="blue")+
@@ -1045,7 +1122,7 @@ binned_fitted_versus_cbre_residuals(CBre_03C)
 residuals_cbre_plot(CBre_03C)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1063,16 +1140,16 @@ Unlike the existance of competition, having more offers does not have the same d
 ```{r Model13D}
 
 #Frequency Plot
-freq_continuous_cbre_plot(fed_smp,"l_Ceil","Veh")
+freq_continuous_cbre_plot(crisis_smp,"l_Ceil","Veh")
 
 
 #Percent Terminated Plot 
-binned_percent_cbre_plot(fed_smp,"l_Ceil","Veh")
+binned_percent_cbre_plot(crisis_smp,"l_Ceil","Veh")
 
 #Create the model
 
 #Create the model
-CBre_03D <- glm (data=fed_smp,
+CBre_03D <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -1091,7 +1168,7 @@ CBre_03D_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
         Ceil*x,Ceil*MIDV,Ceil*OIDV) %*%  coef(CBre_03D))}
 
 #Competition curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_03D_SIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,OIDV=0),color="blue")+
@@ -1109,7 +1186,7 @@ CBre_03D_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
 
 #Plot the model and Vehicle for MIDV
 #Competition Curves
-discrete_fitted_cbre_model(fed_smp,"MIDV") +
+discrete_fitted_cbre_model(crisis_smp,"MIDV") +
   stat_function(fun = CBre_03D_MIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,OIDV=0),color="blue")+
@@ -1127,7 +1204,7 @@ CBre_03D_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
 
 #Plot the model and Vehicle for OIDV
 #Competition curves
-discrete_fitted_cbre_model(fed_smp,"OIDV") +
+discrete_fitted_cbre_model(crisis_smp,"OIDV") +
   stat_function(fun = CBre_03D_OIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,MIDV=0),color="blue")+
@@ -1146,7 +1223,7 @@ residuals_cbre_plot(CBre_03D)+
 
 
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1158,7 +1235,7 @@ The interaction with contract ceiling only has a significant relationship with o
 ```{r Model13E}
 
 #Create the model
-CBre_03E <- glm (data=fed_smp,
+CBre_03E <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil  + cl_Days+ clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -1176,7 +1253,7 @@ CBre_03E_SIDV_curve<-function(x, Comp,Days,SIDV,MIDV,OIDV){invlogit(
         Comp*SIDV,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_03E))}
 
 #Competition curves
-discrete_fitted_cbre_model(fed_smp,"cl_Ceil") +
+discrete_fitted_cbre_model(crisis_smp,"cl_Ceil") +
   stat_function(fun = CBre_03E_SIDV_curve,
                              args=list(Comp=0,Days=0,
                                        MIDV=0,OIDV=0,SIDV=0),color="blue")+
@@ -1208,7 +1285,7 @@ Ceiling squared does little to reduce deviance and only slightly mitigates, rath
 ```{r Model13F}
 
 #Create the model
-CBre_03F <- glm (data=fed_smp,
+CBre_03F <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil  + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -1226,7 +1303,7 @@ CBre_03F_SIDV_curve<-function(x, Comp,Days,SIDV,MIDV,OIDV){invlogit(
         Comp*SIDV,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_03F))}
 
 #Competition curves
-discrete_fitted_cbre_model(fed_smp,"cl_Ceil") +
+discrete_fitted_cbre_model(crisis_smp,"cl_Ceil") +
   stat_function(fun = CBre_03F_SIDV_curve,
                              args=list(Comp=0,Days=0,
                                        MIDV=0,OIDV=0,SIDV=0),color="blue")+
@@ -1266,14 +1343,14 @@ The next step adds a measure for whether the contract was cost-based or fixed-pr
 ```{r Model14A}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"FxCb")
+freq_discrete_cbre_plot(crisis_smp,"FxCb")
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"FxCb")
+discrete_percent_cbre_plot(crisis_smp,"FxCb")
 
 
 #Create the model
-CBre_14A <- glm (data=fed_smp,
+CBre_14A <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -1292,7 +1369,7 @@ CBre_14A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV){invlogit(
         Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_14A))}
 
 #Competition curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_14A_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0),color="blue")+
@@ -1308,7 +1385,7 @@ binned_fitted_versus_cbre_residuals(CBre_14A)
 residuals_cbre_plot(CBre_14A)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1321,14 +1398,14 @@ Past CSIS research has found that fixed-price contracts do appear to be at highe
 ```{r Model14B}
 
 #Frequency Plot
-freq_continuous_cbre_plot(fed_smp,"l_Days","FxCb")
+freq_continuous_cbre_plot(crisis_smp,"l_Days","FxCb")
 
 #Percent Terminated Plot 
-binned_percent_cbre_plot(fed_smp,"l_Days","FxCb")
+binned_percent_cbre_plot(crisis_smp,"l_Days","FxCb")
 
 
 #Create the model
-CBre_14B <- glm (data=fed_smp,
+CBre_14B <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -1349,7 +1426,7 @@ CBre_14B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV){invlogit(
         Days*x) %*%  coef(CBre_14B))}
 
 #Days curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_14B_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0),color="blue")+
@@ -1365,7 +1442,7 @@ binned_fitted_versus_cbre_residuals(CBre_14B)
 residuals_cbre_plot(CBre_14B)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1375,13 +1452,13 @@ The probability of termination by duration chart is more clearcut with fixed pri
 ```{r Model14C}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"FxCb","Veh")
+freq_discrete_cbre_plot(crisis_smp,"FxCb","Veh")
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"FxCb","Veh")
+discrete_percent_cbre_plot(crisis_smp,"FxCb","Veh")
 
 #Create the model
-CBre_14C <- glm (data=fed_smp,
+CBre_14C <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -1403,7 +1480,7 @@ CBre_14C_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
         ) %*%  coef(CBre_14C))}
 
 #Vehicle curves
-discrete_fitted_cbre_model(fed_smp,"n_Fixed") +
+discrete_fitted_cbre_model(crisis_smp,"n_Fixed") +
   stat_function(fun = CBre_14C_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=1,MIDV=0,OIDV=0),color="blue")+
@@ -1421,7 +1498,7 @@ binned_fitted_versus_cbre_residuals(CBre_14C)
 residuals_cbre_plot(CBre_14C)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1436,15 +1513,15 @@ In the performance of the defense acquisition system report, the benefits found 
 ```{r Model14D}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"Fee")
+freq_discrete_cbre_plot(crisis_smp,"Fee")
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"Fee")
+discrete_percent_cbre_plot(crisis_smp,"Fee")
 
 
 
 #Create the model
-CBre_14D <- glm (data=fed_smp,
+CBre_14D <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ clsqr_Ceil + clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA + 
@@ -1464,7 +1541,7 @@ CBre_14D_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
         Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_14D))}
 
 #Days curves
-discrete_fitted_cbre_model(fed_smp,"n_Incent") +
+discrete_fitted_cbre_model(crisis_smp,"n_Incent") +
   stat_function(fun = CBre_14D_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,Fixed=1),color="blue")+
@@ -1480,7 +1557,7 @@ binned_fitted_versus_cbre_residuals(CBre_14D)
 residuals_cbre_plot(CBre_14D)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1492,17 +1569,17 @@ The effect of incentive fees are not significant. They do have a noteworthy coef
 ```{r Model14E}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"Fee","FxCb")+
+freq_discrete_cbre_plot(crisis_smp,"Fee","FxCb")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"Fee","FxCb")+
+discrete_percent_cbre_plot(crisis_smp,"Fee","FxCb")+
    theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 
 #Create the model
-CBre_14E <- glm (data=fed_smp,
+CBre_14E <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -1524,7 +1601,7 @@ CBre_14E_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
         x*Fixed) %*%  coef(CBre_14E))}
 
 #Days curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_14E_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
@@ -1542,7 +1619,7 @@ binned_fitted_versus_cbre_residuals(CBre_14E)
 residuals_cbre_plot(CBre_14E)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1554,15 +1631,15 @@ Undefinitized Contract Awards allow for quick action in situations where there i
 ```{r Model14F}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"UCA")
+freq_discrete_cbre_plot(crisis_smp,"UCA")
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"UCA")
+discrete_percent_cbre_plot(crisis_smp,"UCA")
 
 
 
 #Create the model
-CBre_14F <- glm (data=fed_smp,
+CBre_14F <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -1582,7 +1659,7 @@ CBre_14F_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
         Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_14F))}
 
 #Days curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_14F_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
@@ -1600,7 +1677,7 @@ binned_fitted_versus_cbre_residuals(CBre_14F)
 residuals_cbre_plot(CBre_14F)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1610,15 +1687,15 @@ residuals_cbre_plot(CBre_14F)+
 ```{r Model14G}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"UCA","n_Comp")
+freq_discrete_cbre_plot(crisis_smp,"UCA","n_Comp")
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"UCA","n_Comp")
+discrete_percent_cbre_plot(crisis_smp,"UCA","n_Comp")
 
 
 
 #Create the model
-CBre_14G <- glm (data=fed_smp,
+CBre_14G <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -1640,7 +1717,7 @@ CBre_14G_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
         Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_14G))}
 
 #Days curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_14G_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
@@ -1658,7 +1735,7 @@ binned_fitted_versus_cbre_residuals(CBre_14G)
 residuals_cbre_plot(CBre_14G)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
   # labs(x="Centered Log(Days)")
 
 ```
@@ -1670,14 +1747,14 @@ The interaction of UCA and Comp does align with the findings of the GAO as to th
 ```{r Model14H}
 
 #Frequency Plot
-freq_continuous_cbre_plot(fed_smp,"l_Days","UCA")
+freq_continuous_cbre_plot(crisis_smp,"l_Days","UCA")
 
 #Percent Terminated Plot 
-binned_percent_cbre_plot(fed_smp,"l_Days","UCA")
+binned_percent_cbre_plot(crisis_smp,"l_Days","UCA")
 
 
 #Create the model
-CBre_14H <- glm (data=fed_smp,
+CBre_14H <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -1700,7 +1777,7 @@ CBre_14H_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
         Comp*x,Days*x) %*%  coef(CBre_14H))}
 
 #Days curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_14H_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
@@ -1718,7 +1795,7 @@ binned_fitted_versus_cbre_residuals(CBre_14H)
 residuals_cbre_plot(CBre_14H)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
   # labs(x="Centered Log(Days)")
 
 ```
@@ -1730,15 +1807,15 @@ The intersection of initial duration and UCA had a negative coefficient that was
 ```{r Model15A}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"Intl")
+freq_discrete_cbre_plot(crisis_smp,"Intl")
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"Intl")
+discrete_percent_cbre_plot(crisis_smp,"Intl")
 
 
 
 #Create the model
-CBre_15A <- glm (data=fed_smp,
+CBre_15A <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -1761,7 +1838,7 @@ CBre_15A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
         UCA*Comp) %*%  coef(CBre_15A))}
 
 #Days curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_15A_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
@@ -1779,7 +1856,7 @@ binned_fitted_versus_cbre_residuals(CBre_15A)
 residuals_cbre_plot(CBre_15A)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1791,15 +1868,15 @@ International performance of contract unexpectedly had a negative coefficent. It
 ```{r Model15B}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"Intl","FxCb")
+freq_discrete_cbre_plot(crisis_smp,"Intl","FxCb")
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"Intl","FxCb")
+discrete_percent_cbre_plot(crisis_smp,"Intl","FxCb")
 
 
 
 #Create the model
-CBre_15A <- glm (data=fed_smp,
+CBre_15A <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -1823,7 +1900,7 @@ CBre_15A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
         UCA*Comp) %*%  coef(CBre_15A))}
 
 #Days curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_15A_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
@@ -1841,7 +1918,7 @@ binned_fitted_versus_cbre_residuals(CBre_15A)
 residuals_cbre_plot(CBre_15A)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1851,15 +1928,15 @@ residuals_cbre_plot(CBre_15A)+
 ```{r Model15C}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"Intl","Veh")
+freq_discrete_cbre_plot(crisis_smp,"Intl","Veh")
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"Intl","Veh")
+discrete_percent_cbre_plot(crisis_smp,"Intl","Veh")
 
 
 
 #Create the model
-CBre_15C <- glm (data=fed_smp,
+CBre_15C <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -1883,7 +1960,7 @@ CBre_15C_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
         UCA*Comp) %*%  coef(CBre_15C))}
 
 #Days curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_15C_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
@@ -1901,7 +1978,7 @@ binned_fitted_versus_cbre_residuals(CBre_15C)
 residuals_cbre_plot(CBre_15C)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1916,21 +1993,21 @@ Other DoD stands out for its sheer quantity of contracts and task orders and als
 ```{r Model16A}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"Who")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+freq_discrete_cbre_plot(crisis_smp,"Who")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"Who")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+discrete_percent_cbre_plot(crisis_smp,"Who")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
-fed_smp$b_ODoD<-fed_smp$Who
-levels(fed_smp$b_ODoD)<- list("1"=c("Other DoD"), 
+crisis_smp$b_ODoD<-crisis_smp$Who
+levels(crisis_smp$b_ODoD)<- list("1"=c("Other DoD"), 
                                 "0"=c("Air Force","Army","Navy"))
-fed_smp$b_ODoD[fed_smp$b_ODoD=="Uncategorized"]<-NA
-fed_smp$b_ODoD<-as.integer(as.character(fed_smp$b_ODoD))
+crisis_smp$b_ODoD[crisis_smp$b_ODoD=="Uncategorized"]<-NA
+crisis_smp$b_ODoD<-as.integer(as.character(crisis_smp$b_ODoD))
 
 #Create the model
-CBre_16A <- glm (data=fed_smp,
+CBre_16A <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -1954,7 +2031,7 @@ CBre_16A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA,Intl){invlog
         UCA*Comp) %*%  coef(CBre_16A))}
 
 #Days curves
-discrete_fitted_cbre_model(fed_smp,"b_ODoD") +
+discrete_fitted_cbre_model(crisis_smp,"b_ODoD") +
   stat_function(fun = CBre_16A_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
@@ -1972,7 +2049,7 @@ binned_fitted_versus_cbre_residuals(CBre_16A)
 residuals_cbre_plot(CBre_16A)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1983,21 +2060,21 @@ After inclusion of DLA, the Competition correlates significantly predicts a grea
 ```{r Model16B}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"EffComp","Who")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+freq_discrete_cbre_plot(crisis_smp,"EffComp","Who")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"EffComp","Who")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+discrete_percent_cbre_plot(crisis_smp,"EffComp","Who")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
-fed_smp$b_ODoD<-fed_smp$Who
-levels(fed_smp$b_ODoD)<- list("1"=c("Other DoD"), 
+crisis_smp$b_ODoD<-crisis_smp$Who
+levels(crisis_smp$b_ODoD)<- list("1"=c("Other DoD"), 
                                 "0"=c("Air Force","Army","Navy"))
-fed_smp$b_ODoD[fed_smp$b_ODoD=="Uncategorized"]<-NA
-fed_smp$b_ODoD<-as.integer(as.character(fed_smp$b_ODoD))
+crisis_smp$b_ODoD[crisis_smp$b_ODoD=="Uncategorized"]<-NA
+crisis_smp$b_ODoD<-as.integer(as.character(crisis_smp$b_ODoD))
 
 #Create the model
-CBre_16B <- glm (data=fed_smp,
+CBre_16B <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -2022,7 +2099,7 @@ CBre_16B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA,Intl){invlog
         UCA*Comp) %*%  coef(CBre_16B))}
 
 #Days curves
-discrete_fitted_cbre_model(fed_smp,"b_ODoD") +
+discrete_fitted_cbre_model(crisis_smp,"b_ODoD") +
   stat_function(fun = CBre_16B_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
@@ -2040,7 +2117,7 @@ binned_fitted_versus_cbre_residuals(CBre_16B)
 residuals_cbre_plot(CBre_16B)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -2052,15 +2129,15 @@ residuals_cbre_plot(CBre_16B)+
 ```{r Model18A}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"PSR")
+freq_discrete_cbre_plot(crisis_smp,"PSR")
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"PSR")
+discrete_percent_cbre_plot(crisis_smp,"PSR")
 
 
 
 #Create the model
-CBre_18A <- glmer(data=fed_smp,
+CBre_18A <- glmer(data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -2083,7 +2160,7 @@ CBre_18A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
         UCA*Comp) %*%  coef(CBre_18A))}
 
 #Days curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_18A_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
@@ -2101,7 +2178,7 @@ binned_fitted_versus_cbre_residuals(CBre_18A)
 residuals_cbre_plot(CBre_18A)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -2112,15 +2189,15 @@ Unfortunately, after including Start Fiscal Year, the model again failed to conv
 ```{r Model18B}
 
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+freq_discrete_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 
 #Create the model
-CBre_18B <- glmer(data=fed_smp,
+CBre_18B <- glmer(data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -2145,7 +2222,7 @@ CBre_18B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
         UCA*Comp) %*%  coef(CBre_18B))}
 
 #Days curves
-discrete_fitted_cbre_model(fed_smp,"SIDV") +
+discrete_fitted_cbre_model(crisis_smp,"SIDV") +
   stat_function(fun = CBre_18B_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
@@ -2162,7 +2239,7 @@ binned_fitted_versus_cbre_residuals(CBre_18B)
 residuals_cbre_plot(CBre_18B)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -2172,40 +2249,40 @@ residuals_cbre_plot(CBre_18B)+
 #, fig.height = 10, fig.width = 6.5
 #Effective Competition
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"PSR_What","EffComp")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+freq_discrete_cbre_plot(crisis_smp,"PSR_What","EffComp")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"EffComp","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+discrete_percent_cbre_plot(crisis_smp,"EffComp","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-discrete_percent_cbre_plot(fed_smp,"EffComp","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+discrete_percent_cbre_plot(crisis_smp,"EffComp","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-discrete_percent_cbre_plot(fed_smp,"EffComp","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+discrete_percent_cbre_plot(crisis_smp,"EffComp","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 #Effective Competition
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"PSR_What","Veh")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+freq_discrete_cbre_plot(crisis_smp,"PSR_What","Veh")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"Veh","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+discrete_percent_cbre_plot(crisis_smp,"Veh","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-discrete_percent_cbre_plot(fed_smp,"Veh","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+discrete_percent_cbre_plot(crisis_smp,"Veh","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-discrete_percent_cbre_plot(fed_smp,"Veh","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+discrete_percent_cbre_plot(crisis_smp,"Veh","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 #FxCb
 #Frequency Plot
-freq_discrete_cbre_plot(fed_smp,"PSR_What","FxCb")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+freq_discrete_cbre_plot(crisis_smp,"PSR_What","FxCb")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(fed_smp,"FxCb","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-discrete_percent_cbre_plot(fed_smp,"FxCb","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+discrete_percent_cbre_plot(crisis_smp,"FxCb","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-discrete_percent_cbre_plot(fed_smp,"FxCb","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
-CBre_18C <- glmer(data=fed_smp,
+CBre_18C <- glmer(data=crisis_smp,
                  b_CBre ~ #n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -2222,7 +2299,7 @@ CBre_18C <- glmer(data=fed_smp,
 display(CBre_18C)
 
 
-CBre_18D <- glmer(data=fed_smp,
+CBre_18D <- glmer(data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO +n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -2247,7 +2324,7 @@ residuals_cbre_plot(CBre_18C)+
   labs(x="Estimated  Pr (Termination)")
 
 
-# CBre_18E <- glmer(data=fed_smp,
+# CBre_18E <- glmer(data=crisis_smp,
 #                  b_CBre ~ ARRA + Dis + OCO +n_Comp + 
 #                    cl_Ceil + cl_Days+ 
 #                    SIDV + MIDV + FSSGWAC + BPABOA +
