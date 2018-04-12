@@ -137,7 +137,8 @@ rm(other)
 
 complete<-!is.na(crisis$b_Term)&
   !is.na(crisis$b_CBre)&
-  (!is.na(crisis$n_Comp)|!is.na(crisis$b_Comp))&
+  !is.na(crisis$b_Comp)&
+  !is.na(crisis$b_Urg)&
   !is.na(crisis$l_Ceil)&
   !is.na(crisis$l_Days)&
   !is.na(crisis$Veh) &
@@ -262,11 +263,6 @@ gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"Comp","Crisis"),
 gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"Comp","Crisis"),
                         discrete_percent_term_plot(crisis_smp,"Comp","Crisis"))
 
-                        
-freq_discrete_term_plot(crisis_smp,"Comp","MaxOfDecisionTree")
-
-#Percent Terminated Plot
-discrete_percent_cbre_plot(crisis_smp,"Comp")
 
 #Model
 CBre_02B <- glm (data=crisis_smp,
@@ -638,7 +634,7 @@ str(crisis_smp)
 
 
 ```
-The implications of adding urgency are fairly complex. Unfortunately, some of the sign switches and changes in magnitude may be driven by the reduction in observations resulting from missing data on why a contract wasn't competed.
+Urgency estimates a higher probability of ceiling breaches and a lower probability of terminations, but the coefficients are small and not significant.
 
 ###Model 02J: No Competition / Competition
 ```{r Model02J}
@@ -681,7 +677,7 @@ str(crisis_smp)
 
 
 ```
-The interaction of OCO and urgency is perhaps most interesting, as it is significantly associated with higher rates of contract termiantion. That said, the small sample sizes result in large standard erros.  It is probably best to leave it out, or include it for OCO only.
+The interaction of OCO and urgency is perhaps most interesting, as it is significantly associated with higher rates of contract termiantion. That said, the small sample sizes result in large standard errors.  It is probably best to leave it out, or include it for OCO only.
 ##Scope Variables
 ###Model 03A: Cost Ceiling
 
@@ -701,10 +697,28 @@ freq_continuous_cbre_plot(crisis_smp,"l_Ceil")
 #Percent Terminated Plot
 binned_percent_cbre_plot(crisis_smp,"l_Ceil")
 
+
 #Model
-CBre_03B <- glm (data=crisis_smp,
-                 b_CBre ~ ARRA + Dis + OCO + n_Comp + cl_Ceil, family=binomial(link="logit"))
-display(CBre_03B)
+CBre_03A <- glm (data=crisis_smp,
+                 b_CBre ~ ARRA + Dis + OCO +
+                   cb_Comp + b_Urg +
+                   cl_Ceil +
+                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO, 
+                 family=binomial(link="logit"))
+display(CBre_03A)
+
+Term_03A <- glm (data=crisis_smp,
+                 b_Term ~ ARRA + Dis + OCO +
+                   cb_Comp +  b_Urg +
+                   cl_Ceil +
+                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO, 
+                 family=binomial(link="logit"))
+display(Term_03A)
+
+
+stargazer::stargazer(CBre_02I,CBre_03A,Term_02I,Term_03A,type="text",
+                     digits=2)
+
 
 
 #Plot the fitted model plot
@@ -719,13 +733,13 @@ fitted_cbre_model(crisis_smp,"cl_Ceil") + stat_function(fun = CBre_03B_curve,
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_03B)
+binned_fitted_versus_cbre_residuals(CBre_03A)
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre_03B)+
+residuals_cbre_plot(CBre_03A)+
   labs(x="Estimated  Pr (Termination)")
 
-residuals_cbre_plot(CBre_03B,"cl_Ceil")+
+residuals_cbre_plot(CBre_03A,"cl_Ceil")+
   labs(x="Centered Log(Ceiling)")
   
 
