@@ -747,6 +747,8 @@ residuals_cbre_plot(CBre_03F)+
 #   labs(x="Centered Log(Days)")
 
 ```
+
+
 ###Model 03G: UCA and Competition
 
 
