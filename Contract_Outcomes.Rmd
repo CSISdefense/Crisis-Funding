@@ -521,13 +521,18 @@ discrete_fitted_cbre_model(crisis_smp,"cl_Offr") +
                              color="blue")
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_02G)
+gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_02G),
+                        binned_fitted_versus_term_residuals(Term_02G))
 
 
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre_02G,bins=3)+
-  labs(x="Estimated  Pr (Termination)")
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_02G,bins=3)+
+  labs(x="Estimated  Pr (Ceiling Breach)"),
+                        residuals_term_plot(Term_02G,bins=3)+
+  labs(x="Estimated  Pr (Termination)"))
+
+
 
 
 
@@ -583,14 +588,20 @@ discrete_fitted_cbre_model(crisis_smp,"cl_Offr") +
                                            b=coef(CBre_02H)[2]),
                              color="blue")
 
+
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_02H)
+gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_02G),
+                        binned_fitted_versus_term_residuals(Term_02G))
 
 
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre_02H,bins=3)+
-  labs(x="Estimated  Pr (Termination)")
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_02G,bins=5)+
+  labs(x="Estimated  Pr (Ceiling Breach)"),
+                        residuals_term_plot(Term_02G,bins=5)+
+  labs(x="Estimated  Pr (Termination)"))
+
+
 
 
 
@@ -638,6 +649,20 @@ discrete_fitted_cbre_model(crisis_smp,"cb_Comp") +
 str(crisis_smp)
 
 
+#Plot the fitted values vs actual results
+gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_02I),
+                        binned_fitted_versus_term_residuals(Term_02I))
+
+
+
+#Plot residuals versus fitted
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_02I,bins=3)+
+  labs(x="Estimated  Pr (Ceiling Breach)"),
+                        residuals_term_plot(Term_02I,bins=3)+
+  labs(x="Estimated  Pr (Termination)"))
+
+
+
 ```
 Urgency estimates a higher probability of ceiling breaches and a lower probability of terminations, but the coefficients are small and not significant.
 
@@ -681,15 +706,30 @@ discrete_fitted_cbre_model(crisis_smp,"cb_Comp") +
 str(crisis_smp)
 
 
-```
-The interaction of OCO and urgency is perhaps most interesting, as it is significantly associated with higher rates of contract termiantion. That said, the small sample sizes result in large standard errors.  It is probably best to leave it out, or include it for OCO only.
+#Plot the fitted values vs actual results
+gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_02J),
+                        binned_fitted_versus_term_residuals(Term_02J))
 
-## Undefinitized Contract Awards
-### Model 03F: Undefinitized Contract Awards
+
+
+#Plot residuals versus fitted
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_02J,bins=3)+
+  labs(x="Estimated  Pr (Ceiling Breach)"),
+                        residuals_term_plot(Term_02J,bins=3)+
+  labs(x="Estimated  Pr (Termination)"))
+
+
+
+
+```
+The interaction of OCO and urgency is perhaps most interesting, as it is significantly associated with higher rates of contract termiantion. That said, the small sample sizes result in large standard errors.  However, because Urgency and competition are mutually exclusive dummy variables, we'll leave them in for all.
+
+## Undefinited Contract Awards
+
+###Model 03A: Undefinitized Contract Awards
 Undefinitized Contract Awards allow for quick action in situations where there is not time or information to establish all of a contracts properties at the time of signing. They have been found by the GAO and the Performance of the Defense Acquisition studies to contain notable risks, primarily    relating to cost overruns. Will these risks also carry into terminations?
 
-```{r Model03F}
-
+```{r Model03A}
 
 #Ceiling Breaches
 gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"UCA"),
@@ -700,50 +740,61 @@ gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"UCA"),
                         discrete_percent_term_plot(crisis_smp,"UCA"))
 
 
-
-
-#Create the model
-CBre_02I <- glm (data=crisis_smp,
-                 b_CBre ~ ARRA + Dis + OCO +
-                   cb_Comp + b_Urg + b_UCA+
-                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO, 
+#Model
+CBre_03A <- glm (data=crisis_smp,
+                 b_CBre ~ ARRA + Dis + OCO +cb_Comp + b_Urg +
+                   b_UCA+
+                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO+
+                   b_Urg:ARRA + b_Urg:Dis + b_Urg:OCO, 
                  family=binomial(link="logit"))
-display(CBre_02I)
+display(CBre_03A)
 
-Term_02I <- glm (data=crisis_smp,
-                 b_Term ~ ARRA + Dis + OCO +cb_Comp +
-                  cb_Comp + b_Urg + b_UCA+
-                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO, 
+Term_03A <- glm (data=crisis_smp,
+                 b_Term ~ ARRA + Dis + OCO +cb_Comp +  b_Urg +
+                   b_UCA+
+                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO+
+                   b_Urg:ARRA + b_Urg:Dis + b_Urg:OCO, 
                  family=binomial(link="logit"))
-display(Term_02I)
+display(Term_03A)
 
 
+stargazer::stargazer(CBre_02J,CBre_03A,Term_02J,Term_03A,type="text",
+                     digits=2)
 # Plot the model and Vehicle 
-CBre_03F_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
+CBre_03A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Fixed,x,
         Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_03F))}
+        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_03A))}
 
 #Days curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_03F_curve,
+  stat_function(fun = CBre_03A_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1),color="blue")+
-  stat_function(fun = CBre_03F_curve,
+  stat_function(fun = CBre_03A_curve,
                              args=list(Comp=2,Ceil=0,Days=1,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1),color="blue")
 
 
-#Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_03F)
 
-#Plot residuals versus fittedO
-residuals_cbre_plot(CBre_03F)+
-  labs(x="Estimated  Pr (Termination)")
+#Plot the fitted values vs actual results
+gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_03A),
+                        binned_fitted_versus_term_residuals(Term_03A))
+
+
+
+#Plot residuals versus fitted
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_03A,bins=3)+
+  labs(x="Estimated  Pr (Ceiling Breach)"),
+                        residuals_term_plot(Term_03A,bins=3)+
+  labs(x="Estimated  Pr (Termination)"))
+
+
+
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
@@ -751,65 +802,87 @@ residuals_cbre_plot(CBre_03F)+
 ```
 
 
-###Model 03G: UCA and Competition
+###Model 03B: UCA and Competition
+
+```{r Model03B}
+
+#Ceiling Breaches
+gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"UCA","Crisis"),
+                        discrete_percent_cbre_plot(crisis_smp,"UCA","Crisis"))
+                        
+#Terminations
+gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"UCA","Crisis"),
+                        discrete_percent_term_plot(crisis_smp,"UCA","Crisis"))
 
 
-```{r Model03G}
 
-#Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"UCA","n_Comp")
-
-#Percent Terminated Plot 
-discrete_percent_cbre_plot(crisis_smp,"UCA","n_Comp")
+#Ceiling Breaches
+gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"UCA","Comp"),
+                        discrete_percent_cbre_plot(crisis_smp,"UCA","Comp"))
+                        
+#Terminations
+gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"UCA","Comp"),
+                        discrete_percent_term_plot(crisis_smp,"UCA","Comp"))
 
 
 
 #Create the model
-CBre_03G <- glm (data=crisis_smp,
-                 b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
-                   SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
-                   n_Fixed + b_UCA + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
-                   SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp +
-                   b_UCA:n_Comp
-                 
-                    , family=binomial(link="logit"))
-display(CBre_03G)
+#Model
+CBre_03B <- glm (data=crisis_smp,
+                 b_CBre ~ ARRA + Dis + OCO +cb_Comp + b_Urg +
+                   b_UCA+
+                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO+
+                   b_Urg:ARRA + b_Urg:Dis + b_Urg:OCO+
+                   b_UCA:ARRA + b_UCA:Dis + b_UCA:OCO , 
+                 family=binomial(link="logit"))
+display(CBre_03B)
 
-# Plot the model and Vehicle 
-CBre_03G_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
-  cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
-        Comp*Ceil,Days*Ceil,Days*Comp,
-        Fixed,x,
-        Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_03G))}
+Term_03B <- glm (data=crisis_smp,
+                 b_Term ~ ARRA + Dis + OCO +cb_Comp +  b_Urg +
+                   b_UCA+
+                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO+
+                   b_Urg:ARRA + b_Urg:Dis + b_Urg:OCO +
+                   b_UCA:ARRA + b_UCA:Dis + b_UCA:OCO , 
+                 family=binomial(link="logit"))
+display(Term_03B)
+
+
+stargazer::stargazer(CBre_03A,CBre_03B,Term_03A,Term_03B,type="text",
+                     digits=2)
+
 
 #Days curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_03G_curve,
+  stat_function(fun = CBre_03B_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1),color="blue")+
-  stat_function(fun = CBre_03G_curve,
+  stat_function(fun = CBre_03B_curve,
                              args=list(Comp=2,Ceil=0,Days=1,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_03G)
+gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_03B),
+                        binned_fitted_versus_term_residuals(Term_03B))
 
-#Plot residuals versus fittedO
-residuals_cbre_plot(CBre_03G)+
-  labs(x="Estimated  Pr (Termination)")
+
+
+#Plot residuals versus fitted
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_03B,bins=3)+
+  labs(x="Estimated  Pr (Ceiling Breach)"),
+                        residuals_term_plot(Term_03B,bins=3)+
+  labs(x="Estimated  Pr (Termination)"))
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
   # labs(x="Centered Log(Days)")
 
 ```
-The interaction of UCA and Comp does align with the findings of the GAO as to the heightened risk of uncompeted UCA. The magnitude of the coefficentsis is considerable, although the rarity of UCAs means the effect on deviation is fairly small. This can also be seen in the residuals where there is a substantial gap between 0.05 and 0.05 in estimated risk of termination.
+In exploratory graphs, the interaction of UCA and appear to be largely absent for breaches and while present for terminations, given that competition for terminations has a small coefficient and is not significant, it's probably not time to add an interaction. Instead this step adds an interaction between UCAs and crisis funds. The result is striking, in all cases, UCAs for crisis funds have lower correlation with negative outcomes than those in the general contract population. In many cases, the coefficient is sufficient to cancel out much of the estimate for UCA directly, although for OCO ceiling breaches the coefficient is only reduced by roughly a half.
+
+## Reachback Contracting
+
 
 ##Scope Variables
 ###Model 05A: Cost Ceiling
@@ -833,24 +906,29 @@ binned_percent_cbre_plot(crisis_smp,"l_Ceil")
 
 #Model
 CBre_05A <- glm (data=crisis_smp,
-                 b_CBre ~ ARRA + Dis + OCO +
-                   cb_Comp + b_Urg +
-                   cl_Ceil +
-                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO, 
+                 b_CBre ~ ARRA + Dis + OCO +cb_Comp + b_Urg +
+                   b_UCA+
+                   cl_Ceil+
+                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO+
+                   b_Urg:ARRA + b_Urg:Dis + b_Urg:OCO+
+                   b_UCA:ARRA + b_UCA:Dis + b_UCA:OCO , 
                  family=binomial(link="logit"))
 display(CBre_05A)
 
 Term_05A <- glm (data=crisis_smp,
-                 b_Term ~ ARRA + Dis + OCO +
-                   cb_Comp +  b_Urg +
-                   cl_Ceil +
-                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO, 
+                 b_Term ~ ARRA + Dis + OCO +cb_Comp +  b_Urg +
+                   b_UCA+
+                   cl_Ceil+
+                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO+
+                   b_Urg:ARRA + b_Urg:Dis + b_Urg:OCO +
+                   b_UCA:ARRA + b_UCA:Dis + b_UCA:OCO , 
                  family=binomial(link="logit"))
 display(Term_05A)
 
 
-stargazer::stargazer(CBre_02I,CBre_05A,Term_02I,Term_05A,type="text",
+stargazer::stargazer(CBre_03B,CBre_05A,Term_03B,Term_05A,type="text",
                      digits=2)
+
 
 
 
@@ -864,17 +942,24 @@ fitted_cbre_model(crisis_smp,"cl_Ceil") + stat_function(fun = CBre_05B_curve,
                              args=list(Comp=2),color="blue")
 
 
-
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_05A)
+gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_05A),
+                        binned_fitted_versus_term_residuals(Term_05A))
+
+
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre_05A)+
-  labs(x="Estimated  Pr (Termination)")
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_05A,bins=20)+
+  labs(x="Estimated  Pr (Ceiling Breach)"),
+                        residuals_term_plot(Term_05A,bins=20)+
+  labs(x="Estimated  Pr (Termination)"))
 
-residuals_cbre_plot(CBre_05A,"cl_Ceil")+
-  labs(x="Centered Log(Ceiling)")
-  
+#Plot residuals versus ceiling
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_05A,"cl_Ceil",bins=20)+
+  labs(x="Centered Log(Ceiling)"),
+                        residuals_term_plot(Term_05A,"cl_Ceil",bins=20)+
+  labs(x="Centered Log(Ceiling)"))
+
 
 ```
 
@@ -1941,6 +2026,7 @@ residuals_cbre_plot(CBre_14E)+
 
 ```
 Looking at Incentive Fees and Fixed-Price interactions undercuts the significance of both base variables. Incentive will not be added to the model.
+
 
 ###Model 14H: UCA and Duration
 
