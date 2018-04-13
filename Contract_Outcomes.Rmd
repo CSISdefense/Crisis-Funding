@@ -123,49 +123,51 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 ###Computational Sample Creation
 ```{r Sample}
 
-crisis<-fed[fed$Crisis %in% c("ARRA","Disaster"),]
-oco<-fed[fed$Crisis %in% c("OCO"),]
-oco<-oco[sample(nrow(oco),100000),]
-crisis<-rbind(crisis,oco)
-rm(oco)
-other<-fed[fed$Crisis %in% c("Other"),]
-other<-other[sample(nrow(other),100000),]
-crisis<-rbind(crisis,other)
-rm(other)
-# summary(crisis$b_Comp )
-# summary(crisis$n_Comp )
-# summary(crisis$Comp )
-# summary(crisis$CompOffr )
-# summary(crisis$EffComp )
-
-complete<-!is.na(crisis$b_Term)&
-  !is.na(crisis$b_CBre)&
-  !is.na(crisis$b_Comp)&
-  !is.na(crisis$b_Urg)&
-  !is.na(crisis$l_Ceil)&
-  !is.na(crisis$l_Days)&
-  !is.na(crisis$Veh) &
-  !is.na(crisis$n_Fixed)&
-  !is.na(crisis$b_Intl)&
-  !is.na(crisis$b_UCA)&
-  !is.na(crisis$ProdServ)&
-  !is.na(crisis$ARRA)&
-!is.na(crisis$Dis)&
-!is.na(crisis$OCO)
-  # !is.na(crisis$cl_HHI_lag1)
-
-summary(crisis$Crisis)
-
-# crisis<-crisis[complete,]
-
-
-#8818392  to 8818392
-nrow(crisis[!complete,])/nrow(crisis)
-sum(crisis[!complete,]$Action.Obligation,na.rm=TRUE)/sum(crisis$Action.Obligation,na.rm=TRUE)
-
-crisis_smp<-crisis[complete,]
-
-head(crisis_smp)
+# crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Disaster"),]
+# oco<-fed[fed$Crisis %in% c("OCO"),]
+# oco<-oco[sample(nrow(oco),100000),]
+# crisis_with_na<-rbind(crisis_with_na,oco)
+# rm(oco)
+# other<-fed[fed$Crisis %in% c("Other"),]
+# other<-other[sample(nrow(other),100000),]
+# crisis_with_na<-rbind(crisis_with_na,other)
+# rm(other)
+# # summary(crisis_with_na$b_Comp )
+# # summary(crisis_with_na$n_Comp )
+# # summary(crisis_with_na$Comp )
+# # summary(crisis_with_na$CompOffr )
+# # summary(crisis_with_na$EffComp )
+# 
+# complete<-!is.na(crisis_with_na$b_Term)&
+#   !is.na(crisis_with_na$b_CBre)&
+#   !is.na(crisis_with_na$b_Comp)&
+#   !is.na(crisis_with_na$b_Urg)&
+#   !is.na(crisis_with_na$l_Ceil)&
+#   !is.na(crisis_with_na$l_Days)&
+#   !is.na(crisis_with_na$Veh) &
+#   !is.na(crisis_with_na$n_Fixed)&
+#   !is.na(crisis_with_na$b_Intl)&
+#   !is.na(crisis_with_na$b_UCA)&
+#   !is.na(crisis_with_na$ProdServ)&
+#   !is.na(crisis_with_na$ARRA)&
+# !is.na(crisis_with_na$Dis)&
+# !is.na(crisis_with_na$OCO)
+#   # !is.na(crisis_with_na$cl_HHI_lag1)
+# 
+# summary(crisis_with_na$Crisis)
+# 
+# # crisis_with_na<-crisis_with_na[complete,]
+# 
+# 
+# #8818392  to 8818392
+# nrow(crisis_with_na[!complete,])/nrow(crisis_with_na)
+# sum(crisis_with_na[!complete,]$Action.Obligation,na.rm=TRUE)/sum(crisis_with_na$Action.Obligation,na.rm=TRUE)
+# 
+# crisis_smp<-crisis_with_na[complete,]
+# 
+# head(crisis_smp)
+save(crisis_smp,crisis_with_na,file="Data\\crisis_smp.Rdata")
+# load("Data\\crisis_smp.Rdata")
 
 ```
 
