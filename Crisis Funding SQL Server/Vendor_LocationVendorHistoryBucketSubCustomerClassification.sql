@@ -59,16 +59,15 @@ SELECT  [fiscal_year]
       ,[numberOfActions]
       ,[TypeofContractPricingtext]
 	  ,IsUndefinitizedAction
-	  	 ,iif(addmodified=1 and ismodified=1,'Modified ','')+
-		case
-			when addmultipleorsingawardidc=1 
+	  ,case
+			when idv_type_code='B'
 			then case 
 				when multipleorsingleawardidc is null
-				then 'Unlabeled '+AwardOrIDVcontractactiontype
-				else multipleorsingleawardidc+' '+AwardOrIDVcontractactiontype
+				then 'Unlabeled '+idv_type_Name
+				else multipleorsingleawardidc+' '+idv_type_Name
 				--Blank multipleorsingleawardIDC
 			end
-			else AwardOrIDVcontractactiontype 
+			else coalesce(idv_type_Name,Award_Type_Name) 
 	end		as VehicleClassification
       ,[NumberOfOffersReceived]
 	  	,(SELECT CompetitionClassification from FPDSTypeTable.ClassifyCompetition(
@@ -92,9 +91,11 @@ SELECT  [fiscal_year]
 		)) as ClassifyNumberOfOffers
       ,[ContractCrisisFunding]
       ,[nationalinterestactioncode]
+	  ,[nationalinterestactioncodetext]
       ,[NIAcrisisFunding]
       ,[CrisisFunding]
 	  ,ContingencyHumanitarianPeacekeepingOperation
+	  ,ContingencyHumanitarianPeacekeepingOperationtext
 	  ,ConHumIsOCOcrisisFunding
 	  ,l.CCRexception
 	  ,localareasetaside

@@ -44,9 +44,9 @@
           <FullPath>Assistance_TransferARRA.sql</FullPath>
         </FileNode>
         <FileNode Name="Budget_SP_CrisisFundingExploration.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
-          <AssociatedConnUserName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:vmsqldiig.database.windows.net:False:GSanders@csis.org</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>vmsqldiig.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>GSanders@csis.org</AssociatedConnUserName>
           <FullPath>Budget_SP_CrisisFundingExploration.sql</FullPath>
         </FileNode>
         <FileNode Name="Budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.sql">
@@ -182,15 +182,15 @@
           <FullPath>Contract_SP_ContractUnmodifiedCompetitionVehicleCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Vendor_LocationVendorHistoryBucketSubCustomerClassification.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
-          <AssociatedConnUserName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:vmsqldiig.database.windows.net:False:GSanders@csis.org</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>vmsqldiig.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>GSanders@csis.org</AssociatedConnUserName>
           <FullPath>Vendor_LocationVendorHistoryBucketSubCustomerClassification.sql</FullPath>
         </FileNode>
         <FileNode Name="Vendor_LocationVendorHistoryBucketSubCustomerPartial.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
-          <AssociatedConnUserName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:vmsqldiig.database.windows.net:False:GSanders@csis.org</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>vmsqldiig.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>GSanders@csis.org</AssociatedConnUserName>
           <FullPath>Vendor_LocationVendorHistoryBucketSubCustomerPartial.sql</FullPath>
         </FileNode>
       </Items>

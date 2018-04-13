@@ -68,10 +68,10 @@ C.fiscal_year
 			when PlaceCountryCode.IsInternational=0 
 				and coalesce(parent.isforeign,VendorCountryCode.IsInternational,OriginCountryCode.IsInternational)= 1
 			then 'Foreign Vendor in US'
-			when PlaceCountryCode.ISOcountryCode=
-				isnull(vendorcountrycode.ISOcountryCode,origincountrycode.isocountrycode)
+			when PlaceCountryCode.ISOalpha3=
+				isnull(vendorcountrycode.ISOalpha3,origincountrycode.ISOalpha3)
 			then 'Host Nation Vendor'
-			when PlaceCountryCode.ISOcountryCode=origincountrycode.isocountrycode
+			when PlaceCountryCode.ISOalpha3=origincountrycode.ISOalpha3
 			then 'Possible Host Nation Vendor with contradiction'
 			when PlaceCountryCode.IsInternational=1 
 				and  coalesce(parent.isforeign,VendorCountryCode.IsInternational,OriginCountryCode.IsInternational) =0 
@@ -137,45 +137,36 @@ C.fiscal_year
 			,setaside.typeofsetaside2category
 			
 ,C.NumberOfOffersReceived
-		,CASE 
-				--Award or IDV Type show only (‘Definitive Contract’, ‘IDC’, ‘Purchase Order’)
-				WHEN ctype.ForAwardUseExtentCompeted=1
+		
+			,CASE 
+				--Award or IDV Type show only (‘Definitive Contract’, ‘Purchase Order’)
+				WHEN atype.UseExtentCompeted=1
 				then 0 --Use extent competed
-				--Award or IDV Type show only (‘Delivery Order’, ‘BPA Call’)
-				--IDV Part 8 or Part 13 show only (‘Part 13’)
-				--When  **Part 8 or Part 13  is not available!**
-				--then 0 --Use extent competed
-
-				--Award or IDV Type show only (‘Delivery Order’)
-				--IDV Multiple or Single Award IDV show only (‘S’)
-				when ctype.isdeliveryorder=1
-					and isnull(IDVmulti.ismultipleaward, Cmulti.ismultipleaward) =0
-				then 0
-				--Fair Opportunity / Limited Sources show only (‘Fair Opportunity Given’)
-				--Award or IDV Type show only (‘Delivery Order’)
-				--IDV Type show only (‘FSS’, ‘GWAC’, ‘IDC’)
-				--	IDV Multiple or Single Award IDV show only (‘M’)
-				when idvtype.ForIDVUseFairOpportunity=1 and 
-					ctype.isdeliveryorder=1 and 
-					isnull(IDVmulti.ismultipleaward, Cmulti.ismultipleaward) =1
+				
+				--IDV Type show only (‘FSS’, ‘GWAC’)
+				when idvtype.UseFairOpportunity=1  
 				then 1 --Use fair opportunity
 
-				--	Number of Offers Received show only (‘1’)
-				-- Award or IDV Type show only (‘BPA Call’, ‘BPA’)
-				-- Part 8 or Part 13 show only (‘Part 8’)
-				--When  **Part 8 or Part 13  is not available!**
-				--then 0 --Use extent competed
-
+				--For IDC, BPA/BPA Call, and BOA, check if is multiaward  is filled in and use that
+				--We don't have BPA type 8 or 13 available so we're using single/multi for that
+				when isnull(IDVmulti.ismultipleaward, Cmulti.ismultipleaward) is not null
+					then isnull(IDVmulti.ismultipleaward, Cmulti.ismultipleaward)
+				
+				--Otherwise, use fair opportunity if available
 				when fairopp.statutoryexceptiontofairopportunitytext is not null
 				then 1
 				else 0
 			end as UseFairOpportunity
-			,isnull(idvtype.contractactiontypetext,ctype.contractactiontypetext) as AwardOrIDVcontractactiontype
-			,isnull(IDVmulti.multipleorsingleawardidctext, Cmulti.multipleorsingleawardidctext) 
-				as multipleorsingleawardidc 
-			,isnull(IDVtype.addmultipleorsingawardidc,ctype.addmultipleorsingawardidc) as addmultipleorsingawardidc
-			,isnull(IDVtype.addmodified,ctype.addmodified) as addmodified
+			
+	,isnull(IDVmulti.multipleorsingleawardidctext, Cmulti.multipleorsingleawardidctext) as multipleorsingleawardidc 
+--,isnull(IDVtype.addmultipleorsingawardidc,ctype.addmultipleorsingawardidc) as addmultipleorsingawardidc				
+--,isnull(idvtype.contractactiontypetext,ctype.contractactiontypetext) as AwardOrIDVcontractactiontype
+,CType.Award_Type_Code
+,IDVtype.idv_type_code
+,AType.Award_Type_Name
+,IDVtype.idv_type_Name
 			,isnull(idvmod.typeofidc,idv.typeofidc) as IDVtypeofIDC
+
 			,Rmod.IsModified
 			,letter.IsUndefinitizedAction
 			,letter.IsLetterContract
@@ -234,20 +225,35 @@ left outer join office.ContractingAgencyIDofficeIDtoMajorCommandIDhistory mcid
 			FPDSTypeTable.AgencyID AS FAgency ON C.fundingrequestingagencyid = FAgency.AgencyID
 	LEFT JOIN FPDSTypeTable.ProductOrServiceCode AS PSC
 		ON C.productorservicecode=PSC.ProductOrServiceCode
-	LEFT JOIN FPDSTypeTable.Country3lettercode as PlaceCountryCode
+
+
+		--Block of location lookups
+ 	LEFT JOIN FPDSTypeTable.Country3lettercode as PlaceCountryCode
 		ON C.placeofperformancecountrycode=PlaceCountryCode.Country3LetterCode
-	left outer join location.CountryCodes as PlaceISO
-		on PlaceCountryCode.ISOcountryCode =placeiso.[alpha-2]
+		left outer join location.CountryCodes as PlaceISO
+		on PlaceCountryCode.isoAlpha3 =placeiso.[alpha-3]
 	LEFT JOIN FPDSTypeTable.Country3lettercode as OriginCountryCode
 		ON C.countryoforigin=OriginCountryCode.Country3LetterCode
 	left outer join location.CountryCodes as OriginISO
-		on OriginCountryCode.ISOcountryCode =OriginISO.[alpha-2]
+		on OriginCountryCode.isoAlpha3 =OriginISO.[alpha-3]
 	LEFT JOIN FPDSTypeTable.vendorcountrycode as VendorCountryCodePartial
 		ON C.vendorcountrycode=VendorCountryCodePartial.vendorcountrycode
 	LEFT JOIN FPDSTypeTable.Country3lettercode as VendorCountryCode
 		ON vendorcountrycode.Country3LetterCode=VendorCountryCodePartial.Country3LetterCode
 	left outer join location.CountryCodes as VendorISO
-		on VendorCountryCode.ISOcountryCode=VendorISO.[alpha-2]
+		on VendorCountryCode.isoAlpha3=VendorISO.[alpha-3]
+	left outer join FPDSTypeTable.placeofmanufacture as PoM
+		on c.placeofmanufacture=pom.placeofmanufacture
+	left outer join fpdstypetable.statecode as StateCode
+		on c.pop_state_code=statecode.statecode
+
+
+		
+
+		
+
+
+
 	LEFT JOIN ProductOrServiceCode.ServicesCategory As Scat
 		ON Scat.ServicesCategory = PSC.ServicesCategory
 	LEFT OUTER JOIN Contractor.DunsnumbertoParentContractorHistory as DUNS
@@ -255,8 +261,6 @@ left outer join office.ContractingAgencyIDofficeIDtoMajorCommandIDhistory mcid
 		AND C.DUNSNumber = DUNS.DUNSNUMBER
 	LEFT OUTER JOIN Contractor.ParentContractor as PARENT
 		ON DUNS.ParentID = PARENT.ParentID
-	left outer join FPDSTypeTable.placeofmanufacture as PoM
-		on c.placeofmanufacture=pom.placeofmanufacture
 left outer join Contract.CSIStransactionIDlabel t
 	on c.CSIStransactionID=t.CSIStransactionID
               left join contract.CSISidvmodificationID as idvmod
@@ -276,15 +280,21 @@ left join contract.CSISidvpiidID as idv
 		ON C.statutoryexceptiontofairopportunity=FAIROpp.statutoryexceptiontofairopportunity
 
 
-	--Block of vehicle lookups
-		Left JOIN FPDSTypeTable.multipleorsingleawardidc as Cmulti
-			on C.multipleorsingleawardidc=Cmulti.multipleorsingleawardidc
-		Left JOIN FPDSTypeTable.multipleorsingleawardidc as IDVmulti
-			on isnull(idvmod.multipleorsingleawardidc,idv.multipleorsingleawardidc)=IDVMulti.multipleorsingleawardidc
-		Left JOIN FPDSTypeTable.ContractActionType as Ctype
-			on C.ContractActionType=Ctype.unseperated
-		Left JOIN FPDSTypeTable.ContractActionType as IDVtype
-			on isnull(idvmod.ContractActionType,idv.ContractActionType)=IDVtype.unseperated	LEFT JOIN FPDSTypeTable.reasonformodification as Rmod
+		--Block of vehicle lookups
+	Left JOIN FPDSTypeTable.multipleorsingleawardidc as Cmulti
+		on C.multipleorsingleawardidc=Cmulti.multipleorsingleawardidc
+	Left JOIN FPDSTypeTable.multipleorsingleawardidc as IDVmulti
+		on isnull(idvmod.multipleorsingleawardidc,idv.multipleorsingleawardidc)=IDVMulti.multipleorsingleawardidc
+		Left JOIN FPDSTypeTable.Award_Type_Code as Atype
+		on C.Award_Type_Code=Atype.Award_Type_Code
+	Left JOIN FPDSTypeTable.ContractActionType as Ctype
+		on C.ContractActionType=Ctype.ContractActionType
+	Left JOIN FPDSTypeTable.IDV_Type_Code as IDVtype
+		on coalesce(c.parent_award_type_code,idvmod.idv_type_code,idv.idv_type_code)=IDVtype.idv_type_code
+
+			
+			
+			LEFT JOIN FPDSTypeTable.reasonformodification as Rmod
 		ON C.reasonformodification=Rmod.reasonformodification
 
 
