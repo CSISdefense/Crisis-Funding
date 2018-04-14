@@ -179,6 +179,7 @@ C.fiscal_year
 	, n.nationalinterestactioncode
 	, n.nationalinterestactioncodeText
 	, n.CrisisFunding as NIAcrisisFunding
+	, rf.IsArra
 	, coalesce(t.CrisisFunding,n.CrisisFunding) as CrisisFunding
 	,c.localareasetaside --For disasters investigate this later.
 	,c.CCRexception
@@ -312,6 +313,8 @@ left outer join budget.progsource progsource
 	on c.progsourceagency=progsource.progsourceagency
 	and c.progsourceaccount=progsource.progsourceaccount
 	and c.progsourcesubacct=progsource.progsourcesubacct
+left outer join budget.rec_flag rf
+on c.rec_flag=rf.rec_flag
 
 --Account Code link ups
 left outer join agency.TreasuryAgencyCode as tac

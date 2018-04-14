@@ -104,7 +104,8 @@ SELECT  [fiscal_year]
 		  l.CCRexception = '3' --Contracting officers conductingemergency operations
 		  --or l.localareasetaside='Y' --For disasters investigate this later.
 		  ,1,0) as IsDisasterCrisisFunding
-	,iif(NIAcrisisFunding='ARRA' or  ContractCrisisFunding='ARRA',1,0) as IsARRAcrisisFunding
+	,iif(NIAcrisisFunding='ARRA' or  ContractCrisisFunding='ARRA'
+		or IsARRA=1,1,0) as IsARRAcrisisFunding
 	,case 
 	--National Intrest Action Code
 	when NIAcrisisFunding='OCO'
