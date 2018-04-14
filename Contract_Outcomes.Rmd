@@ -166,8 +166,8 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 # crisis_smp<-crisis_with_na[complete,]
 # 
 # head(crisis_smp)
-save(crisis_smp,crisis_with_na,file="Data\\crisis_smp.Rdata")
-# load("Data\\crisis_smp.Rdata")
+# save(crisis_smp,crisis_with_na,file="Data\\crisis_smp.Rdata")
+load("Data\\crisis_smp.Rdata")
 
 ```
 
@@ -897,6 +897,19 @@ freq_continuous_cbre_plot(subset(crisis_smp,UnmodifiedContractBaseAndAllOptionsV
                "UnmodifiedContractBaseAndAllOptionsValue",
                bins=1000)
 
+
+#Ceiling Breaches
+gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"l_Ceil"),
+             binned_percent_cbre_plot(crisis_smp,"l_Ceil"))
+
+
+#Terminations
+gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"l_Ceil"),
+                        binned_percent_term_plot(crisis_smp,"l_Ceil"))
+
+
+
+
 #Frequency Plot for logged ceiling
 freq_continuous_cbre_plot(crisis_smp,"l_Ceil")
 
@@ -980,6 +993,35 @@ freq_continuous_cbre_plot(crisis_smp,"lsqr_Ceil")
 binned_percent_cbre_plot(crisis_smp,"lsqr_Ceil")
 
 #Model
+
+#Model
+CBre_05A <- glm (data=crisis_smp,
+                 b_CBre ~ ARRA + Dis + OCO +cb_Comp + b_Urg +
+                   b_UCA+
+                   cl_Ceil+
+                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO+
+                   b_Urg:ARRA + b_Urg:Dis + b_Urg:OCO+
+                   b_UCA:ARRA + b_UCA:Dis + b_UCA:OCO , 
+                 family=binomial(link="logit"))
+display(CBre_05A)
+
+Term_05A <- glm (data=crisis_smp,
+                 b_Term ~ ARRA + Dis + OCO +cb_Comp +  b_Urg +
+                   b_UCA+
+                   cl_Ceil+
+                   cb_Comp:ARRA + cb_Comp:Dis + cb_Comp:OCO+
+                   b_Urg:ARRA + b_Urg:Dis + b_Urg:OCO +
+                   b_UCA:ARRA + b_UCA:Dis + b_UCA:OCO , 
+                 family=binomial(link="logit"))
+display(Term_05A)
+
+
+stargazer::stargazer(CBre_03B,CBre_05A,Term_03B,Term_05A,type="text",
+                     digits=2)
+
+
+
+
 CBre_05D <- glm (data=crisis_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + cl_Ceil + clsqr_Ceil, family=binomial(link="logit"))
 display(CBre_05D)
