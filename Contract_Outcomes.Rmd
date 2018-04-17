@@ -1344,7 +1344,7 @@ gridExtra::grid.arrange(residuals_cbre_plot(CBre_04D,bins=5)+
 
 The additional category is interesting, as the coefficients between US95 and Intl05 vary sharply. However, the minimal coefficient for Intl05 and terminations appears to have its conseuences with the residuals, which are scatter for terminations. This is an an unfortunate consequence, and one to monitor. However, offices with 95% of their 
 
-### Model 04E: Office Place, 4-category
+### Model 04E: Office Place, 3-category
 
 ```{r Model04E}
 
