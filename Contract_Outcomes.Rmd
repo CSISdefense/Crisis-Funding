@@ -44,6 +44,14 @@ head(fed)
 # undebug(transform_contract)
 fed<-csis360::transform_contract(fed)
 
+
+crisis_smp$OffPlace<-crisis_smp$AvgPlaceOCOcrisisScore+1
+crisis_smp$OffPlace[crisis_smp$OffPlace<0]<-0
+crisis_smp$OffPlace[crisis_smp$OffPlace>4]<-4
+crisis_smp$sqrt_OffPlace<-sqrt(crisis_smp$OffPlace)
+
+
+
  #b_CBre
 # summary(fed$b_Urg)
 # 
@@ -895,15 +903,7 @@ In exploratory graphs, the interaction of UCA and appear to be largely absent fo
 
 ```{r Model04A}
 
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"AvgPlaceOCOcrisisScore",bins=50),
-        binned_percent_cbre_plot(crisis_smp,"AvgPlaceOCOcrisisScore",bins=50))
-
-
-#Terminations
-gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"AvgPlaceOCOcrisisScore",bins=50),
-        binned_percent_term_plot(crisis_smp,"AvgPlaceOCOcrisisScore",bins=50))
-
+summary_continuous_plot(crisis_smp,"AvgPlaceOCOcrisisScore",bins=50)
 
 #Model
 CBre_04A <- glm (data=crisis_smp,
@@ -1070,11 +1070,6 @@ Exploring the interaction with crisis datasets is not easily interperable and su
 
 ```{r Model04C}
 
-
-crisis_smp$OffPlace<-crisis_smp$AvgPlaceOCOcrisisScore+1
-crisis_smp$OffPlace[crisis_smp$OffPlace<0]<-0
-crisis_smp$OffPlace[crisis_smp$OffPlace>4]<-4
-crisis_smp$sqrt_OffPlace<-sqrt(crisis_smp$OffPlace)
 
 
 
@@ -1729,20 +1724,13 @@ Unlike the look at location, adding the confirmed crisis percent for contracting
 
 ```{r Model04I}
 
+summary_continuous_plot(crisis_smp,"CrisisPercent",bins=50)
 
 crisis_smp$sqrt_OffCri<-sqrt(crisis_smp$CrisisPercent)
 
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"sqrt_OffCri"),
-             binned_percent_cbre_plot(crisis_smp,"sqrt_OffCri"))
+summary_continuous_plot(crisis_smp,"sqrt_OffCri",bins=50)
 
 
-#Terminations
-gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"sqrt_OffCri"),
-                        binned_percent_term_plot(crisis_smp,"sqrt_OffCri"))
-
-cor(crisis_smp$CrisisPercent,crisis_smp$AvgPlaceOCOcrisisScore,na.rm=TR)
- 
 
 #Model
 CBre_04I <- glm (data=crisis_smp,
@@ -2110,26 +2098,7 @@ freq_continuous_cbre_plot(subset(crisis_smp,UnmodifiedContractBaseAndAllOptionsV
                "UnmodifiedContractBaseAndAllOptionsValue",
                bins=1000)
 
-
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"l_Ceil"),
-             binned_percent_cbre_plot(crisis_smp,"l_Ceil"))
-
-
-#Terminations
-gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"l_Ceil"),
-                        binned_percent_term_plot(crisis_smp,"l_Ceil"))
-
-
-
-
-#Frequency Plot for logged ceiling
-freq_continuous_cbre_plot(crisis_smp,"l_Ceil")
-
-#Percent Terminated Plot
-binned_percent_cbre_plot(crisis_smp,"l_Ceil")
-
-
+summary_continuous_plot(crisis_smp,"l_Ceil",bins=50)
 
 #Model
 CBre_05A <- glm (data=crisis_smp,
@@ -2200,93 +2169,18 @@ gridExtra::grid.arrange(residuals_cbre_plot(CBre_05A,"cl_Ceil",bins=20)+
 
 ```
 
-Contract ceiling has a significant relationship, though the residuals show a possible non-linear patterns. This is most remarkable in the positive centered values between 0 and 1 This suggests that addding the log(Ceil)^2 might better capture the underlying data. 
+Contract ceiling has a significant relationship, though the residuals show a possible non-linear patterns. This is most remarkable in the positive centered values between 0 and 1. This may be driven  by a missing value and is worth watching.
 
-
-
-###Model 05B: Cost Ceiling Squared
-
-```{r Model05B}
-
-
-
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"lsqr_Ceil"),
-             binned_percent_cbre_plot(crisis_smp,"lsqr_Ceil"))
-
-
-#Terminations
-gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"lsqr_Ceil"),
-                        binned_percent_term_plot(crisis_smp,"lsqr_Ceil"))
-
-
-
-#Model
-CBre_05B <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +cb_Comp + b_Urg +
-                   b_UCA+
-                   OffPlaceCat4+ sqrt_OffCri+
-                   cl_Ceil+ lsqr_Ceil+
-                   cb_Comp:Crisis+
-                   b_Urg:Crisis+
-                   b_UCA:Crisis , 
-                 family=binomial(link="logit"))
-display(CBre_05B)
-
-Term_05B <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +cb_Comp +  b_Urg +
-                   b_UCA+
-                   OffPlaceCat4+ sqrt_OffCri+
-                  cl_Ceil+ lsqr_Ceil+
-                   cb_Comp:Crisis+
-                   b_Urg:Crisis+
-                   b_UCA:Crisis , 
-                 family=binomial(link="logit"))
-display(Term_05B)
-
-stargazer::stargazer(CBre_05A,CBre_05B,Term_05A,Term_05B,type="text",
-                     digits=2)
-
-
-
-
-CBre_05D <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis + n_Comp + cl_Ceil + clsqr_Ceil, family=binomial(link="logit"))
-display(CBre_05D)
-
-#Plot the fitted model plot
-CBre_05D_curve<-function(x, Comp){invlogit(cbind(1,Comp,x, x^2) %*%  coef(CBre_05D))}
-
-#Competition curves
-fitted_cbre_model(crisis_smp,"cl_Ceil") + stat_function(fun = CBre_05D_curve, 
-                             args=list(Comp=0),color="blue")+
-  stat_function(fun = CBre_05D_curve, 
-                             args=list(Comp=2),color="blue")
-
-#Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_05D)
-
-#Plot residuals versus fitted
-residuals_cbre_plot(CBre_05D)+
-  labs(x="Estimated  Pr (Termination)")
-
-residuals_cbre_plot(CBre_05D,"cl_Ceil")+
-  labs(x="Centered Log(Ceiling)")
-
-```
-
-Contracts with very small or very large ceilings appear have a negative coefficient for calculating termination. On the upper end, this might represent contracts that are "too large to fail"" or simply that above a certain size, risk stops rising. Adding the log(Ceiling) squared greatly reduces the apparent pattern in the residuals, although more than 5 percent of the binned residuals still fall outside the 95% confidence interval.
 
 ###Model 05C: Cost Ceiling and Competition
 
 ```{r Model05C}
 
-#Frequency Plot
-freq_continuous_cbre_plot(crisis_smp,"l_Ceil","EffComp")
 
-#Plot the percent terminated across cost ceiling and competition
-binned_percent_cbre_plot(crisis_smp,"l_Ceil","EffComp")
+summary_discrete_plot(crisis_smp,"l_Ceil","UCA")
+summary_continuous_plot(crisis_smp,"l_Ceil","sqrt_OffCri")
 
+crisis_smp$sqrt_OffCri
 #Create the model
 CBre_05E <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + cl_Ceil + clsqr_Ceil + n_Comp:cl_Ceil, family=binomial(link="logit"))
