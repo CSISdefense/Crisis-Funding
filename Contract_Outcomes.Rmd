@@ -45,10 +45,7 @@ head(fed)
 fed<-csis360::transform_contract(fed)
 
 
-crisis_smp$OffPlace<-crisis_smp$AvgPlaceOCOcrisisScore+1
-crisis_smp$OffPlace[crisis_smp$OffPlace<0]<-0
-crisis_smp$OffPlace[crisis_smp$OffPlace>4]<-4
-crisis_smp$sqrt_OffPlace<-sqrt(crisis_smp$OffPlace)
+
 
 
 
@@ -1637,22 +1634,20 @@ gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"CrisisPercent"),
 
 
 #Ceiling Breaches
-gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"sqrt_OffCri"),
-             binned_percent_cbre_plot(crisis_smp,"sqrt_OffCri")+geom_vline(xintercept=c(0.1,0.16,0.25)))
+gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"c_OffCri"),
+             binned_percent_cbre_plot(crisis_smp,"c_OffCri")+geom_vline(xintercept=c(0.1,0.16,0.25)))
 
 
 #Terminations
-gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"sqrt_OffCri"),
-                        binned_percent_term_plot(crisis_smp,"sqrt_OffCri")+geom_vline(xintercept=c(0.1,0.16,0.25)))
+gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"c_OffCri"),
+                        binned_percent_term_plot(crisis_smp,"c_OffCri")+geom_vline(xintercept=c(0.1,0.16,0.25)))
 
 
-
-crisis_smp$sqrt_OffCri<-sqrt(crisis_smp$CrisisPercent)
 
 #Model
 CBre_04H <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +cb_Comp + b_Urg +
-                   b_UCA+sqrt_OffCri+ 
+                   b_UCA+c_OffCri+ 
                    cb_Comp:Crisis+
                    b_Urg:Crisis+
                    b_UCA:Crisis , 
@@ -1661,7 +1656,7 @@ display(CBre_04H)
 
 Term_04H <- glm (data=crisis_smp,
                  b_Term ~ Crisis +cb_Comp +  b_Urg +
-                   b_UCA+sqrt_OffCri+
+                   b_UCA+c_OffCri+
                    cb_Comp:Crisis+
                    b_Urg:Crisis+
                    b_UCA:Crisis , 
@@ -1706,9 +1701,9 @@ gridExtra::grid.arrange(residuals_cbre_plot(CBre_04H,bins=10)+
   labs(x="Estimated  Pr (Termination)"))
 
 
-gridExtra::grid.arrange(residuals_cbre_plot(CBre_04H,"sqrt_OffCri",bins=15)+
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_04H,"c_OffCri",bins=15)+
   labs(x="Centered Log(Ceiling)"),
-                        residuals_term_plot(Term_04H,"sqrt_OffCri",bins=15)+
+                        residuals_term_plot(Term_04H,"c_OffCri",bins=15)+
   labs(x="Centered Log(Ceiling)"))
 
 
@@ -1726,9 +1721,7 @@ Unlike the look at location, adding the confirmed crisis percent for contracting
 
 summary_continuous_plot(crisis_smp,"CrisisPercent",bins=50)
 
-crisis_smp$sqrt_OffCri<-sqrt(crisis_smp$CrisisPercent)
-
-summary_continuous_plot(crisis_smp,"sqrt_OffCri",bins=50)
+summary_continuous_plot(crisis_smp,"c_OffCri",bins=50)
 
 
 
@@ -1736,7 +1729,7 @@ summary_continuous_plot(crisis_smp,"sqrt_OffCri",bins=50)
 CBre_04I <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +cb_Comp + b_Urg +
                    b_UCA+
-                   OffPlaceCat4+ sqrt_OffCri+
+                   OffPlaceCat4+ c_OffCri+
                    cb_Comp:Crisis+
                    b_Urg:Crisis+
                    b_UCA:Crisis , 
@@ -1746,7 +1739,7 @@ display(CBre_04I)
 Term_04I <- glm (data=crisis_smp,
                  b_Term ~ Crisis +cb_Comp +  b_Urg +
                    b_UCA+
-                   OffPlaceCat4+ sqrt_OffCri+
+                   OffPlaceCat4+ c_OffCri+
                    cb_Comp:Crisis+
                    b_Urg:Crisis+
                    b_UCA:Crisis , 
@@ -1792,9 +1785,9 @@ gridExtra::grid.arrange(residuals_cbre_plot(CBre_04I,bins=10)+
 
 
 #Plot residuals versus CrisisPercent
-gridExtra::grid.arrange(residuals_cbre_plot(CBre_04I,"sqrt_OffCri",bins=10)+
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_04I,"c_OffCri",bins=10)+
   labs(x="Centered Log(Ceiling)"),
-                        residuals_term_plot(Term_04I,"sqrt_OffCri",bins=10)+
+                        residuals_term_plot(Term_04I,"c_OffCri",bins=10)+
   labs(x="Centered Log(Ceiling)"))
 
 
@@ -1811,14 +1804,12 @@ gridExtra::grid.arrange(residuals_cbre_plot(CBre_04I,"sqrt_OffCri",bins=10)+
 ```{r Model04J}
 
 
-crisis_smp$sqrt_OffCri<-sqrt(crisis_smp$CrisisPercent)
-
 
 #Model
 CBre_04J <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +cb_Comp + b_Urg +
                    b_UCA+
-                   OffPlaceCat3+ sqrt_OffCri+
+                   OffPlaceCat3+ c_OffCri+
                    cb_Comp:Crisis+
                    b_Urg:Crisis+
                    b_UCA:Crisis, 
@@ -1828,7 +1819,7 @@ display(CBre_04J)
 Term_04J <- glm (data=crisis_smp,
                  b_Term ~ Crisis +cb_Comp +  b_Urg +
                    b_UCA+
-                   OffPlaceCat3+ sqrt_OffCri+
+                   OffPlaceCat3+ c_OffCri+
                    cb_Comp:Crisis+
                    b_Urg:Crisis+
                    b_UCA:Crisis , 
@@ -1874,9 +1865,9 @@ gridExtra::grid.arrange(residuals_cbre_plot(CBre_04J,bins=10)+
 
 
 #Plot residuals versus CrisisPercent
-gridExtra::grid.arrange(residuals_cbre_plot(CBre_04J,"sqrt_OffCri",bins=10)+
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_04J,"c_OffCri",bins=10)+
   labs(x="Centered Log(Ceiling)"),
-                        residuals_term_plot(Term_04J,"sqrt_OffCri",bins=10)+
+                        residuals_term_plot(Term_04J,"c_OffCri",bins=10)+
   labs(x="Centered Log(Ceiling)"))
 
 
@@ -1895,16 +1886,14 @@ The three category place no longer has less worrisome residuals. Four categories
 ```{r Model04K}
 
 
-crisis_smp$sqrt_OffCri<-sqrt(crisis_smp$CrisisPercent)
-
 #Ceiling Breaches
-gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"sqrt_OffCri","Crisis"),
-             binned_percent_cbre_plot(crisis_smp,"sqrt_OffCri","Crisis"))
+gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"c_OffCri","Crisis"),
+             binned_percent_cbre_plot(crisis_smp,"c_OffCri","Crisis"))
 
 
 #Terminations
-gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"sqrt_OffCri","Crisis"),
-                        binned_percent_term_plot(crisis_smp,"sqrt_OffCri","Crisis"))
+gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"c_OffCri","Crisis"),
+                        binned_percent_term_plot(crisis_smp,"c_OffCri","Crisis"))
 
 cor(crisis_smp$CrisisPercent,crisis_smp$AvgPlaceOCOcrisisScore,na.rm=TR)
  
@@ -1913,22 +1902,22 @@ cor(crisis_smp$CrisisPercent,crisis_smp$AvgPlaceOCOcrisisScore,na.rm=TR)
 CBre_04K <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +cb_Comp + b_Urg +
                    b_UCA+
-                   OffPlaceCat4+ sqrt_OffCri+
+                   OffPlaceCat4+ c_OffCri+
                    cb_Comp:Crisis+
                    b_Urg:Crisis+
                    b_UCA:Crisis+
-                   sqrt_OffCri:Crisis, 
+                   c_OffCri:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_04K)
 
 Term_04K <- glm (data=crisis_smp,
                  b_Term ~ Crisis +cb_Comp +  b_Urg +
                    b_UCA+
-                   OffPlaceCat4+ sqrt_OffCri+
+                   OffPlaceCat4+ c_OffCri+
                    cb_Comp:Crisis+
                    b_Urg:Crisis+
                    b_UCA:Crisis +
-                   sqrt_OffCri:Crisis, 
+                   c_OffCri:Crisis, 
                  family=binomial(link="logit"))
 display(Term_04K)
 
@@ -1971,9 +1960,9 @@ gridExtra::grid.arrange(residuals_cbre_plot(CBre_04K,bins=10)+
 
 
 #Plot residuals versus CrisisPercent
-gridExtra::grid.arrange(residuals_cbre_plot(CBre_04K,"sqrt_OffCri",bins=10)+
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_04K,"c_OffCri",bins=10)+
   labs(x="Office Crisis %"),
-                        residuals_term_plot(Term_04K,"sqrt_OffCri",bins=10)+
+                        residuals_term_plot(Term_04K,"c_OffCri",bins=10)+
   labs(x="Office Crisis %"))
 
 
@@ -1992,16 +1981,16 @@ The interactions between crisis funding and the percent of the office going to a
 ```{r Model04L}
 
 
-crisis_smp$sqrt_OffCri<-sqrt(crisis_smp$CrisisPercent)
+crisis_smp$c_OffCri<-sqrt(crisis_smp$CrisisPercent)
 
 #Ceiling Breaches
-gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"sqrt_OffCri","OffPlaceCat4"),
-             binned_percent_cbre_plot(crisis_smp,"sqrt_OffCri","OffPlaceCat4"))
+gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"c_OffCri","OffPlaceCat4"),
+             binned_percent_cbre_plot(crisis_smp,"c_OffCri","OffPlaceCat4"))
 
 
 #Terminations
-gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"sqrt_OffCri","OffPlaceCat4"),
-                        binned_percent_term_plot(crisis_smp,"sqrt_OffCri","OffPlaceCat4"))
+gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"c_OffCri","OffPlaceCat4"),
+                        binned_percent_term_plot(crisis_smp,"c_OffCri","OffPlaceCat4"))
 
 cor(crisis_smp$CrisisPercent,crisis_smp$AvgPlaceOCOcrisisScore,na.rm=TR)
  
@@ -2010,7 +1999,7 @@ cor(crisis_smp$CrisisPercent,crisis_smp$AvgPlaceOCOcrisisScore,na.rm=TR)
 CBre_04L <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +cb_Comp + b_Urg +
                    b_UCA+
-                   OffPlaceCat4+ sqrt_OffCri+
+                   OffPlaceCat4+ c_OffCri+
                    cb_Comp:Crisis+
                    b_Urg:Crisis+
                    b_UCA:Crisis+
@@ -2021,7 +2010,7 @@ display(CBre_04L)
 Term_04L <- glm (data=crisis_smp,
                  b_Term ~ Crisis +cb_Comp +  b_Urg +
                    b_UCA+
-                   OffPlaceCat4+ sqrt_OffCri+
+                   OffPlaceCat4+ c_OffCri+
                    cb_Comp:Crisis+
                    b_Urg:Crisis+
                    b_UCA:Crisis +
@@ -2068,9 +2057,9 @@ gridExtra::grid.arrange(residuals_cbre_plot(CBre_04L,bins=10)+
 
 
 #Plot residuals versus CrisisPercent
-gridExtra::grid.arrange(residuals_cbre_plot(CBre_04L,"sqrt_OffCri",bins=10)+
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_04L,"c_OffCri",bins=10)+
   labs(x="Centered Log(Ceiling)"),
-                        residuals_term_plot(Term_04L,"sqrt_OffCri",bins=10)+
+                        residuals_term_plot(Term_04L,"c_OffCri",bins=10)+
   labs(x="Centered Log(Ceiling)"))
 
 
@@ -2090,7 +2079,7 @@ The increases in standard error for Iraq and Afghanistan and the complications a
 
 The model starts by examing the influence of large ceilings on contracts, the core idea here, as observed in the fixed priced paper, is that larger contracts are at greater risk of termination. This can be explained by both the inherent risk in the contract and high transaction costs of contract termination which discourage making the effort for smaller contracts.
 
-```{r Model05A}
+```{r Model05A, fig.height = 10, fig.width = 6.5}
 #Frequency Plot for unlogged ceiling
 freq_continuous_cbre_plot(crisis_smp,"UnmodifiedContractBaseAndAllOptionsValue",
                bins=1000)
@@ -2104,7 +2093,7 @@ summary_continuous_plot(crisis_smp,"l_Ceil",bins=50)
 CBre_05A <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +cb_Comp + b_Urg +
                    b_UCA+
-                   OffPlaceCat4+ sqrt_OffCri+
+                   OffPlaceCat4+ c_OffCri+
                    cl_Ceil+
                    cb_Comp:Crisis+
                    b_Urg:Crisis+
@@ -2115,7 +2104,7 @@ display(CBre_05A)
 Term_05A <- glm (data=crisis_smp,
                  b_Term ~ Crisis +cb_Comp +  b_Urg +
                    b_UCA+
-                   OffPlaceCat4+ sqrt_OffCri+
+                   OffPlaceCat4+ c_OffCri+
                   cl_Ceil+
                    cb_Comp:Crisis+
                    b_Urg:Crisis+
@@ -2153,9 +2142,9 @@ gridExtra::grid.arrange(residuals_cbre_plot(CBre_05A,bins=20)+
                         residuals_term_plot(Term_05A,bins=20)+
   labs(x="Estimated  Pr (Termination)"))
 
-gridExtra::grid.arrange(residuals_cbre_plot(CBre_05A,"sqrt_OffCri",bins=10)+
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_05A,"c_OffCri",bins=10)+
   labs(x="Office Crisis %"),
-                        residuals_term_plot(Term_05A,"sqrt_OffCri",bins=10)+
+                        residuals_term_plot(Term_05A,"c_OffCri",bins=10)+
   labs(x="Office Crisis %"))
 
 
@@ -2172,36 +2161,60 @@ gridExtra::grid.arrange(residuals_cbre_plot(CBre_05A,"cl_Ceil",bins=20)+
 Contract ceiling has a significant relationship, though the residuals show a possible non-linear patterns. This is most remarkable in the positive centered values between 0 and 1. This may be driven  by a missing value and is worth watching.
 
 
-###Model 05C: Cost Ceiling and Competition
+###Model 05B: Cost Ceiling and Crisis
 
-```{r Model05C}
+```{r Model05B, fig.height = 10, fig.width = 6.5}
 
 
-summary_discrete_plot(crisis_smp,"l_Ceil","UCA")
-summary_continuous_plot(crisis_smp,"l_Ceil","sqrt_OffCri")
+summary_continuous_plot(crisis_smp,"l_Ceil","Crisis")
+summary_continuous_plot(crisis_smp,"l_Ceil","c_OffCri")
 
-crisis_smp$sqrt_OffCri
-#Create the model
-CBre_05E <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis + n_Comp + cl_Ceil + clsqr_Ceil + n_Comp:cl_Ceil, family=binomial(link="logit"))
-display(CBre_05E)
+#Model
+CBre_05B <- glm (data=crisis_smp,
+                 b_CBre ~ Crisis +cb_Comp + b_Urg +
+                   b_UCA+
+                   OffPlaceCat4+ c_OffCri+
+                   cl_Ceil+
+                   cb_Comp:Crisis+
+                   b_Urg:Crisis+
+                   b_UCA:Crisis+
+                   cl_Ceil:Crisis, 
+                 family=binomial(link="logit"))
+display(CBre_05B)
 
-CBre_05E_curve<-function(x, Comp){invlogit(cbind(1,Comp,x,x^2,Comp*x) %*%  coef(CBre_05E))}
+Term_05B <- glm (data=crisis_smp,
+                 b_Term ~ Crisis +cb_Comp +  b_Urg +
+                   b_UCA+
+                   OffPlaceCat4+ c_OffCri+
+                  cl_Ceil+
+                   cb_Comp:Crisis+
+                   b_Urg:Crisis+
+                   b_UCA:Crisis+
+                   cl_Ceil:Crisis, 
+                 family=binomial(link="logit"))
+display(Term_05B)
+
+
+
+stargazer::stargazer(CBre_05A,CBre_05B,CBre_05A,Term_05B,type="text",
+                     digits=2)
+
+CBre_05B_curve<-function(x, Comp){invlogit(cbind(1,Comp,x,x^2,Comp*x) %*%  coef(CBre_05B))}
 
 #Competition Curves
-fitted_cbre_model(crisis_smp,"cl_Ceil") + stat_function(fun = CBre_05E_curve, 
+fitted_cbre_model(crisis_smp,"cl_Ceil") + stat_function(fun = CBre_05B_curve, 
                              args=list(Comp=0),color="blue")+
-  stat_function(fun = CBre_05E_curve, 
+  stat_function(fun = CBre_05B_curve, 
                              args=list(Comp=2),color="blue")
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_05E)
+binned_fitted_versus_cbre_residuals(CBre_05B)
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre_05E)+
+residuals_cbre_plot(CBre_05B)+
   labs(x="Estimated  Pr (Termination)")
 
-residuals_cbre_plot(CBre_05E,"cl_Ceil")+
+residuals_cbre_plot(CBre_05B,"cl_Ceil")+
   labs(x="Centered Log(Ceiling)")
 ```
 The interaction went in the expected direction, but is surprisingly powerful. Competition heightens the importance of contract ceiling, and larger contract ceilings mitigate the importance of competition. The other powerful part of this interaction was the dramatic increase in the coefficient for competition and the comparative reduction in the correlation of ceiling.
