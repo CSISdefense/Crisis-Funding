@@ -135,7 +135,6 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 ```{r Sample}
 levels(fed$Crisis)[levels(fed$Crisis)=="Disaster"]<-"Dis"
 fed$Crisis<-factor(fed$Crisis,c("Other","ARRA","Dis","OCO"))
-crisis_smp$Crisis<-factor(crisis_smp$Crisis,c("Other","ARRA","Dis","OCO"))
 crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Dis"),]
 oco<-fed[fed$Crisis %in% c("OCO"),]
 oco<-oco[sample(nrow(oco),100000),]
