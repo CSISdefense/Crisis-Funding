@@ -2206,15 +2206,31 @@ fitted_cbre_model(crisis_smp,"cl_Ceil") + stat_function(fun = CBre_05B_curve,
   stat_function(fun = CBre_05B_curve, 
                              args=list(Comp=2),color="blue")
 
+
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_05B)
+gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_05A),
+                        binned_fitted_versus_term_residuals(Term_05A))
+
+
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre_05B)+
-  labs(x="Estimated  Pr (Termination)")
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_05B,bins=20)+
+  labs(x="Estimated  Pr (Ceiling Breach)"),
+                        residuals_term_plot(Term_05B,bins=20)+
+  labs(x="Estimated  Pr (Termination)"))
 
-residuals_cbre_plot(CBre_05B,"cl_Ceil")+
-  labs(x="Centered Log(Ceiling)")
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_05B,"c_OffCri",bins=10)+
+  labs(x="Office Crisis %"),
+                        residuals_term_plot(Term_05B,"c_OffCri",bins=10)+
+  labs(x="Office Crisis %"))
+
+
+#Plot residuals versus ceiling
+gridExtra::grid.arrange(residuals_cbre_plot(CBre_05B,"cl_Ceil",bins=20)+
+  labs(x="Centered Log(Ceiling)"),
+                        residuals_term_plot(Term_05B,"cl_Ceil",bins=20)+
+  labs(x="Centered Log(Ceiling)"))
+
 ```
 The interaction went in the expected direction, but is surprisingly powerful. Competition heightens the importance of contract ceiling, and larger contract ceilings mitigate the importance of competition. The other powerful part of this interaction was the dramatic increase in the coefficient for competition and the comparative reduction in the correlation of ceiling.
 
