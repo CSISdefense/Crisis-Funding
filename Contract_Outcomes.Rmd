@@ -257,10 +257,10 @@ gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_02A),
 
 
 #Plot residuals versus fitted
-# residuals_cbre_plot(CBre_13B)+
+# residuals_cbre_plot(CBre_06B)+
   # labs(x="Estimated  Pr (Ceiling Breach)")
 
-# residuals_cbre_plot(CBre_13B,"cl_Ceil")+
+# residuals_cbre_plot(CBre_06B,"cl_Ceil")+
   # labs(x="Centered Log(Ceiling)")
   
 
@@ -2523,14 +2523,12 @@ Similar to the model of the interaction of ceiling breaches UCA, smaller scope a
 
 
 
-###Model 05G: Days and Office % Crisis
-```{r Mode05G}
-debug(summary_discrete_plot)
-
-summary_continuous_plot(crisis_smp,"l_Days","UCA")
+###Model 05H: Duration and Office % Crisis
+```{r Mode05H}
+summary_continuous_plot(crisis_smp,"l_Days","c_OffCri")
 
 #Model
-CBre_05G <- glm (data=crisis_smp,
+CBre_05H <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +cb_Comp + b_Urg +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
@@ -2541,11 +2539,12 @@ CBre_05G <- glm (data=crisis_smp,
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Days:Crisis+
-                   cl_Days:b_UCA, 
+                   cl_Days:b_UCA+
+                   cl_Days:c_OffCri, 
                  family=binomial(link="logit"))
-display(CBre_05G)
+display(CBre_05H)
 
-Term_05G <- glm (data=crisis_smp,
+Term_05H <- glm (data=crisis_smp,
                  b_Term ~ Crisis +cb_Comp +  b_Urg +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
@@ -2556,121 +2555,116 @@ Term_05G <- glm (data=crisis_smp,
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Days:Crisis+
-                   cl_Days:b_UCA, 
+                   cl_Days:c_OffCri
+                   , 
                  family=binomial(link="logit"))
-display(Term_05G)
+display(Term_05H)
 
 
 
-stargazer::stargazer(CBre_05F,CBre_05G,Term_05F,Term_05G,type="text",
+stargazer::stargazer(CBre_05G,CBre_05H,Term_05G,Term_05H,type="text",
                      digits=2)
 
 
-CBre_05G_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_05G))}
+CBre_05H_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_05H))}
 
 #Competition Curves
-fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_05G_curve, 
+fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_05H_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_05G_curve, 
+  stat_function(fun = CBre_05H_curve, 
                              args=list(Comp=2,Ceil=0),color="blue")
 
 #Ceiling Curves
-fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_05G_curve, 
+fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_05H_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_05G_curve, 
+  stat_function(fun = CBre_05H_curve, 
                              args=list(Comp=0,Ceil=1),color="blue")
 
 
-summary_residual_compare(CBre_05F,CBre_05G,Term_05F,Term_05G)
+summary_residual_compare(CBre_05G,CBre_05H,Term_05G,Term_05H)
 
 
 ```
+The interaction between duration and office crisis percentage 
 
 ##Contract Vehicle
-Our dataset includes both stand alone contract awards and task orders that are under larger indefinite delivery vehilces (IDVs). 
+Our dataset includes both stand alone contract awards and task orders that are under larger indefinite delivery vehicles (IDVs). This does fit with literature review findings about the risk of long duration contracts in a crisis, so will be kept in despite its minimal coefficient.
 
-###Model 13A: Single-Award, Multi-Award, and Other Indefinite Delivery Vehicles
-
-
-```{r Model13A}
-#Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"Veh")
-
-#Percent Terminated Plot 
-discrete_percent_cbre_plot(crisis_smp,"Veh")
+###Model 06A: Single-Award, Multi-Award, and Other Indefinite Delivery Vehicles
 
 
-#Create the model
-CBre_13A <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis + n_Comp + 
-                   cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
-                   SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days, family=binomial(link="logit"))
-display(CBre_13A)
+```{r Model06A}
+debug(summary_discrete_plot)
+  summary_discrete_plot(crisis_smp,"Veh")
 
-#Plot the model and Vehicle for SIDV
-CBre_13A_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
-  cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,x,MIDV,OIDV,
-        Comp*Ceil,Days*Ceil,Days*Comp) %*%  coef(CBre_13A))}
+#Model
+CBre_06A <- glm (data=crisis_smp,
+                 b_CBre ~ Crisis +cb_Comp + b_Urg +
+                   b_UCA+
+                   OffPlaceCat4+ c_OffCri+
+                   cl_Ceil+
+                   cl_Days+
+                   Veh+
+                   cb_Comp:Crisis+
+                   b_Urg:Crisis+
+                   b_UCA:Crisis+
+                   cl_Ceil:Crisis+
+                   cl_Days:Crisis+
+                   cl_Days:b_UCA+
+                   cl_Days:c_OffCri, 
+                 family=binomial(link="logit"))
+display(CBre_06A)
 
-#Competition curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_13A_SIDV_curve, 
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_13A_SIDV_curve, 
-                             args=list(Comp=2,Ceil=0,Days=0,
-                                       MIDV=0,OIDV=0),color="blue")
-
-CBre_13A_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
-  cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,SIDV,x,OIDV,
-        Comp*Ceil,Days*Ceil,Days*Comp) %*%  coef(CBre_13A))}
-
-#Plot the model and Vehicle for MIDV
-#Competition curves
-discrete_fitted_cbre_model(crisis_smp,"MIDV") +
-  stat_function(fun = CBre_13A_MIDV_curve, 
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       SIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_13A_MIDV_curve, 
-                             args=list(Comp=2,Ceil=0,Days=0,
-                                       SIDV=0,OIDV=0),color="blue")
-
-CBre_13A_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
-  cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,SIDV,MIDV,x,
-        Comp*Ceil,Days*Ceil,Days*Comp) %*%  coef(CBre_13A))}
-
-#Plot the model and Vehicle for OIDV
-#Competition curves
-discrete_fitted_cbre_model(crisis_smp,"OIDV") +
-  stat_function(fun = CBre_13A_OIDV_curve, 
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       SIDV=0,MIDV=0),color="blue")+
-  stat_function(fun = CBre_13A_OIDV_curve, 
-                             args=list(Comp=2,Ceil=0,Days=0,
-                                       SIDV=0,MIDV=0),color="blue")
+Term_06A <- glm (data=crisis_smp,
+                 b_Term ~ Crisis +cb_Comp +  b_Urg +
+                   b_UCA+
+                   OffPlaceCat4+ c_OffCri+
+                  cl_Ceil+
+                   cl_Days+
+                   Veh+
+                   cb_Comp:Crisis+
+                   b_Urg:Crisis+
+                   b_UCA:Crisis+
+                   cl_Ceil:Crisis+
+                   cl_Days:Crisis+
+                   cl_Days:c_OffCri
+                   , 
+                 family=binomial(link="logit"))
+display(Term_06A)
 
 
 
-#Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_13A)
+stargazer::stargazer(CBre_05H,CBre_06A,Term_05H,Term_06A,type="text",
+                     digits=2)
 
-#Plot residuals versus fitted
-residuals_cbre_plot(CBre_13A)+
-  labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre_13F,"cl_days")+
-#   labs(x="Centered Log(Days)")
+CBre_06A_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_06A))}
+
+#Competition Curves
+fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_06A_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_06A_curve, 
+                             args=list(Comp=2,Ceil=0),color="blue")
+
+#Ceiling Curves
+fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_06A_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_06A_curve, 
+                             args=list(Comp=0,Ceil=1),color="blue")
+
+debug(summary_residual_compare)
+summary_residual_compare(CBre_05H,CBre_06A,Term_05H,Term_06A)
+
 
 ```
 
-The first check lumps looks at three categories of IDVs, each facing a notably lower a risk of termination. The largest negative coefficient is for single award IDCs, multiple award IDVs second, and other IDVs third. The deviation residual notably creeps up after this addition, though this is likely attributable to a missing data problem rather than the new information not being useful. Unfortunately, while the for both ceiling^2 and duration^2 were notably reduced in magnitude, the residuals show significant patterns, underestimating the risk of termination in the fitted range from around 0.005 to 0.11 and overestimating by 0.02. There's no exponential cbre that makes sense to add here, which leaves the hope that interactions may address this phenomenon.
+The first check lumps looks at four categories of IDVs, each associated with a notably rate of negative outcomes. The largest negative coefficient varies by measure. Both single award IDCs (S-IDC) and Blanket Purchase Agreements/Basic Order Agreements (BPA/BOA) have singifcant negative coefficients in both categories. Multiple award IDVs have the largest negative coefficient for terminations but the smalling for breaches. FSS/GWAC on the other hand have the smallest coefficent for terminations, but are associated with a lower rate of breaches only a bit smaller in magnuted to S-IDCs or BPA/BOAs. second, and other IDVs third. The deviance of the both models is notably reduced, the main warning bell though is some signs of flattening out in the fitted versus residuals. The residual pattern around 0.5 for log of cost ceiling is still not explained.
 
-This may reflect that the Ceiling and Days entries reflect only the task order and not the larger contract. The next step is to check the intersections with ceiling.
+The next step is to check the intersections with Crisis.
 
 
-###Model 13B: Vehicle and Duration
-```{r Model13B}
+###Model 06B: Vehicle and Duration
+```{r Model06B}
 
 #Frequency Plot
 freq_continuous_cbre_plot(crisis_smp,"l_Days","Veh")
@@ -2680,67 +2674,67 @@ freq_continuous_cbre_plot(crisis_smp,"l_Days","Veh")
 binned_percent_cbre_plot(crisis_smp,"l_Days","Veh")
 
 #Create the model
-CBre_13B <- glm (data=crisis_smp,
+CBre_06B <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA +
                    n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
                  SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days, family=binomial(link="logit"))
-display(CBre_13B)
+display(CBre_06B)
 
 # Plot the model and Vehicle for SIDV
-CBre_13B_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
+CBre_06B_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,x,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
-        Days*x,Days*MIDV,Days*OIDV) %*%  coef(CBre_13B))}
+        Days*x,Days*MIDV,Days*OIDV) %*%  coef(CBre_06B))}
 
 #Duration curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_13B_SIDV_curve,
+  stat_function(fun = CBre_06B_SIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=-1,
                                        MIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_13B_SIDV_curve,
+  stat_function(fun = CBre_06B_SIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=1,
                                        MIDV=0,OIDV=0),color="blue")
 
 
-CBre_13B_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
+CBre_06B_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,SIDV,x,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
-        Days*SIDV,Days*x,Days*OIDV) %*%  coef(CBre_13B))}
+        Days*SIDV,Days*x,Days*OIDV) %*%  coef(CBre_06B))}
 
 #Plot the model and Vehicle for MIDV
 #Duration Curves
 discrete_fitted_cbre_model(crisis_smp,"MIDV") +
-  stat_function(fun = CBre_13B_MIDV_curve,
+  stat_function(fun = CBre_06B_MIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=-1,
                                        SIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_13B_MIDV_curve,
+  stat_function(fun = CBre_06B_MIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=1,
                                        SIDV=0,OIDV=0),color="blue")
 
 
-CBre_13B_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
+CBre_06B_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,SIDV,MIDV,x,
         Comp*Ceil,Days*Ceil,Days*Comp,
-        Days*SIDV,Days*MIDV,Days*x) %*%  coef(CBre_13B))}
+        Days*SIDV,Days*MIDV,Days*x) %*%  coef(CBre_06B))}
 
 #Plot the model and Vehicle for OIDV
 #Duration curves
 discrete_fitted_cbre_model(crisis_smp,"OIDV") +
-  stat_function(fun = CBre_13B_OIDV_curve,
+  stat_function(fun = CBre_06B_OIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=-1,
                                        SIDV=0,MIDV=0),color="blue")+
-  stat_function(fun = CBre_13B_OIDV_curve,
+  stat_function(fun = CBre_06B_OIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=1,
                                        SIDV=0,MIDV=0),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_13B)
+binned_fitted_versus_cbre_residuals(CBre_06B)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_13B)+
+residuals_cbre_plot(CBre_06B)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -2757,12 +2751,12 @@ Interactions:
 
 
 
-###Model 13C: Vehicle and Competition
+###Model 06C: Vehicle and Competition
 
 The next step is to check interactions with the contract vehicles. Each has a slightly different approach to competition. For example, the competition for a Single-Award IDV happens at the start of the IDV, after that, contracts awarded through that vehicle go to that single winning vendor.
 
 
-```{r Model13C}
+```{r Model06C}
 
 #Frequency Plot
 freq_discrete_cbre_plot(crisis_smp,"EffComp","Veh")
@@ -2772,72 +2766,72 @@ discrete_percent_cbre_plot(crisis_smp,"EffComp","Veh")
 
 
 #Create the model
-CBre_13C <- glm (data=crisis_smp,
+CBre_06C <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA +
                    n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
                  SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp , family=binomial(link="logit"))
-display(CBre_13C)
+display(CBre_06C)
 
 # Plot the model and Vehicle for SIDV
-CBre_13C_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
+CBre_06C_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,x,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_13C))}
+        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_06C))}
 
 #Competition curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_13C_SIDV_curve,
+  stat_function(fun = CBre_06C_SIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_13C_SIDV_curve,
+  stat_function(fun = CBre_06C_SIDV_curve,
                              args=list(Comp=2,Ceil=0,Days=0,
                                        MIDV=0,OIDV=0),color="blue")
 
 
-CBre_13C_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
+CBre_06C_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,SIDV,x,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Days*SIDV,Days*x,Days*OIDV,
-        Comp*SIDV,Comp*x,Comp*OIDV) %*%  coef(CBre_13C))}
+        Comp*SIDV,Comp*x,Comp*OIDV) %*%  coef(CBre_06C))}
 
 #Plot the model and Vehicle for MIDV
 #Competition Curves
 discrete_fitted_cbre_model(crisis_smp,"MIDV") +
-  stat_function(fun = CBre_13C_MIDV_curve,
+  stat_function(fun = CBre_06C_MIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_13C_MIDV_curve,
+  stat_function(fun = CBre_06C_MIDV_curve,
                              args=list(Comp=2,Ceil=0,Days=0,
                                        SIDV=0,OIDV=0),color="blue")
 
 
-CBre_13C_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
+CBre_06C_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,SIDV,MIDV,x,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Days*SIDV,Days*MIDV,Days*x,
-        Comp*SIDV,Comp*MIDV,Comp*x) %*%  coef(CBre_13C))}
+        Comp*SIDV,Comp*MIDV,Comp*x) %*%  coef(CBre_06C))}
 
 #Plot the model and Vehicle for OIDV
 #Competition curves
 discrete_fitted_cbre_model(crisis_smp,"OIDV") +
-  stat_function(fun = CBre_13C_OIDV_curve,
+  stat_function(fun = CBre_06C_OIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,MIDV=0),color="blue")+
-  stat_function(fun = CBre_13C_OIDV_curve,
+  stat_function(fun = CBre_06C_OIDV_curve,
                              args=list(Comp=2,Ceil=0,Days=0,
                                        SIDV=0,MIDV=0),color="blue")
 
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_13C)
+binned_fitted_versus_cbre_residuals(CBre_06C)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_13C)+
+residuals_cbre_plot(CBre_06C)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -2854,8 +2848,8 @@ Interactions
 
 Unlike the existance of competition, having more offers does not have the same dramatic relationship with multi-award IDVs that it does with competition. This does raise the question as to whether the long tail of high numbers of offers might be undercutting the relationship. However, for now, we will stick with competition. 
 
-###Model 13D: Vehicle and Contract Ceiling
-```{r Model13D}
+###Model 06D: Vehicle and Contract Ceiling
+```{r Model06D}
 
 #Frequency Plot
 freq_continuous_cbre_plot(crisis_smp,"l_Ceil","Veh")
@@ -2867,7 +2861,7 @@ binned_percent_cbre_plot(crisis_smp,"l_Ceil","Veh")
 #Create the model
 
 #Create the model
-CBre_13D <- glm (data=crisis_smp,
+CBre_06D <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -2875,68 +2869,68 @@ CBre_13D <- glm (data=crisis_smp,
                  SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp +
                    SIDV:cl_Ceil+MIDV:cl_Ceil+OIDV:cl_Ceil, family=binomial(link="logit"))
-display(CBre_13D)
+display(CBre_06D)
 
 # Plot the model and Vehicle for SIDV
-CBre_13D_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
+CBre_06D_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,x,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Days*x,Days*MIDV,Days*OIDV,
         Comp*x,Comp*MIDV,Comp*OIDV,
-        Ceil*x,Ceil*MIDV,Ceil*OIDV) %*%  coef(CBre_13D))}
+        Ceil*x,Ceil*MIDV,Ceil*OIDV) %*%  coef(CBre_06D))}
 
 #Competition curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_13D_SIDV_curve,
+  stat_function(fun = CBre_06D_SIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_13D_SIDV_curve,
+  stat_function(fun = CBre_06D_SIDV_curve,
                              args=list(Comp=2,Ceil=0,Days=0,
                                        MIDV=0,OIDV=0),color="blue")
 
 
-CBre_13D_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
+CBre_06D_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,SIDV,x,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Days*SIDV,Days*x,Days*OIDV,
         Comp*SIDV,Comp*x,Comp*OIDV,
-        Ceil*SIDV,Ceil*x,Ceil*OIDV) %*%  coef(CBre_13D))}
+        Ceil*SIDV,Ceil*x,Ceil*OIDV) %*%  coef(CBre_06D))}
 
 #Plot the model and Vehicle for MIDV
 #Competition Curves
 discrete_fitted_cbre_model(crisis_smp,"MIDV") +
-  stat_function(fun = CBre_13D_MIDV_curve,
+  stat_function(fun = CBre_06D_MIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_13D_MIDV_curve,
+  stat_function(fun = CBre_06D_MIDV_curve,
                              args=list(Comp=2,Ceil=0,Days=0,
                                        SIDV=0,OIDV=0),color="blue")
 
 
-CBre_13D_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
+CBre_06D_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,SIDV,MIDV,x,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Days*SIDV,Days*MIDV,Days*x,
         Comp*SIDV,Comp*MIDV,Comp*x,
-        Ceil*SIDV,Ceil*MIDV,Ceil*x) %*%  coef(CBre_13D))}
+        Ceil*SIDV,Ceil*MIDV,Ceil*x) %*%  coef(CBre_06D))}
 
 #Plot the model and Vehicle for OIDV
 #Competition curves
 discrete_fitted_cbre_model(crisis_smp,"OIDV") +
-  stat_function(fun = CBre_13D_OIDV_curve,
+  stat_function(fun = CBre_06D_OIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,MIDV=0),color="blue")+
-  stat_function(fun = CBre_13D_OIDV_curve,
+  stat_function(fun = CBre_06D_OIDV_curve,
                              args=list(Comp=2,Ceil=0,Days=0,
                                        SIDV=0,MIDV=0),color="blue")
 
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_13D)
+binned_fitted_versus_cbre_residuals(CBre_06D)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_13D)+
+residuals_cbre_plot(CBre_06D)+
   labs(x="Estimated  Pr (Termination)")
 
 
@@ -2948,106 +2942,106 @@ residuals_cbre_plot(CBre_13D)+
 
 The interaction with contract ceiling only has a significant relationship with other IDV, and the 3 terms together do little to reduce the divergence of the model. Leaving it out.
 
-###Model 13E: Testing the removal of Ceiling^2 
+###Model 06E: Testing the removal of Ceiling^2 
 
-```{r Model13E}
+```{r Model06E}
 
 #Create the model
-CBre_13E <- glm (data=crisis_smp,
+CBre_06E <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil  + cl_Days+ clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA +
                    n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
                  SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp, family=binomial(link="logit"))
-display(CBre_13E)
+display(CBre_06E)
 
 
 # Plot the model and Vehicle for SIDV
-CBre_13E_SIDV_curve<-function(x, Comp,Days,SIDV,MIDV,OIDV){invlogit(
+CBre_06E_SIDV_curve<-function(x, Comp,Days,SIDV,MIDV,OIDV){invlogit(
   cbind(1,Comp,x,Days,Days^2,SIDV,MIDV,OIDV,
         Comp*x,Days*x,Days*Comp,
         Days*SIDV,Days*MIDV,Days*OIDV,
-        Comp*SIDV,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_13E))}
+        Comp*SIDV,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_06E))}
 
 #Competition curves
 discrete_fitted_cbre_model(crisis_smp,"cl_Ceil") +
-  stat_function(fun = CBre_13E_SIDV_curve,
+  stat_function(fun = CBre_06E_SIDV_curve,
                              args=list(Comp=0,Days=0,
                                        MIDV=0,OIDV=0,SIDV=0),color="blue")+
-  stat_function(fun = CBre_13E_SIDV_curve,
+  stat_function(fun = CBre_06E_SIDV_curve,
                              args=list(Comp=2,Days=0,
                                        MIDV=0,OIDV=0,SIDV=0),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_13E)
+binned_fitted_versus_cbre_residuals(CBre_06E)
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre_13E)+
+residuals_cbre_plot(CBre_06E)+
   labs(x="Estimated  Pr (Termination)")
 
-residuals_cbre_plot(CBre_13D,"cl_Ceil")+
+residuals_cbre_plot(CBre_06D,"cl_Ceil")+
   labs(x="Centered Log(Ceiling)")
 
 
-residuals_cbre_plot(CBre_13E,"cl_Ceil")+
+residuals_cbre_plot(CBre_06E,"cl_Ceil")+
   labs(x="Centered Log(Ceiling)")
 
 ```
 Ceiling squared does little to reduce deviance and only slightly mitigates, rather than removing, any patterns in the residuals. Removing it from the model.
 
 
-###Model 13F: Testing the removal of Duration^2 
+###Model 06F: Testing the removal of Duration^2 
 
-```{r Model13F}
+```{r Model06F}
 
 #Create the model
-CBre_13F <- glm (data=crisis_smp,
+CBre_06F <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil  + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
                    n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
                  SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp, family=binomial(link="logit"))
-display(CBre_13F)
+display(CBre_06F)
 
 
 # Plot the model and Vehicle for SIDV
-CBre_13F_SIDV_curve<-function(x, Comp,Days,SIDV,MIDV,OIDV){invlogit(
+CBre_06F_SIDV_curve<-function(x, Comp,Days,SIDV,MIDV,OIDV){invlogit(
   cbind(1,Comp,x,Days,Days^2,SIDV,MIDV,OIDV,
         Comp*x,Days*x,Days*Comp,
         Days*SIDV,Days*MIDV,Days*OIDV,
-        Comp*SIDV,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_13F))}
+        Comp*SIDV,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_06F))}
 
 #Competition curves
 discrete_fitted_cbre_model(crisis_smp,"cl_Ceil") +
-  stat_function(fun = CBre_13F_SIDV_curve,
+  stat_function(fun = CBre_06F_SIDV_curve,
                              args=list(Comp=0,Days=0,
                                        MIDV=0,OIDV=0,SIDV=0),color="blue")+
-  stat_function(fun = CBre_13F_SIDV_curve,
+  stat_function(fun = CBre_06F_SIDV_curve,
                              args=list(Comp=2,Days=0,
                                        MIDV=0,OIDV=0,SIDV=0),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_13F)
+binned_fitted_versus_cbre_residuals(CBre_06F)
 
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre_13E)+
+residuals_cbre_plot(CBre_06E)+
   labs(x="Estimated  Pr (Termination)")
 
 
 #Plot residuals versus fitted
-residuals_cbre_plot(CBre_13F)+
+residuals_cbre_plot(CBre_06F)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre_13E,"cl_Days")+
+# residuals_cbre_plot(CBre_06E,"cl_Days")+
   # labs(x="Centered Log(Duration)")
 
 
-# residuals_cbre_plot(CBre_13F,"cl_Days")+
+# residuals_cbre_plot(CBre_06F,"cl_Days")+
   # labs(x="Centered Log(Duration)")
 ```
 
