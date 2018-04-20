@@ -2312,7 +2312,7 @@ summary_residual_compare(CBre_05C,CBre_05D,Term_05C,Term_05D)
 ```
 Duration has significant correlations with both outcome variables, but the coefficient is larger for terminations. The initial model results are surprising as ceiling change direction, reducing and correlates with a lower risk of termiation now, although the interaction between crisis funding and ceiling remains roughly the same. The graph of the fitted values shows that this model The next step will be to look at the interaction of ceiling and duration. The residuals for both ceiling and days do fall out of the 95% confidence interval more than expected and particularly for ceiling breaches show some signs of patterns.
 
-###Model 05E: Interation of Ceiling and Duration
+###Model 05E: Ceiling and Duration
 
 ```{r Mode05E}
 
@@ -2395,7 +2395,7 @@ summary_residual_compare(CBre_05D,CBre_05E,Term_05D,Term_05E)
 The interaction of ceiling and duration is correlated with a higher rate of ceiling breaches and no change at all to terminations. The coefficient is minor and the reduction in the deviance of the minor is minimal for ceiling breaches. The results of the interaction also don't make a great deal of sense, as placing a large contract under a tighter schedule is not known for reducing risk. While we hesitate to leave off a significant variable, it contributes little but confusion and is not key to the study, leaving it out.
 
 
-###Model 05F: Interaction of Duration and Crisis
+###Model 05F:  Duration and Crisis
 ```{r Mode05F}
 
 summary_continuous_plot(crisis_smp,"l_Days","Crisis")
@@ -2457,15 +2457,14 @@ summary_residual_compare(CBre_05E,CBre_05F,Term_05E,Term_05F)
 The interaction of Crisis and Duration has a fairly marginal affect, but is notable for disaster contracts. While length remains a risk with disaster contracts, the correlation with worse outcomes is lower than for other forms of contracts. 
 
 
-###Model 05F: Interaction of Duration and UCA
-```{r Mode05F}
+###Model 05G: Duration and UCA
+```{r Mode05G}
 debug(summary_discrete_plot)
-summary_discrete_plot(crisis_smp,"l_Days","UCA")
 
 summary_continuous_plot(crisis_smp,"l_Days","UCA")
 
 #Model
-CBre_05F <- glm (data=crisis_smp,
+CBre_05G <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +cb_Comp + b_Urg +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
@@ -2475,11 +2474,12 @@ CBre_05F <- glm (data=crisis_smp,
                    b_Urg:Crisis+
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
-                   cl_Days:Crisis, 
+                   cl_Days:Crisis+
+                   cl_Days:b_UCA, 
                  family=binomial(link="logit"))
-display(CBre_05F)
+display(CBre_05G)
 
-Term_05F <- glm (data=crisis_smp,
+Term_05G <- glm (data=crisis_smp,
                  b_Term ~ Crisis +cb_Comp +  b_Urg +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
@@ -2489,32 +2489,99 @@ Term_05F <- glm (data=crisis_smp,
                    b_Urg:Crisis+
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
-                   cl_Days:Crisis, 
+                   cl_Days:Crisis+
+                   cl_Days:b_UCA, 
                  family=binomial(link="logit"))
-display(Term_05F)
+display(Term_05G)
 
 
 
-stargazer::stargazer(CBre_05E,CBre_05F,Term_05E,Term_05F,type="text",
+stargazer::stargazer(CBre_05F,CBre_05G,Term_05F,Term_05G,type="text",
                      digits=2)
 
 
-CBre_05F_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_05F))}
+CBre_05G_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_05G))}
 
 #Competition Curves
-fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_05F_curve, 
+fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_05G_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_05F_curve, 
+  stat_function(fun = CBre_05G_curve, 
                              args=list(Comp=2,Ceil=0),color="blue")
 
 #Ceiling Curves
-fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_05F_curve, 
+fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_05G_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_05F_curve, 
+  stat_function(fun = CBre_05G_curve, 
                              args=list(Comp=0,Ceil=1),color="blue")
 
 
-summary_residual_compare(CBre_05E,CBre_05F,Term_05E,Term_05F)
+summary_residual_compare(CBre_05F,CBre_05G,Term_05F,Term_05G)
+
+
+```
+Similar to the model of the interaction of ceiling breaches UCA, smaller scope appears to be associated with somewhat greater risk. The improvement in deviation as well as with the overall comparison of the binned fitted values with outcomes and residuals seem to indicate that this interaction is worth keeping for ceiling breaches.
+
+
+
+###Model 05G: Days and Office % Crisis
+```{r Mode05G}
+debug(summary_discrete_plot)
+
+summary_continuous_plot(crisis_smp,"l_Days","UCA")
+
+#Model
+CBre_05G <- glm (data=crisis_smp,
+                 b_CBre ~ Crisis +cb_Comp + b_Urg +
+                   b_UCA+
+                   OffPlaceCat4+ c_OffCri+
+                   cl_Ceil+
+                   cl_Days+
+                   cb_Comp:Crisis+
+                   b_Urg:Crisis+
+                   b_UCA:Crisis+
+                   cl_Ceil:Crisis+
+                   cl_Days:Crisis+
+                   cl_Days:b_UCA, 
+                 family=binomial(link="logit"))
+display(CBre_05G)
+
+Term_05G <- glm (data=crisis_smp,
+                 b_Term ~ Crisis +cb_Comp +  b_Urg +
+                   b_UCA+
+                   OffPlaceCat4+ c_OffCri+
+                  cl_Ceil+
+                   cl_Days+
+                   cb_Comp:Crisis+
+                   b_Urg:Crisis+
+                   b_UCA:Crisis+
+                   cl_Ceil:Crisis+
+                   cl_Days:Crisis+
+                   cl_Days:b_UCA, 
+                 family=binomial(link="logit"))
+display(Term_05G)
+
+
+
+stargazer::stargazer(CBre_05F,CBre_05G,Term_05F,Term_05G,type="text",
+                     digits=2)
+
+
+CBre_05G_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_05G))}
+
+#Competition Curves
+fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_05G_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_05G_curve, 
+                             args=list(Comp=2,Ceil=0),color="blue")
+
+#Ceiling Curves
+fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_05G_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_05G_curve, 
+                             args=list(Comp=0,Ceil=1),color="blue")
+
+
+summary_residual_compare(CBre_05F,CBre_05G,Term_05F,Term_05G)
 
 
 ```
