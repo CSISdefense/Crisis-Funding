@@ -894,14 +894,7 @@ In exploratory graphs, the interaction of UCA and appear to be largely absent fo
 
 ```{r Model04A}
 
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"CrisisPercent"),
-             binned_percent_cbre_plot(crisis_smp,"CrisisPercent"))
-
-
-#Terminations
-gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"CrisisPercent"),
-                        binned_percent_term_plot(crisis_smp,"CrisisPercent"))
+summary_continuous_plot(crisis_smp,"CrisisPercent",bins=50)
 
 
 #Ceiling Breaches
@@ -1125,6 +1118,11 @@ summary(crisis_smp$OffPl99)
          "IRQ-AFG"=c("[3.50,4.00]"))
 
   
+  crisis_smp$OffPl99<-factor(crisis_smp$OffPl99,
+                           c("Mixed",
+                           "US99",
+                           "IRQ-AFG"))
+  
   
 
 summary(crisis_smp$OffPl99)
@@ -1222,6 +1220,7 @@ Drawing the line at 0.01 is a judgment call, based on the fact that 25% of contr
 
 ```{r Model04E}
 
+summary_continuous_plot(crisis_smp,"CrisisPercent","OffPl99",bins=50)
 
 
 sum(crisis_smp$Action.Obligation[ crisis_smp$OffPlace<0.01],na.rm=TRUE)/
@@ -1355,6 +1354,11 @@ summary(crisis_smp$OffPl95)
          "Mixed"=c("[0.05,3.50)"),
          "IRQ-AFG"=c("[3.50,4.00]"))
 
+  crisis_smp$OffPl95<-factor(crisis_smp$OffPl95,
+                           c("Mixed",
+                           "US95",
+                           "IRQ-AFG"))
+  
   
 summary_discrete_plot(crisis_smp,"OffPl95")
 
@@ -1431,16 +1435,7 @@ The higher standard, with roughly half of contracts falling beneath it, is more 
 
 ```{r Model04G}
 
-
-#Four Place categories
-gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"OffPl","Crisis"),
-                        discrete_percent_cbre_plot(crisis_smp,"OffPl","Crisis"))
-                        
-#Terminations
-gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"OffPl","Crisis"),
-                        discrete_percent_term_plot(crisis_smp,"OffPl","Crisis"))
-
-
+summary_continuous_plot(crisis_smp,"CrisisPercent","OffPl95",bins=50)
 
 
 
@@ -1518,12 +1513,18 @@ crisis_smp$OffPl75<-Hmisc::cut2(crisis_smp$OffPlace,c(0.25,3.50))
 summary(crisis_smp$OffPl75)
 
 
-summary(crisis_smp$OffPl75)
   levels(crisis_smp$OffPl75) <-
     list("US75"=c("[0.00,0.25)"),
          "Mixed"=c("[0.25,3.50)"),
          "IRQ-AFG"=c("[3.50,4.00]"))
 
+
+crisis_smp$OffPl75<-factor(crisis_smp$OffPl75,
+                           c("Mixed",
+                           "US75",
+                           "IRQ-AFG"))
+  
+summary(crisis_smp$OffPl75)
   
 summary_discrete_plot(crisis_smp,"OffPl75")
 
@@ -1534,7 +1535,6 @@ CBre_04H <- glm (data=crisis_smp,
                    b_UCA+
                    OffPl75+
                   UrgComp:Crisis+
-
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_04H)
@@ -1544,7 +1544,6 @@ Term_04H <- glm (data=crisis_smp,
                    b_UCA+
                    OffPl75+
                   UrgComp:Crisis+
-
                    b_UCA:Crisis , 
                  family=binomial(link="logit"))
 display(Term_04H)
@@ -1603,28 +1602,19 @@ summary_residual_compare(CBre_04G,CBre_04H,Term_04G,Term_04H)
 
 ```{r Model04I}
 
-
-#Four Place categories
-gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"OffPl","Crisis"),
-                        discrete_percent_cbre_plot(crisis_smp,"OffPl","Crisis"))
-                        
-#Terminations
-gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"OffPl","Crisis"),
-                        discrete_percent_term_plot(crisis_smp,"OffPl","Crisis"))
-
-
+summary_continuous_plot(crisis_smp,"CrisisPercent","OffPl75",bins=50)
 
 
 
 #Office Place crossreferenced with Crisis
 #Ceiling Breaches
-gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"sqrt_OffPlace","Crisis",bins=50)+aes(fill=OffPl),
-             binned_percent_cbre_plot(crisis_smp,"sqrt_OffPlace","Crisis",bins=50)+geom_vline(xintercept=c(0.1,0.5,1.87)))
+gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"sqrt_OffPlace","Crisis",bins=50)+aes(fill=OffPl75),
+             binned_percent_cbre_plot(crisis_smp,"sqrt_OffPlace","Crisis",bins=50)+geom_vline(xintercept=c(0.5,1.87)))
 
 
 #Terminations
-gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"sqrt_OffPlace","Crisis",bins=50)+aes(fill=OffPl),
-                        binned_percent_term_plot(crisis_smp,"sqrt_OffPlace","Crisis",bins=50)+geom_vline(xintercept=c(0.1,0.5,1.87)))
+gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"sqrt_OffPlace","Crisis",bins=50)+aes(fill=OffPl75),
+                        binned_percent_term_plot(crisis_smp,"sqrt_OffPlace","Crisis",bins=50)+geom_vline(xintercept=c(0.5,1.87)))
 
 #Model
 CBre_04I <- glm (data=crisis_smp,
