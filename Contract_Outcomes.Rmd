@@ -636,13 +636,13 @@ gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"Urg"),
 
 #Model
 CBre_02I <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    cb_Comp:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_02I)
 
 Term_02I <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    cb_Comp:Crisis, 
                  family=binomial(link="logit"))
 display(Term_02I)
@@ -691,14 +691,14 @@ gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"Urg","Crisis"),
 
 #Model
 CBre_02J <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
-                   UrgComp:Crisis, 
+                 b_CBre ~ Crisis +NoComp +
+                   NoComp:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_02J)
 
 Term_02J <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
-                   UrgComp:Crisis, 
+                 b_Term ~ Crisis +NoComp +
+                   NoComp:Crisis, 
                  family=binomial(link="logit"))
 display(Term_02J)
 
@@ -751,16 +751,16 @@ gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"UCA"),
 
 #Model
 CBre_03A <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
-                  UrgComp:Crisis, 
+                  NoComp:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_03A)
 
 Term_03A <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
-                  UrgComp:Crisis, 
+                  NoComp:Crisis, 
                  family=binomial(link="logit"))
 display(Term_03A)
 
@@ -836,17 +836,17 @@ gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"UCA","Comp"),
 #Create the model
 #Model
 CBre_03B <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis , 
                  family=binomial(link="logit"))
 display(CBre_03B)
 
 Term_03B <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis , 
                  family=binomial(link="logit"))
 display(Term_03B)
@@ -910,17 +910,17 @@ gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"c_OffCri"),
 #Model
 
 CBre_04A <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+c_OffCri+ 
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis , 
                  family=binomial(link="logit"))
 display(CBre_04A)
 
 Term_04A <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+c_OffCri+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis , 
                  family=binomial(link="logit"))
 display(Term_04A)
@@ -960,19 +960,19 @@ summary_continuous_plot(crisis_smp,"AvgPlaceOCOcrisisScore",bins=50)
 
 #Model
 CBre_04B <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    AvgPlaceOCOcrisisScore+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis , 
                  family=binomial(link="logit"))
 display(CBre_04B)
 
 Term_04B <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+AvgPlaceOCOcrisisScore+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis , 
                  family=binomial(link="logit"))
@@ -1052,19 +1052,19 @@ summary_continuous_plot(crisis_smp,"AvgPlaceOCOcrisisScore","Crisis",bins=40)
 
 #Model
 CBre_04C <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    AvgPlaceOCOcrisisScore+c_OffCri+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis,
                  family=binomial(link="logit"))
 display(CBre_04C)
 
 Term_04C <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    AvgPlaceOCOcrisisScore+c_OffCri+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis,
                  family=binomial(link="logit"))
 display(Term_04C)
@@ -1118,12 +1118,6 @@ summary(crisis_smp$OffPl99)
          "IRQ-AFG"=c("[3.50,4.00]"))
 
   
-  crisis_smp$OffPl99<-factor(crisis_smp$OffPl99,
-                           c("Mixed",
-                           "US99",
-                           "IRQ-AFG"))
-  
-  
 
 summary(crisis_smp$OffPl99)
 
@@ -1168,19 +1162,19 @@ gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"sqrt_OffPlace","Cr
 
 #Model
 CBre_04D <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPl99+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_04D)
 
 Term_04D <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPl99+
-                   UrgComp:Crisis+
+                   NoComp:Crisis+
                    b_UCA:Crisis , 
                  family=binomial(link="logit"))
 display(Term_04D)
@@ -1285,19 +1279,19 @@ gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"sqrt_OffPlace","Cr
 
 #Model
 CBre_04E <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPl99+c_OffCri+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_04E)
 
 Term_04E <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPl99++c_OffCri+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
 display(Term_04E)
@@ -1365,20 +1359,20 @@ summary_discrete_plot(crisis_smp,"OffPl95")
 
 #Model
 CBre_04F <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPl95+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_04F)
 
 Term_04F <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPl95+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis , 
                  family=binomial(link="logit"))
@@ -1451,10 +1445,10 @@ gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"sqrt_OffPlace","Cr
 
 #Model
 CBre_04G <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPl95+c_OffCri+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis, 
                  
@@ -1462,10 +1456,10 @@ CBre_04G <- glm (data=crisis_smp,
 display(CBre_04G)
 
 Term_04G <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPl95+c_OffCri+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis , 
                  family=binomial(link="logit"))
@@ -1531,19 +1525,19 @@ summary_discrete_plot(crisis_smp,"OffPl75")
 
 #Model
 CBre_04H <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPl75+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_04H)
 
 Term_04H <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPl75+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis , 
                  family=binomial(link="logit"))
 display(Term_04H)
@@ -1590,7 +1584,7 @@ gridExtra::grid.arrange(residuals_cbre_plot(CBre_04H,bins=5)+
 
 
 summary_residual_compare(CBre_04F,CBre_04H,Term_04F,Term_04H)
-summary_residual_compare(CBre_04G,CBre_04H,Term_04G,Term_04H)
+summary_residual_compare(CBre_04G,CBre_04H,Term_04G,Term_04H, bins=3)
 ```
 
 
@@ -1598,7 +1592,7 @@ summary_residual_compare(CBre_04G,CBre_04H,Term_04G,Term_04H)
 
 
 
-### 04I: OffPl. 75% & Crisis
+### 04I: Both OffPl. 75% & Crisis
 
 ```{r Model04I}
 
@@ -1618,10 +1612,10 @@ gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"sqrt_OffPlace","Cr
 
 #Model
 CBre_04I <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPl75+c_OffCri+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis, 
                  
@@ -1629,10 +1623,10 @@ CBre_04I <- glm (data=crisis_smp,
 display(CBre_04I)
 
 Term_04I <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPl75+c_OffCri+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
 display(Term_04I)
@@ -1670,41 +1664,34 @@ summary_residual_compare(CBre_04H,CBre_04I,Term_04H,Term_04I)
 Unfortunately, even the simplest of the interactions make interpretation much harder, as the standard errors are huge for Iraq-Afghanistan. The increase in Akaike Inf. Citeria is also worth noting for Terminations.
 
 
-### 04G: OffPl. 95% & UCA
+### 04G: OffPl. 75% & UCA
 
 ```{r Model04G}
 
-
-#Four Place categories
-gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"OffPl95","UCA"),
-                        discrete_percent_cbre_plot(crisis_smp,"OffPl95","UCA"))
-                        
-#Terminations
-gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"OffPl95","UCA"),
-                        discrete_percent_term_plot(crisis_smp,"OffPl95","UCA"))
-
+summary_discrete_plot(crisis_smp,"UCA","OffPl75")
+summary_continuous_plot(crisis_smp,"CrisisPercent","UCA",bins=50)
 
 #Model
 CBre_04G <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPl95+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
-                   b_UCA:OffPl95, 
+                   b_UCA:OffPl75, 
                  
                  family=binomial(link="logit"))
 display(CBre_04G)
 
 Term_04G <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
-                   OffPl95+
-                  UrgComp:Crisis+
+                   OffPl75+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
-                   b_UCA:OffPl95 , 
+                   b_UCA:OffPl75 , 
                  family=binomial(link="logit"))
 display(Term_04G)
 
@@ -1778,20 +1765,20 @@ cor(crisis_smp$CrisisPercent,crisis_smp$AvgPlaceOCOcrisisScore,na.rm=TR)
 
 #Model
 CBre_04K <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis+
                    c_OffCri:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_04K)
 
 Term_04K <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis +
                    c_OffCri:Crisis, 
@@ -1873,22 +1860,22 @@ summary_continuous_plot(crisis_smp,"l_Ceil",bins=50)
 
 #Model
 CBre_05A <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                    cl_Ceil+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis , 
                  family=binomial(link="logit"))
 display(CBre_05A)
 
 Term_05A <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                   cl_Ceil+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis , 
                  family=binomial(link="logit"))
@@ -1929,11 +1916,11 @@ summary_continuous_plot(crisis_smp,"l_Ceil","c_OffCri")
 
 #Model
 CBre_05B <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                    cl_Ceil+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis, 
@@ -1941,11 +1928,11 @@ CBre_05B <- glm (data=crisis_smp,
 display(CBre_05B)
 
 Term_05B <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                   cl_Ceil+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis, 
@@ -1981,11 +1968,11 @@ summary_continuous_plot(crisis_smp,"l_Ceil","c_OffCri")
 
 #Model
 CBre_05C <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                    cl_Ceil+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
@@ -1994,11 +1981,11 @@ CBre_05C <- glm (data=crisis_smp,
 display(CBre_05C)
 
 Term_05C <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                   cl_Ceil+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
@@ -2044,12 +2031,12 @@ summary_continuous_plot(crisis_smp,"l_Days")
 
 #Model
 CBre_05D <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                    cl_Ceil+
                    cl_Days+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis, 
@@ -2057,12 +2044,12 @@ CBre_05D <- glm (data=crisis_smp,
 display(CBre_05D)
 
 Term_05D <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                   cl_Ceil+
                    cl_Days+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis, 
@@ -2121,12 +2108,12 @@ ggplot(data=subset(crisis_smp,!is.na(l_Ceil)),
 
 #Model
 CBre_05E <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                    cl_Ceil+
                    cl_Days+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
@@ -2135,12 +2122,12 @@ CBre_05E <- glm (data=crisis_smp,
 display(CBre_05E)
 
 Term_05E <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                   cl_Ceil+
                    cl_Days+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
@@ -2183,12 +2170,12 @@ summary_continuous_plot(crisis_smp,"l_Days","Crisis")
 
 #Model
 CBre_05F <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                    cl_Ceil+
                    cl_Days+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
@@ -2197,12 +2184,12 @@ CBre_05F <- glm (data=crisis_smp,
 display(CBre_05F)
 
 Term_05F <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                   cl_Ceil+
                    cl_Days+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
@@ -2246,12 +2233,12 @@ summary_continuous_plot(crisis_smp,"l_Days","UCA")
 
 #Model
 CBre_05G <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                    cl_Ceil+
                    cl_Days+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
@@ -2261,12 +2248,12 @@ CBre_05G <- glm (data=crisis_smp,
 display(CBre_05G)
 
 Term_05G <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                   cl_Ceil+
                    cl_Days+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
@@ -2310,12 +2297,12 @@ summary_continuous_plot(crisis_smp,"l_Days","c_OffCri")
 
 #Model
 CBre_05H <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                    cl_Ceil+
                    cl_Days+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
@@ -2326,12 +2313,12 @@ CBre_05H <- glm (data=crisis_smp,
 display(CBre_05H)
 
 Term_05H <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                   cl_Ceil+
                    cl_Days+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
@@ -2380,13 +2367,13 @@ Our dataset includes both stand alone contract awards and task orders that are u
 
 #Model
 CBre_06A <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                    cl_Ceil+
                    cl_Days+
                    Veh+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
@@ -2397,13 +2384,13 @@ CBre_06A <- glm (data=crisis_smp,
 display(CBre_06A)
 
 Term_06A <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                   cl_Ceil+
                    cl_Days+
                    Veh+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
 
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
@@ -2451,13 +2438,13 @@ The next step is to check the intersections with duration.
 
 #Model
 CBre_06B <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                    cl_Ceil+
                    cl_Days+
                    Veh+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Days:Crisis+
@@ -2468,13 +2455,13 @@ CBre_06B <- glm (data=crisis_smp,
 display(CBre_06B)
 
 Term_06B <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                   cl_Ceil+
                    cl_Days+
                    Veh+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Days:Crisis+
@@ -2554,13 +2541,13 @@ summary_residual_compare(CBre_06A,CBre_06B,Term_06A,Term_06B)
 
 #Model
 CBre_06C <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                    cl_Ceil+
                    cl_Days+
                    Veh+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Days:Crisis+
@@ -2572,13 +2559,13 @@ CBre_06C <- glm (data=crisis_smp,
 display(CBre_06C)
 
 Term_06C <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                   cl_Ceil+
                    cl_Days+
                    Veh+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Days:Crisis+
@@ -2661,17 +2648,17 @@ The next step is to check interactions with the contract vehicles. Each has a sl
 
 ```{r Model06D}
 
-  summary_discrete_plot(crisis_smp,"UrgComp","Veh")
+  summary_discrete_plot(crisis_smp,"NoComp","Veh")
 
 #Model
 CBre_06D <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +UrgComp +
+                 b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                    cl_Ceil+
                    cl_Days+
                    Veh+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Days:Crisis+
@@ -2679,25 +2666,25 @@ CBre_06D <- glm (data=crisis_smp,
                    cl_Days:c_OffCri+
                    cl_Days:Veh+ 
                    cl_Ceil:Veh+
-                 UrgComp:Veh, 
+                 NoComp:Veh, 
                  family=binomial(link="logit"))
 display(CBre_06D)
 
 Term_06D <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +UrgComp +
+                 b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPlaceCat4+ c_OffCri+
                   cl_Ceil+
                    cl_Days+
                    Veh+
-                  UrgComp:Crisis+
+                  NoComp:Crisis+
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Days:Crisis+
                    cl_Days:c_OffCri+
                    cl_Days:Veh+ 
                    cl_Ceil:Veh+
-                 UrgComp:Veh, 
+                 NoComp:Veh, 
                  family=binomial(link="logit"))
 display(Term_06D)
 
