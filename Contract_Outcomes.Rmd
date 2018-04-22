@@ -1664,39 +1664,38 @@ summary_residual_compare(CBre_04H,CBre_04I,Term_04H,Term_04I)
 Unfortunately, even the simplest of the interactions make interpretation much harder, as the standard errors are huge for Iraq-Afghanistan. The increase in Akaike Inf. Citeria is also worth noting for Terminations.
 
 
-### 04G: OffPl. 75% & UCA
+### 04J: OffPl. 75% & UCA
 
-```{r Model04G}
+```{r Model04J}
 
 summary_discrete_plot(crisis_smp,"UCA","OffPl75")
 summary_continuous_plot(crisis_smp,"CrisisPercent","UCA",bins=50)
+summary_discrete_plot(crisis_smp,"UCA","Crisis")
 
 #Model
-CBre_04G <- glm (data=crisis_smp,
+CBre_04J <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +NoComp +
                    b_UCA+
-                   OffPl95+
-                  NoComp:Crisis+
-
+                   OffPl75+c_OffCri+
+                   NoComp:Crisis+
                    b_UCA:Crisis+
                    b_UCA:OffPl75, 
                  
                  family=binomial(link="logit"))
-display(CBre_04G)
+display(CBre_04J)
 
-Term_04G <- glm (data=crisis_smp,
+Term_04J <- glm (data=crisis_smp,
                  b_Term ~ Crisis +NoComp +
                    b_UCA+
-                   OffPl75+
-                  NoComp:Crisis+
-
+                   OffPl75+c_OffCri+
+                   NoComp:Crisis+
                    b_UCA:Crisis+
                    b_UCA:OffPl75 , 
                  family=binomial(link="logit"))
-display(Term_04G)
+display(Term_04J)
 
 
-stargazer::stargazer(CBre_04C,CBre_04D,CBre_04E,CBre_04G,Term_04C,Term_04D,Term_04E,Term_04G,type="text",
+stargazer::stargazer(CBre_04I,CBre_04J,Term_04I,Term_04J,type="text",
                      digits=2)
 
 
@@ -1720,27 +1719,11 @@ discrete_fitted_cbre_model(crisis_smp,"SIDV") +
                                        Fixed=1),color="blue")
 
 
+summary_residual_compare(CBre_04I,CBre_04J,Term_04I,Term_04J)
 
-#Plot the fitted values vs actual results
-gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_04G),
-                        binned_fitted_versus_term_residuals(Term_04G))
-
-
-
-#Plot residuals versus fitted
-gridExtra::grid.arrange(residuals_cbre_plot(CBre_04G,bins=5)+
-  labs(x="Estimated  Pr (Ceiling Breach)"),
-                        residuals_term_plot(Term_04G,bins=5)+
-  labs(x="Estimated  Pr (Termination)"))
-
-
-
-
-# residuals_cbre_plot(CBre_02F,"cl_days")+
-#   labs(x="Centered Log(Days)")
 
 ```
-The interactions between UCA and office location are not significant in about a third of the cases and seem likely to be driven by a small number of UCAs. Leaving them out.
+The interactions between UCA and office location have a huge standard error when it comes to Iraq and Afghanistan for terminations. Unfortunately, for ceiling breache, they appear to increase residuals, perhaps because the pattern is already captured by UCA:Crisis. Leaving this out. 
 
 
 
