@@ -140,7 +140,7 @@ summary(crisis_with_na$Crisis)
 
 
 #
-#8818392  to 8818392
+#8811392  to 8811392
 nrow(crisis_with_na[!complete,])/nrow(crisis_with_na)
 sum(crisis_with_na[!complete,]$Action.Obligation,na.rm=TRUE)/sum(crisis_with_na$Action.Obligation,na.rm=TRUE)
 # 
@@ -227,10 +227,10 @@ gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_02A),
 
 
 #Plot residuals versus fitted
-# residuals_cbre_plot(CBre_06B)+
+# residuals_cbre_plot(CBre_07B)+
   # labs(x="Estimated  Pr (Ceiling Breach)")
 
-# residuals_cbre_plot(CBre_06B,"cl_Ceil")+
+# residuals_cbre_plot(CBre_07B,"cl_Ceil")+
   # labs(x="Centered Log(Ceiling)")
   
 
@@ -869,12 +869,12 @@ summary_continuous_plot(crisis_smp,"CrisisPercent",bins=50)
 
 #Ceiling Breaches
 gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"c_OffCri"),
-             binned_percent_cbre_plot(crisis_smp,"c_OffCri")+geom_vline(xintercept=c(0.1,0.16,0.25)))
+             binned_percent_cbre_plot(crisis_smp,"c_OffCri")+geom_vline(xintercept=c(0.1,0.10,0.25)))
 
 
 #Terminations
 gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"c_OffCri"),
-                        binned_percent_term_plot(crisis_smp,"c_OffCri")+geom_vline(xintercept=c(0.1,0.16,0.25)))
+                        binned_percent_term_plot(crisis_smp,"c_OffCri")+geom_vline(xintercept=c(0.1,0.10,0.25)))
 
 
 #Model
@@ -1820,7 +1820,8 @@ summary_residual_compare(CBre_04K,CBre_04L,Term_04K,Term_04L,20)
 ```
 The addition seems interesting, but is only significant for ceiling breaches 
 ##Scope Variables
-### 05A: Cost Ceiling
+### Ceiling
+#### 05A: Cost Ceiling
 
 The model starts by examing the influence of large ceilings on contracts, the core idea here, as observed in the fixed priced paper, is that larger contracts are at greater risk of termination. This can be explained by both the inherent risk in the contract and high transaction costs of contract termination which discourage making the effort for smaller contracts.
 
@@ -1905,7 +1906,7 @@ summary_residual_compare(CBre_04I,CBre_05A,Term_04I,Term_05A)
 Contract ceiling has a significant relationship, though the residuals show a possible non-linear patterns. This is most remarkable in the positive centered values between 0 and 1. This may be driven  by a missing value and is worth watching.
 
 
-### 05B: Cost Ceiling and Crisis
+#### 05B: Cost Ceiling and Crisis
 
 ```{r Model05B, fig.height = 10, fig.width = 6.5}
 
@@ -1959,7 +1960,7 @@ For the Recovery Act and disasters, higher ceiling contracts are associated with
 
 
 
-### 05C: Cost Ceiling and UCA
+#### 05C: Cost Ceiling and UCA
 
 ```{r Model05C}
 
@@ -2022,7 +2023,7 @@ Low ceiling UCAs are associated with higher risk of ceiling breaches than high c
 
 
 
-### 05D: Cost Ceiling and UCA
+#### 05D: Cost Ceiling and Office Place
 
 ```{r Model05D}
 
@@ -2082,9 +2083,11 @@ summary_residual_compare(CBre_05B,CBre_05D,Term_05B,Term_05D)
 ```
 For Ceiling breaches, the new relationship is significant but also throws off fitted vs. actual values and increases residuals. For terminations, the coefficients are greater and cl_ceiling gains a larger coefficient. It may even be worth considering dropping cl_ceiling:crisis for terminations. Keeping for terminations.
 
-### 05D: Maximum Duration
 
-```{r Model05D}
+### Maximum Duration
+#### 06A: Maximum Duration
+
+```{r Model06A}
 #Frequency Plot for max duration
 freq_continuous_cbre_plot(crisis_smp,"UnmodifiedDays",
                bins=1000)
@@ -2095,356 +2098,16 @@ summary_continuous_plot(crisis_smp,"l_Days")
 
 
 #Model
-CBre_05D <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +NoComp +
-                   b_UCA+
-                   OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   cl_Days+
-                  NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
-                   cl_Ceil:Crisis, 
-                 family=binomial(link="logit"))
-display(CBre_05D)
-
-Term_05D <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +NoComp +
-                   b_UCA+
-                   OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   cl_Days+
-                  NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis+
-                   cl_Ceil:Crisis, 
-                 family=binomial(link="logit"))
-display(Term_05D)
-
-
-stargazer::stargazer(CBre_05A,CBre_05C,CBre_05D,Term_05A,Term_05C,Term_05D,type="text",
-                     digits=2)
-
-
-CBre_05D_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_05D))}
-
-#Competition Curves
-fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_05D_curve, 
-                             args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_05D_curve, 
-                             args=list(Comp=2,Ceil=0),color="blue")
-
-#Ceiling Curves
-fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_05D_curve, 
-                             args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_05D_curve, 
-                             args=list(Comp=0,Ceil=1),color="blue")
-
-
-summary_residual_compare(CBre_05C,CBre_05D,Term_05C,Term_05D)
-```
-Duration has significant correlations with both outcome variables, but the coefficient is larger for terminations. The initial model results are surprising as ceiling change direction, reducing and correlates with a lower risk of termiation now, although the interaction between crisis funding and ceiling remains roughly the same. The graph of the fitted values shows that this model The next step will be to look at the interaction of ceiling and duration. The residuals for both ceiling and days do fall out of the 95% confidence interval more than expected and particularly for ceiling breaches show some signs of patterns.
-
-### 05E: Ceiling and Duration
-
-```{r Mode05E}
-
-#First a quick scatter plot for terminations by duration and ceiling
-ggplot(data=subset(crisis_smp,!is.na(l_Ceil)),
-       aes(x=l_Days,y=l_Ceil))+geom_point(alpha=0.1)+
-  labs(title="Distribution",
-          caption="Source: FPDS, CSIS Analysis")
-
-
-#First a quick scatter plot for terminations by duration and ceiling
-ggplot(data=subset(crisis_smp,!is.na(l_Ceil)),
-       aes(x=l_Days,y=l_Ceil))+geom_point(alpha=0.1)+facet_grid(Term~.)+
-  labs(title="Frequency by Termination",
-          caption="Source: FPDS, CSIS Analysis")
-
-
-#First a quick scatter plot for terminations by duration and ceiling
-ggplot(data=subset(crisis_smp,!is.na(l_Ceil)),
-       aes(x=l_Days,y=l_Ceil))+geom_point(alpha=0.1)+facet_grid(CBre~.)+
-  labs(title="Frequency by Termination",
-          caption="Source: FPDS, CSIS Analysis")
-
-
-
-#Model
-CBre_05E <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +NoComp +
-                   b_UCA+
-                   OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   cl_Days+
-                  NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
-                   cl_Ceil:Crisis+
-                   cl_Ceil:cl_Days, 
-                 family=binomial(link="logit"))
-display(CBre_05E)
-
-Term_05E <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +NoComp +
-                   b_UCA+
-                   OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   cl_Days+
-                  NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis+
-                   cl_Ceil:Crisis+
-                   cl_Ceil:cl_Days, 
-                 family=binomial(link="logit"))
-display(Term_05E)
-
-
-
-stargazer::stargazer(CBre_05D,CBre_05E,Term_05D,Term_05E,type="text",
-                     digits=2)
-
-
-CBre_05E_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_05E))}
-
-#Competition Curves
-fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_05E_curve, 
-                             args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_05E_curve, 
-                             args=list(Comp=2,Ceil=0),color="blue")
-
-#Ceiling Curves
-fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_05E_curve, 
-                             args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_05E_curve, 
-                             args=list(Comp=0,Ceil=1),color="blue")
-
-
-summary_residual_compare(CBre_05D,CBre_05E,Term_05D,Term_05E)
-```
-
-
-The interaction of ceiling and duration is correlated with a higher rate of ceiling breaches and no change at all to terminations. The coefficient is minor and the reduction in the deviance of the minor is minimal for ceiling breaches. The results of the interaction also don't make a great deal of sense, as placing a large contract under a tighter schedule is not known for reducing risk. While we hesitate to leave off a significant variable, it contributes little but confusion and is not key to the study, leaving it out.
-
-
-### 05F: Duration and Crisis
-```{r Mode05F}
-
-summary_continuous_plot(crisis_smp,"l_Days","Crisis")
-
-#Model
-CBre_05F <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +NoComp +
-                   b_UCA+
-                   OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   cl_Days+
-                  NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
-                   cl_Ceil:Crisis+
-                   cl_Days:Crisis, 
-                 family=binomial(link="logit"))
-display(CBre_05F)
-
-Term_05F <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +NoComp +
-                   b_UCA+
-                   OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   cl_Days+
-                  NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis+
-                   cl_Ceil:Crisis+
-                   cl_Days:Crisis, 
-                 family=binomial(link="logit"))
-display(Term_05F)
-
-
-
-stargazer::stargazer(CBre_05E,CBre_05F,Term_05E,Term_05F,type="text",
-                     digits=2)
-
-
-CBre_05F_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_05F))}
-
-#Competition Curves
-fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_05F_curve, 
-                             args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_05F_curve, 
-                             args=list(Comp=2,Ceil=0),color="blue")
-
-#Ceiling Curves
-fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_05F_curve, 
-                             args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_05F_curve, 
-                             args=list(Comp=0,Ceil=1),color="blue")
-
-
-summary_residual_compare(CBre_05E,CBre_05F,Term_05E,Term_05F)
-
-
-```
-The interaction of Crisis and Duration has a fairly marginal affect, but is notable for disaster contracts. While length remains a risk with disaster contracts, the correlation with worse outcomes is lower than for other forms of contracts. 
-
-
-### 05G: Duration and UCA
-```{r Mode05G}
-debug(summary_discrete_plot)
-
-summary_continuous_plot(crisis_smp,"l_Days","UCA")
-
-#Model
-CBre_05G <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +NoComp +
-                   b_UCA+
-                   OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   cl_Days+
-                  NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
-                   cl_Ceil:Crisis+
-                   cl_Days:Crisis+
-                   cl_Days:b_UCA, 
-                 family=binomial(link="logit"))
-display(CBre_05G)
-
-Term_05G <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +NoComp +
-                   b_UCA+
-                   OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   cl_Days+
-                  NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis+
-                   cl_Ceil:Crisis+
-                   cl_Days:Crisis+
-                   cl_Days:b_UCA, 
-                 family=binomial(link="logit"))
-display(Term_05G)
-
-
-
-stargazer::stargazer(CBre_05F,CBre_05G,Term_05F,Term_05G,type="text",
-                     digits=2)
-
-
-CBre_05G_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_05G))}
-
-#Competition Curves
-fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_05G_curve, 
-                             args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_05G_curve, 
-                             args=list(Comp=2,Ceil=0),color="blue")
-
-#Ceiling Curves
-fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_05G_curve, 
-                             args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_05G_curve, 
-                             args=list(Comp=0,Ceil=1),color="blue")
-
-
-summary_residual_compare(CBre_05F,CBre_05G,Term_05F,Term_05G)
-
-
-```
-Similar to the model of the interaction of ceiling breaches UCA, smaller scope appears to be associated with somewhat greater risk. The improvement in deviation as well as with the overall comparison of the binned fitted values with outcomes and residuals seem to indicate that this interaction is worth keeping for ceiling breaches.
-
-
-
-### 05H: Duration and Office % Crisis
-```{r Mode05H}
-summary_continuous_plot(crisis_smp,"l_Days","c_OffCri")
-
-#Model
-CBre_05H <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +NoComp +
-                   b_UCA+
-                   OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   cl_Days+
-                  NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
-                   cl_Ceil:Crisis+
-                   cl_Days:Crisis+
-                   cl_Days:b_UCA+
-                   cl_Days:c_OffCri, 
-                 family=binomial(link="logit"))
-display(CBre_05H)
-
-Term_05H <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +NoComp +
-                   b_UCA+
-                   OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   cl_Days+
-                  NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis+
-                   cl_Ceil:Crisis+
-                   cl_Days:Crisis+
-                   cl_Days:c_OffCri
-                   , 
-                 family=binomial(link="logit"))
-display(Term_05H)
-
-
-
-stargazer::stargazer(CBre_05G,CBre_05H,Term_05G,Term_05H,type="text",
-                     digits=2)
-
-
-CBre_05H_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_05H))}
-
-#Competition Curves
-fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_05H_curve, 
-                             args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_05H_curve, 
-                             args=list(Comp=2,Ceil=0),color="blue")
-
-#Ceiling Curves
-fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_05H_curve, 
-                             args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_05H_curve, 
-                             args=list(Comp=0,Ceil=1),color="blue")
-
-
-summary_residual_compare(CBre_05G,CBre_05H,Term_05G,Term_05H)
-
-
-```
-The interaction between duration and office crisis percentage 
-
-##Contract Vehicle
-Our dataset includes both stand alone contract awards and task orders that are under larger indefinite delivery vehicles (IDVs). This does fit with literature review findings about the risk of long duration contracts in a crisis, so will be kept in despite its minimal coefficient.
-
-### 06A: Single-Award, Multi-Award, and Other Indefinite Delivery Vehicles
-
-
-```{r Model06A}
-
-  summary_discrete_plot(crisis_smp,"Veh")
-
-#Model
 CBre_06A <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPl99+ c_OffCri+
                    cl_Ceil+
                    cl_Days+
-                   Veh+
                   NoComp:Crisis+
 
                    b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
-                   cl_Ceil:Crisis+
-                   cl_Days:Crisis+
-                   cl_Days:b_UCA+
-                   cl_Days:c_OffCri, 
+                   cl_Ceil:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_06A)
 
@@ -2454,20 +2117,15 @@ Term_06A <- glm (data=crisis_smp,
                    OffPl99+ c_OffCri+
                   cl_Ceil+
                    cl_Days+
-                   Veh+
                   NoComp:Crisis+
 
                    b_UCA:Crisis+OffPl99:Crisis+
-                   cl_Ceil:Crisis+
-                   cl_Days:Crisis+
-                   cl_Days:c_OffCri
-                   , 
+                   cl_Ceil:Crisis, 
                  family=binomial(link="logit"))
 display(Term_06A)
 
 
-
-stargazer::stargazer(CBre_05H,CBre_06A,Term_05H,Term_06A,type="text",
+stargazer::stargazer(CBre_05A,CBre_05C,CBre_06A,Term_05A,Term_05C,Term_06A,type="text",
                      digits=2)
 
 
@@ -2485,8 +2143,333 @@ fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_06A_curve,
   stat_function(fun = CBre_06A_curve, 
                              args=list(Comp=0,Ceil=1),color="blue")
 
+
+summary_residual_compare(CBre_05C,CBre_06A,Term_05C,Term_06A)
+```
+Duration has significant correlations with both outcome variables, but the coefficient is larger for terminations. The initial model results are surprising as ceiling change direction, reducing and correlates with a lower risk of termiation now, although the interaction between crisis funding and ceiling remains roughly the same. The graph of the fitted values shows that this model The next step will be to look at the interaction of ceiling and duration. The residuals for both ceiling and days do fall out of the 95% confidence interval more than expected and particularly for ceiling breaches show some signs of patterns.
+
+#### 06A Ceiling and Duration
+
+```{r Mode06B}
+
+summary_double_continuous(crisis_smp,"cl_Days","cl_Ceil")
+
+#Model
+CBre_06B <- glm (data=crisis_smp,
+                 b_CBre ~ Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+
+                   cl_Days+
+                  NoComp:Crisis+
+
+                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
+                   cl_Ceil:Crisis+
+                   cl_Ceil:cl_Days, 
+                 family=binomial(link="logit"))
+display(CBre_06B)
+
+Term_06B <- glm (data=crisis_smp,
+                 b_Term ~ Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                  cl_Ceil+
+                   cl_Days+
+                  NoComp:Crisis+
+
+                   b_UCA:Crisis+OffPl99:Crisis+
+                   cl_Ceil:Crisis+
+                   cl_Ceil:cl_Days, 
+                 family=binomial(link="logit"))
+display(Term_06B)
+
+
+
+stargazer::stargazer(CBre_06A,CBre_06B,Term_06A,Term_06B,type="text",
+                     digits=2)
+
+
+CBre_06B_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_06B))}
+
+#Competition Curves
+fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_06B_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_06B_curve, 
+                             args=list(Comp=2,Ceil=0),color="blue")
+
+#Ceiling Curves
+fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_06B_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_06B_curve, 
+                             args=list(Comp=0,Ceil=1),color="blue")
+
+
+summary_residual_compare(CBre_06A,CBre_06B,Term_06A,Term_06B)
+```
+
+
+The interaction of ceiling and duration is correlated with a higher rate of ceiling breaches and no change at all to terminations. The coefficient is minor and the reduction in the deviance of the minor is minimal for ceiling breaches. The results of the interaction also don't make a great deal of sense, as placing a large contract under a tighter schedule is not known for reducing risk. While we hesitate to leave off a significant variable, it contributes little but confusion and is not key to the study, leaving it out.
+
+
+#### 06C: Duration and Crisis
+```{r Mode06C}
+
+summary_continuous_plot(crisis_smp,"l_Days","Crisis")
+
+#Model
+CBre_06C <- glm (data=crisis_smp,
+                 b_CBre ~ Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+
+                   cl_Days+
+                  NoComp:Crisis+
+
+                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
+                   cl_Ceil:Crisis+
+                   cl_Days:Crisis, 
+                 family=binomial(link="logit"))
+display(CBre_06C)
+
+Term_06C <- glm (data=crisis_smp,
+                 b_Term ~ Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                  cl_Ceil+
+                   cl_Days+
+                  NoComp:Crisis+
+
+                   b_UCA:Crisis+OffPl99:Crisis+
+                   cl_Ceil:Crisis+
+                   cl_Days:Crisis, 
+                 family=binomial(link="logit"))
+display(Term_06C)
+
+
+
+stargazer::stargazer(CBre_06B,CBre_06C,Term_06B,Term_06C,type="text",
+                     digits=2)
+
+
+CBre_06C_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_06C))}
+
+#Competition Curves
+fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_06C_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_06C_curve, 
+                             args=list(Comp=2,Ceil=0),color="blue")
+
+#Ceiling Curves
+fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_06C_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_06C_curve, 
+                             args=list(Comp=0,Ceil=1),color="blue")
+
+
+summary_residual_compare(CBre_06B,CBre_06C,Term_06B,Term_06C)
+
+
+```
+The interaction of Crisis and Duration has a fairly marginal affect, but is notable for disaster contracts. While length remains a risk with disaster contracts, the correlation with worse outcomes is lower than for other forms of contracts. 
+
+
+#### 06D: Duration and UCA
+```{r Mode06D}
+debug(summary_discrete_plot)
+
+summary_continuous_plot(crisis_smp,"l_Days","UCA")
+
+#Model
+CBre_06D <- glm (data=crisis_smp,
+                 b_CBre ~ Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+
+                   cl_Days+
+                  NoComp:Crisis+
+
+                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
+                   cl_Ceil:Crisis+
+                   cl_Days:Crisis+
+                   cl_Days:b_UCA, 
+                 family=binomial(link="logit"))
+display(CBre_06D)
+
+Term_06D <- glm (data=crisis_smp,
+                 b_Term ~ Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                  cl_Ceil+
+                   cl_Days+
+                  NoComp:Crisis+
+
+                   b_UCA:Crisis+OffPl99:Crisis+
+                   cl_Ceil:Crisis+
+                   cl_Days:Crisis+
+                   cl_Days:b_UCA, 
+                 family=binomial(link="logit"))
+display(Term_06D)
+
+
+
+stargazer::stargazer(CBre_06C,CBre_06D,Term_06C,Term_06D,type="text",
+                     digits=2)
+
+
+CBre_06D_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_06D))}
+
+#Competition Curves
+fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_06D_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_06D_curve, 
+                             args=list(Comp=2,Ceil=0),color="blue")
+
+#Ceiling Curves
+fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_06D_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_06D_curve, 
+                             args=list(Comp=0,Ceil=1),color="blue")
+
+
+summary_residual_compare(CBre_06C,CBre_06D,Term_06C,Term_06D)
+
+
+```
+Similar to the model of the interaction of ceiling breaches UCA, smaller scope appears to be associated with somewhat greater risk. The improvement in deviation as well as with the overall comparison of the binned fitted values with outcomes and residuals seem to indicate that this interaction is worth keeping for ceiling breaches.
+
+
+
+#### 06E: Duration and Office % Crisis
+```{r Mode06E}
+summary_continuous_plot(crisis_smp,"l_Days","c_OffCri")
+
+#Model
+CBre_06E <- glm (data=crisis_smp,
+                 b_CBre ~ Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+
+                   cl_Days+
+                  NoComp:Crisis+
+
+                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
+                   cl_Ceil:Crisis+
+                   cl_Days:Crisis+
+                   cl_Days:b_UCA+
+                   cl_Days:c_OffCri, 
+                 family=binomial(link="logit"))
+display(CBre_06E)
+
+Term_06E <- glm (data=crisis_smp,
+                 b_Term ~ Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                  cl_Ceil+
+                   cl_Days+
+                  NoComp:Crisis+
+
+                   b_UCA:Crisis+OffPl99:Crisis+
+                   cl_Ceil:Crisis+
+                   cl_Days:Crisis+
+                   cl_Days:c_OffCri
+                   , 
+                 family=binomial(link="logit"))
+display(Term_06E)
+
+
+
+stargazer::stargazer(CBre_06D,CBre_06E,Term_06D,Term_06E,type="text",
+                     digits=2)
+
+
+CBre_06E_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_06E))}
+
+#Competition Curves
+fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_06E_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_06E_curve, 
+                             args=list(Comp=2,Ceil=0),color="blue")
+
+#Ceiling Curves
+fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_06E_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_06E_curve, 
+                             args=list(Comp=0,Ceil=1),color="blue")
+
+
+summary_residual_compare(CBre_05G,CBre_06E,Term_05G,Term_06E)
+
+
+```
+The interaction between duration and office crisis percentage 
+
+##Contract Vehicle
+Our dataset includes both stand alone contract awards and task orders that are under larger indefinite delivery vehicles (IDVs). This does fit with literature review findings about the risk of long duration contracts in a crisis, so will be kept in despite its minimal coefficient.
+
+### 07A: Single-Award, Multi-Award, and Other Indefinite Delivery Vehicles
+
+
+```{r Model07A}
+
+  summary_discrete_plot(crisis_smp,"Veh")
+
+#Model
+CBre_07A <- glm (data=crisis_smp,
+                 b_CBre ~ Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+
+                   cl_Days+
+                   Veh+
+                  NoComp:Crisis+
+
+                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
+                   cl_Ceil:Crisis+
+                   cl_Days:Crisis+
+                   cl_Days:b_UCA+
+                   cl_Days:c_OffCri, 
+                 family=binomial(link="logit"))
+display(CBre_07A)
+
+Term_07A <- glm (data=crisis_smp,
+                 b_Term ~ Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                  cl_Ceil+
+                   cl_Days+
+                   Veh+
+                  NoComp:Crisis+
+
+                   b_UCA:Crisis+OffPl99:Crisis+
+                   cl_Ceil:Crisis+
+                   cl_Days:Crisis+
+                   cl_Days:c_OffCri
+                   , 
+                 family=binomial(link="logit"))
+display(Term_07A)
+
+
+
+stargazer::stargazer(CBre_06E,CBre_07A,Term_06E,Term_07A,type="text",
+                     digits=2)
+
+
+CBre_07A_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_07A))}
+
+#Competition Curves
+fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_07A_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_07A_curve, 
+                             args=list(Comp=2,Ceil=0),color="blue")
+
+#Ceiling Curves
+fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_07A_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_07A_curve, 
+                             args=list(Comp=0,Ceil=1),color="blue")
+
 debug(summary_residual_compare)
-summary_residual_compare(CBre_05H,CBre_06A,Term_05H,Term_06A)
+summary_residual_compare(CBre_06E,CBre_07A,Term_06E,Term_07A)
 
 
 ```
@@ -2496,13 +2479,13 @@ The first check lumps looks at four categories of IDVs, each associated with a n
 The next step is to check the intersections with duration.
 
 
-### 06B: Vehicle and cOMPETITION
-```{r Model06B}
+### 07B: Vehicle and cOMPETITION
+```{r Model07B}
 
   summary_continuous_plot(crisis_smp,"l_Days","Veh")
 
 #Model
-CBre_06B <- glm (data=crisis_smp,
+CBre_07B <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPl99+ c_OffCri+
@@ -2517,9 +2500,9 @@ CBre_06B <- glm (data=crisis_smp,
                    cl_Days:c_OffCri+
                    cl_Days:Veh, 
                  family=binomial(link="logit"))
-display(CBre_06B)
+display(CBre_07B)
 
-Term_06B <- glm (data=crisis_smp,
+Term_07B <- glm (data=crisis_smp,
                  b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPl99+ c_OffCri+
@@ -2533,63 +2516,63 @@ Term_06B <- glm (data=crisis_smp,
                    cl_Days:c_OffCri+
                    cl_Days:Veh                   , 
                  family=binomial(link="logit"))
-display(Term_06B)
+display(Term_07B)
 
 
 
-stargazer::stargazer(CBre_06A,CBre_06B,Term_06A,Term_06B,type="text",
+stargazer::stargazer(CBre_07A,CBre_07B,Term_07A,Term_07B,type="text",
                      digits=2)
 
 
 # Plot the model and Vehicle for SIDV
-CBre_06B_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
+CBre_07B_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,x,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
-        Days*x,Days*MIDV,Days*OIDV) %*%  coef(CBre_06B))}
+        Days*x,Days*MIDV,Days*OIDV) %*%  coef(CBre_07B))}
 
 #Duration curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_06B_SIDV_curve,
+  stat_function(fun = CBre_07B_SIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=-1,
                                        MIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_06B_SIDV_curve,
+  stat_function(fun = CBre_07B_SIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=1,
                                        MIDV=0,OIDV=0),color="blue")
 
 
-CBre_06B_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
+CBre_07B_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,SIDV,x,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
-        Days*SIDV,Days*x,Days*OIDV) %*%  coef(CBre_06B))}
+        Days*SIDV,Days*x,Days*OIDV) %*%  coef(CBre_07B))}
 
 #Plot the model and Vehicle for MIDV
 #Duration Curves
 discrete_fitted_cbre_model(crisis_smp,"MIDV") +
-  stat_function(fun = CBre_06B_MIDV_curve,
+  stat_function(fun = CBre_07B_MIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=-1,
                                        SIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_06B_MIDV_curve,
+  stat_function(fun = CBre_07B_MIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=1,
                                        SIDV=0,OIDV=0),color="blue")
 
 
-CBre_06B_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
+CBre_07B_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,SIDV,MIDV,x,
         Comp*Ceil,Days*Ceil,Days*Comp,
-        Days*SIDV,Days*MIDV,Days*x) %*%  coef(CBre_06B))}
+        Days*SIDV,Days*MIDV,Days*x) %*%  coef(CBre_07B))}
 
 #Plot the model and Vehicle for OIDV
 #Duration curves
 discrete_fitted_cbre_model(crisis_smp,"OIDV") +
-  stat_function(fun = CBre_06B_OIDV_curve,
+  stat_function(fun = CBre_07B_OIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=-1,
                                        SIDV=0,MIDV=0),color="blue")+
-  stat_function(fun = CBre_06B_OIDV_curve,
+  stat_function(fun = CBre_07B_OIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=1,
                                        SIDV=0,MIDV=0),color="blue")
 
 
-summary_residual_compare(CBre_06A,CBre_06B,Term_06A,Term_06B)
+summary_residual_compare(CBre_07A,CBre_07B,Term_07A,Term_07B)
 
 
 
@@ -2599,13 +2582,13 @@ summary_residual_compare(CBre_06A,CBre_06B,Term_06A,Term_06B)
 
 
 
-### 06C: Vehicle and Contract Ceiling
-```{r Model06C}
+### 07C: Vehicle and Contract Ceiling
+```{r Model07C}
 
   summary_continuous_plot(crisis_smp,"l_Ceil","Veh")
 
 #Model
-CBre_06C <- glm (data=crisis_smp,
+CBre_07C <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPl99+ c_OffCri+
@@ -2621,9 +2604,9 @@ CBre_06C <- glm (data=crisis_smp,
                    cl_Days:Veh+ 
                  cl_Ceil:Veh, 
                  family=binomial(link="logit"))
-display(CBre_06C)
+display(CBre_07C)
 
-Term_06C <- glm (data=crisis_smp,
+Term_07C <- glm (data=crisis_smp,
                  b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPl99+ c_OffCri+
@@ -2638,67 +2621,67 @@ Term_06C <- glm (data=crisis_smp,
                    cl_Days:Veh+ 
                  cl_Ceil:Veh, 
                  family=binomial(link="logit"))
-display(Term_06C)
+display(Term_07C)
 
 
 
-stargazer::stargazer(CBre_06B,CBre_06C,Term_06B,Term_06C,type="text",
+stargazer::stargazer(CBre_07B,CBre_07C,Term_07B,Term_07C,type="text",
                      digits=2)
 
 
 # Plot the model and Vehicle for SIDV
-CBre_06C_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
+CBre_07C_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,x,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_06C))}
+        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_07C))}
 
 #Competition curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_06C_SIDV_curve,
+  stat_function(fun = CBre_07C_SIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_06C_SIDV_curve,
+  stat_function(fun = CBre_07C_SIDV_curve,
                              args=list(Comp=2,Ceil=0,Days=0,
                                        MIDV=0,OIDV=0),color="blue")
 
 
-CBre_06C_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
+CBre_07C_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,SIDV,x,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Days*SIDV,Days*x,Days*OIDV,
-        Comp*SIDV,Comp*x,Comp*OIDV) %*%  coef(CBre_06C))}
+        Comp*SIDV,Comp*x,Comp*OIDV) %*%  coef(CBre_07C))}
 
 #Plot the model and Vehicle for MIDV
 #Competition Curves
 discrete_fitted_cbre_model(crisis_smp,"MIDV") +
-  stat_function(fun = CBre_06C_MIDV_curve,
+  stat_function(fun = CBre_07C_MIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_06C_MIDV_curve,
+  stat_function(fun = CBre_07C_MIDV_curve,
                              args=list(Comp=2,Ceil=0,Days=0,
                                        SIDV=0,OIDV=0),color="blue")
 
 
-CBre_06C_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
+CBre_07C_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,SIDV,MIDV,x,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Days*SIDV,Days*MIDV,Days*x,
-        Comp*SIDV,Comp*MIDV,Comp*x) %*%  coef(CBre_06C))}
+        Comp*SIDV,Comp*MIDV,Comp*x) %*%  coef(CBre_07C))}
 
 #Plot the model and Vehicle for OIDV
 #Competition curves
 discrete_fitted_cbre_model(crisis_smp,"OIDV") +
-  stat_function(fun = CBre_06C_OIDV_curve,
+  stat_function(fun = CBre_07C_OIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,MIDV=0),color="blue")+
-  stat_function(fun = CBre_06C_OIDV_curve,
+  stat_function(fun = CBre_07C_OIDV_curve,
                              args=list(Comp=2,Ceil=0,Days=0,
                                        SIDV=0,MIDV=0),color="blue")
 
 
 
-summary_residual_compare(CBre_06B,CBre_06C,Term_06B,Term_06C)
+summary_residual_compare(CBre_07B,CBre_07C,Term_07B,Term_07C)
 
 
 
@@ -2706,17 +2689,17 @@ summary_residual_compare(CBre_06B,CBre_06C,Term_06B,Term_06C)
 
 Indefinite delivery vehicles, when interacting with contract ceiling, generally have lower ceiling breach rates and termination rates. The big exception is multi-award IDVs for terminations. High ceiling contracts are associated with a significantly higher risk of termination when a multiaward vehicle is used. Happily, this interaction also reduces the magnitude of the residuals for both output variables.
 
-### 06D: Vehicle and Competition
+### 07D: Vehicle and Competition
 
 The next step is to check interactions with the contract vehicles. Each has a slightly different approach to competition. For example, the competition for a Single-Award IDV happens at the start of the IDV, after that, contracts awarded through that vehicle go to that single winning vendor.
 
 
-```{r Model06D}
+```{r Model07D}
 
   summary_discrete_plot(crisis_smp,"NoComp","Veh")
 
 #Model
-CBre_06D <- glm (data=crisis_smp,
+CBre_07D <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +NoComp +
                    b_UCA+
                    OffPl99+ c_OffCri+
@@ -2733,9 +2716,9 @@ CBre_06D <- glm (data=crisis_smp,
                    cl_Ceil:Veh+
                  NoComp:Veh, 
                  family=binomial(link="logit"))
-display(CBre_06D)
+display(CBre_07D)
 
-Term_06D <- glm (data=crisis_smp,
+Term_07D <- glm (data=crisis_smp,
                  b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPl99+ c_OffCri+
@@ -2751,67 +2734,67 @@ Term_06D <- glm (data=crisis_smp,
                    cl_Ceil:Veh+
                  NoComp:Veh, 
                  family=binomial(link="logit"))
-display(Term_06D)
+display(Term_07D)
 
 
 
-stargazer::stargazer(CBre_06C,CBre_06D,Term_06C,Term_06D,type="text",
+stargazer::stargazer(CBre_07C,CBre_07D,Term_07C,Term_07D,type="text",
                      digits=2)
 
 
 # Plot the model and Vehicle for SIDV
-CBre_06D_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
+CBre_07D_SIDV_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,x,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_06D))}
+        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_07D))}
 
 #Competition curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_06D_SIDV_curve,
+  stat_function(fun = CBre_07D_SIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_06D_SIDV_curve,
+  stat_function(fun = CBre_07D_SIDV_curve,
                              args=list(Comp=2,Ceil=0,Days=0,
                                        MIDV=0,OIDV=0),color="blue")
 
 
-CBre_06D_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
+CBre_07D_MIDV_curve<-function(x, Comp,Ceil,Days,SIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,SIDV,x,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Days*SIDV,Days*x,Days*OIDV,
-        Comp*SIDV,Comp*x,Comp*OIDV) %*%  coef(CBre_06D))}
+        Comp*SIDV,Comp*x,Comp*OIDV) %*%  coef(CBre_07D))}
 
 #Plot the model and Vehicle for MIDV
 #Competition Curves
 discrete_fitted_cbre_model(crisis_smp,"MIDV") +
-  stat_function(fun = CBre_06D_MIDV_curve,
+  stat_function(fun = CBre_07D_MIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_06D_MIDV_curve,
+  stat_function(fun = CBre_07D_MIDV_curve,
                              args=list(Comp=2,Ceil=0,Days=0,
                                        SIDV=0,OIDV=0),color="blue")
 
 
-CBre_06D_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
+CBre_07D_OIDV_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV){invlogit(
   cbind(1,Comp,Ceil,Ceil^2,Days,Days^2,SIDV,MIDV,x,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Days*SIDV,Days*MIDV,Days*x,
-        Comp*SIDV,Comp*MIDV,Comp*x) %*%  coef(CBre_06D))}
+        Comp*SIDV,Comp*MIDV,Comp*x) %*%  coef(CBre_07D))}
 
 #Plot the model and Vehicle for OIDV
 #Competition curves
 discrete_fitted_cbre_model(crisis_smp,"OIDV") +
-  stat_function(fun = CBre_06D_OIDV_curve,
+  stat_function(fun = CBre_07D_OIDV_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,MIDV=0),color="blue")+
-  stat_function(fun = CBre_06D_OIDV_curve,
+  stat_function(fun = CBre_07D_OIDV_curve,
                              args=list(Comp=2,Ceil=0,Days=0,
                                        SIDV=0,MIDV=0),color="blue")
 
 
 
-summary_residual_compare(CBre_06C,CBre_06D,Term_06C,Term_06D,20)
+summary_residual_compare(CBre_07C,CBre_07D,Term_07C,Term_07D,20)
 
 
 
@@ -2825,8 +2808,8 @@ The average plots did show varying relationships and slopes between different ty
 
 The next step adds a measure for whether the contract was cost-based or fixed-price. Prior CSIS research has found that fixed-price contracts do face a higher risk of termination across the board.
 
-### 04A: Fixed-Price
-```{r Model14A}
+### 08A: Fixed-Price
+```{r Model08A}
 
 #Frequency Plot
 freq_discrete_cbre_plot(crisis_smp,"FxCb")
@@ -2836,7 +2819,7 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb")
 
 
 #Create the model
-CBre_14A <- glm (data=crisis_smp,
+CBre_08A <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -2844,31 +2827,31 @@ CBre_14A <- glm (data=crisis_smp,
                    n_Fixed +
                  SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp , family=binomial(link="logit"))
-display(CBre_14A)
+display(CBre_08A)
 
 # Plot the model and Vehicle 
-CBre_14A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV){invlogit(
+CBre_08A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         x,
         Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_14A))}
+        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_08A))}
 
 #Competition curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_14A_curve,
+  stat_function(fun = CBre_08A_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_14A_curve,
+  stat_function(fun = CBre_08A_curve,
                              args=list(Comp=2,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_14A)
+binned_fitted_versus_cbre_residuals(CBre_08A)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_14A)+
+residuals_cbre_plot(CBre_08A)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -2878,10 +2861,10 @@ residuals_cbre_plot(CBre_14A)+
 
 And fixed price contracts do indeed have a significant coefficient that correlates with higher termination risk. In addition, the addition of this variable reduces the pattern in the residuals that in the middle range. 
 
-### 14B: Fixed-Price and Maximum Duration Intersection 
+### 08B: Fixed-Price and Maximum Duration Intersection 
 Past CSIS research has found that fixed-price contracts do appear to be at higher risk if they have a longer maximum duration. Fixed-price contracting does require upfront estimation of likely costs, and thus a longer duration means more opportunity for changed circumstance.
 
-```{r Model14B}
+```{r Model08B}
 
 #Frequency Plot
 freq_continuous_cbre_plot(crisis_smp,"l_Days","FxCb")
@@ -2891,7 +2874,7 @@ binned_percent_cbre_plot(crisis_smp,"l_Days","FxCb")
 
 
 #Create the model
-CBre_14B <- glm (data=crisis_smp,
+CBre_08B <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -2900,32 +2883,32 @@ CBre_14B <- glm (data=crisis_smp,
                    SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp +
                    cl_Days:n_Fixed , family=binomial(link="logit"))
-display(CBre_14B)
+display(CBre_08B)
 
 # Plot the model and Vehicle 
-CBre_14B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV){invlogit(
+CBre_08B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         x,
         Days*x,Days*MIDV,Days*OIDV,
         Comp*x,Comp*MIDV,Comp*OIDV,
-        Days*x) %*%  coef(CBre_14B))}
+        Days*x) %*%  coef(CBre_08B))}
 
 #Days curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_14B_curve,
+  stat_function(fun = CBre_08B_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_14B_curve,
+  stat_function(fun = CBre_08B_curve,
                              args=list(Comp=2,Ceil=0,Days=1,
                                        MIDV=0,SIDV=0,OIDV=0),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_14B)
+binned_fitted_versus_cbre_residuals(CBre_08B)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_14B)+
+residuals_cbre_plot(CBre_08B)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -2934,8 +2917,8 @@ residuals_cbre_plot(CBre_14B)+
 ```
 The probability of termination by duration chart is more clearcut with fixed price than with cost-based contracts. However, the variable does not appreciably decrease the deviation, is not significant, and undercuts the significance of other variables. It will not be added tto the model.
 
-### 14C: Fixed-Price and Vehicle
-```{r Model14C}
+### 08C: Fixed-Price and Vehicle
+```{r Model08C}
 
 #Frequency Plot
 freq_discrete_cbre_plot(crisis_smp,"FxCb","Veh")
@@ -2944,7 +2927,7 @@ freq_discrete_cbre_plot(crisis_smp,"FxCb","Veh")
 discrete_percent_cbre_plot(crisis_smp,"FxCb","Veh")
 
 #Create the model
-CBre_14C <- glm (data=crisis_smp,
+CBre_08C <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -2953,35 +2936,35 @@ CBre_14C <- glm (data=crisis_smp,
                  SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp +
                    SIDV:n_Fixed+MIDV:n_Fixed+OIDV:n_Fixed, family=binomial(link="logit"))
-display(CBre_14C)
+display(CBre_08C)
 
 # Plot the model and Vehicle for SIDV
-CBre_14C_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
+CBre_08C_curve<-function(x, Comp,Ceil,Days,MIDV,OIDV){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         n_Fixed,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Days*SIDV,Days*MIDV,Days*OIDV,
         Comp*SIDV,Comp*MIDV,Comp*OIDV,
         x*SIDV,x*MIDV,x*OIDV
-        ) %*%  coef(CBre_14C))}
+        ) %*%  coef(CBre_08C))}
 
 #Vehicle curves
 discrete_fitted_cbre_model(crisis_smp,"n_Fixed") +
-  stat_function(fun = CBre_14C_curve,
+  stat_function(fun = CBre_08C_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=1,MIDV=0,OIDV=0),color="blue")+
-  stat_function(fun = CBre_14C_curve,
+  stat_function(fun = CBre_08C_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,MIDV=1,OIDV=0),color="blue")+
-  stat_function(fun = CBre_14C_curve,
+  stat_function(fun = CBre_08C_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        SIDV=0,MIDV=0,OIDV=1),color="blue")
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_14C)
+binned_fitted_versus_cbre_residuals(CBre_08C)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_14C)+
+residuals_cbre_plot(CBre_08C)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -2991,12 +2974,12 @@ residuals_cbre_plot(CBre_14C)+
 The interactions are not significant and do little to reduce the residual deviance. They will not be added to the model.
 
 
-### 14D: Incentive Fees
+### 08D: Incentive Fees
 
 In the performance of the defense acquisition system report, the benefits found were reduced cost overruns. That could help avoid terminations, but it's an indirect connection at best. Unfortunately, incentive fees are incredibly rare, which makes them challenging to examine directly.
 
 
-```{r Model14D}
+```{r Model08D}
 
 #Frequency Plot
 freq_discrete_cbre_plot(crisis_smp,"Fee")
@@ -3007,7 +2990,7 @@ discrete_percent_cbre_plot(crisis_smp,"Fee")
 
 
 #Create the model
-CBre_14D <- glm (data=crisis_smp,
+CBre_08D <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + cl_Days+ clsqr_Ceil + clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA + 
@@ -3016,31 +2999,31 @@ CBre_14D <- glm (data=crisis_smp,
                    SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp 
                     , family=binomial(link="logit"))
-display(CBre_14D)
+display(CBre_08D)
 
 # Plot the model and Vehicle 
-CBre_14D_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
+CBre_08D_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Fixed,x,
         Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_14D))}
+        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_08D))}
 
 #Days curves
 discrete_fitted_cbre_model(crisis_smp,"n_Incent") +
-  stat_function(fun = CBre_14D_curve,
+  stat_function(fun = CBre_08D_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,Fixed=1),color="blue")+
-  stat_function(fun = CBre_14D_curve,
+  stat_function(fun = CBre_08D_curve,
                              args=list(Comp=2,Ceil=0,Days=1,
                                        MIDV=0,SIDV=0,OIDV=0,Fixed=1),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_14D)
+binned_fitted_versus_cbre_residuals(CBre_08D)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_14D)+
+residuals_cbre_plot(CBre_08D)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -3050,9 +3033,9 @@ residuals_cbre_plot(CBre_14D)+
 
 The effect of incentive fees are not significant. They do have a noteworthy coefficient, however, given prior research on their ability to prevent cost overruns, their lowered heightened probably of terminations lacks an immdetiate explaintation. There's also a fair amount of unlabeled data, which reduces the samplle size. It's still worth checking the interaction with fixed price, as they are based on a common field in FPDS and the two are closely related in concept.
 
-### 14E: Incentive Fees and Fixed-Price  
+### 08E: Incentive Fees and Fixed-Price  
 
-```{r Model14E}
+```{r Model08E}
 
 #Frequency Plot
 freq_discrete_cbre_plot(crisis_smp,"Fee","FxCb")+
@@ -3065,7 +3048,7 @@ discrete_percent_cbre_plot(crisis_smp,"Fee","FxCb")+
 
 
 #Create the model
-CBre_14E <- glm (data=crisis_smp,
+CBre_08E <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -3075,34 +3058,34 @@ CBre_14E <- glm (data=crisis_smp,
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp +
                    n_Fixed:n_Incent
                     , family=binomial(link="logit"))
-display(CBre_14E)
+display(CBre_08E)
 
 # Plot the model and Vehicle 
-CBre_14E_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
+CBre_08E_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Fixed,x,
         Days*x,Days*MIDV,Days*OIDV,
         Comp*x,Comp*MIDV,Comp*OIDV,
-        x*Fixed) %*%  coef(CBre_14E))}
+        x*Fixed) %*%  coef(CBre_08E))}
 
 #Days curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_14E_curve,
+  stat_function(fun = CBre_08E_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=0),color="blue")+
-  stat_function(fun = CBre_14E_curve,
+  stat_function(fun = CBre_08E_curve,
                              args=list(Comp=2,Ceil=0,Days=1,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=0),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_14E)
+binned_fitted_versus_cbre_residuals(CBre_08E)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_14E)+
+residuals_cbre_plot(CBre_08E)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -3112,10 +3095,10 @@ residuals_cbre_plot(CBre_14E)+
 Looking at Incentive Fees and Fixed-Price interactions undercuts the significance of both base variables. Incentive will not be added to the model.
 
 
-### 14H: UCA and Duration
+### 08H: UCA and Duration
 
 
-```{r Model14H}
+```{r Model08H}
 
 #Frequency Plot
 freq_continuous_cbre_plot(crisis_smp,"l_Days","UCA")
@@ -3125,7 +3108,7 @@ binned_percent_cbre_plot(crisis_smp,"l_Days","UCA")
 
 
 #Create the model
-CBre_14H <- glm (data=crisis_smp,
+CBre_08H <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -3136,34 +3119,34 @@ CBre_14H <- glm (data=crisis_smp,
                    b_UCA:n_Comp + 
                   b_UCA:l_Days
                     , family=binomial(link="logit"))
-display(CBre_14H)
+display(CBre_08H)
 
 # Plot the model and Vehicle 
-CBre_14H_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
+CBre_08H_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Fixed,x,
         Days*x,Days*MIDV,Days*OIDV,
         Comp*x,Comp*MIDV,Comp*OIDV,
-        Comp*x,Days*x) %*%  coef(CBre_14H))}
+        Comp*x,Days*x) %*%  coef(CBre_08H))}
 
 #Days curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_14H_curve,
+  stat_function(fun = CBre_08H_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1),color="blue")+
-  stat_function(fun = CBre_14H_curve,
+  stat_function(fun = CBre_08H_curve,
                              args=list(Comp=2,Ceil=0,Days=1,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_14H)
+binned_fitted_versus_cbre_residuals(CBre_08H)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_14H)+
+residuals_cbre_plot(CBre_08H)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -3173,9 +3156,9 @@ residuals_cbre_plot(CBre_14H)+
 The intersection of initial duration and UCA had a negative coefficient that was not significant. This is the opposite of what we would expect from the literature, which notes the risks of long periods under an undefinitized contract. This may simply reflect a limitation of the variable, which tracks the initial maximum duration and would not differentiate between a contract that went a day before being definitized and one that went a year. This interaction will not be added to the model.
 
 ##Place of Performance
-### 15A: Any International
+### 09A: Any International
 
-```{r Model15A}
+```{r Model09A}
 
 #Frequency Plot
 freq_discrete_cbre_plot(crisis_smp,"Intl")
@@ -3186,7 +3169,7 @@ discrete_percent_cbre_plot(crisis_smp,"Intl")
 
 
 #Create the model
-CBre_15A <- glm (data=crisis_smp,
+CBre_09A <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -3197,34 +3180,34 @@ CBre_15A <- glm (data=crisis_smp,
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
                    b_UCA:n_Comp
                     , family=binomial(link="logit"))
-display(CBre_15A)
+display(CBre_09A)
 
 # Plot the model and Vehicle 
-CBre_15A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
+CBre_09A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Fixed,UCA,x,
         Days*x,Days*MIDV,Days*OIDV,
         Comp*x,Comp*MIDV,Comp*OIDV,
-        UCA*Comp) %*%  coef(CBre_15A))}
+        UCA*Comp) %*%  coef(CBre_09A))}
 
 #Days curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_15A_curve,
+  stat_function(fun = CBre_09A_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0),color="blue")+
-  stat_function(fun = CBre_15A_curve,
+  stat_function(fun = CBre_09A_curve,
                              args=list(Comp=2,Ceil=0,Days=1,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_15A)
+binned_fitted_versus_cbre_residuals(CBre_09A)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_15A)+
+residuals_cbre_plot(CBre_09A)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -3234,9 +3217,9 @@ residuals_cbre_plot(CBre_15A)+
 
 International performance of contract unexpectedly had a negative coefficent. It is a variable of interest  to the study and will be left in.
 
-### 15B: Fixed Price and Any International
+### 09B: Fixed Price and Any International
 
-```{r Model15B}
+```{r Model09B}
 
 #Frequency Plot
 freq_discrete_cbre_plot(crisis_smp,"Intl","FxCb")
@@ -3247,7 +3230,7 @@ discrete_percent_cbre_plot(crisis_smp,"Intl","FxCb")
 
 
 #Create the model
-CBre_15A <- glm (data=crisis_smp,
+CBre_09A <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -3259,34 +3242,34 @@ CBre_15A <- glm (data=crisis_smp,
                    b_UCA:n_Comp+
                    n_Fixed:b_Intl
                     , family=binomial(link="logit"))
-display(CBre_15A)
+display(CBre_09A)
 
 # Plot the model and Vehicle 
-CBre_15A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
+CBre_09A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Fixed,UCA,x,
         Days*x,Days*MIDV,Days*OIDV,
         Comp*x,Comp*MIDV,Comp*OIDV,
-        UCA*Comp) %*%  coef(CBre_15A))}
+        UCA*Comp) %*%  coef(CBre_09A))}
 
 #Days curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_15A_curve,
+  stat_function(fun = CBre_09A_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0),color="blue")+
-  stat_function(fun = CBre_15A_curve,
+  stat_function(fun = CBre_09A_curve,
                              args=list(Comp=2,Ceil=0,Days=1,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_15A)
+binned_fitted_versus_cbre_residuals(CBre_09A)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_15A)+
+residuals_cbre_plot(CBre_09A)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -3294,9 +3277,9 @@ residuals_cbre_plot(CBre_15A)+
 
 ```
 
-### 15C: Vehicle and Any International
+### 09C: Vehicle and Any International
 
-```{r Model15C}
+```{r Model09C}
 
 #Frequency Plot
 freq_discrete_cbre_plot(crisis_smp,"Intl","Veh")
@@ -3307,7 +3290,7 @@ discrete_percent_cbre_plot(crisis_smp,"Intl","Veh")
 
 
 #Create the model
-CBre_15C <- glm (data=crisis_smp,
+CBre_09C <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -3319,34 +3302,34 @@ CBre_15C <- glm (data=crisis_smp,
                    b_UCA:n_Comp+
                    SIDV:b_Intl+MIDV:b_Intl+OIDV:b_Intl
                     , family=binomial(link="logit"))
-display(CBre_15C)
+display(CBre_09C)
 
 # Plot the model and Vehicle 
-CBre_15C_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
+CBre_09C_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Fixed,UCA,x,
         Days*x,Days*MIDV,Days*OIDV,
         Comp*x,Comp*MIDV,Comp*OIDV,
-        UCA*Comp) %*%  coef(CBre_15C))}
+        UCA*Comp) %*%  coef(CBre_09C))}
 
 #Days curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_15C_curve,
+  stat_function(fun = CBre_09C_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0),color="blue")+
-  stat_function(fun = CBre_15C_curve,
+  stat_function(fun = CBre_09C_curve,
                              args=list(Comp=2,Ceil=0,Days=1,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_15C)
+binned_fitted_versus_cbre_residuals(CBre_09C)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_15C)+
+residuals_cbre_plot(CBre_09C)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -3359,9 +3342,9 @@ residuals_cbre_plot(CBre_15C)+
 Adding who resulted in a range of models that failed to converge. The one exception was combining Product/Service/R&D alone and Who, which did require removing multiple interactions from the model before convergence could be reached, but did allow the continued inclusion of  the combination of Product/Service/R&D and competition. All other models have been commented out to allow for the Markdown file  to  be created in a manageable amount of time. The study team initially considered using start year or contracting office identity as additional non-nested levels. However, those models failed to converge or had eigenvalue related challenges. As a result, the study team chose to focus on the question of what is being acquired. Who is acquiring is instead being handled by individual dummy variables or group level summary variables where appropriate, but not by seperate intercepts or slopes. Start year is not included in the model because of the complicatitons related to durations. Namely longer duration contracts from recent years have not yet had the opportunity to live out their natural life span. This means  that recent years will have an artificially high termination rate for longer contracts, because we only know about those that ended before their maximum duration, often due to termination.
 
 
-### 16A: Sub Customer other DoD
+### 10A: Sub Customer other DoD
 Other DoD stands out for its sheer quantity of contracts and task orders and also its lower termination rate. 
-```{r Model16A}
+```{r Model10A}
 
 #Frequency Plot
 freq_discrete_cbre_plot(crisis_smp,"Who")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -3378,7 +3361,7 @@ crisis_smp$b_ODoD[crisis_smp$b_ODoD=="Uncategorized"]<-NA
 crisis_smp$b_ODoD<-as.integer(as.character(crisis_smp$b_ODoD))
 
 #Create the model
-CBre_16A <- glm (data=crisis_smp,
+CBre_10A <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -3389,35 +3372,35 @@ CBre_16A <- glm (data=crisis_smp,
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
                    b_UCA:n_Comp
                     , family=binomial(link="logit"))
-display(CBre_16A)
+display(CBre_10A)
 
 
 # Plot the model and Vehicle 
-CBre_16A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA,Intl){invlogit(
+CBre_10A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA,Intl){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Fixed,UCA,Intl,x,
         Days*x,Days*MIDV,Days*OIDV,
         Comp*x,Comp*MIDV,Comp*OIDV,
-        UCA*Comp) %*%  coef(CBre_16A))}
+        UCA*Comp) %*%  coef(CBre_10A))}
 
 #Days curves
 discrete_fitted_cbre_model(crisis_smp,"b_ODoD") +
-  stat_function(fun = CBre_16A_curve,
+  stat_function(fun = CBre_10A_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0,Intl=0),color="blue")+
-  stat_function(fun = CBre_16A_curve,
+  stat_function(fun = CBre_10A_curve,
                              args=list(Comp=2,Ceil=0,Days=1,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0,Intl=0),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_16A)
+binned_fitted_versus_cbre_residuals(CBre_10A)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_16A)+
+residuals_cbre_plot(CBre_10A)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -3428,7 +3411,7 @@ residuals_cbre_plot(CBre_16A)+
 After inclusion of DLA, the Competition correlates significantly predicts a greater risk of termination. Studying that interaction will be our next step.
 
 #Other DoD & Competition
-```{r Model16B}
+```{r Model10B}
 
 #Frequency Plot
 freq_discrete_cbre_plot(crisis_smp,"EffComp","Who")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -3445,7 +3428,7 @@ crisis_smp$b_ODoD[crisis_smp$b_ODoD=="Uncategorized"]<-NA
 crisis_smp$b_ODoD<-as.integer(as.character(crisis_smp$b_ODoD))
 
 #Create the model
-CBre_16B <- glm (data=crisis_smp,
+CBre_10B <- glm (data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -3457,35 +3440,35 @@ CBre_16B <- glm (data=crisis_smp,
                    b_UCA:n_Comp+
                    b_ODoD:n_Comp
                     , family=binomial(link="logit"))
-display(CBre_16B)
+display(CBre_10B)
 
 
 # Plot the model and Vehicle 
-CBre_16B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA,Intl){invlogit(
+CBre_10B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA,Intl){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Fixed,UCA,Intl,x,
         Days*x,Days*MIDV,Days*OIDV,
         Comp*x,Comp*MIDV,Comp*OIDV,
-        UCA*Comp) %*%  coef(CBre_16B))}
+        UCA*Comp) %*%  coef(CBre_10B))}
 
 #Days curves
 discrete_fitted_cbre_model(crisis_smp,"b_ODoD") +
-  stat_function(fun = CBre_16B_curve,
+  stat_function(fun = CBre_10B_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0,Intl=0),color="blue")+
-  stat_function(fun = CBre_16B_curve,
+  stat_function(fun = CBre_10B_curve,
                              args=list(Comp=2,Ceil=0,Days=1,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0,Intl=0),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_16B)
+binned_fitted_versus_cbre_residuals(CBre_10B)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_16B)+
+residuals_cbre_plot(CBre_10B)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -3496,8 +3479,8 @@ residuals_cbre_plot(CBre_16B)+
 #Multi-Level Model
 
 ##What
-### 18A: Product/Service/R&D
-```{r Model18A}
+### 11A: Product/Service/R&D
+```{r Model11A}
 
 #Frequency Plot
 freq_discrete_cbre_plot(crisis_smp,"PSR")
@@ -3508,7 +3491,7 @@ discrete_percent_cbre_plot(crisis_smp,"PSR")
 
 
 #Create the model
-CBre_18A <- glmer(data=crisis_smp,
+CBre_11A <- glmer(data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -3520,33 +3503,33 @@ CBre_18A <- glmer(data=crisis_smp,
                    b_UCA:n_Comp+
                    (1 | PSR)
                     , family=binomial(link="logit"))
-display(CBre_18A)
+display(CBre_11A)
 
 # Plot the model and Vehicle 
-CBre_18A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
+CBre_11A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Fixed,UCA,x,
         Days*x,Days*MIDV,Days*OIDV,
-        UCA*Comp) %*%  coef(CBre_18A))}
+        UCA*Comp) %*%  coef(CBre_11A))}
 
 #Days curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_18A_curve,
+  stat_function(fun = CBre_11A_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0),color="blue")+
-  stat_function(fun = CBre_18A_curve,
+  stat_function(fun = CBre_11A_curve,
                              args=list(Comp=2,Ceil=0,Days=1,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0),color="blue")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_18A)
+binned_fitted_versus_cbre_residuals(CBre_11A)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_18A)+
+residuals_cbre_plot(CBre_11A)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -3556,8 +3539,8 @@ residuals_cbre_plot(CBre_18A)+
 
 Unfortunately, after including Start Fiscal Year, the model again failed to converge. The standard deviation of Who is 0 while it is notably higher for determining the slope of competition via PSR and for Start Fiscal Year. This suggests that who is adding little to the model and that it is time to go back to model 6C as a starter.
 
-### 18B: Product/Service/R&D and Platform
-```{r Model18B}
+### 11B: Product/Service/R&D and Platform
+```{r Model11B}
 
 #Frequency Plot
 freq_discrete_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -3568,7 +3551,7 @@ discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_t
 
 
 #Create the model
-CBre_18B <- glmer(data=crisis_smp,
+CBre_11B <- glmer(data=crisis_smp,
                  b_CBre ~ Crisis + n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -3582,32 +3565,32 @@ CBre_18B <- glmer(data=crisis_smp,
                    b_UCA:n_Comp+
                    (1 | PSR) + (1 | PSR_What)
                     , family=binomial(link="logit"))
-display(CBre_18B)
+display(CBre_11B)
 
 # Plot the model and Vehicle 
-CBre_18B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
+CBre_11B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Fixed,UCA,x,
         Days*x,Days*MIDV,Days*OIDV,
-        UCA*Comp) %*%  coef(CBre_18B))}
+        UCA*Comp) %*%  coef(CBre_11B))}
 
 #Days curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_18B_curve,
+  stat_function(fun = CBre_11B_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0),color="blue")+
-  stat_function(fun = CBre_18B_curve,
+  stat_function(fun = CBre_11B_curve,
                              args=list(Comp=2,Ceil=0,Days=1,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0),color="blue")
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_18B)
+binned_fitted_versus_cbre_residuals(CBre_11B)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_18B)+
+residuals_cbre_plot(CBre_11B)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
@@ -3615,7 +3598,7 @@ residuals_cbre_plot(CBre_18B)+
 
 ```
 
-### 18C: Interactions
+### 11C: Interactions
 ```{r Model 6 Exploration}
 #, fig.height = 10, fig.width = 6.5
 #Effective Competition
@@ -3653,7 +3636,7 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb","What")+ theme(axis.text.x = elemen
 discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
-CBre_18C <- glmer(data=crisis_smp,
+CBre_11C <- glmer(data=crisis_smp,
                  b_CBre ~ #n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -3667,10 +3650,10 @@ CBre_18C <- glmer(data=crisis_smp,
                    b_UCA:n_Comp+
                    (1 + n_Comp | PSR) + (1 | PSR_What)
                     , family=binomial(link="logit"))
-display(CBre_18C)
+display(CBre_11C)
 
 
-CBre_18D <- glmer(data=crisis_smp,
+CBre_11D <- glmer(data=crisis_smp,
                  b_CBre ~ Crisis +n_Comp + 
                    cl_Ceil + cl_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -3684,18 +3667,18 @@ CBre_18D <- glmer(data=crisis_smp,
                    b_UCA:n_Comp+
                    (1  | PSR) + (1 + n_Comp| PSR_What)
                     , family=binomial(link="logit"))
-display(CBre_18D)
+display(CBre_11D)
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_18C)
+binned_fitted_versus_cbre_residuals(CBre_11C)
 
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_18C)+
+residuals_cbre_plot(CBre_11C)+
   labs(x="Estimated  Pr (Termination)")
 
 
-# CBre_18E <- glmer(data=crisis_smp,
+# CBre_11E <- glmer(data=crisis_smp,
 #                  b_CBre ~ Crisis +n_Comp + 
 #                    cl_Ceil + cl_Days+ 
 #                    SIDV + MIDV + FSSGWAC + BPABOA +
@@ -3709,24 +3692,24 @@ residuals_cbre_plot(CBre_18C)+
 #                    b_UCA:n_Comp+
 #                    (1+n_Comp  | PSR) + (1+ n_Comp | PSR_What)
 #                     , family=binomial(link="logit"))
-# display(CBre_18E)
+# display(CBre_11E)
 # failure to converge in 10000 evaluations
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_18C)
+binned_fitted_versus_cbre_residuals(CBre_11C)
 
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_18C)+
+residuals_cbre_plot(CBre_11C)+
   labs(x="Estimated  Pr (Termination)")
 
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_18D)
+binned_fitted_versus_cbre_residuals(CBre_11D)
 
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_18D)+
+residuals_cbre_plot(CBre_11D)+
   labs(x="Estimated  Pr (Termination)")
 
 ```
