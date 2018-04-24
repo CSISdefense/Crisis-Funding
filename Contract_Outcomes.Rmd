@@ -1746,7 +1746,7 @@ summary_residual_compare(CBre_04E,CBre_04K,Term_04E,Term_04K,bins=20)
 The interactions between crisis funding and the percent of the office going to a crisis is strong for ceiling breaches but not significant for terminations other than base ARRA. Office99 mixed loses its significance. The reduction in deviance is substantial for both ceiling breaches and terminations and the residuals do not appear to be adversely effectd.
 
 
-### 04L: Off. Crisis % & Crisis
+### 04L: Off. Crisis % & Comp
 
 ```{r Model04L}
 
@@ -1764,7 +1764,7 @@ CBre_04L <- glm (data=crisis_smp,
                   NoComp:Crisis+
                    b_UCA:Crisis+
                    OffPl99:Crisis+
-                   NoComp:OffPl99, 
+                   OffPl99:NoComp, 
                  family=binomial(link="logit"))
 display(CBre_04L)
 
@@ -1775,7 +1775,7 @@ Term_04L <- glm (data=crisis_smp,
                   NoComp:Crisis+
                    b_UCA:Crisis +
                    OffPl99:Crisis+
-                   NoComp:OffPl99, 
+                   OffPl99:NoComp, 
                  family=binomial(link="logit"))
 display(Term_04L)
 
@@ -1833,9 +1833,9 @@ CBre_05A <- glm (data=crisis_smp,
                    b_UCA+
                    OffPl99+ c_OffCri+
                    cl_Ceil+
-                  NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis , 
+                   NoComp:Crisis+
+                   b_UCA:Crisis+
+                   OffPl99:Crisis , 
                  family=binomial(link="logit"))
 display(CBre_05A)
 
@@ -1843,10 +1843,10 @@ Term_05A <- glm (data=crisis_smp,
                  b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
-                  NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis , 
+                   cl_Ceil+
+                   NoComp:Crisis+
+                   b_UCA:Crisis+
+                   OffPl99:Crisis , 
                  family=binomial(link="logit"))
 display(Term_05A)
 
@@ -1891,7 +1891,7 @@ CBre_05B <- glm (data=crisis_smp,
                    cl_Ceil+
                   NoComp:Crisis+
 
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
+                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
                    cl_Ceil:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_05B)
@@ -1947,7 +1947,7 @@ CBre_05C <- glm (data=crisis_smp,
                   NoComp:Crisis+
 
                    b_UCA:Crisis+
-                   OffPl99:Crisis+NoComp:OffPl99+
+                   OffPl99:Crisis+OffPl99:NoComp+
                    cl_Ceil:Crisis+
                    cl_Ceil:b_UCA, 
                  family=binomial(link="logit"))
@@ -2010,7 +2010,7 @@ CBre_05D <- glm (data=crisis_smp,
                   NoComp:Crisis+
 
                    b_UCA:Crisis+
-                   OffPl99:Crisis+NoComp:OffPl99+
+                   OffPl99:Crisis+OffPl99:NoComp+
                    cl_Ceil:Crisis+
                    cl_Ceil:OffPl99, 
                  family=binomial(link="logit"))
@@ -2068,7 +2068,7 @@ CBre_05E <- glm (data=crisis_smp,
                   NoComp:Crisis+
 
                    b_UCA:Crisis+
-                   OffPl99:Crisis+NoComp:OffPl99+
+                   OffPl99:Crisis+OffPl99:NoComp+
                    cl_Ceil:Crisis+
                  cl_Ceil:NoComp, 
                  family=binomial(link="logit"))
@@ -2133,8 +2133,10 @@ CBre_06A <- glm (data=crisis_smp,
                    OffPl99+ c_OffCri+
                    cl_Ceil+
                    cl_Days+
-                  NoComp:Crisis+
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
+                   NoComp:Crisis+
+                   b_UCA:Crisis+
+                   OffPl99:Crisis+
+                   OffPl99:NoComp+
                    cl_Ceil:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_06A)
@@ -2143,12 +2145,13 @@ Term_06A <- glm (data=crisis_smp,
                  b_Term ~ Crisis +NoComp +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
+                   cl_Ceil+
                    cl_Days+
-                  NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis+
-                   cl_Ceil:Crisis+cl_Ceil:OffPl99, 
+                   NoComp:Crisis+
+                   b_UCA:Crisis+
+                   OffPl99:Crisis+
+                   cl_Ceil:Crisis+
+                   cl_Ceil:OffPl99, 
                  family=binomial(link="logit"))
 display(Term_06A)
 
@@ -2192,7 +2195,7 @@ CBre_06B <- glm (data=crisis_smp,
                    cl_Days+
                   NoComp:Crisis+
 
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
+                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
                    cl_Ceil:Crisis+
                    cl_Ceil:cl_Days, 
                  family=binomial(link="logit"))
@@ -2253,7 +2256,7 @@ CBre_06C <- glm (data=crisis_smp,
                    cl_Days+
                   NoComp:Crisis+
 
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
+                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
                    cl_Ceil:Crisis+
                    cl_Days:Crisis, 
                  family=binomial(link="logit"))
@@ -2316,7 +2319,7 @@ CBre_06D <- glm (data=crisis_smp,
                    cl_Days+
                   NoComp:Crisis+
 
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
+                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
                    cl_Ceil:Crisis+
                    
                    cl_Days:b_UCA, 
@@ -2382,7 +2385,7 @@ CBre_06E <- glm (data=crisis_smp,
                    cl_Days+
                   NoComp:Crisis+
 
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
+                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
                    cl_Ceil:Crisis+
                    
                    
@@ -2448,7 +2451,7 @@ CBre_06F <- glm (data=crisis_smp,
                    cl_Days+
                    NoComp:Crisis+
                    b_UCA:Crisis+
-                   OffPl99:Crisis+NoComp:OffPl99+
+                   OffPl99:Crisis+OffPl99:NoComp+
                    cl_Ceil:Crisis+
                    cl_Days:NoComp,
                  family=binomial(link="logit"))
@@ -2587,7 +2590,7 @@ CBre_07B <- glm (data=crisis_smp,
                    cl_Days+
                    Veh+
                   NoComp:Crisis+
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
+                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
                    cl_Ceil:Crisis+
                    cl_Days:Veh, 
                  family=binomial(link="logit"))
@@ -2689,7 +2692,7 @@ CBre_07C <- glm (data=crisis_smp,
                    Veh+
                   NoComp:Crisis+
                    b_UCA:Crisis+OffPl99:Crisis+
-                   NoComp:OffPl99+
+                   OffPl99:NoComp+
                    cl_Ceil:Crisis+
                    cl_Days:Veh+ 
                  cl_Ceil:Veh, 
@@ -2797,7 +2800,7 @@ CBre_07D <- glm (data=crisis_smp,
                    cl_Days+
                    Veh+
                   NoComp:Crisis+
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
+                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
                    cl_Ceil:Crisis+
                    cl_Days:Veh+ 
                    cl_Ceil:Veh+
