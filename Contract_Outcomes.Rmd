@@ -2205,7 +2205,6 @@ Term_06B <- glm (data=crisis_smp,
                   cl_Ceil+
                    cl_Days+
                   NoComp:Crisis+
-
                    b_UCA:Crisis+OffPl99:Crisis+
                    cl_Ceil:Crisis+cl_Ceil:OffPl99+
                    cl_Ceil:cl_Days, 
@@ -2237,7 +2236,7 @@ summary_residual_compare(CBre_06A,CBre_06B,Term_06A,Term_06B)
 ```
 
 
-The interaction of ceiling and duration is correlated with a higher rate of ceiling breaches and no change at all to terminations. The coefficient is minor and the reduction in the deviance of the minor is minimal for ceiling breaches. The results of the interaction also don't make a great deal of sense, as placing a large contract under a tighter schedule is not known for reducing risk. While we hesitate to leave off a significant variable, it contributes little but confusion and is not key to the study, leaving it out.
+The interaction of ceiling and duration is correlated with a higher rate of ceiling breaches and no change at all to terminations. The coefficient is minor and the reduction in the deviance of the minor is minimal for ceiling breaches. The results of the interaction also don't make a great deal of sense, as placing a large contract under a tighter schedule is not known for reducing risk. While we hesitate to leave off a significant variable, it contributes little and is not key to the study, leaving it out.
 
 
 #### 06C: Duration and Crisis
@@ -2299,7 +2298,7 @@ summary_residual_compare(CBre_06A,CBre_06C,Term_06A,Term_06C,bins=40)
 
 
 ```
-The interaction of Crisis and Duration has a fairly marginal affect. For ARRA and disaster contracts, it iss significantly associated with better outcomes. This is unexpected as regulations seek to minimize the duration of disaster contracts in particular. In keeping with this, for OCO, it significantly associated with ceiling breaches. other forms of contracts. Unfortunately, the addition flattens out the ceiling raise fitted versus outcome 
+The interaction of Crisis and Duration has a fairly marginal affect. For ARRA and disaster contracts, it iss significantly associated with better outcomes. This is unexpected as regulations seek to minimize the duration of disaster contracts in particular. In keeping with this, for OCO, it significantly associated with ceiling breaches. other forms of contracts. Unfortunately, the addition flattens out the ceiling raise fitted versus outcome. Adding for terminations but not for ceiling breach.
 
 
 #### 06D: Duration and UCA
@@ -2319,7 +2318,7 @@ CBre_06D <- glm (data=crisis_smp,
 
                    b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
                    cl_Ceil:Crisis+
-                   cl_Days:Crisis+
+                   
                    cl_Days:b_UCA, 
                  family=binomial(link="logit"))
 display(CBre_06D)
@@ -2341,7 +2340,7 @@ display(Term_06D)
 
 
 
-stargazer::stargazer(CBre_06C,CBre_06D,Term_06C,Term_06D,type="text",
+stargazer::stargazer(CBre_06A,CBre_06D,Term_06C,Term_06D,type="text",
                      digits=2)
 
 
@@ -2360,17 +2359,19 @@ fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_06D_curve,
                              args=list(Comp=0,Ceil=1),color="blue")
 
 
-summary_residual_compare(CBre_06C,CBre_06D,Term_06C,Term_06D)
+summary_residual_compare(CBre_06A,CBre_06D,Term_06C,Term_06D)
 
 
 ```
-Similar to the model of the interaction of ceiling breaches UCA, smaller scope appears to be associated with somewhat greater risk. The improvement in deviation as well as with the overall comparison of the binned fitted values with outcomes and residuals seem to indicate that this interaction is worth keeping for ceiling breaches.
+Similar to the model of the interaction of ceiling breaches UCA, smaller scope appears to be associated with somewhat greater risk. Unfortunately, the residuals increase in magnitude for ceiling breaches and the deviance is worse than adding a random data for terminations, leaving this variable out.
 
 
 
-#### 06E: Duration and Office % Crisis
+#### 06E: Duration and Office Place
 ```{r Mode06E}
-summary_continuous_plot(crisis_smp,"l_Days","c_OffCri")
+summary_double_continuous(crisis_smp,"l_Days","c_OffCri")
+summary_continuous_plot(crisis_smp,"l_Days","OffPl99")
+
 
 #Model
 CBre_06E <- glm (data=crisis_smp,
@@ -2383,9 +2384,9 @@ CBre_06E <- glm (data=crisis_smp,
 
                    b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
                    cl_Ceil:Crisis+
-                   cl_Days:Crisis+
-                   cl_Days:b_UCA+
-                   cl_Days:c_OffCri, 
+                   
+                   
+                   cl_Days:OffPl99, 
                  family=binomial(link="logit"))
 display(CBre_06E)
 
@@ -2400,14 +2401,14 @@ Term_06E <- glm (data=crisis_smp,
                    b_UCA:Crisis+OffPl99:Crisis+
                    cl_Ceil:Crisis+cl_Ceil:OffPl99+
                    cl_Days:Crisis+
-                   cl_Days:c_OffCri
+                   cl_Days:OffPl99
                    , 
                  family=binomial(link="logit"))
 display(Term_06E)
 
 
 
-stargazer::stargazer(CBre_06D,CBre_06E,Term_06D,Term_06E,type="text",
+stargazer::stargazer(CBre_06A,CBre_06E,Term_06C,Term_06E,type="text",
                      digits=2)
 
 
@@ -2426,11 +2427,77 @@ fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_06E_curve,
                              args=list(Comp=0,Ceil=1),color="blue")
 
 
-summary_residual_compare(CBre_05G,CBre_06E,Term_05G,Term_06E)
+summary_residual_compare(CBre_06A,CBre_06E,Term_06C,Term_06E,bins=30)
 
 
 ```
-The interaction between duration and office crisis percentage 
+The interaction between duration and locations is shows that in international cases, longer duration is associated with greater risks, though not significantly for ceiling breaches. Interestingly,  in mixed cases the risk is reduced significant. This is may be a mechanism to explain reachback contracting, and also occurs with ceiling terminations, bigger contracts may be easier to handle in mixed contracting offices where there is more capacity. However, the magnitude of the residuals rises with ceiling breaches, so it will only be kept for terminations.
+
+
+#### 06F: Duration and Competition
+```{r Mode06F}
+summary_continuous_plot(crisis_smp,"l_Days","NoComp")
+
+
+#Model
+CBre_06F <- glm (data=crisis_smp,
+                 b_CBre ~ Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+
+                   cl_Days+
+                   NoComp:Crisis+
+                   b_UCA:Crisis+
+                   OffPl99:Crisis+NoComp:OffPl99+
+                   cl_Ceil:Crisis+
+                   cl_Days:NoComp,
+                 family=binomial(link="logit"))
+display(CBre_06F)
+
+Term_06F <- glm (data=crisis_smp,
+                 b_Term ~ Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+
+                   cl_Days+
+                   NoComp:Crisis+
+                   b_UCA:Crisis+
+                   OffPl99:Crisis+
+                   cl_Ceil:Crisis+
+                   cl_Ceil:OffPl99+
+                   cl_Days:Crisis+
+                   cl_Days:OffPl99+
+                   cl_Days:NoComp, 
+                 family=binomial(link="logit"))
+display(Term_06F)
+
+
+
+stargazer::stargazer(CBre_06A,CBre_06F,Term_06E,Term_06F,type="text",
+                     digits=2)
+
+
+CBre_06F_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_06F))}
+
+#Competition Curves
+fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_06F_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_06F_curve, 
+                             args=list(Comp=2,Ceil=0),color="blue")
+
+#Ceiling Curves
+fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_06F_curve, 
+                             args=list(Comp=0,Ceil=0),color="blue")+
+  stat_function(fun = CBre_06F_curve, 
+                             args=list(Comp=0,Ceil=1),color="blue")
+
+
+summary_residual_compare(CBre_06A,CBre_06F,Term_06E,Term_06F,bins=30)
+
+
+```
+The  contracts with longer maximum duration when interacting with no competition are associated with better results. However, the residuals are magnified and the residual versus fitted comparisons for ceiling breach are more off the central line. Leaving this out.
+
 
 ##Contract Vehicle
 Our dataset includes both stand alone contract awards and task orders that are under larger indefinite delivery vehicles (IDVs). This does fit with literature review findings about the risk of long duration contracts in a crisis, so will be kept in despite its minimal coefficient.
@@ -2451,12 +2518,10 @@ CBre_07A <- glm (data=crisis_smp,
                    cl_Days+
                    Veh+
                   NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
-                   cl_Ceil:Crisis+
-                   cl_Days:Crisis+
-                   cl_Days:b_UCA+
-                   cl_Days:c_OffCri, 
+                   b_UCA:Crisis+
+                   OffPl99:Crisis+
+                   OffPl99:NoComp+
+                   cl_Ceil:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_07A)
 
@@ -2468,18 +2533,19 @@ Term_07A <- glm (data=crisis_smp,
                    cl_Days+
                    Veh+
                   NoComp:Crisis+
-
-                   b_UCA:Crisis+OffPl99:Crisis+
-                   cl_Ceil:Crisis+cl_Ceil:OffPl99+
+                   b_UCA:Crisis+
+                   OffPl99:Crisis+
+                   cl_Ceil:Crisis+
+                   cl_Ceil:OffPl99+
                    cl_Days:Crisis+
-                   cl_Days:c_OffCri
+                   cl_Days:OffPl99
                    , 
                  family=binomial(link="logit"))
 display(Term_07A)
 
 
 
-stargazer::stargazer(CBre_06E,CBre_07A,Term_06E,Term_07A,type="text",
+stargazer::stargazer(CBre_06A,CBre_07A,Term_06E,Term_07A,type="text",
                      digits=2)
 
 
@@ -2497,8 +2563,7 @@ fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_07A_curve,
   stat_function(fun = CBre_07A_curve, 
                              args=list(Comp=0,Ceil=1),color="blue")
 
-debug(summary_residual_compare)
-summary_residual_compare(CBre_06E,CBre_07A,Term_06E,Term_07A)
+summary_residual_compare(CBre_06A,CBre_07A,Term_06E,Term_07A)
 
 
 ```
@@ -2508,7 +2573,7 @@ The first check lumps looks at four categories of IDVs, each associated with a n
 The next step is to check the intersections with duration.
 
 
-### 07B: Vehicle and cOMPETITION
+### 07B: Vehicle and Duration
 ```{r Model07B}
 
   summary_continuous_plot(crisis_smp,"l_Days","Veh")
@@ -2524,9 +2589,6 @@ CBre_07B <- glm (data=crisis_smp,
                   NoComp:Crisis+
                    b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
                    cl_Ceil:Crisis+
-                   cl_Days:Crisis+
-                   cl_Days:b_UCA+
-                   cl_Days:c_OffCri+
                    cl_Days:Veh, 
                  family=binomial(link="logit"))
 display(CBre_07B)
@@ -2540,9 +2602,10 @@ Term_07B <- glm (data=crisis_smp,
                    Veh+
                   NoComp:Crisis+
                    b_UCA:Crisis+OffPl99:Crisis+
-                   cl_Ceil:Crisis+cl_Ceil:OffPl99+
+                   cl_Ceil:Crisis+
+                   cl_Ceil:OffPl99+
                    cl_Days:Crisis+
-                   cl_Days:c_OffCri+
+                   cl_Days:OffPl99+
                    cl_Days:Veh                   , 
                  family=binomial(link="logit"))
 display(Term_07B)
@@ -2625,11 +2688,9 @@ CBre_07C <- glm (data=crisis_smp,
                    cl_Days+
                    Veh+
                   NoComp:Crisis+
-                   b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
+                   b_UCA:Crisis+OffPl99:Crisis+
+                   NoComp:OffPl99+
                    cl_Ceil:Crisis+
-                   cl_Days:Crisis+
-                   cl_Days:b_UCA+
-                   cl_Days:c_OffCri+
                    cl_Days:Veh+ 
                  cl_Ceil:Veh, 
                  family=binomial(link="logit"))
@@ -2646,7 +2707,7 @@ Term_07C <- glm (data=crisis_smp,
                    b_UCA:Crisis+OffPl99:Crisis+
                    cl_Ceil:Crisis+cl_Ceil:OffPl99+
                    cl_Days:Crisis+
-                   cl_Days:c_OffCri+
+                   cl_Days:OffPl99+
                    cl_Days:Veh+ 
                  cl_Ceil:Veh, 
                  family=binomial(link="logit"))
@@ -2710,13 +2771,13 @@ discrete_fitted_cbre_model(crisis_smp,"OIDV") +
 
 
 
-summary_residual_compare(CBre_07B,CBre_07C,Term_07B,Term_07C)
+summary_residual_compare(CBre_07B,CBre_07C,Term_07B,Term_07C,bins=30)
 
 
 
 ```
 
-Indefinite delivery vehicles, when interacting with contract ceiling, generally have lower ceiling breach rates and termination rates. The big exception is multi-award IDVs for terminations. High ceiling contracts are associated with a significantly higher risk of termination when a multiaward vehicle is used. Happily, this interaction also reduces the magnitude of the residuals for both output variables.
+Indefinite delivery vehicles, when interacting with contract ceiling, generally have lower ceiling breach rates and termination rates. The big exception is multi-award IDVs for terminations. High ceiling contracts are associated with a significantly higher risk of termination when a multiaward vehicle is used. The effects for the residuals are mixed, but the reduction in model deviance seems sufficient to justify it.
 
 ### 07D: Vehicle and Competition
 
@@ -2738,9 +2799,6 @@ CBre_07D <- glm (data=crisis_smp,
                   NoComp:Crisis+
                    b_UCA:Crisis+OffPl99:Crisis+NoComp:OffPl99+
                    cl_Ceil:Crisis+
-                   cl_Days:Crisis+
-                   cl_Days:b_UCA+
-                   cl_Days:c_OffCri+
                    cl_Days:Veh+ 
                    cl_Ceil:Veh+
                  NoComp:Veh, 
@@ -2758,7 +2816,7 @@ Term_07D <- glm (data=crisis_smp,
                    b_UCA:Crisis+OffPl99:Crisis+
                    cl_Ceil:Crisis+cl_Ceil:OffPl99+
                    cl_Days:Crisis+
-                   cl_Days:c_OffCri+
+                   cl_Days:OffPl99+
                    cl_Days:Veh+ 
                    cl_Ceil:Veh+
                  NoComp:Veh, 
