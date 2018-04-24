@@ -2886,7 +2886,7 @@ summary_residual_compare(CBre_07C,CBre_07D,Term_07C,Term_07D,20)
 
 
 ```
-The average plots did show varying relationships and slopes between different types of vehicles. Multi-award IDCs in particular have 
+The average plots did show varying relationships and slopes between different types of vehicles. Uncompeted single-awards and fss/gwacs are associated with more terminations as are uncompeted multiawards/ Urgency exceptions for FSS?GWAC are strongly correlated with a greater risk of ceiling breaches.
 
 
 
