@@ -3116,9 +3116,9 @@ The intersection of fixed price and vehicle reduces the base coefficient for fix
                      cl_Days:Crisis+
                      cl_Days:OffPl99+
                      cl_Days:Veh+ 
-                     cl_Ceil:n_Fixed+
+                     cl_Ceil:Veh+
                    NoComp:Veh+
-                     Veh:n_Fixed, 
+                     cl_Ceil:n_Fixed, 
                    family=binomial(link="logit"))
   display(Term_08E)
   
@@ -3132,6 +3132,65 @@ summary_residual_compare(CBre_08B,CBre_08E,Term_08A,Term_08E,bins=30)
 
 ```
 Larger fixed price contracts are associated with larger negative outcomes, though not significantly for terminations. The reduction in deviance is double digit and the number of binned residuals falling outside of the 95% confidence interval increases. Leaving this out.
+
+
+
+### 08E: Fixed Price and Compeition
+
+
+```{r Model08F}
+  summary_discrete_plot(crisis_smp,"n_Fixed","NoComp")
+summary_discrete_plot(crisis_smp,"n_Fixed","FxCb")
+  
+
+  CBre_08F <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    NoComp:Crisis+
+                     b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                     cl_Ceil:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                     cl_Days:n_Fixed+
+                     NoComp:n_Fixed, 
+                   family=binomial(link="logit"))
+  display(CBre_08F)
+  
+  Term_08F <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +NoComp +
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    NoComp:Crisis+
+                     b_UCA:Crisis+OffPl99:Crisis+
+                     cl_Ceil:Crisis+cl_Ceil:OffPl99+
+                     cl_Days:Crisis+
+                     cl_Days:OffPl99+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                     NoComp:n_Fixed, 
+                   family=binomial(link="logit"))
+  display(Term_08F)
+  
+
+  stargazer::stargazer(CBre_08B,CBre_08F,Term_08A,Term_08F,type="text",
+                       digits=2)
+  
+  
+
+summary_residual_compare(CBre_08B,CBre_08F,Term_08A,Term_08F,bins=30)
+
+```
 
 ##Place of Performance
 ### 09A: Any International
