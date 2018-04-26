@@ -117,10 +117,20 @@ other_dom<-other_dom[sample(nrow(other_dom),100000),]
 other_intl<-other_intl[sample(nrow(other_intl),100000),]
 crisis_with_na<-rbind(crisis_with_na,other_dom,other_intl)
 rm(other)
-
-
-
-
+crisis_with_na$OffCri<-crisis_with_na$CrisisPercent
+crisis_with_na$ProductOrServiceCode<-as.character(crisis_with_na$ProdServ)
+  crisis_with_na<-csis360::read_and_join( crisis_with_na,
+                               "ProductOrServiceCodes.csv",                             path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                               directory="",
+                               by="ProductOrServiceCode",
+                               add_var=c("Simple",
+                                         "ProductServiceOrRnDarea",
+                                         "ProductOrServiceArea"),
+                               new_var_checked=FALSE)
+crisis_with_na$ProductServiceOrRnDarea<-factor(crisis_with_na$ProductServiceOrRnDarea)
+crisis_with_na$ProductOrServiceArea<-factor(crisis_with_na$ProductOrServiceArea)
+summary(crisis_with_na$ProductServiceOrRnDarea)
+summary(crisis_with_na$ProductOrServiceArea)
 # summary(crisis_with_na$b_Comp )
 # summary(crisis_with_na$n_Comp )
 # summary(crisis_with_na$Comp )
@@ -140,8 +150,10 @@ complete<-!is.na(crisis_with_na$b_Term)&
   !is.na(crisis_with_na$ProdServ)&
   !is.na(crisis_with_na$Crisis)&
   !is.na(crisis_with_na$Office)&
-!is.na(crisis_with_na$CrisisPercent)&
-  !is.na(crisis_with_na$OffIntl)
+!is.na(crisis_with_na$OffCri)&
+  !is.na(crisis_with_na$OffIntl)&
+  !is.na(crisis_with_na$Is.Defense)&
+  !is.na(crisis_with_na$ProductOrServiceArea)
   # !is.na(crisis_with_na$cl_HHI_lag1)
 
 summary(crisis_with_na$Crisis)
@@ -168,19 +180,18 @@ The sample is created by including the entirity of the ARRA and Disaster dataset
 ##Crisis Dataset
 ### 01A Crisis Dataset
 ```{r Model01A}
-levels(crisis_smp$MaxOfDecisionTree)[levels(crisis_smp$MaxOfDecisionTree)=="Excluded"]<-
-  "None"
-crisis_smp$MaxOfDecisionTree[is.na(crisis_smp$MaxOfDecisionTree)]<-"None"
-#Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"MaxOfDecisionTree")
-
-#Percent Terminated Plot
-discrete_percent_cbre_plot(crisis_smp,"MaxOfDecisionTree")
+summary_discrete_plot(crisis_smp,"Crisis")
 
 #Model
-CBre_11A <- glm (data=crisis_smp,
+CBre_01A <- glm (data=crisis_smp,
                  b_CBre ~ Crisis, family=binomial(link="logit"))
 display(CBre_11A)
+
+#Model
+Term_01A <- glm (data=crisis_smp,
+                 b_Term ~ Crisis, family=binomial(link="logit"))
+display(Term_01A)
+
 
 
 
@@ -192,23 +203,7 @@ In line with literature, crisis contracting is higher risk than conventional con
 Competition has the potential to reduce terminations by giving the government more options in vendors and encouraging better behavior from the contractor that was chosen. 
 ### 02A: No Competition / Competition
 ```{r Model02A}
-
-#Terminations
-gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"Comp"),
-                        discrete_percent_term_plot(crisis_smp,"Comp"))
-
-gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"Urg"),
-                        discrete_percent_term_plot(crisis_smp,"Urg"))
-
-
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"Comp"),
-             discrete_percent_cbre_plot(crisis_smp,"Comp"))
-
-gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"Urg"),
-             discrete_percent_cbre_plot(crisis_smp,"Urg"))
-
-
+summary_discrete_plot(crisis_smp,"NoComp")
 
 #Model
 CBre_02A <- glm (data=crisis_smp,
@@ -220,28 +215,11 @@ Term_02A <- glm (data=crisis_smp,
 display(Term_02A)
 
 
-stargazer::stargazer(CBre_02A,Term_02A,type="text",
+stargazer::stargazer(CBre_01A,CBre_02A,Term_01A,Term_02A,type="text",
                      digits=2)
 
 
-#Plot the fitted values vs actual results
-gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_02A),
-                        binned_fitted_versus_term_residuals(Term_02A)
-                        )
-
-# residuals_cbre_plot(CBre_02A)+
-  # labs(x="Estimated  Pr (Ceiling Breach)"),
-# residuals_cbre_plot(Term_02A)+
-  # labs(x="Estimated  Pr (Termination)"),
-
-
-#Plot residuals versus fitted
-# residuals_cbre_plot(CBre_07B)+
-  # labs(x="Estimated  Pr (Ceiling Breach)")
-
-# residuals_cbre_plot(CBre_07B,"cl_Ceil")+
-  # labs(x="Centered Log(Ceiling)")
-  
+summary_residual_compare(CBre_01A,CBre_02A,Term_01A,Term_02A,bins=3)
 
 ```
 Binary competition is associated with a significantly decreased risk of ceiling breaches but a slightly greater risk of terminations. Urgency is associated with a lower risk of termination and a lower risk of ceiling breaches, though neither is significant. The increased risk of ceiling breach is the only finding in line with the hypotheses. The next step is to add interactions between the competition and the crisis datasets.
@@ -250,14 +228,7 @@ Binary competition is associated with a significantly decreased risk of ceiling 
 ### 02B: No Competition / Competition
 ```{r Model02B}
 
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"Comp","Crisis"),
-                        discrete_percent_cbre_plot(crisis_smp,"Comp","Crisis"))
-                        
-#Terminations
-gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"Comp","Crisis"),
-                        discrete_percent_term_plot(crisis_smp,"Comp","Crisis"))
-
+summary_discrete_plot(crisis_smp,"NoComp","Crisis")
 
 #Model
 CBre_02B <- glm (data=crisis_smp,
@@ -273,18 +244,12 @@ Term_02B <- glm (data=crisis_smp,
 display(Term_02B)
 
 
-stargazer::stargazer(CBre_02B,Term_02B,type="text",
+stargazer::stargazer(CBre_02A,CBre_02B,Term_02A,Term_02B,type="text",
                      digits=2)
 
 
 
-#Plot the new variable and coefficients
-#Add the fitted regression line
-discrete_fitted_cbre_model(crisis_smp,"cb_Comp") + 
-  stat_function(fun = fit_curve, args=list(a=coef(CBre_02B)[1],                                                        b=coef(CBre_02B)[2]),color="blue")
-str(crisis_smp)
-
-
+summary_residual_compare(CBre_02A,CBre_02B,Term_02A,Term_02B,bins=3)
 ```
 
 The results are complicated. With the interactions, terminations are now associated with competition, but for all three crisis datasets, competition counters this relationship. Things are more complex with ceiing breahes, where the interaction of competition with ARRA and OCO is associated with a lower likelihood of a breach, but the relationship goes the other way for disasters.
@@ -295,18 +260,7 @@ The next step is to look at a more detailed model, where single offer competitio
 ### 02C: No Competition / Single Offer / Competition
 ```{r Model02C}
 
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"EffComp"),
-             discrete_percent_cbre_plot(crisis_smp,"EffComp"))
-
-
-#Terminations
-gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"EffComp"),
-                        discrete_percent_term_plot(crisis_smp,"EffComp"))
-
-
-
-
+summary_discrete_plot(crisis_smp,"EffComp")
 
 #Model
 CBre_02C <- glm (data=crisis_smp,
@@ -320,20 +274,10 @@ Term_02C <- glm (data=crisis_smp,
 display(Term_02C)
 
 
-stargazer::stargazer(CBre_02C,Term_02C,type="text",
+stargazer::stargazer(CBre_02B,CBre_02C,CBre_02B,Term_02C,type="text",
                      digits=2)
 
-
-
-
-#Plot the Fitted
-#Add the fitted regression line
-# discrete_fitted_cbre_model(crisis_smp,"n_Comp") +
-#   stat_function(fun = fit_curve, args=list(a=coef(CBre_02C)[1],
-#                                            b=coef(CBre_02C)[2]),
-#                 color="blue")
-
-
+summary_residual_compare(CBre_02B,CBre_02C,Term_02B,Term_02C,bins=3)
 
 
 ```
@@ -341,46 +285,29 @@ The results when single-offer and multi-offer competition are split are quite od
 
 ### 02D: No Competition / Single Offer / Competition
 ```{r Model02D}
-
-
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"EffComp","Crisis"),
-             discrete_percent_cbre_plot(crisis_smp,"EffComp","Crisis"))
-
-
-#Terminations
-gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"EffComp","Crisis"),
-                        discrete_percent_term_plot(crisis_smp,"EffComp","Crisis"))
-
+summary_discrete_plot(crisis_smp,"EffComp","Crisis")
 
 #Model
 CBre_02D <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +n_Comp+
-                   ARRA:n_Comp + Dis:n_Comp + OCO:n_Comp,
+                   Crisis:n_Comp,
                  family=binomial(link="logit"))
 display(CBre_02D)
 
 Term_02D <- glm (data=crisis_smp,
                  b_Term ~ Crisis +n_Comp+
-                   ARRA:n_Comp + Dis:n_Comp + OCO:n_Comp,
+                   Crisis:n_Comp,
                  family=binomial(link="logit"))
 display(Term_02D)
 
 
-stargazer::stargazer(CBre_02D,Term_02D,type="text",
+
+stargazer::stargazer(CBre_02B,CBre_02C,CBre_02D,Term_02B,Term_02C,Term_02D,
+                     type="text",
                      digits=2)
 
-
-
-#Plot the Fitted
-#Add the fitted regression line
-# discrete_fitted_cbre_model(crisis_smp,"n_Comp") +
-#   stat_function(fun = fit_curve, args=list(a=coef(CBre_02D)[1],
-#                                            b=coef(CBre_02D)[2]),
-#                 color="blue")
-
-
-
+summary_residual_compare(CBre_02B,CBre_02D,Term_02B,Term_02D,bins=3)
+summary_residual_compare(CBre_02C,CBre_02D,Term_02C,Term_02D,bins=3)
 
 ```
 These results confirm that it is the crisis datasets that drive this phenomenon, but 
@@ -389,16 +316,8 @@ The correlation between the three categories of competition has a larger  coeffi
 
 ### 02E: No Competition / Number of Offer Categories 
 ```{r Model02E}
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"CompOffr"),
-             discrete_percent_cbre_plot(crisis_smp,"CompOffr"))
 
-
-#Terminations
-gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"CompOffr"),
-                        discrete_percent_term_plot(crisis_smp,"CompOffr"))
-
-
+summary_discrete_plot(crisis_smp,"CompOffr")
 
 #Model
 CBre_02E <- glm (data=crisis_smp,
@@ -409,81 +328,51 @@ Term_02E <- glm (data=crisis_smp,
                  b_Term ~ Crisis +cn_Offr, family=binomial(link="logit"))
 display(Term_02E)
 
-stargazer::stargazer(CBre_02E,Term_02E,type="text",
+stargazer::stargazer(CBre_02B,CBre_02D,CBre_02E,Term_02B,Term_02D,Term_02E,
+                     type="text",
                      digits=2)
 
-
+summary_residual_compare(CBre_02B,CBre_02E,Term_02B,Term_02E,bins=3)
+summary_residual_compare(CBre_02D,CBre_02E,Term_02D,Term_02E,bins=3)
 ```
 
 The more detailed breakout still doesn't make a great deal of sense.
 
 ### 02F: No Competition / Number of Offer Categories 
 ```{r Model02F}
-
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"CompOffr","Crisis"),
-             discrete_percent_cbre_plot(crisis_smp,"CompOffr","Crisis"))
-
-
-#Terminations
-gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"CompOffr","Crisis"),
-                        discrete_percent_term_plot(crisis_smp,"CompOffr","Crisis"))
-
+summary_discrete_plot(crisis_smp,"CompOffr","Crisis")
 
 #Model
 CBre_02F <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +n_Comp+
-                   ARRA:n_Comp + Dis:n_Comp + OCO:n_Comp,
+                 b_CBre ~ Crisis +cn_Offr+
+                   Crisis:cn_Offr,
                  family=binomial(link="logit"))
 display(CBre_02F)
 
 Term_02F <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +n_Comp+
-                   ARRA:n_Comp + Dis:n_Comp + OCO:n_Comp,
+                 b_Term ~ Crisis +cn_Offr+
+                   Crisis:cn_Offr,
                  family=binomial(link="logit"))
 display(Term_02F)
 
 
-stargazer::stargazer(CBre_02F,Term_02F,type="text",
+stargazer::stargazer(CBre_02B,CBre_02D,CBre_02G,Term_02B,Term_02D,Term_02E,Term_02F,
+                     type="text",
                      digits=2)
 
-
-
-#Plot the Fitted
-#Add the fitted regression line
-# discrete_fitted_cbre_model(crisis_smp,"n_Comp") +
-#   stat_function(fun = fit_curve, args=list(a=coef(CBre_02F)[1],
-#                                            b=coef(CBre_02F)[2]),
-#                 color="blue")
-
-
-
+summary_residual_compare(CBre_02B,CBre_02F,Term_02B,Term_02F,bins=3)
+summary_residual_compare(CBre_02D,CBre_02F,Term_02D,Term_02F,bins=3)
+summary_residual_compare(CBre_02E,CBre_02F,Term_02E,Term_02F,bins=3)
 
 ```
 The patterns are roughly similar to those found when only single offer competition is broken out, unfortunately the greater detail is not that illuminating.
 
 ### 02G: Number of Offer Categories 
 ```{r Model02G}
-
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"l_Offr"),
-             binned_percent_cbre_plot(crisis_smp,"l_Offr"))
-
-
-#Terminations
-gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"l_Offr"),
-                        binned_percent_term_plot(crisis_smp,"l_Offr"))
-
-
+summary_continuous_plot(crisis_smp,"l_Offr")
 #Vehicle Crossreference
-gridExtra::grid.arrange(binned_percent_cbre_plot(crisis_smp,"l_Offr","Veh"),
-                        binned_percent_term_plot(crisis_smp,"l_Offr","Veh"))
 
-
-
-
-#Percent Terminated Plot
-binned_percent_cbre_plot(crisis_smp,"l_Offr","Veh")
+summary_continuous_plot(crisis_smp,"l_Offr","Veh")
 
 
 #Model
@@ -495,37 +384,13 @@ Term_02G <- glm (data=crisis_smp,
                  b_Term ~ Crisis +cl_Offr, family=binomial(link="logit"))
 display(Term_02G)
 
-stargazer::stargazer(CBre_02G,Term_02G,type="text",
+
+stargazer::stargazer(CBre_02B,CBre_02D,CBre_02G,Term_02B,Term_02D,Term_02G,
+                     type="text",
                      digits=2)
 
-#Plot the data and fitted curve
-CBre_02G_plot<-ggplot(data=crisis_smp,
-       aes(y=j_Term,x=cl_Offr))+geom_jitter(alpha=0.11,height=0)+scale_y_sqrt() +
-  labs(title="Fitted Linear Model", caption="Source: FPDS, CSIS Analysis")
-
-#Plot the Fitted
-#Add the fitted regression line
-discrete_fitted_cbre_model(crisis_smp,"cl_Offr") +
-  stat_function(fun = fit_curve, args=list(a=coef(CBre_02G)[1],
-                                           b=coef(CBre_02G)[2]),
-                             color="blue")
-
-#Plot the fitted values vs actual results
-gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_02G),
-                        binned_fitted_versus_term_residuals(Term_02G))
-
-
-
-#Plot residuals versus fitted
-gridExtra::grid.arrange(residuals_cbre_plot(CBre_02G,bins=3)+
-  labs(x="Estimated  Pr (Ceiling Breach)"),
-                        residuals_term_plot(Term_02G,bins=3)+
-  labs(x="Estimated  Pr (Termination)"))
-
-
-
-
-
+summary_residual_compare(CBre_02B,CBre_02G,Term_02B,Term_02G,bins=3)
+summary_residual_compare(CBre_02D,CBre_02G,Term_02D,Term_02G,bins=3)
 
 ```
 Similar story with number of offers. Closer examination finds that the nature of the relationship varies greatly depending on the contract vehicle. 
@@ -534,139 +399,66 @@ Similar story with number of offers. Closer examination finds that the nature of
 ### 02H: Number of Offer Categories 
 ```{r Model02H}
 
-
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"l_Offr","Crisis"),
-             binned_percent_cbre_plot(crisis_smp,"l_Offr","Crisis"))
-
-
-#Terminations
-gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"l_Offr","Crisis"),
-                        binned_percent_term_plot(crisis_smp,"l_Offr","Crisis"))
-
-
+summary_continuous_plot(crisis_smp,"l_Offr","Crisis")
 
 #Model
 CBre_02H <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +cl_Offr+
-                   cl_Offr:ARRA + cl_Offr:Dis + cl_Offr:OCO, family=binomial(link="logit"))
+                   cl_Offr:Crisis, family=binomial(link="logit"))
 display(CBre_02H)
 
 #Model
 Term_02H <- glm (data=crisis_smp,
                  b_Term ~ Crisis +cl_Offr+
-                   cl_Offr:ARRA + cl_Offr:Dis + cl_Offr:OCO, family=binomial(link="logit"))
+                   cl_Offr:Crisis, family=binomial(link="logit"))
 display(Term_02H)
-stargazer::stargazer(CBre_02H,Term_02H,type="text",
+
+
+stargazer::stargazer(CBre_02B,CBre_02D,CBre_02G,CBre_02H,Term_02B,Term_02D,Term_02G,Term_02H,
+                     type="text",
                      digits=2)
 
-#Variant Model
-crisis_smp$clsqr_Offer<-crisis_smp$cl_Offr^2
-CBre_11E <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +cl_Offr +clsqr_Offer, family=binomial(link="logit"))
-display(CBre_11E)
-
-#Plot the data and fitted curve
-CBre_02H_plot<-ggplot(data=crisis_smp,
-       aes(y=j_Term,x=cl_Offr))+geom_jitter(alpha=0.11,height=0)+scale_y_sqrt() +
-  labs(title="Fitted Linear Model", caption="Source: FPDS, CSIS Analysis")
-
-#Plot the Fitted
-#Add the fitted regression line
-discrete_fitted_cbre_model(crisis_smp,"cl_Offr") +
-  stat_function(fun = fit_curve, args=list(a=coef(CBre_02H)[1],
-                                           b=coef(CBre_02H)[2]),
-                             color="blue")
-
-
-#Plot the fitted values vs actual results
-gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_02G),
-                        binned_fitted_versus_term_residuals(Term_02G))
-
-
-
-#Plot residuals versus fitted
-gridExtra::grid.arrange(residuals_cbre_plot(CBre_02G,bins=5)+
-  labs(x="Estimated  Pr (Ceiling Breach)"),
-                        residuals_term_plot(Term_02G,bins=5)+
-  labs(x="Estimated  Pr (Termination)"))
-
-
-
+summary_residual_compare(CBre_02B,CBre_02H,Term_02B,Term_02H,bins=3)
+summary_residual_compare(CBre_02D,CBre_02H,Term_02D,Term_02H,bins=3)
+summary_residual_compare(CBre_02G,CBre_02H,Term_02G,Term_02H,bins=3)
 
 
 
 ```
-Interestingly, unlike prior models, the interactios with the log of the number of offers now all have positive coefficient. After all this analysis, sticking with binary competition seems the best choice. The next step will be to add in a consideration of non-competition for urgency reasons.
+Interestingly, unlike prior models, the interactions with the log of the number of offers now all have positive coefficient. After all this analysis, sticking with binary competition seems the best choice. The next step will be to add in a consideration of non-competition for urgency reasons.
 
 
 
 ### 02I: No Competition / Competition
 ```{r Model02I}
 
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"Urg"),
-                        discrete_percent_cbre_plot(crisis_smp,"Urg"))
-                        
-#Terminations
-gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"Urg"),
-                        discrete_percent_term_plot(crisis_smp,"Urg"))
-
+summary_discrete_plot(crisis_smp,"NoComp")
 
 #Model
 CBre_02I <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis +NoComp +
-                   cb_Comp:Crisis, 
+                 b_CBre ~ Crisis +NoComp , 
                  family=binomial(link="logit"))
 display(CBre_02I)
 
 Term_02I <- glm (data=crisis_smp,
-                 b_Term ~ Crisis +NoComp +
-                   cb_Comp:Crisis, 
+                 b_Term ~ Crisis +NoComp , 
                  family=binomial(link="logit"))
 display(Term_02I)
 
 
-stargazer::stargazer(CBre_02B,CBre_02I,Term_02B,Term_02I,type="text",
+stargazer::stargazer(CBre_02B,CBre_02D,CBre_02I,Term_02B,Term_02D,Term_02I,
+                     type="text",
                      digits=2)
 
-
-
-#Plot the new variable and coefficients
-#Add the fitted regression line
-discrete_fitted_cbre_model(crisis_smp,"cb_Comp") + 
-  stat_function(fun = fit_curve, args=list(a=coef(CBre_02I)[1],                                                        b=coef(CBre_02I)[2]),color="blue")
-str(crisis_smp)
-
-
-#Plot the fitted values vs actual results
-gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_02I),
-                        binned_fitted_versus_term_residuals(Term_02I))
-
-
-
-#Plot residuals versus fitted
-gridExtra::grid.arrange(residuals_cbre_plot(CBre_02I,bins=3)+
-  labs(x="Estimated  Pr (Ceiling Breach)"),
-                        residuals_term_plot(Term_02I,bins=3)+
-  labs(x="Estimated  Pr (Termination)"))
-
-
+summary_residual_compare(CBre_02B,CBre_02I,Term_02B,Term_02I,bins=3)
+summary_residual_compare(CBre_02D,CBre_02I,Term_02D,Term_02I,bins=3)
 
 ```
 Urgency estimates a higher probability of ceiling breaches and a lower probability of terminations, but the coefficients are small and not significant.
 
 ### 02J: No Competition / Competition
 ```{r Model02J}
-
-#Ceiling Breaches
-gridExtra::grid.arrange(freq_discrete_cbre_plot(crisis_smp,"Urg","Crisis"),
-                        discrete_percent_cbre_plot(crisis_smp,"Urg","Crisis"))
-                        
-#Terminations
-gridExtra::grid.arrange(freq_discrete_term_plot(crisis_smp,"Urg","Crisis"),
-                        discrete_percent_term_plot(crisis_smp,"Urg","Crisis"))
-
+summary_discrete_plot(crisis_smp,"NoComp","Crisis")
 
 #Model
 CBre_02J <- glm (data=crisis_smp,
@@ -687,27 +479,8 @@ stargazer::stargazer(CBre_02B,CBre_02I,CBre_02J,Term_02B,Term_02I,Term_02J,type=
 
 
 
-#Plot the new variable and coefficients
-#Add the fitted regression line
-discrete_fitted_cbre_model(crisis_smp,"cb_Comp") + 
-  stat_function(fun = fit_curve, args=list(a=coef(CBre_02I)[1],                                                        b=coef(CBre_02I)[2]),color="blue")
-str(crisis_smp)
-
-
-#Plot the fitted values vs actual results
-gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_02J),
-                        binned_fitted_versus_term_residuals(Term_02J))
-
-
-
-#Plot residuals versus fitted
-gridExtra::grid.arrange(residuals_cbre_plot(CBre_02J,bins=3)+
-  labs(x="Estimated  Pr (Ceiling Breach)"),
-                        residuals_term_plot(Term_02J,bins=3)+
-  labs(x="Estimated  Pr (Termination)"))
-
-
-
+summary_residual_compare(CBre_02B,CBre_02J,Term_02B,Term_02J,bins=3)
+summary_residual_compare(CBre_02I,CBre_02J,Term_02D,Term_02J,bins=3)
 
 ```
 The interaction of OCO and urgency is perhaps most interesting, as it is significantly associated with higher rates of contract termiantion. That said, the small sample sizes result in large standard errors.  However, because Urgency and competition are mutually exclusive dummy variables, we'll leave them in for all.
@@ -879,7 +652,7 @@ corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,
                        dummies::dummy(crisis_smp$Crisis),
                        dummies::dummy(crisis_smp$NoComp))))
 corrdisp[[1]]
-summary_continuous_plot(crisis_smp,"CrisisPercent",bins=50)
+summary_continuous_plot(crisis_smp,"OffCri",bins=50)
 
 
 #Ceiling Breaches
@@ -1164,7 +937,7 @@ Drawing the line at 0.01 is a judgment call, based on the fact that 25% of contr
 
 ```{r Model04E}
 
-summary_continuous_plot(crisis_smp,"CrisisPercent","OffPl99",bins=50)
+summary_continuous_plot(crisis_smp,"OffCri","OffPl99",bins=50)
 
 
 sum(crisis_smp$Action.Obligation[ crisis_smp$OffIntl<0.01],na.rm=TRUE)/
@@ -1379,7 +1152,7 @@ The higher standard, with roughly half of contracts falling beneath it, is more 
 
 ```{r Model04G}
 
-summary_continuous_plot(crisis_smp,"CrisisPercent","OffPl95",bins=50)
+summary_continuous_plot(crisis_smp,"OffCri","OffPl95",bins=50)
 
 
 
@@ -1546,7 +1319,7 @@ summary_residual_compare(CBre_04G,CBre_04H,Term_04G,Term_04H, bins=3)
 
 ```{r Model04I}
 
-summary_continuous_plot(crisis_smp,"CrisisPercent","OffPl50",bins=50)
+summary_continuous_plot(crisis_smp,"OffCri","OffPl50",bins=50)
 
 
 
@@ -1619,7 +1392,7 @@ Unfortunately, even the simplest of the interactions make interpretation much ha
 ```{r Model04J}
 
 summary_discrete_plot(crisis_smp,"UCA","OffPl99")
-summary_continuous_plot(crisis_smp,"CrisisPercent","UCA",bins=50)
+summary_continuous_plot(crisis_smp,"OffCri","UCA",bins=50)
 summary_discrete_plot(crisis_smp,"UCA","Crisis")
 
 #Model
@@ -1684,7 +1457,7 @@ This doesn't reduce the deviance much, this has already been largely captured by
 
 
 summary_discrete_plot(crisis_smp,"OffPl99","Crisis")
-summary_continuous_plot(crisis_smp,"CrisisPercent","Crisis")
+summary_continuous_plot(crisis_smp,"OffCri","Crisis")
 
 
 #Model
@@ -1748,7 +1521,7 @@ The interactions between crisis funding and the percent of the office going to a
 
 summary_discrete_plot(crisis_smp,"OffPl99","NoComp")
 summary_discrete_plot(crisis_smp,"NoComp","OffPl99")
-summary_continuous_plot(crisis_smp,"CrisisPercent","NoComp")
+summary_continuous_plot(crisis_smp,"OffCri","NoComp")
 
 
 #Model
@@ -3263,6 +3036,15 @@ International performance of contract had a positive coefficient for ceiling bre
 ### 10A: Sub Customer other DoD
 Other DoD stands out for its sheer quantity of contracts and task orders and also its lower termination rate. 
 ```{r Model10A}
+corrdisp<-Hmisc::rcorr(
+  as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,c_OffCri,cl_Ceil,
+                                            cl_Days,n_Fixed,b_Intl)),
+                       dummies::dummy(crisis_smp$Crisis),
+                       dummies::dummy(crisis_smp$NoComp),
+                       dummies::dummy(crisis_smp$OffPl99),
+                       dummies::dummy(crisis_smp$Veh),
+                                    dummies::dummy(crisis_smp$Is.Defense))))
+corrdisp[[1]]
    summary_discrete_plot(crisis_smp,"Is.Defense")
 
 
@@ -3387,16 +3169,27 @@ residuals_cbre_plot(CBre_10B)+
 ##What
 ### 11A: Product/Service/R&D
 ```{r Model11A}
+corrdisp<-Hmisc::rcorr(
+  as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,c_OffCri,cl_Ceil,
+                                              cl_Days,n_Fixed,b_Intl)),
+                  dummies::dummy(crisis_smp$Crisis),
+                  dummies::dummy(crisis_smp$NoComp),
+                  dummies::dummy(crisis_smp$OffPl99),
+                  dummies::dummy(crisis_smp$Veh),
+                  dummies::dummy(crisis_smp$Is.Defense),
+                  dummies::dummy(crisis_smp$Simple))))
+corrdisp[[1]]
+
 
 #Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"PSR")
+freq_discrete_cbre_plot(crisis_smp,"Simple")
 
 #Percent Terminated Plot 
-discrete_percent_cbre_plot(crisis_smp,"PSR")
+discrete_percent_cbre_plot(crisis_smp,"Simple")
 
 #Create the model
 
-  CBre_11A <- glmer (data=crisis_smp,
+  CBre_11A <- glm (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      OffPl99+ c_OffCri+
@@ -3412,11 +3205,11 @@ discrete_percent_cbre_plot(crisis_smp,"PSR")
                      cl_Ceil:Veh+
                    NoComp:Veh+
                      cl_Days:n_Fixed+
-                   (1 | PSR), 
+                   Simple, 
                    family=binomial(link="logit"))
   display(CBre_11A)
   
-  Term_11A <- glmer (data=crisis_smp,
+  Term_11A <- glm (data=crisis_smp,
                    b_Term ~ Crisis +NoComp +
                      b_UCA+
                      OffPl99+ c_OffCri+
@@ -3432,58 +3225,186 @@ discrete_percent_cbre_plot(crisis_smp,"PSR")
                      cl_Days:OffPl99+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
-                   (1 | PSR), 
+                   Simple, 
                    family=binomial(link="logit"))
   display(Term_11A)
   
 
-CBre_11A <- glmer(data=crisis_smp,
-                 b_CBre ~ Crisis + n_Comp + 
-                   cl_Ceil + cl_Days+ 
-                   SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
-                   n_Fixed + b_UCA + 
-                   b_Intl + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
-                   SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
-                   b_UCA:n_Comp+
-                   (1 | PSR)
-                    , family=binomial(link="logit"))
-display(CBre_11A)
+  stargazer::stargazer(CBre_10A,CBre_11A,Term_10A,Term_11A,type="text",
+                       digits=2)
+  
+  
 
-# Plot the model and Vehicle 
-CBre_11A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
-  cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
-        Comp*Ceil,Days*Ceil,Days*Comp,
-        Fixed,UCA,x,
-        Days*x,Days*MIDV,Days*OIDV,
-        UCA*Comp) %*%  coef(CBre_11A))}
+summary_residual_compare(CBre_10A,CBre_11A,Term_10A,Term_11A,bins=20)
 
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_11A_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1,UCA=0),color="blue")+
-  stat_function(fun = CBre_11A_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1,UCA=0),color="blue")
-
-
-#Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_11A)
-
-#Plot residuals versus fittedO
-residuals_cbre_plot(CBre_11A)+
-  labs(x="Estimated  Pr (Termination)")
-
-# residuals_cbre_plot(CBre_02F,"cl_days")+
-#   labs(x="Centered Log(Days)")
 
 ```
 
 Unfortunately, after including Start Fiscal Year, the model again failed to converge. The standard deviation of Who is 0 while it is notably higher for determining the slope of competition via PSR and for Start Fiscal Year. This suggests that who is adding little to the model and that it is time to go back to model 6C as a starter.
+
+### 11B: Product or Service Area
+```{r Model11B}
+
+crisis_smp$PSA<-as.character(crisis_smp$ProductOrServiceArea)
+crisis_smp$PSA<-gsub(" & ","+",crisis_smp$PSA)
+corrdisp<-Hmisc::rcorr(
+  as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,c_OffCri,cl_Ceil,
+                                            cl_Days,n_Fixed,b_Intl)),
+                       dummies::dummy(crisis_smp$Crisis),
+                       dummies::dummy(crisis_smp$NoComp),
+                       dummies::dummy(crisis_smp$OffPl99),
+                       dummies::dummy(crisis_smp$Veh),
+                                    dummies::dummy(crisis_smp$Is.Defense),
+                  dummies::dummy(crisis_smp$PSA))))
+corrdisp[[1]]
+
+
+#Frequency Plot
+freq_discrete_cbre_plot(crisis_smp,"PSA")
+
+#Percent Terminated Plot 
+discrete_percent_cbre_plot(crisis_smp,"PSA")
+
+#Create the model
+
+  CBre_11B <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    NoComp:Crisis+
+                     b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                     cl_Ceil:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                     cl_Days:n_Fixed+
+                   PSA, 
+                   family=binomial(link="logit"))
+  display(CBre_11B)
+  
+  Term_11B <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +NoComp +
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    NoComp:Crisis+
+                     b_UCA:Crisis+OffPl99:Crisis+
+                     cl_Ceil:Crisis+cl_Ceil:OffPl99+
+                     cl_Days:Crisis+
+                     cl_Days:OffPl99+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   PSA, 
+                   family=binomial(link="logit"))
+  display(Term_11B)
+  
+
+  stargazer::stargazer(CBre_10A,CBre_11B,Term_10A,Term_11B,type="text",
+                       digits=2)
+  
+  
+
+summary_residual_compare(CBre_10A,CBre_11B,Term_10A,Term_11B,bins=20)
+
+texreg::htmlreg(list(CBre_11B,
+                     Term_11B),file="CrisisModel.html",single.row = TRUE,
+                custom.model.name=c("Ceiling Breach",
+                                    "Complete\nand Partial\nTermination"
+                                    ),
+                        stars=c(0.05))
+summary(factor(crisis_smp$PSA))
+```
+
+
+
+### 11C: Product or Service Area
+```{r Model11C}
+
+crisis_smp$PSA<-as.character(crisis_smp$ProductOrServiceArea)
+crisis_smp$PSA<-gsub(" & ","+",crisis_smp$PSA)
+corrdisp<-Hmisc::rcorr(
+  as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,c_OffCri,cl_Ceil,
+                                            cl_Days,n_Fixed,b_Intl)),
+                       dummies::dummy(crisis_smp$Crisis),
+                       dummies::dummy(crisis_smp$NoComp),
+                       dummies::dummy(crisis_smp$OffPl99),
+                       dummies::dummy(crisis_smp$Veh),
+                                    dummies::dummy(crisis_smp$Is.Defense),
+                  dummies::dummy(crisis_smp$PSA))))
+corrdisp[[1]]
+
+
+#Frequency Plot
+freq_discrete_cbre_plot(crisis_smp,"PSA")
+
+#Percent Terminated Plot 
+discrete_percent_cbre_plot(crisis_smp,"PSA")
+
+#Create the model
+
+  CBre_11C <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    NoComp:Crisis+
+                     b_UCA:Crisis+
+                     OffPl99:Crisis+
+                     # OffPl99:NoComp+
+                     cl_Ceil:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   # NoComp:Veh+
+                     cl_Days:n_Fixed+
+                   PSA, 
+                   family=binomial(link="logit"))
+  display(CBre_11C)
+  
+  Term_11C <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +NoComp +
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    NoComp:Crisis+
+                     b_UCA:Crisis+
+                     OffPl99:Crisis+
+                     cl_Ceil:Crisis+
+                     cl_Ceil:OffPl99+
+                     cl_Days:Crisis+
+                     cl_Days:OffPl99+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   PSA, 
+                   family=binomial(link="logit"))
+  display(Term_11C)
+  
+
+  stargazer::stargazer(CBre_11B,CBre_11C,Term_11B,Term_11C,type="text",
+                       digits=2)
+  
+  
+
+summary_residual_compare(CBre_11B,CBre_11C,Term_11B,Term_11C,bins=20)
+
+
+```
 
 ### 11B: Product/Service/R&D and Platform
 ```{r Model11B}
