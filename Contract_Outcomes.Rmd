@@ -139,6 +139,15 @@ summary(crisis_with_na$Crisis)
 
 
 
+crisis_smp$OffPl99<-Hmisc::cut2(crisis_smp$OffIntl,c(0.01,0.50))
+summary(crisis_smp$OffPl99)
+  levels(crisis_smp$OffPl99) <-
+    list("US99"=c("[0.00,0.01)"),
+         "Mixed"=c("[0.01,0.50)"),
+         "Intl"=c("[0.50,1.00]"))
+
+  
+
 #
 #8811392  to 8811392
 nrow(crisis_with_na[!complete,])/nrow(crisis_with_na)
@@ -1069,15 +1078,6 @@ quantile(fed$OffIntl,c(0.1,0.25,0.33,0.4,0.45,0.5,0.6,0.66,0.7,0.75,0.8),na.rm =
 quantile(crisis_smp$OffIntl,c(0.25,0.5,0.6,0.66,0.7,0.75,0.8),na.rm = TRUE)
 
 
-
-crisis_smp$OffPl99<-Hmisc::cut2(crisis_smp$OffIntl,c(0.01,0.50))
-summary(crisis_smp$OffPl99)
-  levels(crisis_smp$OffPl99) <-
-    list("US99"=c("[0.00,0.01)"),
-         "Mixed"=c("[0.01,0.50)"),
-         "Intl"=c("[0.50,1.00]"))
-
-  
 
 summary(crisis_smp$OffPl99)
 
