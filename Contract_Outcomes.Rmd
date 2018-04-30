@@ -137,6 +137,8 @@ summary(crisis_with_na$ProductOrServiceArea)
 # summary(crisis_with_na$CompOffr )
 # summary(crisis_with_na$EffComp )
 
+crisis_with_na$b_NoComp<-!crisis_with_na$b_Comp
+
 complete<-!is.na(crisis_with_na$b_Term)&
   !is.na(crisis_with_na$b_CBre)&
   !is.na(crisis_with_na$b_Comp)&
@@ -521,9 +523,11 @@ stargazer::stargazer(CBre_02J,CBre_03A,Term_02B,Term_03A,type="text",
 summary_residual_compare(CBre_02J,CBre_03A,Term_02B,Term_03A,bins=3)
 
 ```
-
+Expectations are upheld for ceiling breaches but not for terminations.
 
 ### 03B: UCA and Crisis
+
+Expectation: Unclear. The risks of UCA are well established.They are more commonly used for crisis funding, however, unlike competition there was not specific eveidence found in the literature review that crises exacerbate their risk.
 
 ```{r Model03B}
 
@@ -570,41 +574,18 @@ stargazer::stargazer(CBre_03A,CBre_03B,Term_03A,Term_03B,type="text",
                      digits=2)
 
 
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_03B_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")+
-  stat_function(fun = CBre_03B_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")
-
-
-#Plot the fitted values vs actual results
-gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_03B),
-                        binned_fitted_versus_term_residuals(Term_03B))
-
-
-
-#Plot residuals versus fitted
-gridExtra::grid.arrange(residuals_cbre_plot(CBre_03B,bins=3)+
-  labs(x="Estimated  Pr (Ceiling Breach)"),
-                        residuals_term_plot(Term_03B,bins=3)+
-  labs(x="Estimated  Pr (Termination)"))
-
-# residuals_cbre_plot(CBre_02F,"cl_days")+
-  # labs(x="Centered Log(Days)")
+summary_residual_compare(CBre_03A,CBre_03B,Term_03A,Term_03B,bins=3)
 
 ```
-In exploratory graphs, the interaction of UCA and appear to be largely absent for breaches and while present for terminations, given that competition for terminations has a small coefficient and is not significant, it's probably not time to add an interaction. Instead this step adds an interaction between UCAs and crisis funds. The result is striking, in all cases, UCAs for crisis funds have lower correlation with negative outcomes than those in the general contract population. In many cases, the coefficient is sufficient to cancel out much of the estimate for UCA directly, although for OCO ceiling breaches the coefficient is only reduced by roughly a half.
+In exploratory graphs, the interaction of UCA and appear to be largely absent for breaches and while present for terminations, given that competition for terminations has a small coefficient and is not significant, it's probably not time to add an interaction. Instead this step adds an interaction between UCAs and crisis funds. The result is striking, in aknist all cases, UCAs for crisis funds have lower correlation with negative outcomes than those in the general contract population. In many cases, the coefficient is sufficient to cancel out much of the estimate for UCA directly, although for OCO ceiling breaches the coefficient is only reduced by roughly a half.
+
+For terminations, nothing reaches 0.05 p-value significance and contrary to expectation that OCO funded UCAs would estimate a lower risk of terminations, so leaving this variable out.
 
 ## Reachback Contracting
 
 
 ### 04A: Off. Crisis %
-
+Expectation: Crisis-contracting is challenging, and there will be an estimated positive relationship between the percentage of crisis contracting an office performs and its ceiling breach and termination rate.
 
 ```{r Model04A}
 
@@ -640,40 +621,24 @@ display(CBre_04A)
 Term_04A <- glm (data=crisis_smp,
                  b_Term ~ Crisis +b_NoComp +
                    b_UCA+c_OffCri+
-                  b_NoComp:Crisis+
-                   b_UCA:Crisis , 
+                  b_NoComp:Crisis , 
                  family=binomial(link="logit"))
 display(Term_04A)
 
 
 
-stargazer::stargazer(CBre_03B,CBre_04A,Term_03B,Term_04A,type="text",
+stargazer::stargazer(CBre_03B,CBre_04A,Term_03A,Term_04A,type="text",
                      digits=2)
-# Plot the model and Vehicle 
-CBre_04A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
-  cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
-        Comp*Ceil,Days*Ceil,Days*Comp,
-        Fixed,x,
-        Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_04A))}
 
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_04A_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")+
-  stat_function(fun = CBre_04A_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")
-
-
-summary_residual_compare(CBre_03B,CBre_04A,Term_03B,Term_04A,bins=NA)
+summary_residual_compare(CBre_03B,CBre_04A,Term_03A,Term_04A,bins=3)
 ```
+The estimate was vindicated in for both outcomes.
+
 Adding the confirmed crisis percent for contracting offices does align with the reachback hypothesis, with a large and significant coefficient for both terminations and ceiling breaches. The coefficient is small enough that we are not exploring interactions at this time. The next step is to look at contracting office location instead.
 
+
 ### 04B: OffPl. Score
+Expectations: While not all international contracting is crisis related, internationally focused contracting offices seem like to encounter a range of challenges. The percent of obligations of an contracting office that takes place internationally will estimate a positive relationship with terminations and ceiling breaches.
 ```{r Model04B}
 
 summary_continuous_plot(crisis_smp,"OffIntl",bins=50)
@@ -700,9 +665,7 @@ display(CBre_04B)
 Term_04B <- glm (data=crisis_smp,
                  b_Term ~ Crisis +b_NoComp +
                    b_UCA+OffIntl+
-                  b_NoComp:Crisis+
-
-                   b_UCA:Crisis , 
+                  b_NoComp:Crisis, 
                  family=binomial(link="logit"))
 display(Term_04B)
 
@@ -710,20 +673,27 @@ display(Term_04B)
 stargazer::stargazer(CBre_03B,CBre_04B,Term_03B,Term_04B,type="text",
                      digits=2)
 
-summary_residual_compare(CBre_03B,CBre_04B,Term_03B,Term_04B,NA)
-summary_residual_compare(CBre_04A,CBre_04B,Term_04A,Term_04B,NA)
+summary_residual_compare(CBre_03B,CBre_04B,Term_03A,Term_04B)
+summary_residual_compare(CBre_04A,CBre_04B,Term_04A,Term_04B)
 
 ```
+The expectations are upheld for ceiling breaches but countered for terminations, significantly in both cases.
+
 The measure of location of the contracting office, with scores from 0 (place of performance entirely U.S.) to 1 (place of performance entirely international) is most relevant to OCO. Initially contrary to the hypothesis, the termination  rate appears higher at home than in field offices. The coefficient for base OCO contracting also rises strikingly. The results for ceiling breaches are not significant.
 
 ### 04C: Both OffPl. Score & Crisis %
-
+Expectation: Inclusion of both variables will not change the sign from being a positive relationship in each case.
 
 ```{r Model04C}
 summary_double_continuous(crisis_smp,"OffIntl","c_OffCri")
-
-
 summary_continuous_plot(crisis_smp,"OffIntl","Crisis",bins=40)
+
+corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,
+                                                             c_OffCri,OffIntl,cl_Ceil,
+                                               cl_Days,n_Fixed,b_Intl)),
+                       dummies::dummy(crisis_smp$Crisis),
+                       dummies::dummy(crisis_smp$NoComp))))
+corrdisp[[1]]
 
 #Model
 CBre_04C <- glm (data=crisis_smp,
@@ -747,29 +717,13 @@ display(Term_04C)
 
 stargazer::stargazer(CBre_04A,CBre_04B,CBre_04C,Term_04A,Term_04B,Term_04C,type="text",
                      digits=2)
-# Plot the model and Vehicle 
-CBre_04C_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
-  cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
-        Comp*Ceil,Days*Ceil,Days*Comp,
-        Fixed,x,
-        Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_04C))}
-
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_04C_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")+
-  stat_function(fun = CBre_04C_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")
 
 summary_residual_compare(CBre_04A,CBre_04C,Term_04A,Term_04C)
 summary_residual_compare(CBre_04B,CBre_04C,Term_04B,Term_04C)
 
 ```
+
+
 When both variables are in place, international offices have singificantly lower rates of negative outcomes, but for percent crisis spending remains supportive of the hypothesis, albeit with a small coefficient. This model reduces deviance for ceiling breaches by just a little, but for terminations the games are more subtantial, albeit accompanied by an increase in residuals.
 
 
@@ -1415,6 +1369,8 @@ This doesn't reduce the deviance much, this has already been largely captured by
 
 ### 04K: Off. Crisis % & Crisis
 
+Expectation: International contracting offices will estimate a higher probability of terminations and ceiling breaches for OCO and Disaster contracts. Even so, the stand-alone international percentagee is expected to allso have have a positive relationship. ARRA was domestically focused, and the study team has no expectations in that regard. 
+
 ```{r Model04K}
 
 
@@ -1447,36 +1403,19 @@ display(Term_04K)
 stargazer::stargazer(CBre_04E,CBre_04K,Term_04E,Term_04K,type="text",
                      digits=2)
 
-# Plot the model and Vehicle 
-CBre_04K_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
-  cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
-        Comp*Ceil,Days*Ceil,Days*Comp,
-        Fixed,x,
-        Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_04K))}
-
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_04K_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")+
-  stat_function(fun = CBre_04K_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")
-
-
 
 summary_residual_compare(CBre_04E,CBre_04K,Term_04E,Term_04K,bins=20)
 
 
 
 ```
+Expectations were countered for ceiling breaches but a more mixed bag for terminations. This substantially confuses hypothesis analysis, but is significant and thus is kept.
+
 The interactions between crisis funding and the percent of the office going to a crisis is strong for ceiling breaches but not significant for terminations other than base ARRA. Office99 mixed loses its significance. The reduction in deviance is substantial for both ceiling breaches and terminations and the residuals do not appear to be adversely effectd.
 
 
 ### 04L: Off. Crisis % & Comp
+Expectation: Weak expectation that no competition will have a positive estimate of the probability of ceiling breaches and terminations. This relationship would be better captured by crisis funding directly, but fears of cronyism in international contracting can extend beyond crisis situations.
 
 ```{r Model04L}
 
@@ -1510,36 +1449,18 @@ Term_04L <- glm (data=crisis_smp,
 display(Term_04L)
 
 
-stargazer::stargazer(CBre_04K,CBre_04L,Term_04I,Term_04L,type="text",
+stargazer::stargazer(CBre_04K,CBre_04L,Term_04K,Term_04L,type="text",
                      digits=2)
 
-# Plot the model and Vehicle 
-CBre_04L_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
-  cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
-        Comp*Ceil,Days*Ceil,Days*Comp,
-        Fixed,x,
-        Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_04L))}
-
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_04L_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")+
-  stat_function(fun = CBre_04L_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")
 
 
-
-summary_residual_compare(CBre_04K,CBre_04L,Term_04K,Term_04L,20)
+summary_residual_compare(CBre_04K,CBre_04L,Term_04K,Term_04L,10)
 
 
 
 ```
-The addition seems interesting, but is only significant for ceiling breaches 
+Expectations were partially fulfilled. A significant positive relationship is present for urgency in particular. However, the sign goes in the opposite direction for other forms of contracting, albeit not significantly. The strong negative relationship for mixed contracting office is surprising, but not directly addressed by the expectation.
+
 ##Scope Variables
 ### Ceiling
 #### 05A: Cost Ceiling
