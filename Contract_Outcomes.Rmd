@@ -3273,11 +3273,11 @@ discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_t
                      cl_Ceil:Veh +
                      NoComp:Veh + 
                      cl_Days:n_Fixed +
-                     (1 | PSA), 
+                     (1 | Simple + PSA), 
                    family=binomial(link="logit"))
   display(CBre_12A)
   
-  Term_12B <- glm (data=crisis_smp,
+  Term_12B <- glmer(data=crisis_smp,
                    b_Term ~ Crisis + 
                      b_NoComp + 
                      b_UCA + 
@@ -3296,7 +3296,7 @@ discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_t
                      cl_Days:OffPl99 +
                      cl_Days:Veh + 
                      cl_Ceil:Veh + 
-                       (1| PSA) , 
+                       (1| Simple + PSA) , 
                    family=binomial(link="logit"))
   display(Term_12A)
   
@@ -3331,7 +3331,7 @@ residuals_cbre_plot(CBre_12A)+
 #   labs(x="Centered Log(Days)")
 
 load("model11c.rdata")
-save(CBre_12A,Term_12A,file="Model12A.RData")
+save(CBre_12B,Term_12B, file="Model12B.RData")
 ```
 CBre
 
@@ -3398,7 +3398,7 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = el
                      # cl_Ceil:Veh +
                      # NoComp:Veh + 
                      # cl_Days:n_Fixed +
-                     (1 | PSA), 
+                     (1 | Simple)+(1 |  PSA), 
                    family=binomial(link="logit"))
   display(CBre_12B)
   
@@ -3421,7 +3421,7 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = el
                      # cl_Days:OffPl99 +
                      # cl_Days:Veh + 
                      # cl_Ceil:Veh + 
-                       (1| PSA) , 
+                       (1 | Simple)+(1 |  PSA), 
                    family=binomial(link="logit"))
   display(Term_12B)
   
