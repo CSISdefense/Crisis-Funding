@@ -3163,9 +3163,13 @@ corrdisp<-Hmisc::rcorr(
 corrdisp[[1]]
 
 
+#Frequency Plot
+freq_discrete_cbre_plot(crisis_smp,"PSA")
 
+#Percent Terminated Plot 
+discrete_percent_cbre_plot(crisis_smp,"PSA")
 
-save(CBre_11A,Term_11A,file="model11a.rdata")
+#Create the model
 
   CBre_11B <- glm (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
@@ -3213,7 +3217,15 @@ save(CBre_11A,Term_11A,file="model11a.rdata")
   
   
 
-summary_residual_compare(CBre_10A,CBre_11A,Term_08B,Term_10A,bins=20)
+summary_residual_compare(CBre_10A,CBre_11B,Term_10A,Term_11B,bins=20)
+
+texreg::htmlreg(list(CBre_11B,
+                     Term_11B),file="CrisisModel.html",single.row = TRUE,
+                custom.model.name=c("Ceiling Breach",
+                                    "Complete\nand Partial\nTermination"
+                                    ),
+                        stars=c(0.05))
+summary(factor(crisis_smp$PSA))
 ```
 
 
