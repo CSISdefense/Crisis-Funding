@@ -2013,11 +2013,11 @@ display(Term_07A)
 
 
 
-stargazer::stargazer(CBre_06A,CBre_07A,Term_06E,Term_07A,type="text",
+stargazer::stargazer(CBre_06F,CBre_07A,Term_06F,Term_07A,type="text",
                      digits=2)
 
 
-summary_residual_compare(CBre_06A,CBre_07A,Term_06E,Term_07A)
+summary_residual_compare(CBre_06F,CBre_07A,Term_06F,Term_07A)
 
 
 ```
