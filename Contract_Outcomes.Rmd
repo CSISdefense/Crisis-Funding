@@ -1922,7 +1922,7 @@ Unfortunately, VIF knocks out this interaction as in both cases cl_days goes abo
 
 
 #### 06F: Duration and Competition
-Expectation: Policy guidance often encourages regular use of competition, which suggests a believe that the results where off over time. This is disputed by others in the field. Nonetheless, the expectation is that the interaction of competition and duration positively estimates a greater probability of terminations and ceiling breaches.
+Expectation: Policy guidance often encourages regular use of competition, which suggests a believe that the results where off over time. This is disputed by others in the field. Nonetheless, the expectation is that the interaction of the absence of competition and duration negatively estimates a greater probability of terminations and ceiling breaches.
 ```{r Mode06F}
 summary_continuous_plot(crisis_smp,"l_Days","NoComp")
 
@@ -1969,7 +1969,9 @@ summary_residual_compare(CBre_06A,CBre_06F,Term_06A,Term_06F,bins=30)
 
 
 ```
-Expectations are defied in both cases. The  contracts with longer maximum duration when interacting with no competition are associated with better results. 
+Expectations are met in both cases, although the negative sign for no competition for terminations  still defies expecations, although the coefficient has reduced and is no longer significant at the 0.05 level. 
+
+The contracts with longer maximum duration when interacting with no competition are associated with better results. 
 
 
 ##Contract Vehicle
@@ -1990,11 +1992,8 @@ CBre_07A <- glm (data=crisis_smp,
                    cl_Ceil+
                    cl_Days+
                    Veh+
-                  cl_Ceil:NoComp+cl_Days:NoComp+
-                   
-                   
-                   
-                   , 
+                  cl_Ceil:NoComp+
+                   cl_Days:NoComp, 
                  family=binomial(link="logit"))
 display(CBre_07A)
 
@@ -2007,12 +2006,8 @@ Term_07A <- glm (data=crisis_smp,
                    Veh+
                   b_NoComp:Crisis+
                    b_UCA:Crisis+
-                   
                    cl_Ceil:Crisis+
-                   
-                   
-                   cl_Days:NoComp
-                   , 
+                   cl_Days:NoComp, 
                  family=binomial(link="logit"))
 display(Term_07A)
 
@@ -2021,20 +2016,6 @@ display(Term_07A)
 stargazer::stargazer(CBre_06A,CBre_07A,Term_06E,Term_07A,type="text",
                      digits=2)
 
-
-CBre_07A_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_07A))}
-
-#Competition Curves
-fitted_cbre_model(crisis_smp,"cl_Days") + stat_function(fun = CBre_07A_curve, 
-                             args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_07A_curve, 
-                             args=list(Comp=2,Ceil=0),color="blue")
-
-#Ceiling Curves
-fitted_cbre_model(crisis_smp,"cl_Days") +  stat_function(fun = CBre_07A_curve, 
-                             args=list(Comp=0,Ceil=0),color="blue")+
-  stat_function(fun = CBre_07A_curve, 
-                             args=list(Comp=0,Ceil=1),color="blue")
 
 summary_residual_compare(CBre_06A,CBre_07A,Term_06E,Term_07A)
 
