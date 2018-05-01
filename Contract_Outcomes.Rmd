@@ -1332,6 +1332,8 @@ Unfortunately, even the simplest of the interactions make interpretation much ha
 ### 04J: OffPl. 99% & UCA
 Expectation: Reachback contractors may be better able to handle UCA contracts.
 
+Expectation: Per reachback contracting, in theory, domestically oriented contracting offices may be more capable 
+
 ```{r Model04J}
 
 summary_discrete_plot(crisis_smp,"UCA","OffPl99")
@@ -1339,6 +1341,7 @@ summary_continuous_plot(crisis_smp,"OffCri","UCA",bins=50)
 summary_discrete_plot(crisis_smp,"UCA","Crisis")
 
 #Model
+
 
 
 CBre_04J <- glm (data=crisis_smp,
@@ -1470,6 +1473,8 @@ Expectations were partially fulfilled. A significant positive relationship is pr
 
 The model starts by examing the influence of large ceilings on contracts, the core idea here, as observed in the fixed priced paper, is that larger contracts are at greater risk of termination. This can be explained by both the inherent risk in the contract and high transaction costs of contract termination which discourage making the effort for smaller contracts.
 
+Expectation: Initial Ceiling size positively estimates increasing probability of ceiling breaches and terminations.
+
 ```{r Model05A, fig.height = 6.5, fig.width = 6.5}
 #Frequency Plot for unlogged ceiling
 freq_continuous_cbre_plot(crisis_smp,"UnmodifiedContractBaseAndAllOptionsValue",
@@ -1506,7 +1511,7 @@ display(Term_05A)
 
 
 
-stargazer::stargazer(CBre_04I,CBre_05A,Term_04I,Term_05A,type="text",
+stargazer::stargazer(CBre_04K,CBre_05A,Term_04K,Term_05A,type="text",
                      digits=2)
 
 
@@ -1525,6 +1530,8 @@ summary_residual_compare(CBre_04I,CBre_05A,Term_04I,Term_05A)
 
 
 ```
+
+Expectations were upheld.
 
 Contract ceiling has a significant relationship, though the residuals show a possible non-linear patterns. This is most remarkable in the positive centered values between 0 and 1. This may be driven  by a missing value and is worth watching.
 
@@ -3050,7 +3057,7 @@ residuals_cbre_plot(CBre_10B)+
 
 ```
 
-#Multi-Level Model
+
 
 ##What
 ### 11A: Product/Service/R&D
@@ -3216,9 +3223,9 @@ failure to converge in 10000 evaluationsunable to evaluate scaled gradientModel 
 variance-covariance matrix computed from finite-difference Hessian is
 not positive definite or contains NA values: falling back to var-cov estimated from RX  
 
-
-### 11B: Product/Service/R&D and Platform
-```{r Model11B}
+#Multi-Level Model
+### 12A: Product/Service/R&D and Platform
+```{r Model12A}
 summary(crisis_smp$PSA)
 crisis_smp$PSA<-factor(crisis_smp$PSA)
 #Frequency Plot
@@ -3228,33 +3235,34 @@ freq_discrete_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text
 discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
-  CBre_11B <- glmer (data=crisis_smp,
-                   b_CBre ~ Crisis +NoComp +
-                     b_UCA+
-                     OffPl99+ c_OffCri+  
-                     cl_Ceil+
-                     cl_Days+
-                     Veh+
-                     n_Fixed +
-                     Is.Defense +
-                    Crisis:NoComp+
-                     b_UCA:Crisis+
-                     cl_Ceil:Crisis+
-                     cl_Days:Veh+ 
-                     cl_Ceil:Veh+
-                   NoComp:Veh+
-                     cl_Days:n_Fixed+
-                   (1| PSA) , 
+  CBre_12A <- glmer (data=crisis_smp,
+                    b_CBre ~ Crisis + NoComp + 
+                     b_UCA +
+                     OffPl99 + c_OffCri + 
+                     cl_Ceil + 
+                     cl_Days + 
+                     Veh + 
+                     n_Fixed + 
+                     Is.Defense + 
+                     NoComp:Crisis +
+                     b_UCA:Crisis + 
+                     cl_Ceil:Crisis +
+                     cl_Days:Veh + 
+                     cl_Ceil:Veh +
+                     NoComp:Veh + 
+                     cl_Days:n_Fixed +
+                     (1 | Simple + PSA), 
                    family=binomial(link="logit"))
-  display(CBre_11B)
+  display(CBre_12A)
   
-  Term_11C <- glm (data=crisis_smp,
-                   b_Term ~ Crisis +b_NoComp
-                     b_UCA+
-                     OffPl99+ c_OffCri+
-                    cl_Ceil+
-                     cl_Days+
-                     Veh+
+  Term_12B <- glmer(data=crisis_smp,
+                   b_Term ~ Crisis + 
+                     b_NoComp + 
+                     b_UCA + 
+                     OffPl99 + c_OffCri + 
+                     cl_Ceil + 
+                     cl_Days + 
+                     Veh +
                      n_Fixed +
                      Is.Defense +
                     b_NoComp:Crisis+
@@ -3268,40 +3276,40 @@ discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_t
                      cl_Ceil:Veh+
                    (1| PSA) , 
                    family=binomial(link="logit"))
-  display(Term_11B)
+  display(Term_12A)
   
 
 # Plot the model and Vehicle 
-CBre_11B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
+CBre_12A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
   cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
         Comp*Ceil,Days*Ceil,Days*Comp,
         Fixed,UCA,x,
         Days*x,Days*MIDV,Days*OIDV,
-        UCA*Comp) %*%  coef(CBre_11B))}
+        UCA*Comp) %*%  coef(CBre_12A))}
 
 #Days curves
 discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_11B_curve,
+  stat_function(fun = CBre_12A_curve,
                              args=list(Comp=0,Ceil=0,Days=0,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0),color="blue")+
-  stat_function(fun = CBre_11B_curve,
+  stat_function(fun = CBre_12A_curve,
                              args=list(Comp=2,Ceil=0,Days=1,
                                        MIDV=0,SIDV=0,OIDV=0,
                                        Fixed=1,UCA=0),color="blue")
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_11B)
+binned_fitted_versus_cbre_residuals(CBre_12A)
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_11B)+
+residuals_cbre_plot(CBre_12A)+
   labs(x="Estimated  Pr (Termination)")
 
 # residuals_cbre_plot(CBre_02F,"cl_days")+
 #   labs(x="Centered Log(Days)")
 
-
-save(CBre_11B,Term_11B,file="model11c.rdata")
+load("model11c.rdata")
+save(CBre_12B,Term_12B, file="Model12B.RData")
 ```
 CBre
 
@@ -3311,7 +3319,7 @@ Model failed to converge with max|grad| = 0.00412916 (tol = 0.001, component 1)
 
 I think removing the intercept may have been a big mistake, it adds in other and produces some large negatives that might explain these errors.
 
-### 11C: Interactions
+### 12B: Interactions
 ```{r Model 6 Exploration}
 #, fig.height = 10, fig.width = 6.5
 #Effective Competition
@@ -3349,71 +3357,60 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb","What")+ theme(axis.text.x = elemen
 discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
-CBre_11C <- glmer(data=crisis_smp,
-                 b_CBre ~ #n_Comp + 
-                   cl_Ceil + cl_Days+ 
-                   SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  +
-                   # cl_Ceil:cl_Days  + 
-                   n_Comp:cl_Days +
-                   n_Fixed + b_UCA + 
-                   b_Intl + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
-                   SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
-                   b_UCA:n_Comp+
-                   (1 + n_Comp | PSR) + (1 | PSR_What)
-                    , family=binomial(link="logit"))
-display(CBre_11C)
 
+  CBre_12B <- glmer (data=crisis_smp,
+                   b_CBre ~ Crisis + NoComp + 
+                     b_UCA +
+                     OffPl99 + c_OffCri + 
+                     cl_Ceil + 
+                     cl_Days + 
+                     Veh + 
+                     n_Fixed + 
+                     Is.Defense + 
+                     # NoComp:Crisis +
+                     # b_UCA:Crisis + 
+                     # OffPl99:Crisis + 
+                     # OffPl99:NoComp + 
+                     # cl_Ceil:Crisis +
+                     # cl_Days:Veh + 
+                     # cl_Ceil:Veh +
+                     # NoComp:Veh + 
+                     # cl_Days:n_Fixed +
+                     (1 | Simple)+(1 |  PSA), 
+                   family=binomial(link="logit"))
+  display(CBre_12B)
+  
+  Term_12B <- glm (data=crisis_smp,
+                   b_Term ~ Crisis + 
+                     b_NoComp + 
+                     b_UCA + 
+                     OffPl99 + c_OffCri + 
+                     cl_Ceil + 
+                     cl_Days + 
+                     Veh +
+                     n_Fixed +
+                     Is.Defense + 
+                     # Crisis:b_NoComp + 
+                     # b_UCA:Crisis + 
+                     # OffPl99:Crisis + 
+                     # cl_Ceil:Crisis + 
+                     # cl_Ceil:OffPl99 + 
+                     # cl_Days:Crisis + 
+                     # cl_Days:OffPl99 +
+                     # cl_Days:Veh + 
+                     # cl_Ceil:Veh + 
+                       (1 | Simple)+(1 |  PSA), 
+                   family=binomial(link="logit"))
+  display(Term_12B)
+  
 
-CBre_11D <- glmer(data=crisis_smp,
-                 b_CBre ~ Crisis +n_Comp + 
-                   cl_Ceil + cl_Days+ 
-                   SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  +
-                   # cl_Ceil:cl_Days  + 
-                   n_Comp:cl_Days +
-                   n_Fixed + b_UCA + 
-                   b_Intl + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
-                   SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
-                   b_UCA:n_Comp+
-                   (1  | PSR) + (1 + n_Comp| PSR_What)
-                    , family=binomial(link="logit"))
-display(CBre_11D)
 
 #Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_11C)
+binned_fitted_versus_cbre_residuals(CBre_12B)
 
 
 #Plot residuals versus fittedO
-residuals_cbre_plot(CBre_11C)+
-  labs(x="Estimated  Pr (Termination)")
-
-
-# CBre_11E <- glmer(data=crisis_smp,
-#                  b_CBre ~ Crisis +n_Comp + 
-#                    cl_Ceil + cl_Days+ 
-#                    SIDV + MIDV + FSSGWAC + BPABOA +
-#                    n_Comp:cl_Ceil  +
-#                    # cl_Ceil:cl_Days  + 
-#                    n_Comp:cl_Days +
-#                    n_Fixed + b_UCA + 
-#                    b_Intl + 
-#                    SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
-#                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
-#                    b_UCA:n_Comp+
-#                    (1+n_Comp  | PSR) + (1+ n_Comp | PSR_What)
-#                     , family=binomial(link="logit"))
-# display(CBre_11E)
-# failure to converge in 10000 evaluations
-
-#Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_11C)
-
-
-#Plot residuals versus fittedO
-residuals_cbre_plot(CBre_11C)+
+residuals_cbre_plot(CBre_12B)+
   labs(x="Estimated  Pr (Termination)")
 
 
