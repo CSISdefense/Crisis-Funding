@@ -1902,7 +1902,7 @@ Term_06E <- glm (data=crisis_smp,
                   b_NoComp:Crisis+
                    b_UCA:Crisis+
                    cl_Ceil:Crisis+
-                                      , 
+                        cl_Days:OffPl99, 
                  family=binomial(link="logit"))
 display(Term_06E)
 
@@ -1935,9 +1935,6 @@ CBre_06F <- glm (data=crisis_smp,
                    cl_Ceil+
                    cl_Days+
                    cl_Ceil:NoComp+
-                   
-                   
-                   
                    cl_Days:NoComp,
                  family=binomial(link="logit"))
 display(CBre_06F)
@@ -1950,11 +1947,7 @@ Term_06F <- glm (data=crisis_smp,
                    cl_Days+
                    b_NoComp:Crisis+
                    b_UCA:Crisis+
-                   
                    cl_Ceil:Crisis+
-                   
-                   
-                   
                    cl_Days:b_NoComp, 
                  family=binomial(link="logit"))
 display(Term_06F)
@@ -1979,6 +1972,7 @@ Our dataset includes both stand alone contract awards and task orders that are u
 
 ### 07A: Single-Award, Multi-Award, and Other Indefinite Delivery Vehicles
 
+Expectation: Indefinite delivery vehicles, means that the government has an existing relationship with the vendor and administration is easier. The downside is that the government may be locked into the vendor, although exit does not necessarily require outright termination, instead the government may simply cease to use a vehicle. Taken together, across the board the four categories of vehicles are expected to  negatively estimate the probability of termination. Ceiling breaches are a more complex topic and the study team does not have immediate expecations aside from likely significance.
 
 ```{r Model07A}
 
@@ -2013,16 +2007,37 @@ display(Term_07A)
 
 
 
-stargazer::stargazer(CBre_06A,CBre_07A,Term_06E,Term_07A,type="text",
+stargazer::stargazer(CBre_06F,CBre_07A,Term_06F,Term_07A,type="text",
                      digits=2)
 
 
-summary_residual_compare(CBre_06A,CBre_07A,Term_06E,Term_07A)
+summary_residual_compare(CBre_06F,CBre_07A,Term_06F,Term_07A)
+
+#Update after VIF finding.
+
+Term_07A2 <- glm (data=crisis_smp,
+                 b_Term ~ Crisis +b_NoComp+
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                  cl_Ceil+
+                   cl_Days+
+                   Veh+
+                  b_NoComp:Crisis+
+                   b_UCA:Crisis+
+                   cl_Days:NoComp, 
+                 family=binomial(link="logit"))
+display(Term_07A2)
+stargazer::stargazer(Term_07A,Term_07A2,type="text",
+                     digits=2)
+
+summary_residual_compare(CBre_06F,CBre_07A,Term_07A,Term_07A2)
 
 
 ```
-
+Ex[ectatopms were fulfilled with regard to terminations. 
 The first check lumps looks at four categories of IDVs, each associated with a notably rate of negative outcomes. The largest negative coefficient varies by measure. Both single award IDCs (S-IDC) and Blanket Purchase Agreements/Basic Order Agreements (BPA/BOA) have singifcant negative coefficients in both categories. Multiple award IDVs have the largest negative coefficient for terminations but the smalling for breaches. FSS/GWAC on the other hand have the smallest coefficent for terminations, but are associated with a lower rate of breaches only a bit smaller in magnuted to S-IDCs or BPA/BOAs. second, and other IDVs third. The deviance of the both models is notably reduced, the main warning bell though is some signs of flattening out in the fitted versus residuals. The residual pattern around 0.5 for log of cost ceiling is still not explained.
+
+This addition pushes the VIF for cl_Ceil above 2 for terminations. Crisis:cl_Ceil will be removed.
 
 The next step is to check the intersections with duration.
 
