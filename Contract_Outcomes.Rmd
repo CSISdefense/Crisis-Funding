@@ -3188,7 +3188,7 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = el
                    family=binomial(link="logit"))
   display(CBre_12B)
   
-  Term_12B <- glm (data=crisis_smp,
+  Term_12B <- glmer (data=crisis_smp,
                    b_Term ~ Crisis + 
                      b_NoComp + 
                      b_UCA + 
@@ -3233,3 +3233,106 @@ residuals_cbre_plot(CBre_11D)+
 ```
 The use of Comp as 
 
+### 12C: Interactions
+```{r Model 6 Exploration}
+#, fig.height = 10, fig.width = 6.5
+#Effective Competition
+#Frequency Plot
+freq_discrete_cbre_plot(crisis_smp,"PSR_What","EffComp")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+#Percent Terminated Plot 
+discrete_percent_cbre_plot(crisis_smp,"EffComp","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+discrete_percent_cbre_plot(crisis_smp,"EffComp","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+discrete_percent_cbre_plot(crisis_smp,"EffComp","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+#Effective Competition
+#Frequency Plot
+freq_discrete_cbre_plot(crisis_smp,"PSR_What","Veh")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+#Percent Terminated Plot 
+discrete_percent_cbre_plot(crisis_smp,"Veh","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+discrete_percent_cbre_plot(crisis_smp,"Veh","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+discrete_percent_cbre_plot(crisis_smp,"Veh","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+#FxCb
+#Frequency Plot
+freq_discrete_cbre_plot(crisis_smp,"PSR_What","FxCb")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+#Percent Terminated Plot 
+discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+discrete_percent_cbre_plot(crisis_smp,"FxCb","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+
+  CBre_12C <- glmer (data=crisis_smp,
+                   b_CBre ~ Crisis + NoComp + 
+                     b_UCA +
+                     OffPl99 + c_OffCri + 
+                     cl_Ceil + 
+                     cl_Days + 
+                     Veh + 
+                     n_Fixed + 
+                     Is.Defense + 
+                     # NoComp:Crisis +
+                     # b_UCA:Crisis + 
+                     # OffPl99:Crisis + 
+                     # OffPl99:NoComp + 
+                     # cl_Days:Veh + 
+                     # cl_Ceil:Veh +
+                     # NoComp:Veh + 
+                     # cl_Days:n_Fixed +
+                     (1 | Simple)+(1 |  PSA) + (1|ProdServ), 
+                   family=binomial(link="logit"))
+  display(CBre_12C)
+  
+  Term_12C <- glm (data=crisis_smp,
+                   b_Term ~ Crisis + 
+                     b_NoComp + 
+                     b_UCA + 
+                     OffPl99 + c_OffCri + 
+                     cl_Ceil + 
+                     cl_Days + 
+                     Veh +
+                     n_Fixed +
+                     Is.Defense + 
+                     # Crisis:b_NoComp + 
+                     # b_UCA:Crisis + 
+                     # OffPl99:Crisis + 
+                     # cl_Ceil:Crisis + 
+                     # cl_Ceil:OffPl99 + 
+                     # cl_Days:Crisis + 
+                     # cl_Days:NoComp+ +
+                     # cl_Days:Veh + 
+                     # cl_Ceil:Veh + 
+                       (1 | Simple)+(1 |  PSA) + (1|ProdServ), 
+                   family=binomial(link="logit"))
+  display(Term_12C)
+  
+
+
+#Plot the fitted values vs actual results
+binned_fitted_versus_cbre_residuals(CBre_12C)
+
+
+#Plot residuals versus fittedO
+residuals_cbre_plot(CBre_12C)+
+  labs(x="Estimated  Pr (Termination)")
+
+
+#Plot the fitted values vs actual results
+binned_fitted_versus_cbre_residuals(CBre_11D)
+
+
+#Plot residuals versus fittedO
+residuals_cbre_plot(CBre_11D)+
+  labs(x="Estimated  Pr (Termination)")
+
+```
