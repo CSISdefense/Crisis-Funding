@@ -187,7 +187,7 @@ summary_discrete_plot(crisis_smp,"Crisis")
 #Model
 CBre_01A <- glm (data=crisis_smp,
                  b_CBre ~ Crisis, family=binomial(link="logit"))
-display(CBre_11A)
+display(CBre_01A)
 
 #Model
 Term_01A <- glm (data=crisis_smp,
@@ -263,11 +263,13 @@ The expectation was not fulfilled for ceiling breaches. The expecation was fulfi
 
 The results are complicated. With the interactions, terminations are now associated with competition, but for all three crisis datasets, competition counters this relationship. Things are more complex with ceiing breahes, where the interaction of competition with ARRA and OCO is associated with a lower likelihood of a breach, but the relationship goes the other way for disasters.
 
+The Variance Inflation Factor exceeds 2 for the interaction term with the addition of the interaction term.
+
+### 02C: No Competition / Single Offer / Competition
 The next step is to look at a more detailed model, where single offer competition is broken out as a middle option between competition and no competion.
 
-
 Expectation: Competition has the potential to reduce terminations and ceiling breaches by giving the government more options in vendors and encouraging better behavior from the contractor that was chosen. More offers could in theory mean greater benefit, although this was not directly mentioned by the literature.
-### 02C: No Competition / Single Offer / Competition
+
 ```{r Model02C}
 
 summary_discrete_plot(crisis_smp,"EffComp")
@@ -321,6 +323,9 @@ stargazer::stargazer(CBre_02B,CBre_02C,CBre_02D,Term_02B,Term_02C,Term_02D,
 summary_residual_compare(CBre_02B,CBre_02D,Term_02B,Term_02D,bins=3)
 summary_residual_compare(CBre_02C,CBre_02D,Term_02C,Term_02D,bins=3)
 
+    
+    
+  
 ```
 These results confirm that it is the crisis datasets that drive this phenomenon, but 
 
@@ -462,11 +467,11 @@ Term_02I <- glm (data=crisis_smp,
 display(Term_02I)
 
 
-stargazer::stargazer(CBre_02B,CBre_02D,CBre_02I,Term_02B,Term_02D,Term_02I,
+stargazer::stargazer(CBre_02A,CBre_02D,CBre_02I,Term_02B,Term_02D,Term_02I,
                      type="text",
                      digits=2)
 
-summary_residual_compare(CBre_02B,CBre_02I,Term_02B,Term_02I,bins=3)
+summary_residual_compare(CBre_02A,CBre_02I,Term_02B,Term_02I,bins=3)
 summary_residual_compare(CBre_02D,CBre_02I,Term_02D,Term_02I,bins=3)
 
 ```
@@ -500,7 +505,7 @@ stargazer::stargazer(CBre_02B,CBre_02I,CBre_02J,Term_02B,Term_02I,Term_02J,type=
 
 
 
-summary_residual_compare(CBre_02B,CBre_02J,Term_02B,Term_02J,bins=3)
+summary_residual_compare(CBre_02A,CBre_02J,Term_02B,Term_02J,bins=3)
 summary_residual_compare(CBre_02I,CBre_02J,Term_02D,Term_02J,bins=3)
 
 ```
@@ -694,7 +699,7 @@ display(Term_04B)
 stargazer::stargazer(CBre_03B,CBre_04B,Term_03B,Term_04B,type="text",
                      digits=2)
 
-summary_residual_compare(CBre_03B,CBre_04B,Term_03A,Term_04B)
+summary_residual_compare(CBre_03B,CBre_04B,Term_03A,Term_04B,bins=3)
 summary_residual_compare(CBre_04A,CBre_04B,Term_04A,Term_04B)
 
 ```
@@ -1325,6 +1330,7 @@ Unfortunately, even the simplest of the interactions make interpretation much ha
 
 
 ### 04J: OffPl. 99% & UCA
+Expectation: Reachback contractors may be better able to handle UCA contracts.
 
 ```{r Model04J}
 
@@ -1360,32 +1366,11 @@ display(Term_04J)
 stargazer::stargazer(CBre_04E,CBre_04J,Term_04E,Term_04J,type="text",
                      digits=2)
 
-
-# Plot the model and Vehicle 
-CBre_04B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
-  cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
-        Comp*Ceil,Days*Ceil,Days*Comp,
-        Fixed,x,
-        Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_04B))}
-
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_04B_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")+
-  stat_function(fun = CBre_04B_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")
-
-
 summary_residual_compare(CBre_04E,CBre_04J,Term_04E,Term_04J)
 
 
 ```
-This doesn't reduce the deviance much, this has already been largely captured by UCA:crisis. Leaving this out. 
+Expectations were countered, however the VIFof UCA went above 2 in both cases, suggesting that the reason for this change might be multicollinearity. Leaving this out. Leaving this out. 
 
 
 ### 04K: Off. Crisis % & Crisis
@@ -1425,25 +1410,23 @@ stargazer::stargazer(CBre_04E,CBre_04K,Term_04E,Term_04K,type="text",
                      digits=2)
 
 
-summary_residual_compare(CBre_04E,CBre_04K,Term_04E,Term_04K,bins=20)
+summary_residual_compare(CBre_04E,CBre_04K,Term_04E,Term_04K,bins=3)
 
 
 
 ```
-Expectations were countered for ceiling breaches but a more mixed bag for terminations. This substantially confuses hypothesis analysis, but is significant and thus is kept.
+Expectations were countered for ceiling breaches but a more mixed bag for terminations. The VIF for Office Place was  driven above 2 in both cases. Leaving this interaction out.
 
-The interactions between crisis funding and the percent of the office going to a crisis is strong for ceiling breaches but not significant for terminations other than base ARRA. Office99 mixed loses its significance. The reduction in deviance is substantial for both ceiling breaches and terminations and the residuals do not appear to be adversely effectd.
 
 
 ### 04L: Off. Crisis % & Comp
 Expectation: Weak expectation that no competition will have a positive estimate of the probability of ceiling breaches and terminations. This relationship would be better captured by crisis funding directly, but fears of cronyism in international contracting can extend beyond crisis situations.
 
 ```{r Model04L}
-
-
 summary_discrete_plot(crisis_smp,"OffPl99","NoComp")
 summary_discrete_plot(crisis_smp,"NoComp","OffPl99")
 summary_continuous_plot(crisis_smp,"OffCri","NoComp")
+
 
 
 #Model
@@ -1453,7 +1436,7 @@ CBre_04L <- glm (data=crisis_smp,
                    OffPl99+ c_OffCri+
                   Crisis:NoComp+
                    b_UCA:Crisis+
-                   OffPl99:Crisis+
+                   
                    OffPl99:NoComp, 
                  family=binomial(link="logit"))
 display(CBre_04L)
@@ -1464,23 +1447,22 @@ Term_04L <- glm (data=crisis_smp,
                    OffPl99+ c_OffCri+
                   b_NoComp:Crisis+
                    b_UCA:Crisis +
-                   OffPl99:Crisis+
+                   
                    OffPl99:b_NoComp, 
                  family=binomial(link="logit"))
 display(Term_04L)
 
-
-stargazer::stargazer(CBre_04K,CBre_04L,Term_04K,Term_04L,type="text",
+stargazer::stargazer(CBre_04E,CBre_04L,Term_04E,Term_04L,type="text",
                      digits=2)
 
 
 
-summary_residual_compare(CBre_04K,CBre_04L,Term_04K,Term_04L,10)
+summary_residual_compare(CBre_04E,CBre_04L,Term_04E,Term_04L,10)
 
 
 
 ```
-Expectations were partially fulfilled. A significant positive relationship is present for urgency in particular. However, the sign goes in the opposite direction for other forms of contracting, albeit not significantly. The strong negative relationship for mixed contracting office is surprising, but not directly addressed by the expectation.
+Expectations were partially fulfilled. A significant positive relationship is present for urgency in particular. However, the sign goes in the opposite direction for other forms of contracting, albeit not significantly. The strong negative relationship for mixed contracting office is surprising, but not directly addressed by the expectation. The new interaction drives the VIF for competition above 2 in both  cases, leaving this ariable out. 
 
 ##Scope Variables
 ### Ceiling
@@ -1563,7 +1545,7 @@ CBre_05B <- glm (data=crisis_smp,
                    cl_Ceil+
                   Crisis:NoComp+
 
-                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_05B)
@@ -1575,7 +1557,7 @@ Term_05B <- glm (data=crisis_smp,
                   cl_Ceil+
                   b_NoComp:Crisis+
 
-                   b_UCA:Crisis+OffPl99:Crisis+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis,
                  family=binomial(link="logit"))
 display(Term_05B)
@@ -1619,7 +1601,7 @@ CBre_05C <- glm (data=crisis_smp,
                   Crisis:NoComp+
 
                    b_UCA:Crisis+
-                   OffPl99:Crisis+OffPl99:NoComp+
+                   
                    cl_Ceil:Crisis+
                    cl_Ceil:b_UCA, 
                  family=binomial(link="logit"))
@@ -1632,7 +1614,7 @@ Term_05C <- glm (data=crisis_smp,
                   cl_Ceil+
                   b_NoComp:Crisis+
 
-                   b_UCA:Crisis+OffPl99:Crisis+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Ceil:b_UCA, 
                  family=binomial(link="logit"))
@@ -1682,7 +1664,7 @@ CBre_05D <- glm (data=crisis_smp,
                   Crisis:NoComp+
 
                    b_UCA:Crisis+
-                   OffPl99:Crisis+OffPl99:NoComp+
+                   
                    cl_Ceil:Crisis+
                    cl_Ceil:OffPl99, 
                  family=binomial(link="logit"))
@@ -1695,7 +1677,7 @@ Term_05D <- glm (data=crisis_smp,
                   cl_Ceil+
                   b_NoComp:Crisis+
                    b_UCA:Crisis+
-                   OffPl99:Crisis+
+                   
                    cl_Ceil:Crisis+
                    cl_Ceil:OffPl99, 
                  family=binomial(link="logit"))
@@ -1740,7 +1722,7 @@ CBre_05E <- glm (data=crisis_smp,
                   Crisis:NoComp+
 
                    b_UCA:Crisis+
-                   OffPl99:Crisis+OffPl99:NoComp+
+                   
                    cl_Ceil:Crisis+
                  cl_Ceil:NoComp, 
                  family=binomial(link="logit"))
@@ -1753,7 +1735,7 @@ Term_05E <- glm (data=crisis_smp,
                   cl_Ceil+
                   b_NoComp:Crisis+
                    b_UCA:Crisis+
-                   OffPl99:Crisis+
+                   
                    cl_Ceil:Crisis+cl_Ceil:OffPl99+
                    cl_Ceil:OffPl99+
                  cl_Ceil:b_NoComp, 
@@ -1807,8 +1789,8 @@ CBre_06A <- glm (data=crisis_smp,
                    cl_Days+
                    Crisis:NoComp+
                    b_UCA:Crisis+
-                   OffPl99:Crisis+
-                   OffPl99:NoComp+
+                   
+                   
                    cl_Ceil:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_06A)
@@ -1821,7 +1803,7 @@ Term_06A <- glm (data=crisis_smp,
                    cl_Days+
                    b_NoComp:Crisis+
                    b_UCA:Crisis+
-                   OffPl99:Crisis+
+                   
                    cl_Ceil:Crisis+
                    cl_Ceil:OffPl99, 
                  family=binomial(link="logit"))
@@ -1867,7 +1849,7 @@ CBre_06B <- glm (data=crisis_smp,
                    cl_Days+
                   Crisis:NoComp+
 
-                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Ceil:cl_Days, 
                  family=binomial(link="logit"))
@@ -1880,7 +1862,7 @@ Term_06B <- glm (data=crisis_smp,
                   cl_Ceil+
                    cl_Days+
                   b_NoComp:Crisis+
-                   b_UCA:Crisis+OffPl99:Crisis+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+cl_Ceil:OffPl99+
                    cl_Ceil:cl_Days, 
                  family=binomial(link="logit"))
@@ -1928,7 +1910,7 @@ CBre_06C <- glm (data=crisis_smp,
                    cl_Days+
                   Crisis:NoComp+
 
-                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Days:Crisis, 
                  family=binomial(link="logit"))
@@ -1942,7 +1924,7 @@ Term_06C <- glm (data=crisis_smp,
                    cl_Days+
                   b_NoComp:Crisis+
 
-                   b_UCA:Crisis+OffPl99:Crisis+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+cl_Ceil:OffPl99+
                    cl_Days:Crisis, 
                  family=binomial(link="logit"))
@@ -1991,7 +1973,7 @@ CBre_06D <- glm (data=crisis_smp,
                    cl_Days+
                   Crisis:NoComp+
 
-                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    
                    cl_Days:b_UCA, 
@@ -2006,7 +1988,7 @@ Term_06D <- glm (data=crisis_smp,
                    cl_Days+
                   b_NoComp:Crisis+
 
-                   b_UCA:Crisis+OffPl99:Crisis+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+cl_Ceil:OffPl99+
                    cl_Days:Crisis+
                    cl_Days:b_UCA, 
@@ -2057,7 +2039,7 @@ CBre_06E <- glm (data=crisis_smp,
                    cl_Days+
                   Crisis:NoComp+
 
-                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    
                    
@@ -2073,7 +2055,7 @@ Term_06E <- glm (data=crisis_smp,
                    cl_Days+
                   b_NoComp:Crisis+
 
-                   b_UCA:Crisis+OffPl99:Crisis+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+cl_Ceil:OffPl99+
                    cl_Days:Crisis+
                    cl_Days:OffPl99
@@ -2123,7 +2105,7 @@ CBre_06F <- glm (data=crisis_smp,
                    cl_Days+
                    Crisis:NoComp+
                    b_UCA:Crisis+
-                   OffPl99:Crisis+OffPl99:NoComp+
+                   
                    cl_Ceil:Crisis+
                    cl_Days:NoComp,
                  family=binomial(link="logit"))
@@ -2137,7 +2119,7 @@ Term_06F <- glm (data=crisis_smp,
                    cl_Days+
                    b_NoComp:Crisis+
                    b_UCA:Crisis+
-                   OffPl99:Crisis+
+                   
                    cl_Ceil:Crisis+
                    cl_Ceil:OffPl99+
                    cl_Days:Crisis+
@@ -2194,8 +2176,8 @@ CBre_07A <- glm (data=crisis_smp,
                    Veh+
                   Crisis:NoComp+
                    b_UCA:Crisis+
-                   OffPl99:Crisis+
-                   OffPl99:NoComp+
+                   
+                   
                    cl_Ceil:Crisis, 
                  family=binomial(link="logit"))
 display(CBre_07A)
@@ -2209,7 +2191,7 @@ Term_07A <- glm (data=crisis_smp,
                    Veh+
                   b_NoComp:Crisis+
                    b_UCA:Crisis+
-                   OffPl99:Crisis+
+                   
                    cl_Ceil:Crisis+
                    cl_Ceil:OffPl99+
                    cl_Days:Crisis+
@@ -2262,7 +2244,7 @@ CBre_07B <- glm (data=crisis_smp,
                    cl_Days+
                    Veh+
                   Crisis:NoComp+
-                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Days:Veh, 
                  family=binomial(link="logit"))
@@ -2276,7 +2258,7 @@ Term_07B <- glm (data=crisis_smp,
                    cl_Days+
                    Veh+
                   b_NoComp:Crisis+
-                   b_UCA:Crisis+OffPl99:Crisis+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Ceil:OffPl99+
                    cl_Days:Crisis+
@@ -2363,8 +2345,8 @@ CBre_07C <- glm (data=crisis_smp,
                    cl_Days+
                    Veh+
                   Crisis:NoComp+
-                   b_UCA:Crisis+OffPl99:Crisis+
-                   OffPl99:NoComp+
+                   b_UCA:Crisis+
+                   
                    cl_Ceil:Crisis+
                    cl_Days:Veh+ 
                  cl_Ceil:Veh, 
@@ -2379,7 +2361,7 @@ Term_07C <- glm (data=crisis_smp,
                    cl_Days+
                    Veh+
                   b_NoComp:Crisis+
-                   b_UCA:Crisis+OffPl99:Crisis+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+cl_Ceil:OffPl99+
                    cl_Days:Crisis+
                    cl_Days:OffPl99+
@@ -2472,7 +2454,7 @@ CBre_07D <- glm (data=crisis_smp,
                    cl_Days+
                    Veh+
                   Crisis:NoComp+
-                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Days:Veh+ 
                    cl_Ceil:Veh+
@@ -2488,7 +2470,7 @@ Term_07D <- glm (data=crisis_smp,
                    cl_Days+
                    Veh+
                   b_NoComp:Crisis+
-                   b_UCA:Crisis+OffPl99:Crisis+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+cl_Ceil:OffPl99+
                    cl_Days:Crisis+
                    cl_Days:OffPl99+
@@ -2537,8 +2519,8 @@ CBre_08A <- glm (data=crisis_smp,
                    n_Fixed +
                   Crisis:NoComp+
                    b_UCA:Crisis+
-                   OffPl99:Crisis+
-                   OffPl99:NoComp+
+                   
+                   
                    cl_Ceil:Crisis+
                    cl_Days:Veh+ 
                    cl_Ceil:Veh+
@@ -2556,7 +2538,7 @@ Term_08A <- glm (data=crisis_smp,
                    n_Fixed +
                   b_NoComp:Crisis+
                    b_UCA:Crisis+
-                   OffPl99:Crisis+
+                   
                    cl_Ceil:Crisis+
                    cl_Ceil:OffPl99+
                    cl_Days:Crisis+
@@ -2596,7 +2578,7 @@ CBre_08B <- glm (data=crisis_smp,
                    Veh+
                    n_Fixed +
                   Crisis:NoComp+
-                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Days:Veh+ 
                    cl_Ceil:Veh+
@@ -2614,7 +2596,7 @@ Term_08B <- glm (data=crisis_smp,
                    Veh+
                    n_Fixed +
                   b_NoComp:Crisis+
-                   b_UCA:Crisis+OffPl99:Crisis+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+cl_Ceil:OffPl99+
                    cl_Days:Crisis+
                    cl_Days:OffPl99+
@@ -2651,7 +2633,7 @@ CBre_08C <- glm (data=crisis_smp,
                    Veh+
                    n_Fixed +
                   Crisis:NoComp+
-                   b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+
                    cl_Days:Veh+ 
                    cl_Ceil:Veh+
@@ -2670,7 +2652,7 @@ Term_08C <- glm (data=crisis_smp,
                    Veh+
                    n_Fixed +
                   b_NoComp:Crisis+
-                   b_UCA:Crisis+OffPl99:Crisis+
+                   b_UCA:Crisis+
                    cl_Ceil:Crisis+cl_Ceil:OffPl99+
                    cl_Days:Crisis+
                    cl_Days:OffPl99+
@@ -2712,7 +2694,7 @@ summary_discrete_plot(crisis_smp,"FxCb","Crisis")
                      Veh+
                      n_Fixed +
                     Crisis:NoComp+
-                     b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                     b_UCA:Crisis+
                      cl_Ceil:Crisis+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
@@ -2731,7 +2713,7 @@ summary_discrete_plot(crisis_smp,"FxCb","Crisis")
                      Veh+
                      n_Fixed +
                     b_NoComp:Crisis+
-                     b_UCA:Crisis+OffPl99:Crisis+
+                     b_UCA:Crisis+
                      cl_Ceil:Crisis+cl_Ceil:OffPl99+
                      cl_Days:Crisis+
                      cl_Days:OffPl99+
@@ -2769,7 +2751,7 @@ The intersection of fixed price and vehicle reduces the base coefficient for fix
                      Veh+
                      n_Fixed +
                     Crisis:NoComp+
-                     b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                     b_UCA:Crisis+
                      cl_Ceil:Crisis+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
@@ -2788,7 +2770,7 @@ The intersection of fixed price and vehicle reduces the base coefficient for fix
                      Veh+
                      n_Fixed +
                     b_NoComp:Crisis+
-                     b_UCA:Crisis+OffPl99:Crisis+
+                     b_UCA:Crisis+
                      cl_Ceil:Crisis+cl_Ceil:OffPl99+
                      cl_Days:Crisis+
                      cl_Days:OffPl99+
@@ -2829,7 +2811,7 @@ summary_discrete_plot(crisis_smp,"n_Fixed","FxCb")
                      Veh+
                      n_Fixed +
                     Crisis:NoComp+
-                     b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                     b_UCA:Crisis+
                      cl_Ceil:Crisis+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
@@ -2848,7 +2830,7 @@ summary_discrete_plot(crisis_smp,"n_Fixed","FxCb")
                      Veh+
                      n_Fixed +
                     b_NoComp:Crisis+
-                     b_UCA:Crisis+OffPl99:Crisis+
+                     b_UCA:Crisis+
                      cl_Ceil:Crisis+cl_Ceil:OffPl99+
                      cl_Days:Crisis+
                      cl_Days:OffPl99+
@@ -2962,7 +2944,7 @@ corrdisp[[1]]
                      n_Fixed +
                      Is.Defense +
                     Crisis:NoComp+
-                     b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                     b_UCA:Crisis+
                      cl_Ceil:Crisis+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
@@ -2981,7 +2963,7 @@ corrdisp[[1]]
                      n_Fixed +
                      Is.Defense +
                     b_NoComp:Crisis+
-                     b_UCA:Crisis+OffPl99:Crisis+
+                     b_UCA:Crisis+
                      cl_Ceil:Crisis+cl_Ceil:OffPl99+
                      cl_Days:Crisis+
                      cl_Days:OffPl99+
@@ -3103,7 +3085,7 @@ discrete_percent_cbre_plot(crisis_smp,"Simple")
                      n_Fixed +
                      Is.Defense +
                     Crisis:NoComp+
-                     b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                     b_UCA:Crisis+
                      cl_Ceil:Crisis+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
@@ -3123,7 +3105,7 @@ discrete_percent_cbre_plot(crisis_smp,"Simple")
                      n_Fixed +
                      Is.Defense +
                     b_NoComp:Crisis+
-                     b_UCA:Crisis+OffPl99:Crisis+
+                     b_UCA:Crisis+
                      cl_Ceil:Crisis+cl_Ceil:OffPl99+
                      cl_Days:Crisis+
                      cl_Days:OffPl99+
@@ -3181,7 +3163,7 @@ discrete_percent_cbre_plot(crisis_smp,"PSA")
                      n_Fixed +
                      Is.Defense +
                     NoComp:Crisis+
-                     b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                     b_UCA:Crisis+
                      cl_Ceil:Crisis+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
@@ -3201,7 +3183,7 @@ discrete_percent_cbre_plot(crisis_smp,"PSA")
                      n_Fixed +
                      Is.Defense +
                     b_NoComp:Crisis+
-                     b_UCA:Crisis+OffPl99:Crisis+
+                     b_UCA:Crisis+
                      cl_Ceil:Crisis+cl_Ceil:OffPl99+
                      cl_Days:Crisis+
                      cl_Days:OffPl99+
@@ -3256,7 +3238,7 @@ discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_t
                      n_Fixed +
                      Is.Defense +
                     Crisis:NoComp+
-                     b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                     b_UCA:Crisis+
                      cl_Ceil:Crisis+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
@@ -3277,7 +3259,7 @@ discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_t
                      Is.Defense +
                     b_NoComp:Crisis+
                      b_UCA:Crisis+
-                     OffPl99:Crisis+
+                     
                      cl_Ceil:Crisis+
                      cl_Ceil:OffPl99+
                      cl_Days:Crisis+
