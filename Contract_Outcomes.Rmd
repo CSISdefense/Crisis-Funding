@@ -605,6 +605,8 @@ For terminations, nothing reaches 0.05 p-value significance and contrary to expe
 Expectation: Crisis-contracting is challenging, and there will be an estimated positive relationship between the percentage of crisis contracting an office performs and its ceiling breach and termination rate.
 
 ```{r Model04A}
+#The model building did experiment with sqrts for before deciding against them for intepretability reasons.
+crisis_smp$sqrt_OffCri<-sqrt(crisis_smp$OffCri)
 
 corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,
                                                              c_OffCri,cl_Ceil,
@@ -747,7 +749,11 @@ When both variables are in place, international offices have singificantly lower
 ### 04D: OffPl. 99% 
 
 ```{r Model04D}
-crisis_smp$OffIntl
+
+
+#Office square root is including for graphing purposes.
+#The model building did experiment with sqrts before deciding against them for intepretability reasons.
+crisis_smp$sqrt_OffIntl<-sqrt(crisis_smp$OffIntl)
 
 
 quantile(fed$OffIntl,c(0.1,0.25,0.33,0.4,0.45,0.5,0.6,0.66,0.7,0.75,0.8),na.rm = TRUE)
@@ -838,29 +844,10 @@ display(Term_04D)
 
 stargazer::stargazer(CBre_04A,CBre_04C,CBre_04D,Term_04A,Term_04C,Term_04D,type="text",
                      digits=2)
-# Plot the model and Vehicle 
-CBre_04D_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
-  cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
-        Comp*Ceil,Days*Ceil,Days*Comp,
-        Fixed,x,
-        Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_04D))}
-
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_04D_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")+
-  stat_function(fun = CBre_04D_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")
-
 
 
 summary_residual_compare(CBre_04B,CBre_04D,Term_04B,Term_04D)
-summary_residual_compare(CBre_04C,CBre_04D,Term_04C,Term_04D)
+summary_residual_compare(CBre_04C,CBre_04D,Term_04C,Term_04D,bins=1)
 
 ```
 Drawing the line at 0.01 is a judgment call, based on the fact that 25% of contracts have a contracting office with a location score of 0.01 or below. Expanding to federal government wide, the percent is 45. Only about 8% of federal contracts by value are from contracting offices with 0% international contracts.The use of dummy variables greatly improves the interpretability of the model and comparable reduction in deviance, better for ceiling breaches, a bit worse for terminations.
@@ -972,17 +959,6 @@ CBre_04B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
         Days*x,Days*MIDV,Days*OIDV,
         Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_04B))}
 
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_04B_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")+
-  stat_function(fun = CBre_04B_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")
-
 
 
 summary_residual_compare(CBre_04B,CBre_04E,Term_04B,Term_04E,bins=5)
@@ -1047,35 +1023,10 @@ CBre_04B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
         Days*x,Days*MIDV,Days*OIDV,
         Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_04B))}
 
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_04B_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")+
-  stat_function(fun = CBre_04B_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")
 
-
-
-#Plot the fitted values vs actual results
-gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_04F),
-                        binned_fitted_versus_term_residuals(Term_04F))
-
-
-
-#Plot residuals versus fitted
-gridExtra::grid.arrange(residuals_cbre_plot(CBre_04F,bins=5)+
-  labs(x="Estimated  Pr (Ceiling Breach)"),
-                        residuals_term_plot(Term_04F,bins=5)+
-  labs(x="Estimated  Pr (Termination)"))
-
-
-summary_residual_compare(CBre_04C,CBre_04F,Term_04C,Term_04F)
-summary_residual_compare(CBre_04D,CBre_04F,Term_04D,Term_04F)
-summary_residual_compare(CBre_04E,CBre_04F,Term_04E,Term_04F)
+summary_residual_compare(CBre_04C,CBre_04F,Term_04C,Term_04F,bins=0)
+summary_residual_compare(CBre_04D,CBre_04F,Term_04D,Term_04F,bins=5)
+summary_residual_compare(CBre_04E,CBre_04F,Term_04E,Term_04F,bins=0)
 
 
 ```
@@ -1091,12 +1042,12 @@ summary_continuous_plot(crisis_smp,"OffCri","OffPl95",bins=50)
 
 #Office Place crossreferenced with Crisis
 #Ceiling Breaches
-gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"sqrt_OffIntl","Crisis",bins=50)+aes(fill=OffPl),
+gridExtra::grid.arrange(freq_continuous_cbre_plot(crisis_smp,"sqrt_OffIntl","Crisis",bins=50)+aes(fill=OffPl95),
              binned_percent_cbre_plot(crisis_smp,"sqrt_OffIntl","Crisis",bins=50)+geom_vline(xintercept=c(0.1,0.5,1.87)))
 
 
 #Terminations
-gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"sqrt_OffIntl","Crisis",bins=50)+aes(fill=OffPl),
+gridExtra::grid.arrange(freq_continuous_term_plot(crisis_smp,"sqrt_OffIntl","Crisis",bins=50)+aes(fill=OffPl95),
                         binned_percent_term_plot(crisis_smp,"sqrt_OffIntl","Crisis",bins=50)+geom_vline(xintercept=c(0.1,0.5,1.87)))
 
 #Model
@@ -1133,17 +1084,6 @@ CBre_04B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
         Fixed,x,
         Days*x,Days*MIDV,Days*OIDV,
         Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_04B))}
-
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_04B_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")+
-  stat_function(fun = CBre_04B_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")
 
 summary_residual_compare(CBre_04C,CBre_04G,Term_04C,Term_04G)
 summary_residual_compare(CBre_04E,CBre_04G,Term_04E,Term_04G)
@@ -1212,36 +1152,8 @@ CBre_04B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
         Days*x,Days*MIDV,Days*OIDV,
         Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_04B))}
 
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_04B_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")+
-  stat_function(fun = CBre_04B_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")
-
-
-
-#Plot the fitted values vs actual results
-gridExtra::grid.arrange(binned_fitted_versus_cbre_residuals(CBre_04H),
-                        binned_fitted_versus_term_residuals(Term_04H))
-
-
-
-#Plot residuals versus fitted
-gridExtra::grid.arrange(residuals_cbre_plot(CBre_04H,bins=5)+
-  labs(x="Estimated  Pr (Ceiling Breach)"),
-                        residuals_term_plot(Term_04H,bins=5)+
-  labs(x="Estimated  Pr (Termination)"))
-
-
-
-
 summary_residual_compare(CBre_04F,CBre_04H,Term_04F,Term_04H, bins=3)
-summary_residual_compare(CBre_04G,CBre_04H,Term_04G,Term_04H, bins=3)
+summary_residual_compare(CBre_04G,CBre_04H,Term_04G,Term_04H, bins=0)
 ```
 
 
@@ -1299,20 +1211,6 @@ CBre_04B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
         Fixed,x,
         Days*x,Days*MIDV,Days*OIDV,
         Comp*x,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_04B))}
-
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_04B_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")+
-  stat_function(fun = CBre_04B_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1),color="blue")
-
-
-
 
 summary_residual_compare(CBre_04G,CBre_04I,Term_04G,Term_04I)
 summary_residual_compare(CBre_04H,CBre_04I,Term_04H,Term_04I, bins=3)
@@ -1451,7 +1349,7 @@ stargazer::stargazer(CBre_04E,CBre_04L,Term_04E,Term_04L,type="text",
 
 
 
-summary_residual_compare(CBre_04E,CBre_04L,Term_04E,Term_04L,10)
+summary_residual_compare(CBre_04E,CBre_04L,Term_04E,Term_04L,bins=5)
 
 
 
@@ -2467,7 +2365,7 @@ summary_discrete_plot(crisis_smp,"FxCb","Crisis")
   
   stargazer::stargazer(CBre_08A,CBre_08D,Term_08A,Term_08D,type="text",
                        digits=2)
-  
+  vif(Term_02G)
   
 
 summary_residual_compare(CBre_08A,CBre_08D,Term_08A,Term_08D)
@@ -2826,27 +2724,6 @@ CBre_10B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA,Intl){invlog
         Comp*x,Comp*MIDV,Comp*OIDV,
         UCA*Comp) %*%  coef(CBre_10B))}
 
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"b_ODoD") +
-  stat_function(fun = CBre_10B_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1,UCA=0,Intl=0),color="blue")+
-  stat_function(fun = CBre_10B_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1,UCA=0,Intl=0),color="blue")
-
-
-#Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_10B)
-
-#Plot residuals versus fittedO
-residuals_cbre_plot(CBre_10B)+
-  labs(x="Estimated  Pr (Termination)")
-
-# residuals_cbre_plot(CBre_02F,"cl_days")+
-#   labs(x="Centered Log(Days)")
 
 ```
 
