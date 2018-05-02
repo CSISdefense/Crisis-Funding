@@ -105,73 +105,75 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 
 ## Sample Creation
 ```{r Sample}
-crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Dis"),]
-oco<-fed[fed$Crisis %in% c("OCO"),]
-oco<-oco[sample(nrow(oco),100000),]
-crisis_with_na<-rbind(crisis_with_na,oco)
-rm(oco)
-other_intl<-fed[fed$Crisis %in% c("Other")&fed$OffIntl>=0.5,]
-other_dom<-fed[fed$Crisis %in% c("Other")&(fed$OffIntl<0.5
-                                           |is.na(fed$OffIntl)),]
-other_dom<-other_dom[sample(nrow(other_dom),100000),]
-other_intl<-other_intl[sample(nrow(other_intl),100000),]
-crisis_with_na<-rbind(crisis_with_na,other_dom,other_intl)
-rm(other)
-crisis_with_na$OffCri<-crisis_with_na$CrisisPercent
-crisis_with_na$ProductOrServiceCode<-as.character(crisis_with_na$ProdServ)
-  crisis_with_na<-csis360::read_and_join( crisis_with_na,
-                               "ProductOrServiceCodes.csv",                             path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-                               directory="",
-                               by="ProductOrServiceCode",
-                               add_var=c("Simple",
-                                         "ProductServiceOrRnDarea",
-                                         "ProductOrServiceArea"),
-                               new_var_checked=FALSE)
-crisis_with_na$ProductServiceOrRnDarea<-factor(crisis_with_na$ProductServiceOrRnDarea)
-crisis_with_na$ProductOrServiceArea<-factor(crisis_with_na$ProductOrServiceArea)
-summary(crisis_with_na$ProductServiceOrRnDarea)
-summary(crisis_with_na$ProductOrServiceArea)
-# summary(crisis_with_na$b_Comp )
-# summary(crisis_with_na$n_Comp )
-# summary(crisis_with_na$Comp )
-# summary(crisis_with_na$CompOffr )
-# summary(crisis_with_na$EffComp )
 
-crisis_with_na$b_NoComp<-!crisis_with_na$b_Comp
-
-complete<-!is.na(crisis_with_na$b_Term)&
-  !is.na(crisis_with_na$b_CBre)&
-  !is.na(crisis_with_na$b_Comp)&
-  !is.na(crisis_with_na$b_Urg)&
-  !is.na(crisis_with_na$l_Ceil)&
-  !is.na(crisis_with_na$l_Days)&
-  !is.na(crisis_with_na$Veh) &
-  !is.na(crisis_with_na$n_Fixed)&
-  !is.na(crisis_with_na$b_Intl)&
-  !is.na(crisis_with_na$b_UCA)&
-  !is.na(crisis_with_na$ProdServ)&
-  !is.na(crisis_with_na$Crisis)&
-  !is.na(crisis_with_na$Office)&
-!is.na(crisis_with_na$OffCri)&
-  !is.na(crisis_with_na$OffIntl)&
-  !is.na(crisis_with_na$Is.Defense)&
-  !is.na(crisis_with_na$ProductOrServiceArea)
-  # !is.na(crisis_with_na$cl_HHI_lag1)
-
-summary(crisis_with_na$Crisis)
-
-
-
-#
-#8811392  to 8811392
-nrow(crisis_with_na[!complete,])/nrow(crisis_with_na)
-sum(crisis_with_na[!complete,]$Action.Obligation,na.rm=TRUE)/sum(crisis_with_na$Action.Obligation,na.rm=TRUE)
+load("Data\\crisis_smp.Rdata")
+# crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Dis"),]
+# oco<-fed[fed$Crisis %in% c("OCO"),]
+# oco<-oco[sample(nrow(oco),100000),]
+# crisis_with_na<-rbind(crisis_with_na,oco)
+# rm(oco)
+# other_intl<-fed[fed$Crisis %in% c("Other")&fed$OffIntl>=0.5,]
+# other_dom<-fed[fed$Crisis %in% c("Other")&(fed$OffIntl<0.5
+#                                            |is.na(fed$OffIntl)),]
+# other_dom<-other_dom[sample(nrow(other_dom),100000),]
+# other_intl<-other_intl[sample(nrow(other_intl),100000),]
+# crisis_with_na<-rbind(crisis_with_na,other_dom,other_intl)
+# rm(other)
+# crisis_with_na$OffCri<-crisis_with_na$CrisisPercent
+# crisis_with_na$ProductOrServiceCode<-as.character(crisis_with_na$ProdServ)
+#   crisis_with_na<-csis360::read_and_join( crisis_with_na,
+#                                "ProductOrServiceCodes.csv",                             path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+#                                directory="",
+#                                by="ProductOrServiceCode",
+#                                add_var=c("Simple",
+#                                          "ProductServiceOrRnDarea",
+#                                          "ProductOrServiceArea"),
+#                                new_var_checked=FALSE)
+# crisis_with_na$ProductServiceOrRnDarea<-factor(crisis_with_na$ProductServiceOrRnDarea)
+# crisis_with_na$ProductOrServiceArea<-factor(crisis_with_na$ProductOrServiceArea)
+# summary(crisis_with_na$ProductServiceOrRnDarea)
+# summary(crisis_with_na$ProductOrServiceArea)
+# # summary(crisis_with_na$b_Comp )
+# # summary(crisis_with_na$n_Comp )
+# # summary(crisis_with_na$Comp )
+# # summary(crisis_with_na$CompOffr )
+# # summary(crisis_with_na$EffComp )
 # 
-crisis_smp<-crisis_with_na[complete,]
+# crisis_with_na$b_NoComp<-!crisis_with_na$b_Comp
+# 
+# complete<-!is.na(crisis_with_na$b_Term)&
+#   !is.na(crisis_with_na$b_CBre)&
+#   !is.na(crisis_with_na$b_Comp)&
+#   !is.na(crisis_with_na$b_Urg)&
+#   !is.na(crisis_with_na$l_Ceil)&
+#   !is.na(crisis_with_na$l_Days)&
+#   !is.na(crisis_with_na$Veh) &
+#   !is.na(crisis_with_na$n_Fixed)&
+#   !is.na(crisis_with_na$b_Intl)&
+#   !is.na(crisis_with_na$b_UCA)&
+#   !is.na(crisis_with_na$ProdServ)&
+#   !is.na(crisis_with_na$Crisis)&
+#   !is.na(crisis_with_na$Office)&
+# !is.na(crisis_with_na$OffCri)&
+#   !is.na(crisis_with_na$OffIntl)&
+#   !is.na(crisis_with_na$Is.Defense)&
+#   !is.na(crisis_with_na$ProductOrServiceArea)
+#   # !is.na(crisis_with_na$cl_HHI_lag1)
+# 
+# summary(crisis_with_na$Crisis)
+# 
+# 
+# 
+# #
+# #8811392  to 8811392
+# nrow(crisis_with_na[!complete,])/nrow(crisis_with_na)
+# sum(crisis_with_na[!complete,]$Action.Obligation,na.rm=TRUE)/sum(crisis_with_na$Action.Obligation,na.rm=TRUE)
 # # 
-# head(crisis_smp)
-save(crisis_smp,crisis_with_na,file="Data\\crisis_smp.Rdata")
-# load("Data\\crisis_smp.Rdata")
+# crisis_smp<-crisis_with_na[complete,]
+# # # 
+# # head(crisis_smp)
+# save(crisis_smp,crisis_with_na,file="Data\\crisis_smp.Rdata")
+
 
 ```
 
