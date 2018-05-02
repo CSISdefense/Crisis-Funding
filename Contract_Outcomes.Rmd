@@ -2929,20 +2929,13 @@ discrete_percent_cbre_plot(crisis_smp,"PSA")
   display(Term_11B)
   
 
-  stargazer::stargazer(CBre_10A,CBre_11B,Term_10A,Term_11B,type="text",
+  stargazer::stargazer(CBre_11A,CBre_11B,Term_11A,Term_11B,type="text",
                        digits=2)
   
   
 
-summary_residual_compare(CBre_10A,CBre_11B,Term_10A,Term_11B,bins=20)
+summary_residual_compare(CBre_11A,CBre_11B,Term_11A,Term_11B,bins=20)
 
-texreg::htmlreg(list(CBre_11B,
-                     Term_11B),file="CrisisModel.html",single.row = TRUE,
-                custom.model.name=c("Ceiling Breach",
-                                    "Complete\nand Partial\nTermination"
-                                    ),
-                        stars=c(0.05))
-summary(factor(crisis_smp$PSA))
 ```
 
 
@@ -2962,6 +2955,7 @@ freq_discrete_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text
 #Percent Terminated Plot 
 discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
+load("model12A.rdata")  
 
   CBre_12A <- glmer (data=crisis_smp,
                     b_CBre ~ Crisis + NoComp + 
@@ -2978,10 +2972,10 @@ discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_t
                      cl_Days:Veh + 
                      cl_Ceil:Veh +
                      NoComp:Veh + 
-                     cl_Days:n_Fixed +
-                     (1 | Simple + PSA), 
+                     # cl_Days:n_Fixed +
+                     (1 | PSA), 
                    family=binomial(link="logit"))
-  display(CBre_12A)
+display(CBre_12A)
   
   Term_12B <- glmer(data=crisis_smp,
                    b_Term ~ Crisis + 
@@ -3004,40 +2998,12 @@ discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_t
                      cl_Ceil:Veh+
                    (1| PSA) , 
                    family=binomial(link="logit"))
-  display(Term_12A)
   
 
+display(Term_12A)
 # Plot the model and Vehicle 
-CBre_12A_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA){invlogit(
-  cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
-        Comp*Ceil,Days*Ceil,Days*Comp,
-        Fixed,UCA,x,
-        Days*x,Days*MIDV,Days*OIDV,
-        UCA*Comp) %*%  coef(CBre_12A))}
 
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"SIDV") +
-  stat_function(fun = CBre_12A_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1,UCA=0),color="blue")+
-  stat_function(fun = CBre_12A_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1,UCA=0),color="blue")
-
-#Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_12A)
-
-#Plot residuals versus fittedO
-residuals_cbre_plot(CBre_12A)+
-  labs(x="Estimated  Pr (Termination)")
-
-# residuals_cbre_plot(CBre_02F,"cl_days")+
-#   labs(x="Centered Log(Days)")
-
-load("model11c.rdata")
-save(CBre_12B,Term_12B, file="Model12B.RData")
+save(CBre_12A,Term_12A, file="Model12A.RData")
 ```
 CBre
 
@@ -3126,31 +3092,19 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = el
                      # cl_Days:NoComp+ +
                      # cl_Days:Veh + 
                      # cl_Ceil:Veh + 
-                       (1 | Simple)+(1 |  PSA), 
+                      (1 |  PSA), 
                    family=binomial(link="logit"))
   display(Term_12B)
   
 
 
-#Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_12B)
-
-
-#Plot residuals versus fittedO
-residuals_cbre_plot(CBre_12B)+
-  labs(x="Estimated  Pr (Termination)")
-
-
-#Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_11D)
-
-
-#Plot residuals versus fittedO
-residuals_cbre_plot(CBre_11D)+
-  labs(x="Estimated  Pr (Termination)")
+save(CBre_12B,Term_12B, file="Model12B.RData")
 
 ```
 The use of Comp as 
+
+Ceil converges
+Term Model failed to converge with max|grad| = 0.00135324 (tol = 0.001, component 1)
 
 ### 12C: Interactions
 ```{r Model 6 Exploration}
@@ -3236,5 +3190,7 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = el
   display(Term_12C)
   
 
-
+save(CBre_12C, file="Model12C.RData")
 ```
+
+CBre_12C Model failed to converge with max|grad| = 0.0103776 (tol = 0.001, component 1)
