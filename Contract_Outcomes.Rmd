@@ -184,6 +184,7 @@ The sample is created by including the entirity of the ARRA and Disaster dataset
 ##Crisis Dataset
 ### 01A Crisis Dataset
 ```{r Model01A}
+
 summary_discrete_plot(crisis_smp,"Crisis")
 
 #Model
@@ -377,7 +378,7 @@ Term_02F <- glm (data=crisis_smp,
 display(Term_02F)
 
 
-stargazer::stargazer(CBre_02B,CBre_02D,CBre_02G,Term_02B,Term_02D,Term_02E,Term_02F,
+stargazer::stargazer(CBre_02B,CBre_02D,CBre_02F,Term_02B,Term_02D,Term_02E,Term_02F,
                      type="text",
                      digits=2)
 
@@ -747,7 +748,7 @@ When both variables are in place, international offices have singificantly lower
 
 ```{r Model04D}
 crisis_smp$OffIntl
-OffIntl
+
 
 quantile(fed$OffIntl,c(0.1,0.25,0.33,0.4,0.45,0.5,0.6,0.66,0.7,0.75,0.8),na.rm = TRUE)
 quantile(crisis_smp$OffIntl,c(0.25,0.5,0.6,0.66,0.7,0.75,0.8),na.rm = TRUE)
