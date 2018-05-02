@@ -3318,21 +3318,4 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = el
   
 
 
-#Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_12C)
-
-
-#Plot residuals versus fittedO
-residuals_cbre_plot(CBre_12C)+
-  labs(x="Estimated  Pr (Termination)")
-
-
-#Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_11D)
-
-
-#Plot residuals versus fittedO
-residuals_cbre_plot(CBre_11D)+
-  labs(x="Estimated  Pr (Termination)")
-
 ```
