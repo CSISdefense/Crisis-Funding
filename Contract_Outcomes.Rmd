@@ -2588,8 +2588,8 @@ summary_residual_compare(CBre_08B,CBre_08F,Term_08A,Term_08F,bins=20)
 No Comp, Other loses significance for ceiling breaches, and reduces significance for terminations. Leaving this off.
 
 ##Place of Performance
-### 09A: Any International
-Because office level and contract level location are highly correlated (specifically the Intl state), they both can't be included in the model. This step will check the inclusion of international instead of the office level measure.
+### 09A: Any International and Office Place
+Because office level and contract level location are highly correlated (specifically the Intl state), they likely both can't be included in the model. This step will double check.
 ```{r Model09A}
 corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,
                                                              c_OffCri,cl_Ceil,
@@ -2649,6 +2649,66 @@ summary_residual_compare(CBre_08B,CBre_09A,Term_08A,Term_09A,bins=20)
 ```
 
 International performance of contract had a positive coefficient for ceiling breaches and a negative one for terminations. The pattern is similar to that for office.  Use of the office level variable is more relevant to the reachabck hypothesis, so sticking with it instead.
+
+### 09B: Combined International Office and Contract
+
+```{r Model09B}
+corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,
+                                                             c_OffCri,cl_Ceil,
+                                               cl_Days,n_Fixed,b_Intl)),
+                       dummies::dummy(crisis_smp$Crisis),
+                       dummies::dummy(crisis_smp$NoComp),
+                       dummies::dummy(crisis_smp$OffPl99),
+                       dummies::dummy(crisis_smp$Veh))))
+
+corrdisp[[1]]#[,1:9]
+
+  CBre_09B <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     c_OffCri+
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     
+                     
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                     cl_Days:n_Fixed+
+                     b_Intl, 
+                   family=binomial(link="logit"))
+  display(CBre_09B)
+  
+  Term_09B <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     
+                     
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_Intl, 
+                   family=binomial(link="logit"))
+  display(Term_09B)
+  
+
+  stargazer::stargazer(CBre_08B,CBre_09B,Term_08A,Term_09B,type="text",
+                       digits=2)
+  
+  
+
+summary_residual_compare(CBre_08A,CBre_09B,Term_08A,Term_09B,bins=20)
+
+```
 
 
 ##Who
