@@ -2654,6 +2654,67 @@ The expectation was not fulfilled for ceiling breaches and was for terminations.
 
 However, the variable exceed the VIF threshold of2.0 for ceiling breaches and was close for terminations, trying this another way.
 
+### 09B: Combined International Office and Contract
+
+```{r Model09B}
+corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,
+                                                             c_OffCri,cl_Ceil,
+                                               cl_Days,n_Fixed,b_Intl)),
+                       dummies::dummy(crisis_smp$Crisis),
+                       dummies::dummy(crisis_smp$NoComp),
+                       dummies::dummy(crisis_smp$OffPl99),
+                       dummies::dummy(crisis_smp$Veh))))
+
+corrdisp[[1]]#[,1:9]
+
+  CBre_09B <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     c_OffCri+
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     
+                     
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                     cl_Days:n_Fixed+
+                     b_Intl, 
+                   family=binomial(link="logit"))
+  display(CBre_09B)
+  
+  Term_09B <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     
+                     
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_Intl, 
+                   family=binomial(link="logit"))
+  display(Term_09B)
+  
+
+  stargazer::stargazer(CBre_08B,CBre_09B,Term_08A,Term_09B,type="text",
+                       digits=2)
+  
+  
+
+summary_residual_compare(CBre_08A,CBre_09B,Term_08A,Term_09B,bins=20)
+
+```
+
+
 ##Who
 
 
