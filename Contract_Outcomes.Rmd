@@ -2944,6 +2944,90 @@ failure to converge in 10000 evaluationsunable to evaluate scaled gradientModel 
 variance-covariance matrix computed from finite-difference Hessian is
 not positive definite or contains NA values: falling back to var-cov estimated from RX  
 
+
+
+### 11C: Product or Service Area
+Expectation: Complex or higher risk product or service caregories will have a positive estimate with the probability of ceiling breaches and terminations. 
+```{r Model11C}
+
+corrdisp<-Hmisc::rcorr(
+  as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,c_OffCri,cl_Ceil,
+                                            cl_Days,n_Fixed,b_Intl)),
+                       dummies::dummy(crisis_smp$Crisis),
+                       dummies::dummy(crisis_smp$NoComp),
+                       dummies::dummy(crisis_smp$OffPl99),
+                       dummies::dummy(crisis_smp$Veh),
+                                    dummies::dummy(crisis_smp$Is.Defense),
+                  dummies::dummy(crisis_smp$ProdServ))))
+corrdisp[[1]]
+
+
+#Frequency Plot
+freq_discrete_cbre_plot(crisis_smp,"ProdServ")
+
+#Percent Terminated Plot 
+discrete_percent_cbre_plot(crisis_smp,"ProdServ")
+
+#Create the model
+
+  CBre_11C <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    NoComp:Crisis+
+                     b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
+                     cl_Ceil:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                     cl_Days:n_Fixed+
+                   ProdServ, 
+                   family=binomial(link="logit"))
+  display(CBre_11C)
+  
+  Term_11C <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    b_NoComp:Crisis+
+                     b_UCA:Crisis+OffPl99:Crisis+
+                     cl_Ceil:Crisis+cl_Ceil:OffPl99+
+                     cl_Days:Crisis+
+                     cl_Days:OffPl99+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   ProdServ, 
+                   family=binomial(link="logit"))
+  display(Term_11C)
+  
+
+  stargazer::stargazer(CBre_11B,CBre_11C,Term_11B,Term_11C,type="text",
+                       digits=2)
+  
+  
+
+summary_residual_compare(CBre_10A,CBre_11C,Term_10A,Term_11C,bins=20)
+
+texreg::htmlreg(list(CBre_11C,
+                     Term_11C),file="CrisisModel.html",single.row = TRUE,
+                custom.model.name=c("Ceiling Breach",
+                                    "Complete\nand Partial\nTermination"
+                                    ),
+                        stars=c(0.05))
+summary(factor(crisis_smp$PSA))
+```
+
+
 #Multi-Level Model
 ### 12A: Product/Service/R&D and Platform
 ```{r Model12A}
