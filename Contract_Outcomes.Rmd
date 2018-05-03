@@ -2903,7 +2903,6 @@ discrete_percent_cbre_plot(crisis_smp,"PSA")
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
                    NoComp:Veh+
-                     cl_Days:n_Fixed+
                    PSA, 
                    family=binomial(link="logit"))
   display(CBre_11B)
@@ -2985,7 +2984,6 @@ discrete_percent_cbre_plot(crisis_smp,"ProdServ")
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
                    NoComp:Veh+
-                     cl_Days:n_Fixed+
                    ProdServ, 
                    family=binomial(link="logit"))
   display(CBre_11C)
@@ -3061,7 +3059,7 @@ load("model12A.rdata")
                    family=binomial(link="logit"))
 display(CBre_12A)
   
-  Term_12B <- glmer(data=crisis_smp,
+  Term_12A <- glmer(data=crisis_smp,
                    b_Term ~ Crisis + 
                      b_NoComp + 
                      b_UCA + 
@@ -3087,13 +3085,14 @@ display(CBre_12A)
 display(Term_12A)
 # Plot the model and Vehicle 
 
+debug(summary_residual_compare)
+summary_residual_compare(CBre_11B,CBre_12A,Term_11B,Term_12A,bins=20)
+
 save(CBre_12A,Term_12A, file="Model12A.RData")
 ```
 CBre
 
-Model failed to converge with max|grad| = 0.00192263 (tol = 0.001, component 1)
-failure to converge in 10000 evaluationsModel failed to converge with max|grad| = 0.0268996 (tol = 0.001, component 1)
-Model failed to converge with max|grad| = 0.00412916 (tol = 0.001, component 1)
+Model failed to converge with max|grad| = 0.00117598 (tol = 0.001, component 1)
 
 I think removing the intercept may have been a big mistake, it adds in other and produces some large negatives that might explain these errors.
 
@@ -3134,7 +3133,7 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb","What")+ theme(axis.text.x = elemen
 
 discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-
+load("model12B.rdata")  
 
   CBre_12B <- glmer (data=crisis_smp,
                    b_CBre ~ Crisis + NoComp + 
