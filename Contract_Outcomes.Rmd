@@ -1007,10 +1007,11 @@ crisis_smp$OffPl95<-Hmisc::cut2(crisis_smp$OffIntl,c(0.05,0.75))
 summary(crisis_smp$OffPl95)
   levels(crisis_smp$OffPl95) <-
     list("US95"=c("[0.00,0.05)"),
-         "Mixed"=c("[0.05,0.75)"),
+         "Mixed75"=c("[0.05,0.75)"),
          "Intl"=c("[0.75,1.00]"))
 
 summary_discrete_plot(crisis_smp,"OffPl95")
+summary_discrete_plot(crisis_smp,"Intl","OffPl95")
 
 
 #Model
@@ -1160,6 +1161,8 @@ The deviation reduction is slightly greater for this version, but the residuals 
 
 crisis_smp$OffPl50<-Hmisc::cut2(crisis_smp$OffIntl,c(0.50))
 summary(crisis_smp$OffPl50)
+summary_discrete_plot(crisis_smp,"Intl","OffPl50")
+
 
 corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(
   b_UCA,c_OffCri,OffIntl,cl_Ceil,
@@ -2298,7 +2301,7 @@ Expectations were upheld for terminations.
 
 And fixed price contracts do indeed have a significant coefficient that correlates with higher termination risk. In addition, the addition of this variable reduces the pattern in the residuals that in the middle range. 
 
-### 08B: Fixed-Price and Maximum Duration Intersection 
+### 08B: Fixed-Price and Duration Intersection 
 Past CSIS research has found that fixed-price contracts do appear to be at higher risk if they have a longer maximum duration. Fixed-price contracting does require upfront estimation of likely costs, and thus a longer duration means more opportunity for changed circumstance.
 
 Expectation: The interaction of fixed price and longer duration will positively estimate the probability of ceiling breaches and terminations.
@@ -2605,116 +2608,179 @@ corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,
 
 corrdisp[[1]]#[,1:9]
 
+
+
   CBre_09A <- glm (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
-                     OffPl99+c_OffCri+
+                     b_Intl+
+                     c_OffCri+
                      cl_Ceil+
                      cl_Days+
                      Veh+
                      n_Fixed +
                     cl_Ceil:NoComp+cl_Days:NoComp+
-                     
-                     
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
-                   NoComp:Veh+
-                     
-                     b_Intl, 
+                   NoComp:Veh, 
                    family=binomial(link="logit"))
   display(CBre_09A)
   
   Term_09A <- glm (data=crisis_smp,
                    b_Term ~ Crisis +b_NoComp+
                      b_UCA+
-                     OffPl99+c_OffCri+
+                     c_OffCri+
+                     b_Intl++
                     cl_Ceil+
                      cl_Days+
                      Veh+
                      n_Fixed +
                     cl_Days:b_NoComp+
                      b_UCA:Crisis+
-                     
-                     
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
-                     b_Intl, 
+                     b_NoComp:Veh, 
                    family=binomial(link="logit"))
   display(Term_09A)
   
 
-  stargazer::stargazer(CBre_08B,CBre_09A,Term_08A,Term_09A,type="text",
+  stargazer::stargazer(CBre_08A,CBre_09A,Term_08A,Term_09A,type="text",
                        digits=2)
   
   
 
-summary_residual_compare(CBre_08B,CBre_09A,Term_08A,Term_09A,bins=20)
+summary_residual_compare(CBre_08A,CBre_09A,Term_08A,Term_09A,bins=20)
 
 ```
-The expectation was not fulfilled for ceiling breaches and was for terminations. International performance of contract had a positive coefficient for ceiling breaches and a negative one for terminations. The pattern is similar to that for office.  
+The expectation was fulfilled for ceiling breaches but not for terminations. This had not proven true in earlier versions of the sample, though the addition of a wider range of non-crisis international contracts changed the dynamic.
 
-However, the variable exceed the VIF threshold of2.0 for ceiling breaches and was close for terminations, trying this another way.
 
-### 09B: Combined International Office and Contract
+### 09B: Reach 6 category
 
 ```{r Model09B}
-corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,
-                                                             c_OffCri,cl_Ceil,
-                                               cl_Days,n_Fixed,b_Intl)),
-                       dummies::dummy(crisis_smp$Crisis),
-                       dummies::dummy(crisis_smp$NoComp),
-                       dummies::dummy(crisis_smp$OffPl99),
-                       dummies::dummy(crisis_smp$Veh))))
+crisis_smp$Reach<-factor(paste(crisis_smp$OffPl99,crisis_smp$Intl,sep="-"))
+summary(crisis_smp$Reach)
 
-corrdisp[[1]]#[,1:9]
+  summary_discrete_plot(crisis_smp,"Intl","OffPl99")
+crisis_smp$Reach6<-crisis_smp$Reach
+    levels(crisis_smp$Reach6) <-
+    list( "US99-Dom"=c("US99-Just U.S."),
+          "Mixed-Dom"=c("Mixed-Just U.S."),
+         "Intl-Dom"=c("Intl-Just U.S."),
+         "US99-Intl"=c("US99-Any International"),
+         "Mixed-Intl"=c("Mixed-Any International"),
+         "Intl-Intl"=c("Intl-Any International"))
+
+
+  
+    summary_discrete_plot(crisis_smp,"Reach6")
+  
 
   CBre_09B <- glm (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      c_OffCri+
+                     Reach6+
                      cl_Ceil+
                      cl_Days+
                      Veh+
                      n_Fixed +
-                    cl_Ceil:NoComp+cl_Days:NoComp+
-                     
-                     
+                    cl_Ceil:NoComp+
+                     cl_Days:NoComp+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
-                   NoComp:Veh+
-                     cl_Days:n_Fixed+
-                     b_Intl, 
+                   NoComp:Veh, 
                    family=binomial(link="logit"))
   display(CBre_09B)
   
   Term_09B <- glm (data=crisis_smp,
-                   b_Term ~ Crisis +b_NoComp+
+                   b_Term ~ Crisis +
+                     b_NoComp+
                      b_UCA+
                      c_OffCri+
+                     Reach6+
                     cl_Ceil+
                      cl_Days+
                      Veh+
                      n_Fixed +
                     cl_Days:b_NoComp+
                      b_UCA:Crisis+
-                     
-                     
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
-                     b_Intl, 
+                     b_NoComp:Veh, 
                    family=binomial(link="logit"))
   display(Term_09B)
   
 
-  stargazer::stargazer(CBre_08B,CBre_09B,Term_08A,Term_09B,type="text",
+  stargazer::stargazer(CBre_08A,CBre_09A,CBre_09B,Term_08A,Term_09A,Term_09B,type="text",
                        digits=2)
   
   
 
 summary_residual_compare(CBre_08A,CBre_09B,Term_08A,Term_09B,bins=20)
+summary_residual_compare(CBre_09A,CBre_09B,Term_09A,Term_09B,bins=20)
 
 ```
+Expectations were upheld for ceiling breaches but not for terminations. Given the rarity of international contracts from contracting offices where 99% of dollars go to domestic contracts, and the similarity between US99-Dom annd Mixed-Dom, seperating out that category seems to add little value. This judgment is reinforced by the fact that the Reach6 measure provides minimal deviance reduction versus just including the international variable.
+### 09C: Combined International Office and Contract
 
+```{r Model09C}
+    levels(crisis_smp$Reach) <-
+    list( "US50-Dom"=c("US99-Just U.S.","Mixed-Just U.S."),
+         "Mixed-Dom"=c(),
+         "Intl-Dom"=c("Intl-Just U.S."),
+         "US50-Intl"=c("Mixed-Any International","US99-Any International"),
+         "Intl-Intl"=c("Intl-Any International"))
+
+
+  
+    summary_discrete_plot(crisis_smp,"Reach")
+  
+
+  CBre_09C <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     c_OffCri+
+                     Reach+
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    cl_Ceil:NoComp+
+                     cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh, 
+                   family=binomial(link="logit"))
+  display(CBre_09C)
+  
+  Term_09C <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach++
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh
+                     b_NoComp:Veh, 
+                   family=binomial(link="logit"))
+  display(Term_09C)
+  
+
+  stargazer::stargazer(CBre_08A,CBre_09A,CBre_09C,Term_08A,Term_09A,Term_09C,type="text",
+                       digits=2)
+  
+  
+
+summary_residual_compare(CBre_08A,CBre_09C,Term_08A,Term_09C,bins=20)
+summary_residual_compare(CBre_09A,CBre_09C,Term_09A,Term_09C,bins=20)
+
+```
 
 ##Who
 
@@ -2743,13 +2809,11 @@ corrdisp[[1]]
                      Veh+
                      n_Fixed +
                      Is.Defense +
-                    cl_Ceil:NoComp+cl_Days:NoComp+
-                     
-                     
+                    cl_Ceil:NoComp+
+                     cl_Days:NoComp+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
-                   NoComp:Veh+
-                     cl_Days:n_Fixed, 
+                   NoComp:Veh, 
                    family=binomial(link="logit"))
   display(CBre_10A)
   
@@ -2764,11 +2828,9 @@ corrdisp[[1]]
                      Is.Defense +
                     cl_Days:b_NoComp+
                      b_UCA:Crisis+
-                     
-                     
-                     
                      cl_Days:Veh+ 
-                     cl_Ceil:Veh, 
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh, 
                    family=binomial(link="logit"))
   display(Term_10A)
   
@@ -2783,72 +2845,6 @@ summary_residual_compare(CBre_08B,CBre_10A,Term_08A,Term_10A,bins=20)
 ```
 
 Defense contracts are associated with fewer ceiling breaches but more terminations. The residuals for ceiling breaches are reduced, though there's a pattern for low fitted values.
-
-### 10B: Other DoD & Competition
-```{r Model10B}
-
-#Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"EffComp","Who")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
-#Percent Terminated Plot 
-discrete_percent_cbre_plot(crisis_smp,"EffComp","Who")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
-crisis_smp$b_ODoD<-crisis_smp$Who
-levels(crisis_smp$b_ODoD)<- list("1"=c("Other DoD"), 
-                                "0"=c("Air Force","Army","Navy"))
-crisis_smp$b_ODoD[crisis_smp$b_ODoD=="Uncategorized"]<-NA
-crisis_smp$b_ODoD<-as.integer(as.character(crisis_smp$b_ODoD))
-
-#Create the model
-CBre_10B <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis + n_Comp + 
-                   cl_Ceil + cl_Days+ 
-                   SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
-                   n_Fixed + b_UCA + 
-                   b_Intl + b_ODoD +
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
-                   SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
-                   b_UCA:n_Comp+
-                   b_ODoD:n_Comp
-                    , family=binomial(link="logit"))
-display(CBre_10B)
-
-
-# Plot the model and Vehicle 
-CBre_10B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA,Intl){invlogit(
-  cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
-        Comp*Ceil,Days*Ceil,Days*Comp,
-        Fixed,UCA,Intl,x,
-        Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV,
-        UCA*Comp) %*%  coef(CBre_10B))}
-
-#Days curves
-discrete_fitted_cbre_model(crisis_smp,"b_ODoD") +
-  stat_function(fun = CBre_10B_curve,
-                             args=list(Comp=0,Ceil=0,Days=0,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1,UCA=0,Intl=0),color="blue")+
-  stat_function(fun = CBre_10B_curve,
-                             args=list(Comp=2,Ceil=0,Days=1,
-                                       MIDV=0,SIDV=0,OIDV=0,
-                                       Fixed=1,UCA=0,Intl=0),color="blue")
-
-
-#Plot the fitted values vs actual results
-binned_fitted_versus_cbre_residuals(CBre_10B)
-
-#Plot residuals versus fittedO
-residuals_cbre_plot(CBre_10B)+
-  labs(x="Estimated  Pr (Termination)")
-
-# residuals_cbre_plot(CBre_02F,"cl_days")+
-#   labs(x="Centered Log(Days)")
-
-```
 
 
 
@@ -2906,11 +2902,9 @@ discrete_percent_cbre_plot(crisis_smp,"Simple")
                      Is.Defense +
                     cl_Days:b_NoComp+
                      b_UCA:Crisis+
-                     
-                     
-                     
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
+                     b_NoComp:Veh+
                    Simple, 
                    family=binomial(link="logit"))
   display(Term_11A)
@@ -2989,6 +2983,7 @@ discrete_percent_cbre_plot(crisis_smp,"PSA")
                      
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
+                     b_NoComp:Veh+
                    PSA, 
                    family=binomial(link="logit"))
   display(Term_11B)
@@ -3050,7 +3045,6 @@ discrete_percent_cbre_plot(crisis_smp,"ProdServ")
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
                    NoComp:Veh+
-                     cl_Days:n_Fixed+
                    ProdServ, 
                    family=binomial(link="logit"))
   display(CBre_11C)
@@ -3071,6 +3065,7 @@ discrete_percent_cbre_plot(crisis_smp,"ProdServ")
                      cl_Days:OffPl99+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
+                     b_NoComp:Veh+
                    ProdServ, 
                    family=binomial(link="logit"))
   display(Term_11C)
@@ -3120,8 +3115,7 @@ load("model12A.rdata")
                      
                      cl_Days:Veh + 
                      cl_Ceil:Veh +
-                     NoComp:Veh + 
-                     # cl_Days:n_Fixed +
+                     NoComp:Veh +
                      (1 | PSA), 
                    family=binomial(link="logit"))
 display(CBre_12A)
@@ -3138,13 +3132,9 @@ display(CBre_12A)
                      Is.Defense +
                     cl_Days:b_NoComp+
                      b_UCA:Crisis+
-                     
-                     
-                     
-                     
-                     
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
+                     b_NoComp:Veh+
                    (1| PSA) , 
                    family=binomial(link="logit"))
   
@@ -3217,7 +3207,6 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = el
                      # cl_Days:Veh + 
                      # cl_Ceil:Veh +
                      # NoComp:Veh + 
-                     # cl_Days:n_Fixed +
                      (1 | Simple)+(1 |  PSA), 
                    family=binomial(link="logit"))
   display(CBre_12B)
@@ -3240,7 +3229,8 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = el
                      # cl_Days:Crisis + 
                      # cl_Days:NoComp+ +
                      # cl_Days:Veh + 
-                     # cl_Ceil:Veh + 
+                     # cl_Ceil:Veh+
+                     # b_NoComp:Veh + 
                       (1 |  PSA), 
                    family=binomial(link="logit"))
   display(Term_12B)
@@ -3310,7 +3300,6 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = el
                      # cl_Days:Veh + 
                      # cl_Ceil:Veh +
                      # NoComp:Veh + 
-                     # cl_Days:n_Fixed +
                      (1 | Simple)+(1 |  PSA) + (1|ProdServ), 
                    family=binomial(link="logit"))
   display(CBre_12C)
@@ -3333,7 +3322,8 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = el
                      # cl_Days:Crisis + 
                      # cl_Days:NoComp+ +
                      # cl_Days:Veh + 
-                     # cl_Ceil:Veh + 
+                     # cl_Ceil:Veh +
+                     # b_NoComp:Veh+ 
                        (1 | Simple)+(1 |  PSA) + (1|ProdServ), 
                    family=binomial(link="logit"))
   display(Term_12C)
