@@ -2689,7 +2689,7 @@ corrdisp<-Hmisc::rcorr(
                                             cl_Days,n_Fixed,b_Intl)),
                        dummies::dummy(crisis_smp$Crisis),
                        dummies::dummy(crisis_smp$NoComp),
-                       dummies::dummy(crisis_smp$OffPl99),
+                       dummies::dummy(crisis_smp$Reach),
                        dummies::dummy(crisis_smp$Veh),
                                     dummies::dummy(crisis_smp$Is.Defense))))
 corrdisp[[1]]
@@ -2699,7 +2699,7 @@ corrdisp[[1]]
   CBre_10A <- glm (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
-                     OffPl99+ c_OffCri+
+                     Reach+ c_OffCri+
                      cl_Ceil+
                      cl_Days+
                      Veh+
@@ -2716,7 +2716,7 @@ corrdisp[[1]]
   Term_10A <- glm (data=crisis_smp,
                    b_Term ~ Crisis +b_NoComp+
                      b_UCA+
-                     OffPl99+ c_OffCri+
+                     Reach+ c_OffCri+
                     cl_Ceil+
                      cl_Days+
                      Veh+
@@ -2754,7 +2754,7 @@ corrdisp<-Hmisc::rcorr(
                                               cl_Days,n_Fixed,b_Intl)),
                   dummies::dummy(crisis_smp$Crisis),
                   dummies::dummy(crisis_smp$NoComp),
-                  dummies::dummy(crisis_smp$OffPl99),
+                  dummies::dummy(crisis_smp$Reach),
                   dummies::dummy(crisis_smp$Veh),
                   dummies::dummy(crisis_smp$Is.Defense),
                   dummies::dummy(crisis_smp$Simple))))
@@ -2772,7 +2772,7 @@ discrete_percent_cbre_plot(crisis_smp,"Simple")
   CBre_11A <- glm (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
-                     OffPl99+ c_OffCri+  
+                     Reach+ c_OffCri+  
                      cl_Ceil+
                      cl_Days+
                      Veh+
@@ -2789,7 +2789,7 @@ discrete_percent_cbre_plot(crisis_smp,"Simple")
   Term_11A <- glm (data=crisis_smp,
                    b_Term ~ Crisis +b_NoComp+
                      b_UCA+
-                     OffPl99+ c_OffCri+
+                     Reach+ c_OffCri+
                     cl_Ceil+
                      cl_Days+
                      Veh+
@@ -2829,7 +2829,7 @@ corrdisp<-Hmisc::rcorr(
                                             cl_Days,n_Fixed,b_Intl)),
                        dummies::dummy(crisis_smp$Crisis),
                        dummies::dummy(crisis_smp$NoComp),
-                       dummies::dummy(crisis_smp$OffPl99),
+                       dummies::dummy(crisis_smp$Reach),
                        dummies::dummy(crisis_smp$Veh),
                                     dummies::dummy(crisis_smp$Is.Defense),
                   dummies::dummy(crisis_smp$PSA))))
@@ -2844,7 +2844,7 @@ summary_discrete_plot(crisis_smp,"PSA")
   CBre_11B <- glm (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
-                     OffPl99+ c_OffCri+  
+                     Reach+ c_OffCri+  
                      cl_Ceil+
                      cl_Days+
                      Veh+
@@ -2861,7 +2861,7 @@ summary_discrete_plot(crisis_smp,"PSA")
   Term_11B <- glm (data=crisis_smp,
                    b_Term ~ Crisis +b_NoComp+
                      b_UCA+
-                     OffPl99+ c_OffCri+
+                     Reach+ c_OffCri+
                     cl_Ceil+
                      cl_Days+
                      Veh+
@@ -2895,7 +2895,7 @@ Expectation: Complex or higher risk product or service caregories will have a po
 #                                             cl_Days,n_Fixed,b_Intl)),
 #                        dummies::dummy(crisis_smp$Crisis),
 #                        dummies::dummy(crisis_smp$NoComp),
-#                        dummies::dummy(crisis_smp$OffPl99),
+#                        dummies::dummy(crisis_smp$Reach),
 #                        dummies::dummy(crisis_smp$Veh),
 #                                     dummies::dummy(crisis_smp$Is.Defense),
 #                   dummies::dummy(crisis_smp$ProdServ))))
@@ -2907,7 +2907,7 @@ Expectation: Complex or higher risk product or service caregories will have a po
 #   CBre_11C <-  glm (data=crisis_smp,
 #                    b_CBre ~ Crisis +NoComp +
 #                      b_UCA+
-#                      OffPl99+ c_OffCri+  
+#                      Reach+ c_OffCri+  
 #                      cl_Ceil+
 #                      cl_Days+
 #                      Veh+
@@ -2924,7 +2924,7 @@ Expectation: Complex or higher risk product or service caregories will have a po
 #   Term_11C <-  glm (data=crisis_smp,
 #                    b_Term ~ Crisis +b_NoComp+
 #                      b_UCA+
-#                      OffPl99+ c_OffCri+
+#                      Reach+ c_OffCri+
 #                     cl_Ceil+
 #                      cl_Days+
 #                      Veh+
@@ -2973,7 +2973,7 @@ load("model12A.rdata")
   CBre_12A <- glmer (data=crisis_smp,
                     b_CBre ~ Crisis + NoComp +
                      b_UCA +
-                     OffPl99 + c_OffCri +
+                     Reach + c_OffCri +
                      cl_Ceil +
                      cl_Days +
                      Veh +
@@ -2993,7 +2993,7 @@ display(CBre_12A)
                    b_Term ~ Crisis +
                      b_NoComp +
                      b_UCA +
-                     OffPl99 + c_OffCri +
+                     Reach + c_OffCri +
                      cl_Ceil +
                      cl_Days +
                      Veh +
@@ -3017,11 +3017,7 @@ summary_residual_compare(CBre_11B,CBre_12A,Term_11B,Term_12A)
 
 # save(CBre_12A,Term_12A, file="Model12A.RData")
 ```
-CBre
 
-Model failed to converge with max|grad| = 0.00117598 (tol = 0.001, component 1)
-
-I think removing the intercept may have been a big mistake, it adds in other and produces some large negatives that might explain these errors.
 
 ### 12B: Interactions
 ```{r 12B Multilevel w/ Simple + PSA}
@@ -3032,7 +3028,7 @@ load("model12B.rdata")
   # CBre_12B <- glmer (data=crisis_smp,
   #                  b_CBre ~ Crisis + NoComp + 
   #                    b_UCA +
-  #                    OffPl99 + c_OffCri + 
+  #                    Reach + c_OffCri + 
   #                    cl_Ceil + 
   #                    cl_Days + 
   #                    Veh + 
@@ -3040,8 +3036,8 @@ load("model12B.rdata")
   #                    Is.Defense + 
   #                    # NoComp:Crisis +
   #                    # b_UCA:Crisis + 
-  #                    # OffPl99:Crisis + 
-  #                    # OffPl99:NoComp + 
+  #                    # Reach:Crisis + 
+  #                    # Reach:NoComp + 
   #                    # cl_Days:Veh + 
   #                    # cl_Ceil:Veh +
   #                    # NoComp:Veh + 
@@ -3053,7 +3049,7 @@ load("model12B.rdata")
   #                  b_Term ~ Crisis + 
   #                    b_NoComp + 
   #                    b_UCA + 
-  #                    OffPl99 + c_OffCri + 
+  #                    Reach + c_OffCri + 
   #                    cl_Ceil + 
   #                    cl_Days + 
   #                    Veh +
@@ -3061,9 +3057,9 @@ load("model12B.rdata")
   #                    Is.Defense + 
   #                    # Crisis:b_NoComp + 
   #                    # b_UCA:Crisis + 
-  #                    # OffPl99:Crisis + 
+  #                    # Reach:Crisis + 
   #                    # cl_Ceil:Crisis + 
-  #                    # cl_Ceil:OffPl99 + 
+  #                    # cl_Ceil:Reach + 
   #                    # cl_Days:Crisis + 
   #                    # cl_Days:NoComp+ +
   #                    # cl_Days:Veh + 
@@ -3093,7 +3089,7 @@ load("Model12C.RData") #Only have CBre at the moment
   # CBre_12C <- glmer (data=crisis_smp,
   #                  b_CBre ~ Crisis + NoComp + 
   #                    b_UCA +
-  #                    OffPl99 + c_OffCri + 
+  #                    Reach + c_OffCri + 
   #                    cl_Ceil + 
   #                    cl_Days + 
   #                    Veh + 
@@ -3101,8 +3097,8 @@ load("Model12C.RData") #Only have CBre at the moment
   #                    Is.Defense + 
   #                    # NoComp:Crisis +
   #                    # b_UCA:Crisis + 
-  #                    # OffPl99:Crisis + 
-  #                    # OffPl99:NoComp + 
+  #                    # Reach:Crisis + 
+  #                    # Reach:NoComp + 
   #                    # cl_Days:Veh + 
   #                    # cl_Ceil:Veh +
   #                    # NoComp:Veh + 
@@ -3114,7 +3110,7 @@ load("Model12C.RData") #Only have CBre at the moment
   #                  b_Term ~ Crisis + 
   #                    b_NoComp + 
   #                    b_UCA + 
-  #                    OffPl99 + c_OffCri + 
+  #                    Reach + c_OffCri + 
   #                    cl_Ceil + 
   #                    cl_Days + 
   #                    Veh +
@@ -3122,9 +3118,9 @@ load("Model12C.RData") #Only have CBre at the moment
   #                    Is.Defense + 
   #                    # Crisis:b_NoComp + 
   #                    # b_UCA:Crisis + 
-  #                    # OffPl99:Crisis + 
+  #                    # Reach:Crisis + 
   #                    # cl_Ceil:Crisis + 
-  #                    # cl_Ceil:OffPl99 + 
+  #                    # cl_Ceil:Reach + 
   #                    # cl_Days:Crisis + 
   #                    # cl_Days:NoComp+ +
   #                    # cl_Days:Veh + 
