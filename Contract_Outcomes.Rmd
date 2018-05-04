@@ -2722,8 +2722,8 @@ summary_residual_compare(CBre_09A,CBre_09B,Term_09A,Term_09B,bins=20)
 
 ```
 Expectations were upheld for ceiling breaches but not for terminations. Given the rarity of international contracts from contracting offices where 99% of dollars go to domestic contracts, and the similarity between US99-Dom annd Mixed-Dom, seperating out that category seems to add little value. This judgment is reinforced by the fact that the Reach6 measure provides minimal deviance reduction versus just including the international variable.
-### 09C: Combined International Office and Contract
-
+### 09C: Reach 4 Category
+Expectations: Unchanged from 6 category. Reachback contracting office negatively estimate, relative to international offices, the probabilit of ceilingbreaches and terminations.
 ```{r Model09C}
     levels(crisis_smp$Reach) <-
     list( "US50-Dom"=c("US99-Just U.S.","Mixed-Just U.S."),
@@ -2766,27 +2766,28 @@ Expectations were upheld for ceiling breaches but not for terminations. Given th
                     cl_Days:b_NoComp+
                      b_UCA:Crisis+
                      cl_Days:Veh+ 
-                     cl_Ceil:Veh
+                     cl_Ceil:Veh+
                      b_NoComp:Veh, 
                    family=binomial(link="logit"))
   display(Term_09C)
   
 
-  stargazer::stargazer(CBre_08A,CBre_09A,CBre_09C,Term_08A,Term_09A,Term_09C,type="text",
+  stargazer::stargazer(CBre_08A,CBre_09A,CBre_09B,CBre_09C,Term_08A,Term_09A,Term_09B,Term_09C,type="text",
                        digits=2)
   
   
 
 summary_residual_compare(CBre_08A,CBre_09C,Term_08A,Term_09C,bins=20)
 summary_residual_compare(CBre_09A,CBre_09C,Term_09A,Term_09C,bins=20)
+summary_residual_compare(CBre_09B,CBre_09C,Term_09B,Term_09C,bins=20)
 
 ```
 
 ##Who
 
 
-### 10A: Sub Customer other DoD
-Other DoD stands out for its sheer quantity of contracts and task orders and also its lower termination rate. 
+### 10A: Defense/Civilian
+Expectation: DoD is noteworthy for its technically complex major projects and for operating in conflict environment. Defense constracts positively estimate the probability of ceiling breaches and terminations.
 ```{r Model10A}
 corrdisp<-Hmisc::rcorr(
   as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,c_OffCri,cl_Ceil,
