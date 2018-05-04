@@ -2617,8 +2617,9 @@ summary_residual_compare(CBre_08A,CBre_09B,Term_08A,Term_09B,bins=20)
 ##Who
 
 
-### 10A: Sub Customer other DoD
-Other DoD stands out for its sheer quantity of contracts and task orders and also its lower termination rate. 
+### 10A: Defense and Civilian
+
+Expectation: DoD contracts are often higher risk technologies or more direct exposure to conflict situations. Defense as a customer will positively estimate the probability of ceiling breaches and terminations.
 ```{r Model10A}
 corrdisp<-Hmisc::rcorr(
   as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,c_OffCri,cl_Ceil,
@@ -2646,8 +2647,7 @@ corrdisp[[1]]
                      
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
-                   NoComp:Veh+
-                     cl_Days:n_Fixed, 
+                   NoComp:Veh, 
                    family=binomial(link="logit"))
   display(CBre_10A)
   
@@ -2682,55 +2682,12 @@ summary_residual_compare(CBre_08B,CBre_10A,Term_08A,Term_10A,bins=20)
 
 Defense contracts are associated with fewer ceiling breaches but more terminations. The residuals for ceiling breaches are reduced, though there's a pattern for low fitted values.
 
-### 10B: Other DoD & Competition
-```{r Model10B}
-
-#Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"EffComp","Who")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
-#Percent Terminated Plot 
-discrete_percent_cbre_plot(crisis_smp,"EffComp","Who")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
-crisis_smp$b_ODoD<-crisis_smp$Who
-levels(crisis_smp$b_ODoD)<- list("1"=c("Other DoD"), 
-                                "0"=c("Air Force","Army","Navy"))
-crisis_smp$b_ODoD[crisis_smp$b_ODoD=="Uncategorized"]<-NA
-crisis_smp$b_ODoD<-as.integer(as.character(crisis_smp$b_ODoD))
-
-#Create the model
-CBre_10B <- glm (data=crisis_smp,
-                 b_CBre ~ Crisis + n_Comp + 
-                   cl_Ceil + cl_Days+ 
-                   SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
-                   n_Fixed + b_UCA + 
-                   b_Intl + b_ODoD +
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
-                   SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
-                   b_UCA:n_Comp+
-                   b_ODoD:n_Comp
-                    , family=binomial(link="logit"))
-display(CBre_10B)
-
-
-# Plot the model and Vehicle 
-CBre_10B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed,UCA,Intl){invlogit(
-  cbind(1,Comp,Ceil,Days,SIDV,MIDV,OIDV,
-        Comp*Ceil,Days*Ceil,Days*Comp,
-        Fixed,UCA,Intl,x,
-        Days*x,Days*MIDV,Days*OIDV,
-        Comp*x,Comp*MIDV,Comp*OIDV,
-        UCA*Comp) %*%  coef(CBre_10B))}
-
-
-```
 
 
 
 ##What
 ### 11A: Product/Service/R&D
+Expectation: R&D and, to a lesser extent, services can be harder to quantify and will be positively estimate the probability of ceiling breaches and terminations.
 ```{r Model11A}
 corrdisp<-Hmisc::rcorr(
   as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,c_OffCri,cl_Ceil,
@@ -2762,12 +2719,9 @@ discrete_percent_cbre_plot(crisis_smp,"Simple")
                      n_Fixed +
                      Is.Defense +
                     cl_Ceil:NoComp+cl_Days:NoComp+
-                     
-                     
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
                    NoComp:Veh+
-                     
                    Simple, 
                    family=binomial(link="logit"))
   display(CBre_11A)
@@ -2783,9 +2737,6 @@ discrete_percent_cbre_plot(crisis_smp,"Simple")
                      Is.Defense +
                     cl_Days:b_NoComp+
                      b_UCA:Crisis+
-                     
-                     
-                     
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
                    Simple, 
@@ -2802,10 +2753,12 @@ summary_residual_compare(CBre_10A,CBre_11A,Term_10A,Term_11A,bins=20)
 
 
 ```
+Expectations are upheld for ceiling breaches, although the coefficient for services is unexpectedly higher than for R&D. Expectations are not upheld for terminations, where R&D contracts are notably less likely to be cancelled and fixed price contracts
 
-Unfortunately, after including Start Fiscal Year, the model again failed to converge. The standard deviation of Who is 0 while it is notably higher for determining the slope of competition via PSR and for Start Fiscal Year. This suggests that who is adding little to the model and that it is time to go back to model 6C as a starter.
 
 ### 11B: Product or Service Area
+Expectation: More complex and higher risk (i.e. fuel) product or service areas positively estimate a higher probability of terminations and ceiling breaches.
+
 ```{r Model11B}
 
 crisis_smp$PSA<-as.character(crisis_smp$ProductOrServiceArea)
@@ -2822,30 +2775,24 @@ corrdisp<-Hmisc::rcorr(
 corrdisp[[1]]
 
 
-#Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"PSA")
+summary_discrete_plot(crisis_smp,"PSA")
 
-#Percent Terminated Plot 
-discrete_percent_cbre_plot(crisis_smp,"PSA")
 
 #Create the model
 
   CBre_11B <- glm (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
-                     OffPl99+ c_OffCri+
+                     OffPl99+ c_OffCri+  
                      cl_Ceil+
                      cl_Days+
                      Veh+
                      n_Fixed +
                      Is.Defense +
-                    NoComp:Crisis+
-                     b_UCA:Crisis+
-                     
+                    cl_Ceil:NoComp+cl_Days:NoComp+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
                    NoComp:Veh+
-                     
                    PSA, 
                    family=binomial(link="logit"))
   display(CBre_11B)
@@ -2861,9 +2808,6 @@ discrete_percent_cbre_plot(crisis_smp,"PSA")
                      Is.Defense +
                     cl_Days:b_NoComp+
                      b_UCA:Crisis+
-                     
-                     
-                     
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
                    PSA, 
@@ -2871,21 +2815,13 @@ discrete_percent_cbre_plot(crisis_smp,"PSA")
   display(Term_11B)
   
 
-  stargazer::stargazer(CBre_11A,CBre_11B,Term_11A,Term_11B,type="text",
-                       digits=2)
-  
-  
 
+  stargazer::stargazer(CBre_11A,CBre_11B,CBre_11B2,CBre_11B3,type="text",
+                       digits=2)
 summary_residual_compare(CBre_11A,CBre_11B,Term_11A,Term_11B,bins=20)
 
 ```
-
-
-failure to converge in 10000 evaluationsunable to evaluate scaled gradientModel failed to converge: degenerate  Hessian with 1 negative eigenvalues
-
-variance-covariance matrix computed from finite-difference Hessian is
-not positive definite or contains NA values: falling back to var-cov estimated from RX  
-
+Expectations are partially upheld, though particularly for military platform related goods and services often estimate higher probability of ceiling breaches but lower probabiltiy of terminations. ICT, missiles and space, and electronics and communications are exceptions to this trend.
 
 
 ### 11C: Product or Service Area
@@ -2904,26 +2840,18 @@ corrdisp<-Hmisc::rcorr(
 corrdisp[[1]]
 
 
-#Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"ProdServ")
 
-#Percent Terminated Plot 
-discrete_percent_cbre_plot(crisis_smp,"ProdServ")
 
-#Create the model
-
-  CBre_11C <- glm (data=crisis_smp,
+  CBre_11C <-  glm (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
-                     OffPl99+ c_OffCri+
+                     OffPl99+ c_OffCri+  
                      cl_Ceil+
                      cl_Days+
                      Veh+
                      n_Fixed +
                      Is.Defense +
-                    NoComp:Crisis+
-                     b_UCA:Crisis+OffPl99:Crisis+OffPl99:NoComp+
-                     cl_Ceil:Crisis+
+                    cl_Ceil:NoComp+cl_Days:NoComp+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
                    NoComp:Veh+
@@ -2931,8 +2859,8 @@ discrete_percent_cbre_plot(crisis_smp,"ProdServ")
                    family=binomial(link="logit"))
   display(CBre_11C)
   
-  Term_11C <- glm (data=crisis_smp,
-                   b_Term ~ Crisis +b_NoComp
+  Term_11C <-  glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
                      b_UCA+
                      OffPl99+ c_OffCri+
                     cl_Ceil+
@@ -2940,11 +2868,8 @@ discrete_percent_cbre_plot(crisis_smp,"ProdServ")
                      Veh+
                      n_Fixed +
                      Is.Defense +
-                    b_NoComp:Crisis+
-                     b_UCA:Crisis+OffPl99:Crisis+
-                     cl_Ceil:Crisis+cl_Ceil:OffPl99+
-                     cl_Days:Crisis+
-                     cl_Days:OffPl99+
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
                    ProdServ, 
@@ -3028,8 +2953,8 @@ display(CBre_12A)
 display(Term_12A)
 # Plot the model and Vehicle 
 
-debug(summary_residual_compare)
-summary_residual_compare(CBre_11B,CBre_12A,Term_11B,Term_12A,bins=20)
+debug(residuals_cbre_plot)
+summary_residual_compare(CBre_11B,CBre_12A,Term_11B,Term_12A)
 
 save(CBre_12A,Term_12A, file="Model12A.RData")
 ```
@@ -3041,40 +2966,7 @@ I think removing the intercept may have been a big mistake, it adds in other and
 
 ### 12B: Interactions
 ```{r Model 6 Exploration}
-#, fig.height = 10, fig.width = 6.5
-#Effective Competition
-#Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"PSR_What","EffComp")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-#Percent Terminated Plot 
-discrete_percent_cbre_plot(crisis_smp,"EffComp","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-discrete_percent_cbre_plot(crisis_smp,"EffComp","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-discrete_percent_cbre_plot(crisis_smp,"EffComp","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
-#Effective Competition
-#Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"PSR_What","Veh")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-#Percent Terminated Plot 
-discrete_percent_cbre_plot(crisis_smp,"Veh","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-discrete_percent_cbre_plot(crisis_smp,"Veh","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-discrete_percent_cbre_plot(crisis_smp,"Veh","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-#FxCb
-#Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"PSR_What","FxCb")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-#Percent Terminated Plot 
-discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-discrete_percent_cbre_plot(crisis_smp,"FxCb","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 load("model12B.rdata")  
 
@@ -3094,7 +2986,6 @@ load("model12B.rdata")
                      # cl_Days:Veh + 
                      # cl_Ceil:Veh +
                      # NoComp:Veh + 
-                     # cl_Days:n_Fixed +
                      (1 | Simple)+(1 |  PSA), 
                    family=binomial(link="logit"))
   display(CBre_12B)
@@ -3124,6 +3015,7 @@ load("model12B.rdata")
   
 
 
+summary_residual_compare(CBre_12A,CBre_12B,Term_12A,Term_12B)
 save(CBre_12B,Term_12B, file="Model12B.RData")
 
 ```
@@ -3134,41 +3026,6 @@ Term Model failed to converge with max|grad| = 0.00135324 (tol = 0.001, componen
 
 ### 12C: Interactions
 ```{r Model 6 Exploration}
-#, fig.height = 10, fig.width = 6.5
-#Effective Competition
-#Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"PSR_What","EffComp")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-#Percent Terminated Plot 
-discrete_percent_cbre_plot(crisis_smp,"EffComp","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-discrete_percent_cbre_plot(crisis_smp,"EffComp","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-discrete_percent_cbre_plot(crisis_smp,"EffComp","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
-#Effective Competition
-#Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"PSR_What","Veh")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-#Percent Terminated Plot 
-discrete_percent_cbre_plot(crisis_smp,"Veh","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-discrete_percent_cbre_plot(crisis_smp,"Veh","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-discrete_percent_cbre_plot(crisis_smp,"Veh","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-#FxCb
-#Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"PSR_What","FxCb")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-#Percent Terminated Plot 
-discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-discrete_percent_cbre_plot(crisis_smp,"FxCb","What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
 
 
   CBre_12C <- glmer (data=crisis_smp,
@@ -3215,7 +3072,7 @@ discrete_percent_cbre_plot(crisis_smp,"FxCb","PSR_What")+ theme(axis.text.x = el
                    family=binomial(link="logit"))
   display(Term_12C)
   
-
+summary_residual_compare(CBre_12B,CBre_12C,Term_12A,Term_12B)
 save(CBre_12C, file="Model12C.RData")
 ```
 
