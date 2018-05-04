@@ -2703,7 +2703,7 @@ corrdisp[[1]]
   CBre_10A <- glm (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
-                     OffPl99+ c_OffCri+
+                     Reach+ c_OffCri+
                      cl_Ceil+
                      cl_Days+
                      Veh+
@@ -2720,7 +2720,7 @@ corrdisp[[1]]
   Term_10A <- glm (data=crisis_smp,
                    b_Term ~ Crisis +b_NoComp+
                      b_UCA+
-                     OffPl99+ c_OffCri+
+                     Reach+ c_OffCri+
                     cl_Ceil+
                      cl_Days+
                      Veh+
@@ -2740,7 +2740,7 @@ corrdisp[[1]]
   
   
 
-summary_residual_compare(CBre_08B,CBre_10A,Term_08A,Term_10A,bins=20)
+summary_residual_compare(CBre_09C,CBre_10A,Term_09C,Term_10A,bins=20)
 
 ```
 
@@ -2758,7 +2758,7 @@ corrdisp<-Hmisc::rcorr(
                                               cl_Days,n_Fixed,b_Intl)),
                   dummies::dummy(crisis_smp$Crisis),
                   dummies::dummy(crisis_smp$NoComp),
-                  dummies::dummy(crisis_smp$OffPl99),
+                  dummies::dummy(crisis_smp$Reach),
                   dummies::dummy(crisis_smp$Veh),
                   dummies::dummy(crisis_smp$Is.Defense),
                   dummies::dummy(crisis_smp$Simple))))
@@ -2776,7 +2776,7 @@ discrete_percent_cbre_plot(crisis_smp,"Simple")
   CBre_11A <- glm (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
-                     OffPl99+ c_OffCri+  
+                     Reach+ c_OffCri+  
                      cl_Ceil+
                      cl_Days+
                      Veh+
@@ -2793,7 +2793,7 @@ discrete_percent_cbre_plot(crisis_smp,"Simple")
   Term_11A <- glm (data=crisis_smp,
                    b_Term ~ Crisis +b_NoComp+
                      b_UCA+
-                     OffPl99+ c_OffCri+
+                     Reach+ c_OffCri+
                     cl_Ceil+
                      cl_Days+
                      Veh+
@@ -2833,7 +2833,7 @@ corrdisp<-Hmisc::rcorr(
                                             cl_Days,n_Fixed,b_Intl)),
                        dummies::dummy(crisis_smp$Crisis),
                        dummies::dummy(crisis_smp$NoComp),
-                       dummies::dummy(crisis_smp$OffPl99),
+                       dummies::dummy(crisis_smp$Reach),
                        dummies::dummy(crisis_smp$Veh),
                                     dummies::dummy(crisis_smp$Is.Defense),
                   dummies::dummy(crisis_smp$PSA))))
@@ -2848,7 +2848,7 @@ summary_discrete_plot(crisis_smp,"PSA")
   CBre_11B <- glm (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
-                     OffPl99+ c_OffCri+  
+                     Reach+ c_OffCri+  
                      cl_Ceil+
                      cl_Days+
                      Veh+
@@ -2865,7 +2865,7 @@ summary_discrete_plot(crisis_smp,"PSA")
   Term_11B <- glm (data=crisis_smp,
                    b_Term ~ Crisis +b_NoComp+
                      b_UCA+
-                     OffPl99+ c_OffCri+
+                     Reach+ c_OffCri+
                     cl_Ceil+
                      cl_Days+
                      Veh+
@@ -2882,7 +2882,7 @@ summary_discrete_plot(crisis_smp,"PSA")
   
 
 
-  stargazer::stargazer(CBre_11A,CBre_11B,CBre_11B2,CBre_11B3,type="text",
+  stargazer::stargazer(CBre_11A,CBre_11B,Term_11A,Term_11B,type="text",
                        digits=2)
 summary_residual_compare(CBre_11A,CBre_11B,Term_11A,Term_11B,bins=20)
 
@@ -2899,7 +2899,7 @@ corrdisp<-Hmisc::rcorr(
                                             cl_Days,n_Fixed,b_Intl)),
                        dummies::dummy(crisis_smp$Crisis),
                        dummies::dummy(crisis_smp$NoComp),
-                       dummies::dummy(crisis_smp$OffPl99),
+                       dummies::dummy(crisis_smp$Reach),
                        dummies::dummy(crisis_smp$Veh),
                                     dummies::dummy(crisis_smp$Is.Defense),
                   dummies::dummy(crisis_smp$ProdServ))))
@@ -2911,7 +2911,7 @@ corrdisp[[1]]
   CBre_11C <-  glm (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
-                     OffPl99+ c_OffCri+  
+                     Reach+ c_OffCri+  
                      cl_Ceil+
                      cl_Days+
                      Veh+
@@ -2928,7 +2928,7 @@ corrdisp[[1]]
   Term_11C <-  glm (data=crisis_smp,
                    b_Term ~ Crisis +b_NoComp+
                      b_UCA+
-                     OffPl99+ c_OffCri+
+                     Reach+ c_OffCri+
                     cl_Ceil+
                      cl_Days+
                      Veh+
@@ -2977,18 +2977,18 @@ load("model12A.rdata")
   CBre_12A <- glmer (data=crisis_smp,
                     b_CBre ~ Crisis + NoComp + 
                      b_UCA +
-                     OffPl99 + c_OffCri + 
+                     Reach + c_OffCri + 
                      cl_Ceil + 
                      cl_Days + 
                      Veh + 
                      n_Fixed + 
-                     Is.Defense + 
-                     NoComp:Crisis +
-                     b_UCA:Crisis + 
-                     
-                     cl_Days:Veh + 
-                     cl_Ceil:Veh +
-                     NoComp:Veh +
+                     Is.Defense +
+                      cl_Ceil:NoComp+
+                      cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+
                      (1 | PSA), 
                    family=binomial(link="logit"))
 display(CBre_12A)
@@ -2997,7 +2997,7 @@ display(CBre_12A)
                    b_Term ~ Crisis + 
                      b_NoComp + 
                      b_UCA + 
-                     OffPl99 + c_OffCri + 
+                     Reach + c_OffCri + 
                      cl_Ceil + 
                      cl_Days + 
                      Veh +
@@ -3015,7 +3015,12 @@ display(CBre_12A)
 display(Term_12A)
 # Plot the model and Vehicle 
 
-debug(residuals_cbre_plot)
+
+  stargazer::stargazer(CBre_11B,CBre_12A,Term_11B,Term_12A,type="text",
+                       digits=2)
+  
+  
+
 summary_residual_compare(CBre_11B,CBre_12A,Term_11B,Term_12A)
 
 save(CBre_12A,Term_12A, file="Model12A.RData")
@@ -3035,7 +3040,7 @@ load("model12B.rdata")
   CBre_12B <- glmer (data=crisis_smp,
                    b_CBre ~ Crisis + NoComp + 
                      b_UCA +
-                     OffPl99 + c_OffCri + 
+                     Reach + c_OffCri + 
                      cl_Ceil + 
                      cl_Days + 
                      Veh + 
@@ -3043,8 +3048,8 @@ load("model12B.rdata")
                      Is.Defense + 
                      # NoComp:Crisis +
                      # b_UCA:Crisis + 
-                     # OffPl99:Crisis + 
-                     # OffPl99:NoComp + 
+                     # Reach:Crisis + 
+                     # Reach:NoComp + 
                      # cl_Days:Veh + 
                      # cl_Ceil:Veh +
                      # NoComp:Veh + 
@@ -3056,7 +3061,7 @@ load("model12B.rdata")
                    b_Term ~ Crisis + 
                      b_NoComp + 
                      b_UCA + 
-                     OffPl99 + c_OffCri + 
+                     Reach + c_OffCri + 
                      cl_Ceil + 
                      cl_Days + 
                      Veh +
@@ -3064,9 +3069,9 @@ load("model12B.rdata")
                      Is.Defense + 
                      # Crisis:b_NoComp + 
                      # b_UCA:Crisis + 
-                     # OffPl99:Crisis + 
+                     # Reach:Crisis + 
                      # cl_Ceil:Crisis + 
-                     # cl_Ceil:OffPl99 + 
+                     # cl_Ceil:Reach + 
                      # cl_Days:Crisis + 
                      # cl_Days:NoComp+ +
                      # cl_Days:Veh + 
@@ -3077,6 +3082,10 @@ load("model12B.rdata")
   display(Term_12B)
   
 
+  stargazer::stargazer(CBre_11B,CBre_12B,Term_11B,Term_12B,type="text",
+                       digits=2)
+  
+  
 
 summary_residual_compare(CBre_12A,CBre_12B,Term_12A,Term_12B)
 save(CBre_12B,Term_12B, file="Model12B.RData")
@@ -3094,7 +3103,7 @@ Term Model failed to converge with max|grad| = 0.00135324 (tol = 0.001, componen
   CBre_12C <- glmer (data=crisis_smp,
                    b_CBre ~ Crisis + NoComp + 
                      b_UCA +
-                     OffPl99 + c_OffCri + 
+                     Reach + c_OffCri + 
                      cl_Ceil + 
                      cl_Days + 
                      Veh + 
@@ -3102,8 +3111,8 @@ Term Model failed to converge with max|grad| = 0.00135324 (tol = 0.001, componen
                      Is.Defense + 
                      # NoComp:Crisis +
                      # b_UCA:Crisis + 
-                     # OffPl99:Crisis + 
-                     # OffPl99:NoComp + 
+                     # Reach:Crisis + 
+                     # Reach:NoComp + 
                      # cl_Days:Veh + 
                      # cl_Ceil:Veh +
                      # NoComp:Veh + 
@@ -3115,7 +3124,7 @@ Term Model failed to converge with max|grad| = 0.00135324 (tol = 0.001, componen
                    b_Term ~ Crisis + 
                      b_NoComp + 
                      b_UCA + 
-                     OffPl99 + c_OffCri + 
+                     Reach + c_OffCri + 
                      cl_Ceil + 
                      cl_Days + 
                      Veh +
@@ -3123,9 +3132,9 @@ Term Model failed to converge with max|grad| = 0.00135324 (tol = 0.001, componen
                      Is.Defense + 
                      # Crisis:b_NoComp + 
                      # b_UCA:Crisis + 
-                     # OffPl99:Crisis + 
+                     # Reach:Crisis + 
                      # cl_Ceil:Crisis + 
-                     # cl_Ceil:OffPl99 + 
+                     # cl_Ceil:Reach + 
                      # cl_Days:Crisis + 
                      # cl_Days:NoComp+ +
                      # cl_Days:Veh + 
