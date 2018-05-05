@@ -3377,42 +3377,42 @@ discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_t
 
 load("model15A.rdata")  
 
-  CBre_15A <- glmer (data=crisis_smp,
-                    b_CBre ~ Crisis + NoComp +
-                     b_UCA +
-                     Reach + c_OffCri + 
-                     cl_Ceil + 
-                     cl_Days + 
-                     Veh + 
-                     n_Fixed + 
-                     Is.Defense +
-                      cl_Ceil:NoComp+
-                      cl_Days:NoComp+
-                     cl_Days:Veh+ 
-                     cl_Ceil:Veh+
-                   NoComp:Veh+
-
-                     (1 | PSA), 
-                   family=binomial(link="logit"))
+  # CBre_15A <- glmer (data=crisis_smp,
+  #                   b_CBre ~ Crisis + NoComp +
+  #                    b_UCA +
+  #                    Reach + c_OffCri + 
+  #                    cl_Ceil + 
+  #                    cl_Days + 
+  #                    Veh + 
+  #                    n_Fixed + 
+  #                    Is.Defense +
+  #                     cl_Ceil:NoComp+
+  #                     cl_Days:NoComp+
+  #                    cl_Days:Veh+ 
+  #                    cl_Ceil:Veh+
+  #                  NoComp:Veh+
+  # 
+  #                    (1 | PSA), 
+  #                  family=binomial(link="logit"))
 display(CBre_15A)
 
-  Term_15A <- glmer(data=crisis_smp,
-                   b_Term ~ Crisis +
-                     b_NoComp +
-                     b_UCA +
-                     Reach + c_OffCri +
-                     cl_Ceil +
-                     cl_Days +
-                     Veh +
-                     n_Fixed +
-                     Is.Defense +
-                    cl_Days:b_NoComp+
-                     b_UCA:Crisis+
-                     cl_Days:Veh+
-                     cl_Ceil:Veh+
-                     b_NoComp:Veh+
-                   (1| PSA) ,
-                   family=binomial(link="logit"))
+  # Term_15A <- glmer(data=crisis_smp,
+  #                  b_Term ~ Crisis +
+  #                    b_NoComp +
+  #                    b_UCA +
+  #                    Reach + c_OffCri +
+  #                    cl_Ceil +
+  #                    cl_Days +
+  #                    Veh +
+  #                    n_Fixed +
+  #                    Is.Defense +
+  #                   cl_Days:b_NoComp+
+  #                    b_UCA:Crisis+
+  #                    cl_Days:Veh+
+  #                    cl_Ceil:Veh+
+  #                    b_NoComp:Veh+
+  #                  (1| PSA) ,
+  #                  family=binomial(link="logit"))
 
 
 display(Term_15A)
@@ -3427,7 +3427,7 @@ summary_residual_compare(CBre_11B,CBre_15A,Term_11B,Term_15A)
 
 
 ### 15B: Interactions
-```{r 15B Multilevel w/ Simple + PSA}
+```{r Model15B}
 
 
 load("model15B.rdata")  
@@ -3450,7 +3450,7 @@ load("model15B.rdata")
   #                    # NoComp:Veh + 
   #                    (1 | Simple)+(1 |  PSA), 
   #                  family=binomial(link="logit"))
-  # display(CBre_15B)
+  display(CBre_15B)
   # 
   # Term_15B <- glmer (data=crisis_smp,
   #                  b_Term ~ Crisis + 
@@ -3474,7 +3474,7 @@ load("model15B.rdata")
   #                    # b_NoComp:Veh + 
   #                     (1 |  PSA), 
   #                  family=binomial(link="logit"))
-  # display(Term_15B)
+  display(Term_15B)
   # 
 
 stargazer::stargazer(CBre_11B,CBre_15A,CBre_15B,Term_11B,Term_15A,Term_15B,type="text",
@@ -3490,7 +3490,7 @@ Ceil converges
 Term Model failed to converge with max|grad| = 0.00135324 (tol = 0.001, component 1)
 
 ### 15C: Interactions
-```{r Model 6 Exploration}
+```{r Model15C}
 load("Model15C.RData") #Only have CBre at the moment
 
   # CBre_15C <- glmer (data=crisis_smp,
