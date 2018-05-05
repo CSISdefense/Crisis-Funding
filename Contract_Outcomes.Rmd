@@ -3365,8 +3365,8 @@ summary_residual_compare(CBre_12A,CBre_12C,Term_12A,Term_12C,bins=20)
 ```
 Results were in line with expecatations for terminations but against them for crisis. The VIF proved too high in both cases, leaving this interaction out.
 #Multi-Level Model
-### 22A: Product/Service/R&D and Platform
-```{r Model22A}
+### 15A: Product/Service/R&D and Platform
+```{r Model15A}
 summary(crisis_smp$PSA)
 crisis_smp$PSA<-factor(crisis_smp$PSA)
 #Frequency Plot
@@ -3375,9 +3375,9 @@ freq_discrete_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text
 #Percent Terminated Plot 
 discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-load("model22A.rdata")  
+load("model15A.rdata")  
 
-  CBre_22A <- glmer (data=crisis_smp,
+  CBre_15A <- glmer (data=crisis_smp,
                     b_CBre ~ Crisis + NoComp +
                      b_UCA +
                      Reach + c_OffCri + 
@@ -3394,9 +3394,9 @@ load("model22A.rdata")
 
                      (1 | PSA), 
                    family=binomial(link="logit"))
-display(CBre_22A)
+display(CBre_15A)
 
-  Term_22A <- glmer(data=crisis_smp,
+  Term_15A <- glmer(data=crisis_smp,
                    b_Term ~ Crisis +
                      b_NoComp +
                      b_UCA +
@@ -3415,24 +3415,24 @@ display(CBre_22A)
                    family=binomial(link="logit"))
 
 
-display(Term_22A)
+display(Term_15A)
 # Plot the model and Vehicle 
 
-stargazer::stargazer(CBre_11B,CBre_22A,Term_11B,Term_22A,type="text",
+stargazer::stargazer(CBre_11B,CBre_15A,Term_11B,Term_15A,type="text",
                         digits=2)
-summary_residual_compare(CBre_11B,CBre_22A,Term_11B,Term_22A)
+summary_residual_compare(CBre_11B,CBre_15A,Term_11B,Term_15A)
 
-# save(CBre_22A,Term_22A, file="Model22A.RData")
+# save(CBre_15A,Term_15A, file="Model15A.RData")
 ```
 
 
-### 22B: Interactions
-```{r 22B Multilevel w/ Simple + PSA}
+### 15B: Interactions
+```{r 15B Multilevel w/ Simple + PSA}
 
 
-load("model22B.rdata")  
+load("model15B.rdata")  
 
-  # CBre_22B <- glmer (data=crisis_smp,
+  # CBre_15B <- glmer (data=crisis_smp,
   #                  b_CBre ~ Crisis + NoComp + 
   #                    b_UCA +
   #                    Reach + c_OffCri + 
@@ -3450,9 +3450,9 @@ load("model22B.rdata")
   #                    # NoComp:Veh + 
   #                    (1 | Simple)+(1 |  PSA), 
   #                  family=binomial(link="logit"))
-  # display(CBre_22B)
+  # display(CBre_15B)
   # 
-  # Term_22B <- glmer (data=crisis_smp,
+  # Term_15B <- glmer (data=crisis_smp,
   #                  b_Term ~ Crisis + 
   #                    b_NoComp + 
   #                    b_UCA + 
@@ -3474,14 +3474,14 @@ load("model22B.rdata")
   #                    # b_NoComp:Veh + 
   #                     (1 |  PSA), 
   #                  family=binomial(link="logit"))
-  # display(Term_22B)
+  # display(Term_15B)
   # 
 
-stargazer::stargazer(CBre_11B,CBre_22A,CBre_22B,Term_11B,Term_22A,Term_22B,type="text",
+stargazer::stargazer(CBre_11B,CBre_15A,CBre_15B,Term_11B,Term_15A,Term_15B,type="text",
                         digits=2)
 
-summary_residual_compare(CBre_22A,CBre_22B,Term_22A,Term_22B)
-# save(CBre_22B,Term_22B, file="Model22B.RData")
+summary_residual_compare(CBre_15A,CBre_15B,Term_15A,Term_15B)
+# save(CBre_15B,Term_15B, file="Model15B.RData")
 
 ```
 The use of Comp as 
@@ -3489,11 +3489,11 @@ The use of Comp as
 Ceil converges
 Term Model failed to converge with max|grad| = 0.00135324 (tol = 0.001, component 1)
 
-### 22C: Interactions
+### 15C: Interactions
 ```{r Model 6 Exploration}
-load("Model22C.RData") #Only have CBre at the moment
+load("Model15C.RData") #Only have CBre at the moment
 
-  # CBre_22C <- glmer (data=crisis_smp,
+  # CBre_15C <- glmer (data=crisis_smp,
   #                  b_CBre ~ Crisis + NoComp + 
   #                    b_UCA +
   #                    Reach + c_OffCri + 
@@ -3511,9 +3511,9 @@ load("Model22C.RData") #Only have CBre at the moment
   #                    # NoComp:Veh + 
   #                    (1 | Simple)+(1 |  PSA) + (1|ProdServ), 
   #                  family=binomial(link="logit"))
-  display(CBre_22C)
+  display(CBre_15C)
   # 
-  # Term_22C <- glm (data=crisis_smp,
+  # Term_15C <- glm (data=crisis_smp,
   #                  b_Term ~ Crisis + 
   #                    b_NoComp + 
   #                    b_UCA + 
@@ -3535,12 +3535,12 @@ load("Model22C.RData") #Only have CBre at the moment
   #                    # b_NoComp:Veh+ 
   #                      (1 | Simple)+(1 |  PSA) + (1|ProdServ), 
   #                  family=binomial(link="logit"))
-  # display(Term_22C)
-  stargazer::stargazer(CBre_11B,CBre_22A,CBre_22B,CBre_22C,Term_11B,Term_22A,Term_22B,type="text",
+  # display(Term_15C)
+  stargazer::stargazer(CBre_11B,CBre_15A,CBre_15B,CBre_15C,Term_11B,Term_15A,Term_15B,type="text",
                         digits=2)
 
-summary_residual_compare(CBre_22B,CBre_22C,Term_22A,Term_22B)
-# save(CBre_22C, file="Model22C.RData")
+summary_residual_compare(CBre_15B,CBre_15C,Term_15A,Term_15B)
+# save(CBre_15C, file="Model15C.RData")
 ```
 
 CBre_12C Model failed to converge with max|grad| = 0.0103776 (tol = 0.001, component 1)
