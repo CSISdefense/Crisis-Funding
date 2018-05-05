@@ -175,78 +175,78 @@ load("Data\\crisis_smp.Rdata")
 
 
 
-large_crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Dis","OCO"),]
-other_intl<-fed[fed$Crisis %in% c("Other")&fed$OffIntl>=0.5,]
-other_dom<-fed[fed$Crisis %in% c("Other")&(fed$OffIntl<0.5
-                                           |is.na(fed$OffIntl)),]
-other_dom<-other_dom[sample(nrow(other_dom),300000),]
-other_intl<-other_intl[sample(nrow(other_intl),300000),]
-large_crisis_with_na<-rbind(large_crisis_with_na,other_dom,other_intl)
-rm(other_dom,other_intl)
-large_crisis_with_na$OffCri<-large_crisis_with_na$CrisisPercent
-large_crisis_with_na$ProductOrServiceCode<-as.character(large_crisis_with_na$ProdServ)
-  large_crisis_with_na<-csis360::read_and_join( large_crisis_with_na,
-                               "ProductOrServiceCodes.csv",                             path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-                               directory="",
-                               by="ProductOrServiceCode",
-                               add_var=c("Simple",
-                                         "ProductServiceOrRnDarea",
-                                         "ProductOrServiceArea"),
-                               new_var_checked=FALSE)
-large_crisis_with_na$ProductServiceOrRnDarea<-factor(large_crisis_with_na$ProductServiceOrRnDarea)
-large_crisis_with_na$ProductOrServiceArea<-factor(large_crisis_with_na$ProductOrServiceArea)
-summary(large_crisis_with_na$ProductServiceOrRnDarea)
-summary(large_crisis_with_na$ProductOrServiceArea)
-# summary(large_crisis_with_na$b_Comp )
-# summary(large_crisis_with_na$n_Comp )
-# summary(large_crisis_with_na$Comp )
-# summary(large_crisis_with_na$CompOffr )
-# summary(large_crisis_with_na$EffComp )
-
-large_crisis_with_na$b_NoComp<-!large_crisis_with_na$b_Comp
-
-complete<-!is.na(large_crisis_with_na$b_Term)&
-  !is.na(large_crisis_with_na$b_CBre)&
-  !is.na(large_crisis_with_na$b_Comp)&
-  !is.na(large_crisis_with_na$b_Urg)&
-  !is.na(large_crisis_with_na$l_Ceil)&
-  !is.na(large_crisis_with_na$l_Days)&
-  !is.na(large_crisis_with_na$Veh) &
-  !is.na(large_crisis_with_na$n_Fixed)&
-  !is.na(large_crisis_with_na$b_Intl)&
-  !is.na(large_crisis_with_na$b_UCA)&
-  !is.na(large_crisis_with_na$ProdServ)&
-  !is.na(large_crisis_with_na$Crisis)&
-  !is.na(large_crisis_with_na$Office)&
-!is.na(large_crisis_with_na$OffCri)&
-  !is.na(large_crisis_with_na$OffIntl)&
-  !is.na(large_crisis_with_na$Is.Defense)&
-  !is.na(large_crisis_with_na$ProductOrServiceArea)
-  # !is.na(large_crisis_with_na$cl_HHI_lag1)
-large_crisis_smp<-large_crisis_with_na[complete,]
-# summary(large_crisis_with_na$Crisis)
+# large_crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Dis","OCO"),]
+# other_intl<-fed[fed$Crisis %in% c("Other")&fed$OffIntl>=0.5,]
+# other_dom<-fed[fed$Crisis %in% c("Other")&(fed$OffIntl<0.5
+#                                            |is.na(fed$OffIntl)),]
+# other_dom<-other_dom[sample(nrow(other_dom),300000),]
+# other_intl<-other_intl[sample(nrow(other_intl),300000),]
+# large_crisis_with_na<-rbind(large_crisis_with_na,other_dom,other_intl)
+# rm(other_dom,other_intl)
+# large_crisis_with_na$OffCri<-large_crisis_with_na$CrisisPercent
+# large_crisis_with_na$ProductOrServiceCode<-as.character(large_crisis_with_na$ProdServ)
+#   large_crisis_with_na<-csis360::read_and_join( large_crisis_with_na,
+#                                "ProductOrServiceCodes.csv",                             path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+#                                directory="",
+#                                by="ProductOrServiceCode",
+#                                add_var=c("Simple",
+#                                          "ProductServiceOrRnDarea",
+#                                          "ProductOrServiceArea"),
+#                                new_var_checked=FALSE)
+# large_crisis_with_na$ProductServiceOrRnDarea<-factor(large_crisis_with_na$ProductServiceOrRnDarea)
+# large_crisis_with_na$ProductOrServiceArea<-factor(large_crisis_with_na$ProductOrServiceArea)
+# summary(large_crisis_with_na$ProductServiceOrRnDarea)
+# summary(large_crisis_with_na$ProductOrServiceArea)
+# # summary(large_crisis_with_na$b_Comp )
+# # summary(large_crisis_with_na$n_Comp )
+# # summary(large_crisis_with_na$Comp )
+# # summary(large_crisis_with_na$CompOffr )
+# # summary(large_crisis_with_na$EffComp )
 # 
-
-large_crisis_smp$OffPl99<-Hmisc::cut2(large_crisis_smp$OffIntl,c(0.01,0.50))
-summary(large_crisis_smp$OffPl99)
-  levels(large_crisis_smp$OffPl99) <-
-    list("US99"=c("[0.00,0.01)"),
-         "Mixed"=c("[0.01,0.50)"),
-         "Intl"=c("[0.50,1.00]"))
-  large_crisis_smp$Reach<-factor(paste(large_crisis_smp$OffPl99,large_crisis_smp$Intl,sep="-"))
-
-  
-     levels(crisis_smp$Reach) <-
-    list( "US50-Dom"=c("US99-Just U.S.","Mixed-Just U.S."),
-         "Mixed-Dom"=c(),
-         "Intl-Dom"=c("Intl-Just U.S."),
-         "US50-Intl"=c("Mixed-Any International","US99-Any International"),
-         "Intl-Intl"=c("Intl-Any International"))
-
-large_crisis_smp$PSA<-as.character(large_crisis_smp$ProductOrServiceArea)
-large_crisis_smp$PSA<-gsub(" & ","+",large_crisis_smp$PSA)
-
-
+# large_crisis_with_na$b_NoComp<-!large_crisis_with_na$b_Comp
+# 
+# complete<-!is.na(large_crisis_with_na$b_Term)&
+#   !is.na(large_crisis_with_na$b_CBre)&
+#   !is.na(large_crisis_with_na$b_Comp)&
+#   !is.na(large_crisis_with_na$b_Urg)&
+#   !is.na(large_crisis_with_na$l_Ceil)&
+#   !is.na(large_crisis_with_na$l_Days)&
+#   !is.na(large_crisis_with_na$Veh) &
+#   !is.na(large_crisis_with_na$n_Fixed)&
+#   !is.na(large_crisis_with_na$b_Intl)&
+#   !is.na(large_crisis_with_na$b_UCA)&
+#   !is.na(large_crisis_with_na$ProdServ)&
+#   !is.na(large_crisis_with_na$Crisis)&
+#   !is.na(large_crisis_with_na$Office)&
+# !is.na(large_crisis_with_na$OffCri)&
+#   !is.na(large_crisis_with_na$OffIntl)&
+#   !is.na(large_crisis_with_na$Is.Defense)&
+#   !is.na(large_crisis_with_na$ProductOrServiceArea)
+#   # !is.na(large_crisis_with_na$cl_HHI_lag1)
+# large_crisis_smp<-large_crisis_with_na[complete,]
+# # summary(large_crisis_with_na$Crisis)
+# # 
+# 
+# large_crisis_smp$OffPl99<-Hmisc::cut2(large_crisis_smp$OffIntl,c(0.01,0.50))
+# summary(large_crisis_smp$OffPl99)
+#   levels(large_crisis_smp$OffPl99) <-
+#     list("US99"=c("[0.00,0.01)"),
+#          "Mixed"=c("[0.01,0.50)"),
+#          "Intl"=c("[0.50,1.00]"))
+#   large_crisis_smp$Reach<-factor(paste(large_crisis_smp$OffPl99,large_crisis_smp$Intl,sep="-"))
+# 
+#   
+#      levels(crisis_smp$Reach) <-
+#     list( "US50-Dom"=c("US99-Just U.S.","Mixed-Just U.S."),
+#          "Mixed-Dom"=c(),
+#          "Intl-Dom"=c("Intl-Just U.S."),
+#          "US50-Intl"=c("Mixed-Any International","US99-Any International"),
+#          "Intl-Intl"=c("Intl-Any International"))
+# 
+# large_crisis_smp$PSA<-as.character(large_crisis_smp$ProductOrServiceArea)
+# large_crisis_smp$PSA<-gsub(" & ","+",large_crisis_smp$PSA)
+# 
+# save(large_crisis_smp,large_crisis_with_na,file="Data\\large_crisis_smp.Rdata")
 ```
 
 The sample is created by including the entirity of the ARRA and Disaster datasets, as well as 100,000 records each from the OCO datase and another 100,000 from all remaining records.
@@ -1490,7 +1490,7 @@ Contract ceiling has a significant relationship, though the residuals show a pos
 
 Expectation: Crisis contracting will magnify the risk of large contracts and thus the interaction positively estimates increasing probability of ceiling breaches and terminations.
 
-```{r Model05B, fig.height = 10, fig.width = 6.5}
+```{r Model05B}
 
 
 summary_continuous_plot(crisis_smp,"l_Ceil","Crisis")
@@ -3029,73 +3029,72 @@ Expectations are partially upheld, though particularly for military platform rel
 
 
 ### 11C: Product or Service Code
-Expectation: Complex or higher risk product or service caregories will have a positive estimate with the probability of ceiling breaches and terminations. 
+Expectation: Complex or higher risk product or service caregories will have a positive estimate with the probability of ceiling breaches and terminations. This ran into memory areas and did not run successfully.
 ```{r Model11C}
+# corrdisp<-Hmisc::rcorr(
+#   as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,c_OffCri,cl_Ceil,
+#                                             cl_Days,n_Fixed,b_Intl)),
+#                        dummies::dummy(crisis_smp$Crisis),
+#                        dummies::dummy(crisis_smp$NoComp),
+#                        dummies::dummy(crisis_smp$Reach),
+#                        dummies::dummy(crisis_smp$Veh),
+#                                     dummies::dummy(crisis_smp$Is.Defense),
+#                   dummies::dummy(crisis_smp$ProdServ))))
+# corrdisp[[1]]
+# 
+# 
 
-corrdisp<-Hmisc::rcorr(
-  as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,c_OffCri,cl_Ceil,
-                                            cl_Days,n_Fixed,b_Intl)),
-                       dummies::dummy(crisis_smp$Crisis),
-                       dummies::dummy(crisis_smp$NoComp),
-                       dummies::dummy(crisis_smp$Reach),
-                       dummies::dummy(crisis_smp$Veh),
-                                    dummies::dummy(crisis_smp$Is.Defense),
-                  dummies::dummy(crisis_smp$ProdServ))))
-corrdisp[[1]]
 
+  # CBre_11C <-  glm (data=crisis_smp,
+  #                  b_CBre ~ Crisis +NoComp +
+  #                    b_UCA+
+  #                    Reach+ c_OffCri+  
+  #                    cl_Ceil+
+  #                    cl_Days+
+  #                    Veh+
+  #                    n_Fixed +
+  #                    Is.Defense +
+  #                   cl_Ceil:NoComp+cl_Days:NoComp+
+  #                    cl_Days:Veh+ 
+  #                    cl_Ceil:Veh+
+  #                  NoComp:Veh+
+  #                  ProdServ, 
+  #                  family=binomial(link="logit"))
 
-
-
-  CBre_11C <-  glm (data=crisis_smp,
-                   b_CBre ~ Crisis +NoComp +
-                     b_UCA+
-                     Reach+ c_OffCri+  
-                     cl_Ceil+
-                     cl_Days+
-                     Veh+
-                     n_Fixed +
-                     Is.Defense +
-                    cl_Ceil:NoComp+cl_Days:NoComp+
-                     cl_Days:Veh+ 
-                     cl_Ceil:Veh+
-                   NoComp:Veh+
-                   ProdServ, 
-                   family=binomial(link="logit"))
-  display(CBre_11C)
   
-  Term_11C <-  glm (data=crisis_smp,
-                   b_Term ~ Crisis +b_NoComp+
-                     b_UCA+
-                     Reach+ c_OffCri+
-                    cl_Ceil+
-                     cl_Days+
-                     Veh+
-                     n_Fixed +
-                     Is.Defense +
-                    cl_Days:b_NoComp+
-                     b_UCA:Crisis+
-                     cl_Days:Veh+ 
-                     cl_Ceil:Veh+
-                     b_NoComp:Veh+
-                   ProdServ, 
-                   family=binomial(link="logit"))
-  display(Term_11C)
-  
-
-  stargazer::stargazer(CBre_11B,CBre_11C,Term_11B,Term_11C,type="text",
-                       digits=2)
-  
-  
-
-summary_residual_compare(CBre_10A,CBre_11C,Term_10A,Term_11C,bins=20)
-
-texreg::htmlreg(list(CBre_11C,
-                     Term_11C),file="CrisisModel.html",single.row = TRUE,
-                custom.model.name=c("Ceiling Breach",
-                                    "Complete\nand Partial\nTermination"
-                                    ),
-                        stars=c(0.05))
-summary(factor(crisis_smp$PSA))
+  # Term_11C <-  glm (data=crisis_smp,
+  #                  b_Term ~ Crisis +b_NoComp+
+  #                    b_UCA+
+  #                    Reach+ c_OffCri+
+  #                   cl_Ceil+
+  #                    cl_Days+
+  #                    Veh+
+  #                    n_Fixed +
+  #                    Is.Defense +
+  #                   cl_Days:b_NoComp+
+  #                    b_UCA:Crisis+
+  #                    cl_Days:Veh+ 
+  #                    cl_Ceil:Veh+
+  #                    b_NoComp:Veh+
+  #                  ProdServ, 
+  #                  family=binomial(link="logit"))
+#   display(Term_11C)
+#   
+# 
+#   stargazer::stargazer(CBre_11B,CBre_11C,Term_11B,Term_11C,type="text",
+#                        digits=2)
+#   
+#   
+# 
+# summary_residual_compare(CBre_10A,CBre_11C,Term_10A,Term_11C,bins=20)
+# 
+# texreg::htmlreg(list(CBre_11C,
+#                      Term_11C),file="CrisisModel.html",single.row = TRUE,
+#                 custom.model.name=c("Ceiling Breach",
+#                                     "Complete\nand Partial\nTermination"
+#                                     ),
+#                         stars=c(0.05))
+# summary(factor(crisis_smp$PSA))
 ```
 
 
@@ -3183,7 +3182,7 @@ Including Product/Service/R&D or Product or Service Area both removed the signif
   stargazer::stargazer(CBre_11D,CBre_11E,type="text",
                        digits=2)
   
-summary_residual_compare(CBre_11D,CBre_11E,Term_11B,Term_11C,bins=30)
+summary_residual_compare(CBre_11D,CBre_11E,Term_11B,Term_11D,bins=30)
 
 ```
 The deviance reduction provided by Ceil:Comp remains significance, and without it, Comp/No Other loses significance. Leaving it in for now.
