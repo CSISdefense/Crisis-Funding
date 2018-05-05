@@ -2945,7 +2945,7 @@ summary_discrete_plot(crisis_smp,"PSA")
   
 
 
-  stargazer::stargazer(CBre_11A,CBre_11B,CBre_11B,CBre_11B,type="text",
+  stargazer::stargazer(CBre_11A,CBre_11B,Term_11A,Term_11B,type="text",
                        digits=2)
 summary_residual_compare(CBre_11A,CBre_11B,Term_11A,Term_11B,bins=20)
 
@@ -2956,71 +2956,71 @@ Expectations are partially upheld, though particularly for military platform rel
 ### 11C: Product or Service Code
 Expectation: Complex or higher risk product or service caregories will have a positive estimate with the probability of ceiling breaches and terminations. 
 ```{r Model11C}
-# 
-# corrdisp<-Hmisc::rcorr(
-#   as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,c_OffCri,cl_Ceil,
-#                                             cl_Days,n_Fixed,b_Intl)),
-#                        dummies::dummy(crisis_smp$Crisis),
-#                        dummies::dummy(crisis_smp$NoComp),
-#                        dummies::dummy(crisis_smp$Reach),
-#                        dummies::dummy(crisis_smp$Veh),
-#                                     dummies::dummy(crisis_smp$Is.Defense),
-#                   dummies::dummy(crisis_smp$ProdServ))))
-# corrdisp[[1]]
-# 
-# 
-# 
-# 
-#   CBre_11C <-  glm (data=crisis_smp,
-#                    b_CBre ~ Crisis +NoComp +
-#                      b_UCA+
-#                      Reach+ c_OffCri+  
-#                      cl_Ceil+
-#                      cl_Days+
-#                      Veh+
-#                      n_Fixed +
-#                      Is.Defense +
-#                     cl_Ceil:NoComp+cl_Days:NoComp+
-#                      cl_Days:Veh+ 
-#                      cl_Ceil:Veh+
-#                    NoComp:Veh+
-#                    ProdServ, 
-#                    family=binomial(link="logit"))
-#   display(CBre_11C)
-#   
-#   Term_11C <-  glm (data=crisis_smp,
-#                    b_Term ~ Crisis +b_NoComp+
-#                      b_UCA+
-#                      Reach+ c_OffCri+
-#                     cl_Ceil+
-#                      cl_Days+
-#                      Veh+
-#                      n_Fixed +
-#                      Is.Defense +
-#                     cl_Days:b_NoComp+
-#                      b_UCA:Crisis+
-#                      cl_Days:Veh+ 
-#                      cl_Ceil:Veh+
-#                      b_NoComp:Veh+
-#                    ProdServ, 
-#                    family=binomial(link="logit"))
-#   display(Term_11C)
-#   
-# 
-#   stargazer::stargazer(CBre_11B,CBre_11C,Term_11B,Term_11C,type="text",
-#                        digits=2)
-#   
-#   
-# 
-# summary_residual_compare(CBre_10A,CBre_11C,Term_10A,Term_11C,bins=20)
-# 
-# texreg::htmlreg(list(CBre_11C,
-#                      Term_11C),file="CrisisModel.html",single.row = TRUE,
-#                 custom.model.name=c("Ceiling Breach",
-#                                     "Complete\nand Partial\nTermination"
-#                                     ),
-#                         stars=c(0.05))
-# summary(factor(crisis_smp$PSA))
+
+corrdisp<-Hmisc::rcorr(
+  as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,c_OffCri,cl_Ceil,
+                                            cl_Days,n_Fixed,b_Intl)),
+                       dummies::dummy(crisis_smp$Crisis),
+                       dummies::dummy(crisis_smp$NoComp),
+                       dummies::dummy(crisis_smp$Reach),
+                       dummies::dummy(crisis_smp$Veh),
+                                    dummies::dummy(crisis_smp$Is.Defense),
+                  dummies::dummy(crisis_smp$ProdServ))))
+corrdisp[[1]]
+
+
+
+
+  CBre_11C <-  glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ c_OffCri+  
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   ProdServ, 
+                   family=binomial(link="logit"))
+  display(CBre_11C)
+  
+  Term_11C <-  glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     Reach+ c_OffCri+
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh+
+                   ProdServ, 
+                   family=binomial(link="logit"))
+  display(Term_11C)
+  
+
+  stargazer::stargazer(CBre_11B,CBre_11C,Term_11B,Term_11C,type="text",
+                       digits=2)
+  
+  
+
+summary_residual_compare(CBre_10A,CBre_11C,Term_10A,Term_11C,bins=20)
+
+texreg::htmlreg(list(CBre_11C,
+                     Term_11C),file="CrisisModel.html",single.row = TRUE,
+                custom.model.name=c("Ceiling Breach",
+                                    "Complete\nand Partial\nTermination"
+                                    ),
+                        stars=c(0.05))
+summary(factor(crisis_smp$PSA))
 ```
 
 
@@ -3305,19 +3305,19 @@ load("model22A.rdata")
   CBre_22A <- glmer (data=crisis_smp,
                     b_CBre ~ Crisis + NoComp +
                      b_UCA +
-                     Reach + c_OffCri +
-                     cl_Ceil +
-                     cl_Days +
-                     Veh +
-                     n_Fixed +
+                     Reach + c_OffCri + 
+                     cl_Ceil + 
+                     cl_Days + 
+                     Veh + 
+                     n_Fixed + 
                      Is.Defense +
-                     NoComp:Crisis +
-                     b_UCA:Crisis +
+                      cl_Ceil:NoComp+
+                      cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
 
-                     cl_Days:Veh +
-                     cl_Ceil:Veh +
-                     NoComp:Veh +
-                     (1 | PSA),
+                     (1 | PSA), 
                    family=binomial(link="logit"))
 display(CBre_22A)
 
