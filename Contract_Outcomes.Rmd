@@ -1439,7 +1439,7 @@ The model starts by examing the influence of large ceilings on contracts, the co
 
 Expectation: Initial Ceiling size positively estimates increasing probability of ceiling breaches and terminations.
 
-```{r Model05A, fig.height = 6.5, fig.width = 6.5}
+```{r Model05A}
 #Frequency Plot for unlogged ceiling
 freq_continuous_cbre_plot(crisis_smp,"UnmodifiedContractBaseAndAllOptionsValue",
                bins=1000)
@@ -1485,6 +1485,50 @@ summary_residual_compare(CBre_04E,CBre_05A,Term_04E,Term_05A,bins=NA)
 Expectations were upheld. The addition of the new variable did raise the VIF for both No Competition and for UCA. Ceiling itself has no challenges, so instead we will drop UCA:Crisis for Ceiling Breaches, because the study team did not find a clear rationale for that connection in the literature.
 
 Contract ceiling has a significant relationship, though the residuals show a possible non-linear patterns. This is most remarkable in the positive centered values between 0 and 1. This may be driven  by a missing value and is worth watching.
+
+
+```{r Model05A}
+#Frequency Plot for unlogged ceiling
+freq_continuous_cbre_plot(crisis_smp,"UnmodifiedContractBaseAndAllOptionsValue",
+               bins=1000)
+freq_continuous_cbre_plot(subset(crisis_smp,UnmodifiedContractBaseAndAllOptionsValue<100000000),
+               "UnmodifiedContractBaseAndAllOptionsValue",
+               bins=1000)
+
+summary_continuous_plot(crisis_smp,"l_Ceil",bins=50)
+summary(crisis_smp$l_Ceil)
+
+str(crisis_smp)
+#Model
+CBre_05A <- glm (data=crisis_smp,
+                 b_CBre ~ Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+
+                   Crisis:NoComp+
+                   b_UCA:Crisis, 
+                 family=binomial(link="logit"))
+display(CBre_05A)
+
+Term_05A <- glm (data=crisis_smp,
+                 b_Term ~ Crisis +b_NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+
+                   b_NoComp:Crisis+
+                   b_UCA:Crisis, 
+                 family=binomial(link="logit"))
+display(Term_05A)
+
+
+
+stargazer::stargazer(CBre_04E,CBre_05A,Term_04E,Term_05A,type="text",
+                     digits=2)
+
+summary_residual_compare(CBre_04E,CBre_05A,Term_04E,Term_05A,bins=NA)
+
+
+```
 
 
 
@@ -1667,6 +1711,158 @@ summary_residual_compare(CBre_05B,CBre_05E,Term_05B,Term_05E)
 ```
 For ceiling breaches, the somewhat complex and weak expectations are supported. No competition significantly and positively estimates a higher rate of ceiling breaches and terminations, however, this is countered by the interaction of competition and ceiling size. For terminations, the sign does not flip to positive for competition and the VIF exceeds 2.0. Leaving it out for terminations.
 
+#### 05F: Square Root of Ceiling
+```{r Model05F}
+#Frequency Plot for unlogged ceiling
+crisis_smp$sqrt_ceil<-sqrt(crisis_smp$UnmodifiedContractBaseAndAllOptionsValue)
+crisis_smp$csqrt_ceil<-scale(crisis_smp$sqrt_ceil)
+freq_continuous_cbre_plot(crisis_smp,"sqrt_ceil",
+               bins=1000)
+
+summary_continuous_plot(crisis_smp,"csqrt_ceil",bins=50)
+summary(crisis_smp$l_Ceil)
+
+str(crisis_smp)
+#Model
+CBre_05F <- glm (data=crisis_smp,
+                 b_CBre ~ Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+csqrt_ceil+
+                   Crisis:NoComp+
+                   b_UCA:Crisis, 
+                 family=binomial(link="logit"))
+display(CBre_05F)
+
+Term_05F <- glm (data=crisis_smp,
+                 b_Term ~ Crisis +b_NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+csqrt_ceil+
+                   b_NoComp:Crisis+
+                   b_UCA:Crisis, 
+                 family=binomial(link="logit"))
+display(Term_05F)
+
+
+
+stargazer::stargazer(CBre_05A,CBre_05F,Term_05B,Term_05F,type="text",
+                     digits=2,keep.stat=c("n","aic","res.dev","null.dev"))
+
+summary_residual_compare(CBre_05B,CBre_05F,Term_05B,Term_05F)
+
+```
+This addition magnifies residuals, the opposite of the desired effect. Leaving it out.
+
+#### 05G: Addressing the right skew of the data
+The challenges in the residuals for ceiling prompt a closer look at the data. 
+
+```{r Explore05G}
+
+
+freq_continuous_plot(crisis_smp,"l_Ceil",
+               bins=100)+geom_vline(xintercept=log(2500))
+
+freq_continuous_plot(crisis_smp,"l_Ceil","Veh",
+               bins=100)+geom_vline(xintercept=log(2500))
+
+binned_percent_plot(crisis_smp,"l_Ceil",bins=100)+
+  geom_vline(xintercept=log(2500))+
+  geom_vline(xintercept=log(150000))
+
+binned_percent_plot(crisis_smp,"l_Ceil","Veh",bins=100)+
+  geom_vline(xintercept=log(2500))+
+  geom_vline(xintercept=log(150000))
+```
+Two vertical lines are added to this plot, one for the lowest micro-purchase threshold during this period USD2,500. The other is the low end simplified acquisiton threshold, at USD150,000. Both of these have subsequently been raised and vary situationally. However, for simplicity the model is using the low and generally applicable value for categorization. This has a possible risk of colinearity, as it is derived from the input ceiling.
+
+Expectation: Surpassing the microtransaction threshold and the simplified acquisition threshold mandates additional regulatory requirements and also scrutiny. Contracts that exceed them are thus likely to have a greater irreducible complexity that prevented use of smaller contracting forms. The study team expects that the lower thresholds will negatively estimate the probability of ceiling breaches and terminations.
+
+```{r Model05G}
+crisis_smp$thresh<-Hmisc::cut2(crisis_smp$UnmodifiedContractBaseAndAllOptionsValue,c(2500,15000))
+
+levels(crisis_smp$thresh)<-c("25C","150K","Above")
+crisis_smp$thresh<-factor(crisis_smp$thresh,levels=c("Above","150K","25C"))
+
+
+summary(crisis_smp$thresh)
+summary_discrete_plot(crisis_smp,"thresh")
+
+
+
+#Model
+CBre_05G <- glm (data=crisis_smp,
+                 b_CBre ~  Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+thresh+
+                   cl_Ceil:NoComp,  
+                 family=binomial(link="logit"))
+display(CBre_05G)
+
+Term_05G <- glm (data=crisis_smp,
+                  b_Term ~ Crisis +b_NoComp+
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+thresh+
+                   b_NoComp:Crisis+
+                   b_UCA:Crisis+
+                   
+                   cl_Ceil:Crisis, 
+                 family=binomial(link="logit"))
+display(Term_05G)
+
+
+
+stargazer::stargazer(CBre_05E,CBre_05G,Term_05B,Term_05G,type="text",
+                     digits=2,keep.stat=c("n","aic","res.dev","null.dev"))
+
+summary_residual_compare(CBre_05E,CBre_05G,Term_05B,Term_05G)
+
+```
+The results do not aligne with expectations, with the exception of terminations for contracts between the 2,500 and 150,000 for terminations. For these dummy variables to work, they apparently must be considered in interaction with the ceiling. This in essence would allow for a different slope for ceiling in each of the three categories.
+
+This causes cl_Ceil VIF to exceed 2, and thus it must be removed.
+
+#### 05H: Threshold and ceiling interaction
+
+```{r Model05H}
+summary_continuous_plot(crisis_smp,"cl_ceil","thresh")
+
+
+
+#Model
+CBre_05H <- glm (data=crisis_smp,
+                 b_CBre ~  Crisis +NoComp +
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+thresh+
+                   cl_Ceil:NoComp+
+                   cl_Ceil:thresh,  
+                 family=binomial(link="logit"))
+display(CBre_05H)
+
+Term_05H <- glm (data=crisis_smp,
+                  b_Term ~ Crisis +b_NoComp+
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+thresh+
+                   b_NoComp:Crisis+
+                   b_UCA:Crisis+
+                   cl_Ceil:Crisis+
+                   cl_Ceil:thresh, 
+                 family=binomial(link="logit"))
+display(Term_05H)
+
+
+
+stargazer::stargazer(CBre_05E,CBre_05G,CBre_05H,Term_05B,Term_05G,Term_05H,type="text",
+                     digits=2,keep.stat=c("n","aic","res.dev","null.dev"))
+
+summary_residual_compare(CBre_05E,CBre_05H,Term_05B,Term_05H)
+summary_residual_compare(CBre_05G,CBre_05H,Term_05G,Term_05H)
+
+```
 
 ### Maximum Duration
 #### 06A: Maximum Duration
@@ -3430,12 +3626,12 @@ summary_residual_compare(CBre_12A,CBre_13A,Term_12A,Term_13A,bins=20)
 ```
 The results ran contrary to expectations and ran into VIF problems when combined with reach:Crisis and even on their own for terminations. Leaving this out.
 
-### 13B: Defense and Product or Service Area
+### 13B: Defense and Crisis
 
-Expectation: Some categories, specifically weapons and launchers, already likely heavily overlap with defense so the results will not be especailly illuminating. However, for advanced weapon systems, ships, planes, land vehicles, R&D, and professional and managerial services interaction with defense will positively estimate the probability of ceiling breaches and terminations. However, the DoD also has a well established global logistics chain, and for commodities, Defense will negatively estimate the probability of ceiling breaches and terminations. 
+Expectation: The relationship could run either way. One the one hand, DoD tends to operate in less permissive environments. On the other, the organization is more attuned to handling crisis and the challenging logistics of these situations and also has considerable advantages of scale. Leaning on the latter idea, the study team expects that the interaction of Defense and Crisis will negatively estimate the probability of ceiling breaches and terminations.
 
-```{r Model3A}
-    summary_discrete_plot(crisis_smp,"Reach","Is.Defense")
+```{r Model13B}
+    summary_discrete_plot(crisis_smp,"Crisis","Is.Defense")
 
 
 #Create the model
@@ -3455,7 +3651,7 @@ Expectation: Some categories, specifically weapons and launchers, already likely
                    NoComp:Veh+
                    PSA+
                      Reach:Crisis+
-                     Reach:Is.Defense, 
+                     Crisis:Is.Defense, 
                    family=binomial(link="logit"))
   display(CBre_13B)
   
@@ -3476,7 +3672,7 @@ Expectation: Some categories, specifically weapons and launchers, already likely
                      b_NoComp:Veh+
                    PSA+
                      Reach:Crisis+
-                     Reach:Is.Defense, 
+                     Crisis:Is.Defense, 
                    family=binomial(link="logit"))
   display(Term_13B)
   
@@ -3484,10 +3680,24 @@ Expectation: Some categories, specifically weapons and launchers, already likely
 
   stargazer::stargazer(CBre_12A,CBre_13B,Term_12A,Term_13B,type="text",
                        digits=2)
+  debug(summary_residual_compare)
 summary_residual_compare(CBre_12A,CBre_13B,Term_12A,Term_13B,bins=20)
 
 
-  CBre_13B2 <- glm (data=crisis_smp,
+```
+The outcome proved to vary by type of crisis. The expectation held for OCO ceiling breaches, but not for disasters or fror ARRA. For Terminations, expectations were largerly thwarted, with the exception of disasters where the termination rate was lower.
+
+### 13C: Defense and Competiion
+Expectation: The market for Defense goods is more of a monosopy than other forms of contracting, as a result, the benefits of competition may be less pronounced. The study team expects that the interaction of defense and no competition will negatively estimate the probability of ceiling breaches and terminations while no competition alone will positively estimate the same.
+
+
+```{r Model13C}
+    summary_discrete_plot(crisis_smp,"Crisis","Is.Defense")
+
+
+#Create the model
+
+  CBre_13C <- glm (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      Reach+ 
@@ -3501,11 +3711,12 @@ summary_residual_compare(CBre_12A,CBre_13B,Term_12A,Term_13B,bins=20)
                      cl_Ceil:Veh+
                    NoComp:Veh+
                    PSA+
-                     Reach:Is.Defense, 
+                     Reach:Crisis+
+                     Crisis:Is.Defense, 
                    family=binomial(link="logit"))
-  display(CBre_13B2)
+  display(CBre_13C)
   
-  Term_13B2 <- glm (data=crisis_smp,
+  Term_13C <- glm (data=crisis_smp,
                    b_Term ~ Crisis +b_NoComp+
                      b_UCA+
                      c_OffCri+
@@ -3521,17 +3732,85 @@ summary_residual_compare(CBre_12A,CBre_13B,Term_12A,Term_13B,bins=20)
                      cl_Ceil:Veh+
                      b_NoComp:Veh+
                    PSA+
-                     Reach:Is.Defense, 
+                     Reach:Crisis+
+                     Crisis:Is.Defense, 
                    family=binomial(link="logit"))
-  display(Term_13B2)
+  display(Term_13C)
   
-  stargazer::stargazer(CBre_12A,CBre_13B2,Term_12A,Term_13B2,type="text",
-                       digits=2)
-  summary_residual_compare(CBre_12A,CBre_13B2,Term_12A,Term_13B2,bins=20)
 
+
+  stargazer::stargazer(CBre_12A,CBre_13C,Term_12A,Term_13C,type="text",
+                       digits=2)
+  debug(summary_residual_compare)
+summary_residual_compare(CBre_12A,CBre_13C,Term_12A,Term_13C,bins=20)
+
+
+```
+
+##Product or Service Area
+### 14A: Defense and Product or Service Area
+
+Expectation: Some categories, specifically weapons and launchers, already likely heavily overlap with defense so the results will not be especailly illuminating. However, for advanced weapon systems, ships, planes, land vehicles, R&D, and professional and managerial services interaction with defense will positively estimate the probability of ceiling breaches and terminations. However, the DoD also has a well established global logistics chain, and for commodities, Defense will negatively estimate the probability of ceiling breaches and terminations. 
+
+```{r Model3A}
+    summary_discrete_plot(crisis_smp,"Reach","Is.Defense")
+
+
+#Create the model
+
+  CBre_14A <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense+
+                     PSA:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(CBre_14A)
+  
+  Term_14A <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense+
+                     PSA:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(Term_14A)
+  
+
+
+  stargazer::stargazer(CBre_12A,CBre_14A,Term_12A,Term_14A,type="text",
+                       digits=2)
+summary_residual_compare(CBre_12A,CBre_14A,Term_12A,Term_14A,bins=20)
 
   
 ```
+VIF proves off the charts. This interaction will be drpopped.
+
+### 14B: Fixed-Price and Product or Service Area
 
 #Multi-Level Model
 ### 15A: Product/Service/R&D and Platform
