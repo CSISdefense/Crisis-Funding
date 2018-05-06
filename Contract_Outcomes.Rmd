@@ -3201,7 +3201,7 @@ Midway through the model building, the study team switched to an approach of fir
 ### 12A: Crisis and Reachback
 Expectation: Reachback contracting is not particularly important for ARRA. However, the interactions of disasters and OCO with US50-Intl should negatively estimate the risk of ceiling breaches and terminations
 
-```{r Model12A}
+```{r Model2A}
 
 
 #Create the model
@@ -3369,6 +3369,170 @@ summary_residual_compare(CBre_12A,CBre_12C,Term_12A,Term_12C,bins=20)
 
 ```
 Results were in line with expecatations for terminations but against them for crisis. The VIF proved too high in both cases, leaving this interaction out.
+## Customer Interactions
+### 13A: Defense and Reachback
+
+Expectation: The reachback concept originated with the Department of Defense. The interaction of international reachback contracting and defense will positively estimate the probability of ceiling breaches and terminations.
+
+```{r Model3A}
+    summary_discrete_plot(crisis_smp,"Reach","Is.Defense")
+
+
+#Create the model
+
+  CBre_13A <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Reach:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(CBre_13A)
+  
+  Term_13A <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Reach:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(Term_13A)
+  
+
+
+  stargazer::stargazer(CBre_12A,CBre_13A,Term_12A,Term_13A,type="text",
+                       digits=2)
+summary_residual_compare(CBre_12A,CBre_13A,Term_12A,Term_13A,bins=20)
+
+
+```
+The results ran contrary to expectations and ran into VIF problems when combined with reach:Crisis and even on their own for terminations. Leaving this out.
+
+### 13B: Defense and Product or Service Area
+
+Expectation: Some categories, specifically weapons and launchers, already likely heavily overlap with defense so the results will not be especailly illuminating. However, for advanced weapon systems, ships, planes, land vehicles, R&D, and professional and managerial services interaction with defense will positively estimate the probability of ceiling breaches and terminations. However, the DoD also has a well established global logistics chain, and for commodities, Defense will negatively estimate the probability of ceiling breaches and terminations. 
+
+```{r Model3A}
+    summary_discrete_plot(crisis_smp,"Reach","Is.Defense")
+
+
+#Create the model
+
+  CBre_13B <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Reach:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(CBre_13B)
+  
+  Term_13B <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Reach:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(Term_13B)
+  
+
+
+  stargazer::stargazer(CBre_12A,CBre_13B,Term_12A,Term_13B,type="text",
+                       digits=2)
+summary_residual_compare(CBre_12A,CBre_13B,Term_12A,Term_13B,bins=20)
+
+
+  CBre_13B2 <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(CBre_13B2)
+  
+  Term_13B2 <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh+
+                   PSA+
+                     Reach:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(Term_13B2)
+  
+  stargazer::stargazer(CBre_12A,CBre_13B2,Term_12A,Term_13B2,type="text",
+                       digits=2)
+  summary_residual_compare(CBre_12A,CBre_13B2,Term_12A,Term_13B2,bins=20)
+
+
+  
+```
+
 #Multi-Level Model
 ### 15A: Product/Service/R&D and Platform
 ```{r Model15A}
