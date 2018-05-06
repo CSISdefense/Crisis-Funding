@@ -1450,6 +1450,13 @@ freq_continuous_cbre_plot(subset(crisis_smp,UnmodifiedContractBaseAndAllOptionsV
 summary_continuous_plot(crisis_smp,"l_Ceil",bins=50)
 
 
+binned_percent_plot(crisis_smp,"l_Ceil",bins=100)+geom_vline(xintercept=c(log(10000),log(15000)))
+binned_percent_plot(crisis_smp,"l_Ceil","Veh")+geom_vline(xintercept=c(log(10000),log(15000)))
+
+binned_percent_plot(subset(crisis_smp,Veh!="M-IDC"),"l_Ceil",bins=100)+geom_vline(xintercept=c(log(10000),log(15000)))
+binned_percent_plot(subset(crisis_smp,Veh=="M-IDC"),"l_Ceil",bins=100)+geom_vline(xintercept=c(log(10000),log(15000)))
+
+
 #Model
 CBre_05A <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +NoComp +
@@ -1679,8 +1686,6 @@ freq_continuous_cbre_plot(crisis_smp,"UnmodifiedDays",
 
 
 summary_continuous_plot(crisis_smp,"l_Days")
-
-
 #Model
 CBre_06A <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +NoComp +
