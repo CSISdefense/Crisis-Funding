@@ -116,18 +116,27 @@ load("Data\\crisis_smp.Rdata")
 # other_intl<-other_intl[sample(nrow(other_intl),100000),]
 # crisis_with_na<-rbind(crisis_with_na,other_dom,other_intl)
 # rm(other)
-# crisis_with_na$OffCri<-crisis_with_na$CrisisPercent
-# crisis_with_na$ProductOrServiceCode<-as.character(crisis_with_na$ProdServ)
-#   crisis_with_na<-csis360::read_and_join( crisis_with_na,
-#                                "ProductOrServiceCodes.csv",                             path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-#                                directory="",
-#                                by="ProductOrServiceCode",
-#                                add_var=c("Simple",
-#                                          "ProductServiceOrRnDarea",
-#                                          "ProductOrServiceArea"),
-#                                new_var_checked=FALSE)
-# crisis_with_na$ProductServiceOrRnDarea<-factor(crisis_with_na$ProductServiceOrRnDarea)
-# crisis_with_na$ProductOrServiceArea<-factor(crisis_with_na$ProductOrServiceArea)
+
+  crisis_with_na<-csis360::read_and_join( crisis_with_na,
+                                 "ProductOrServiceCodes.csv",
+                                 path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                                 directory="",
+                                 by="ProductOrServiceCode",
+                                 add_var=c("Simple",
+                                           "ProductServiceOrRnDarea",
+                                           "ProductOrServiceArea",
+                                           "HostNation3Category",
+                                           "CrisisProductOrServiceArea",
+                                           "ProductOrServiceCodeText"
+                                           ),
+                                 new_var_checked=FALSE)
+  crisis_with_na$ProductServiceOrRnDarea<-factor(crisis_with_na$ProductServiceOrRnDarea)
+  crisis_with_na$ProductOrServiceArea<-factor(crisis_with_na$ProductOrServiceArea)
+  crisis_with_na$HostNation3Category<-factor(crisis_with_na$HostNation3Category)
+  crisis_with_na$CrisisProductOrServiceArea<-factor(crisis_with_na$CrisisProductOrServiceArea)
+  crisis_with_na$ProductOrServiceCodeText<-factor(crisis_with_na$ProductOrServiceCodeText)
+
+
 # summary(crisis_with_na$ProductServiceOrRnDarea)
 # summary(crisis_with_na$ProductOrServiceArea)
 # # summary(crisis_with_na$b_Comp )
