@@ -124,7 +124,7 @@ load("Data\\crisis_smp.Rdata")
 #                                by="ProductOrServiceCode",
 #                                add_var=c("Simple",
 #                                          "ProductServiceOrRnDarea",
-#                                          "ProductOrServiceArea"),
+#                                          "ProductOrServiceArea",),
 #                                new_var_checked=FALSE)
 # crisis_with_na$ProductServiceOrRnDarea<-factor(crisis_with_na$ProductServiceOrRnDarea)
 # crisis_with_na$ProductOrServiceArea<-factor(crisis_with_na$ProductOrServiceArea)
@@ -4511,11 +4511,73 @@ summary_residual_compare(CBre_13B,CBre_14M,Term_13B,Term_13B,bins=20)
 
   
 ```
-The problem does appear to be with PSA. The study team considered reverting to product/service/R&D for ceiling, although classically in contingency situations, the division in construction/commodities(products)/services(other than construction including R&D.) That alternative approach is likely more suitable, but also suggests an additional possible solution, namely splitting Facility Based Services and Construction services. The two together are one of the more numerous categories of services, albiet still dwarfed by "other products" and clothing and subsitence.  
+The problem does appear to be with PSA. The study team considered reverting to product/service/R&D for ceiling, although classically in contingency situations, the division in construction/commodities(products)/services(other than construction including R&D.) That alternative approach is likely more suitable, but also suggests an additional possible solution, namely splitting Facility Based Services and Construction services. The two together are one of the more numerous categories of services, albiet still dwarfed by "other products" and clothing and subsitence.  A look back to 11A
+
+## Breaking out Construction
+The study team had not initially focused on construction as a risk area and had been surprised to see that Facility-Related and Construction services had a high coefficient. The importance of this became clear on closer examination. The team spoke to two in-house experts for their opinions, to inform the expections below.
+
+Expecation: Construction, in and of itself, is not seen as a higher risk area than other forms of contracting or contingency contracting. One expert thought that this also extended to on base construction in the field. These conracts, likely funded as MilCon, may have run into a fair amount of trouble around 2005, but by present day, we know what we're doing.
+
+However, outside of bases, the construction related to development work can be notably higher risk. In particular, these contracts may have to subcontract for security which can be an additional source of risk. 
+
+### 15A: Crisis Product or Service Area
+```{r Model13B}
+    summary_discrete_plot(crisis_smp,"Is.Defense","Crisis")
+
+
+#Create the model
+
+  CBre_13B <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(CBre_13B)
+  
+  Term_13B <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(Term_13B)
+  
+
+
+  stargazer::stargazer(CBre_12A,CBre_13B,Term_12A,Term_13B,type="text",
+                       digits=2)
+summary_residual_compare(CBre_12A,CBre_13B,Term_12A,Term_13B,bins=20)
+```
+
 
 #Multi-Level Model
-### 15A: Product/Service/R&D and Platform
-```{r Model15A}
+### 16A: Product/Service/R&D and Platform
+```{r Model16A}
 summary(crisis_smp$PSA)
 crisis_smp$PSA<-factor(crisis_smp$PSA)
 #Frequency Plot
@@ -4524,9 +4586,9 @@ freq_discrete_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text
 #Percent Terminated Plot 
 discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-load("model15A.rdata")  
+load("model16A.rdata")  
 
-  # CBre_15A <- glmer (data=crisis_smp,
+  # CBre_16A <- glmer (data=crisis_smp,
   #                   b_CBre ~ Crisis + NoComp +
   #                    b_UCA +
   #                    Reach + c_OffCri + 
@@ -4543,9 +4605,9 @@ load("model15A.rdata")
   # 
   #                    (1 | PSA), 
   #                  family=binomial(link="logit"))
-display(CBre_15A)
+display(CBre_16A)
 
-  # Term_15A <- glmer(data=crisis_smp,
+  # Term_16A <- glmer(data=crisis_smp,
   #                  b_Term ~ Crisis +
   #                    b_NoComp +
   #                    b_UCA +
@@ -4564,24 +4626,24 @@ display(CBre_15A)
   #                  family=binomial(link="logit"))
 
 
-display(Term_15A)
+display(Term_16A)
 # Plot the model and Vehicle 
 
-stargazer::stargazer(CBre_11B,CBre_15A,Term_11B,Term_15A,type="text",
+stargazer::stargazer(CBre_11B,CBre_16A,Term_11B,Term_16A,type="text",
                         digits=2)
-summary_residual_compare(CBre_11B,CBre_15A,Term_11B,Term_15A)
+summary_residual_compare(CBre_11B,CBre_16A,Term_11B,Term_16A)
 
-# save(CBre_15A,Term_15A, file="Model15A.RData")
+# save(CBre_16A,Term_16A, file="Model16A.RData")
 ```
 
 
-### 15B: Interactions
-```{r Model15B}
+### 16B: Interactions
+```{r Model16B}
 
 
-load("model15B.rdata")  
+load("model16B.rdata")  
 
-  # CBre_15B <- glmer (data=crisis_smp,
+  # CBre_16B <- glmer (data=crisis_smp,
   #                  b_CBre ~ Crisis + NoComp + 
   #                    b_UCA +
   #                    Reach + c_OffCri + 
@@ -4599,9 +4661,9 @@ load("model15B.rdata")
   #                    # NoComp:Veh + 
   #                    (1 | Simple)+(1 |  PSA), 
   #                  family=binomial(link="logit"))
-  display(CBre_15B)
+  display(CBre_16B)
   # 
-  # Term_15B <- glmer (data=crisis_smp,
+  # Term_16B <- glmer (data=crisis_smp,
   #                  b_Term ~ Crisis + 
   #                    b_NoComp + 
   #                    b_UCA + 
@@ -4623,14 +4685,14 @@ load("model15B.rdata")
   #                    # b_NoComp:Veh + 
   #                     (1 |  PSA), 
   #                  family=binomial(link="logit"))
-  display(Term_15B)
+  display(Term_16B)
   # 
 
-stargazer::stargazer(CBre_11B,CBre_15A,CBre_15B,Term_11B,Term_15A,Term_15B,type="text",
+stargazer::stargazer(CBre_11B,CBre_16A,CBre_16B,Term_11B,Term_16A,Term_16B,type="text",
                         digits=2)
 
-summary_residual_compare(CBre_15A,CBre_15B,Term_15A,Term_15B)
-# save(CBre_15B,Term_15B, file="Model15B.RData")
+summary_residual_compare(CBre_16A,CBre_16B,Term_16A,Term_16B)
+# save(CBre_16B,Term_16B, file="Model16B.RData")
 
 ```
 The use of Comp as 
@@ -4638,11 +4700,11 @@ The use of Comp as
 Ceil converges
 Term Model failed to converge with max|grad| = 0.00135324 (tol = 0.001, component 1)
 
-### 15C: Interactions
-```{r Model15C}
-load("Model15C.RData") #Only have CBre at the moment
+### 16C: Interactions
+```{r Model16C}
+load("Model16C.RData") #Only have CBre at the moment
 
-  # CBre_15C <- glmer (data=crisis_smp,
+  # CBre_16C <- glmer (data=crisis_smp,
   #                  b_CBre ~ Crisis + NoComp + 
   #                    b_UCA +
   #                    Reach + c_OffCri + 
@@ -4660,9 +4722,9 @@ load("Model15C.RData") #Only have CBre at the moment
   #                    # NoComp:Veh + 
   #                    (1 | Simple)+(1 |  PSA) + (1|ProdServ), 
   #                  family=binomial(link="logit"))
-  display(CBre_15C)
+  display(CBre_16C)
   # 
-  # Term_15C <- glm (data=crisis_smp,
+  # Term_16C <- glm (data=crisis_smp,
   #                  b_Term ~ Crisis + 
   #                    b_NoComp + 
   #                    b_UCA + 
@@ -4684,12 +4746,12 @@ load("Model15C.RData") #Only have CBre at the moment
   #                    # b_NoComp:Veh+ 
   #                      (1 | Simple)+(1 |  PSA) + (1|ProdServ), 
   #                  family=binomial(link="logit"))
-  # display(Term_15C)
-  stargazer::stargazer(CBre_11B,CBre_15A,CBre_15B,CBre_15C,Term_11B,Term_15A,Term_15B,type="text",
+  # display(Term_16C)
+  stargazer::stargazer(CBre_11B,CBre_16A,CBre_16B,CBre_16C,Term_11B,Term_16A,Term_16B,type="text",
                         digits=2)
 
-summary_residual_compare(CBre_15B,CBre_15C,Term_15A,Term_15B)
-# save(CBre_15C, file="Model15C.RData")
+summary_residual_compare(CBre_16B,CBre_16C,Term_16A,Term_16B)
+# save(CBre_16C, file="Model16C.RData")
 ```
 
 CBre_12C Model failed to converge with max|grad| = 0.0103776 (tol = 0.001, component 1)
@@ -4700,8 +4762,8 @@ Model failed to converge with max|grad| = 0.0338872 (tol = 0.001, component 1)
 
 
 
-### 15D: Product/Service/R&D and Platform
-```{r Model15D}
+### 16D: Product/Service/R&D and Platform
+```{r Model16D}
 summary(crisis_smp$PSA)
 crisis_smp$PSA<-factor(crisis_smp$PSA)
 #Frequency Plot
@@ -4710,9 +4772,9 @@ freq_discrete_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text
 #Percent Terminated Plot 
 discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-load("model15D.rdata")  
+load("model16D.rdata")  
 
-  CBre_15D <- glmer (data=crisis_smp,
+  CBre_16D <- glmer (data=crisis_smp,
                     b_CBre ~ NoComp +
                      b_UCA +
                      Reach + c_OffCri +
@@ -4729,9 +4791,9 @@ load("model15D.rdata")
 
                      (1 + Reach + Is.Defense| Crisis) + (1 | PSA),
                    family=binomial(link="logit"))
-display(CBre_15D)
+display(CBre_16D)
 
-  Term_15D <- glmer(data=crisis_smp,
+  Term_16D <- glmer(data=crisis_smp,
                    b_Term ~ Crisis +
                      b_NoComp +
                      b_UCA +
@@ -4749,12 +4811,12 @@ display(CBre_15D)
                    family=binomial(link="logit"))
 
 
-display(Term_15D)
+display(Term_16D)
 # Plot the model and Vehicle 
 
-stargazer::stargazer(CBre_11B,CBre_15D,Term_11B,Term_15D,type="text",
+stargazer::stargazer(CBre_11B,CBre_16D,Term_11B,Term_16D,type="text",
                         digits=2)
-summary_residual_compare(CBre_11B,CBre_15D,Term_11B,Term_15D)
+summary_residual_compare(CBre_11B,CBre_16D,Term_11B,Term_16D)
 
-# save(CBre_15A,Term_15A, file="Model15A.RData")
+# save(CBre_16A,Term_16A, file="Model16A.RData")
 ```
