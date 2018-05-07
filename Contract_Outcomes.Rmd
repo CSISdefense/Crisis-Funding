@@ -2421,6 +2421,7 @@ stargazer::stargazer(CBre_07C,CBre_07D,Term_07C,Term_07D,type="text",
 
 summary_residual_compare(CBre_07C,CBre_07D,Term_07C,Term_07D,20)
 
+
 summary(crisis_smp$Term[crisis_smp$NoComp=="Urgency"&crisis_smp$Veh=="M-IDC"])
 
 
@@ -3125,7 +3126,7 @@ corrdisp[[1]]
 
 
 #Frequency Plot
-freq_discrete_cbre_plot(crisis_smp,"Simple")
+freq_discrete_plot(crisis_smp,"Simple")
 
 #Percent Terminated Plot 
 discrete_percent_cbre_plot(crisis_smp,"Simple")
@@ -3199,8 +3200,9 @@ corrdisp<-Hmisc::rcorr(
 corrdisp[[1]]
 
 
-summary_discrete_plot(crisis_smp,"PSA")
-
+summary_discrete_plot(crisis_smp,"PSA",rotate_text=TRUE)
+freq_discrete_plot(crisis_smp,"PSA",rotate_text=TRUE)
+discrete_percent_plot(crisis_smp,"PSA",caption=FALSE,rotate_text=TRUE)
 
 #Create the model
 
@@ -3829,7 +3831,6 @@ Expectation: The relationship could run either way. One the one hand, DoD tends 
 
   stargazer::stargazer(CBre_12A,CBre_13B,Term_12A,Term_13B,type="text",
                        digits=2)
-  debug(summary_residual_compare)
 summary_residual_compare(CBre_12A,CBre_13B,Term_12A,Term_13B,bins=20)
 
 
@@ -3931,7 +3932,7 @@ The results are striking and, for ceiling breaches, unexpected. For Defense cont
 Expectation: Some categories, specifically weapons and launchers, already likely heavily overlap with defense so the results will not be especailly illuminating. However, for advanced weapon systems, ships, planes, land vehicles, R&D, and professional and managerial services interaction with defense will positively estimate the probability of ceiling breaches and terminations. However, the DoD also has a well established global logistics chain, and for commodities, Defense will negatively estimate the probability of ceiling breaches and terminations. 
 
 ```{r Model3A}
-    summary_discrete_plot(crisis_smp,"Reach","Is.Defense")
+    summary_discrete_plot(crisis_smp,"PSA","Is.Defense")
 
 
 #Create the model
@@ -3980,15 +3981,537 @@ Expectation: Some categories, specifically weapons and launchers, already likely
   
 
 
-  stargazer::stargazer(CBre_12A,CBre_14A,Term_12A,Term_14A,type="text",
+  stargazer::stargazer(CBre_13B,CBre_14A,Term_13B,Term_14A,type="text",
                        digits=2)
-summary_residual_compare(CBre_12A,CBre_14A,Term_12A,Term_14A,bins=20)
+summary_residual_compare(CBre_13B,CBre_14A,Term_13B,Term_14A,bins=20)
 
   
 ```
 VIF proves off the charts. This interaction will be drpopped.
 
-### 14B: Fixed-Price and Product or Service Area
+### 14B: Ceiling and Product or Service Area
+Expectation: Complex and risky product or service areas still have some comparatively simple product or service codes in addition to covering highly volatile ones. The study team expects that size will help determine which is which and thus that the interaction of Ceiling and the complex PSAs (major defense acquisition programs and, given sourcing challenges, fuels) will positively estimate the probability of terminations and ceiling breaches
+```{r Model4B}
+    summary_continuous_plot(crisis_smp,"l_Ceil","PSA")
+
+
+#Create the model
+
+  CBre_14B <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense+
+                     PSA:cl_Ceil, 
+                   family=binomial(link="logit"))
+  display(CBre_14B)
+  
+  Term_14B <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense+
+                     PSA:cl_Ceil, 
+                   family=binomial(link="logit"))
+  display(Term_14B)
+  
+
+
+  stargazer::stargazer(CBre_13B,CBre_14B,Term_13B,Term_14B,type="text",
+                       digits=2)
+summary_residual_compare(CBre_13B,CBre_14B,Term_13B,Term_14B,bins=20)
+
+
+  CBre_14B2 <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense+
+                     PSA:cl_Ceil, 
+                   family=binomial(link="logit"))
+  display(CBre_14B2)
+  
+  Term_14B2 <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+
+                     b_NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense+
+                     PSA:cl_Ceil, 
+                   family=binomial(link="logit"))
+  display(Term_14B2)
+  
+  stargazer::stargazer(CBre_13B,CBre_14B2,Term_13B,Term_14B2,type="text",
+                       digits=2)
+summary_residual_compare(CBre_13B,CBre_14B2,Term_13B,Term_14B2,bins=20)
+
+
+
+  CBre_14B3 <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:NoComp+
+                     cl_Days:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense+
+                     PSA:cl_Ceil, 
+                   family=binomial(link="logit"))
+  display(CBre_14B3)
+
+  stargazer::stargazer(CBre_13B,CBre_14B3,Term_13B,Term_14B2,type="text",
+                       digits=2)
+summary_residual_compare(CBre_13B,CBre_14B3,Term_13B,Term_14B2,bins=20)
+
+```
+Even with other ceiling interactions removed, the VIF for ceiling remains above 2. Leaving out this interaction
+
+### 14C: Fixed and Product or Service Area
+
+Expectation: Cost-base contnracts are more oriented towards products and services where costs are difficult to estimate in advanced, for  example professional and managerial services or MDAP developments. The study team expects that the  interaction of fixed-price and commodities will negatively estiate the probability of ceiling breaches and terminations, even if the net coefficient for terminations remains positive..
+
+```{r Model14C}
+    summary_discrete_plot(crisis_smp,"PSA","n_Fixed")
+
+
+#Create the model
+
+  CBre_14C <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense+
+                     PSA:n_Fixed, 
+                   family=binomial(link="logit"))
+  display(CBre_14C)
+  
+  Term_14C <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense+
+                     PSA:n_Fixed, 
+                   family=binomial(link="logit"))
+  display(Term_14C)
+  
+
+
+  stargazer::stargazer(CBre_13B,CBre_14C,Term_13B,Term_14C,type="text",
+                       digits=2)
+summary_residual_compare(CBre_13B,CBre_14C,Term_13B,Term_14C,bins=20)
+
+  
+```
+VIFs are prohibitive.
+
+###14D: Removing Days
+
+```{r Model4E}
+
+#Create the model
+
+  CBre_14D <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     # cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+
+                   # cl_Days:NoComp+
+                     # cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(CBre_14D)
+  
+  stargazer::stargazer(CBre_13B,CBre_14D,Term_13B,type="text",
+                       digits=2)
+summary_residual_compare(CBre_13B,CBre_14,Term_13B,Term_13B,bins=20)
+
+  
+```
+
+###14E: Removing Ceiling
+
+```{r Model14E}
+
+#Create the model
+
+  CBre_14E <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     # cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    # cl_Ceil:NoComp+
+                   cl_Days:NoComp+
+                     cl_Days:Veh+
+                     # cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(CBre_14E)
+
+  stargazer::stargazer(CBre_13B,CBre_14E,Term_13B,Term_14E,type="text",
+                       digits=2)
+summary_residual_compare(CBre_13B,CBre_14E,Term_13B,Term_13B,bins=10)
+
+  
+```
+
+###14F: Removing Urgency
+
+```{r Model14F}
+
+#Create the model
+
+  CBre_14F <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +b_NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:b_NoComp+
+                   cl_Days:b_NoComp+
+                     cl_Days:Veh+
+                     cl_Ceil:Veh+
+                   b_NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(CBre_14F)
+
+  stargazer::stargazer(CBre_13B,CBre_14F,Term_13B,type="text",
+                       digits=2)
+summary_residual_compare(CBre_13B,CBre_14F,Term_13B,Term_13B,bins=20)
+
+  
+```
+
+###14G: Removing Crisis
+
+```{r Model14G}
+
+#Create the model
+
+  CBre_14G <- glm (data=crisis_smp,
+                   b_CBre ~
+                     # Crisis +
+                     NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+
+                   cl_Days:NoComp+
+                     cl_Days:Veh+
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA,
+                     # Reach:Crisis+
+                     # Crisis:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(CBre_14G)
+
+  stargazer::stargazer(CBre_13B,CBre_14G,Term_13B,type="text",
+                       digits=2)
+summary_residual_compare(CBre_13B,CBre_14G,Term_13B,Term_13B,bins=10)
+
+  
+```
+
+### 14H: Removing Vehicle
+```{r Model14H}
+
+#Create the model
+
+  CBre_14H <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +
+                     NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     # Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+
+                   cl_Days:NoComp+
+                     # cl_Days:Veh+
+                     # cl_Ceil:Veh+
+                   # NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense,
+                   family=binomial(link="logit"))
+  display(CBre_14H)
+
+  stargazer::stargazer(CBre_13B,CBre_14H,Term_13B,type="text",
+                       digits=2)
+summary_residual_compare(CBre_13B,CBre_14H,Term_13B,Term_13B,bins=10)
+
+  
+```
+
+### 14I: Removing UCA
+```{r Model14I}
+
+#Create the model
+
+  CBre_14I <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +
+                     NoComp +
+                     # b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+
+                   cl_Days:NoComp+
+                     cl_Days:Veh+
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense,
+                   family=binomial(link="logit"))
+  display(CBre_14I)
+
+  stargazer::stargazer(CBre_13B,CBre_14I,Term_13B,type="text",
+                       digits=2)
+summary_residual_compare(CBre_13B,CBre_14I,Term_13B,Term_13B,bins=20)
+
+  
+```
+
+### 14J: Removing Comp
+```{r Model14J}
+
+#Create the model
+
+  CBre_14J <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +
+                     # NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    # cl_Ceil:NoComp+
+                   # cl_Days:NoComp+
+                     cl_Days:Veh+
+                     cl_Ceil:Veh+
+                   # NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense,
+                   family=binomial(link="logit"))
+  display(CBre_14J)
+
+  stargazer::stargazer(CBre_13B,CBre_14J,Term_13B,type="text",
+                       digits=2)
+summary_residual_compare(CBre_13B,CBre_14J,Term_13B,Term_13B,bins=10)
+
+  
+```
+
+### 14K: Removing Fixed
+```{r Model14K}
+
+#Create the model
+
+  CBre_14K <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +
+                     NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     # n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+
+                   cl_Days:NoComp+
+                     cl_Days:Veh+
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense,
+                   family=binomial(link="logit"))
+  display(CBre_14K)
+
+  stargazer::stargazer(CBre_13B,CBre_14K,Term_13B,type="text",
+                       digits=2)
+summary_residual_compare(CBre_13B,CBre_14K,Term_13B,Term_13B,bins=20)
+
+  
+```
+
+### 14L: Removing Is.Defense
+```{r Model14L}
+
+#Create the model
+
+  CBre_14L <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +
+                     NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     # Is.Defense +
+                    cl_Ceil:NoComp+
+                   cl_Days:NoComp+
+                     cl_Days:Veh+
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis,
+                     # Crisis:Is.Defense,
+                   family=binomial(link="logit"))
+  display(CBre_14L)
+
+  stargazer::stargazer(CBre_13B,CBre_14L,Term_13B,type="text",
+                       digits=2)
+summary_residual_compare(CBre_13B,CBre_14L,Term_13B,Term_13B,bins=20)
+
+  
+```
+
+### 14M: Removing PSA
+```{r Model14M}
+
+#Create the model
+
+  CBre_14M <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +
+                     NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+
+                   cl_Days:NoComp+
+                     cl_Days:Veh+
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   # PSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense,
+                   family=binomial(link="logit"))
+  display(CBre_14M)
+
+  stargazer::stargazer(CBre_13B,CBre_14M,Term_13B,type="text",
+                       digits=2)
+summary_residual_compare(CBre_13B,CBre_14M,Term_13B,Term_13B,bins=20)
+
+  
+```
+The problem does appear to be with PSA. The study team considered reverting to product/service/R&D for ceiling, although classically in contingency situations, the division in construction/commodities(products)/services(other than construction including R&D.) That alternative approach is likely more suitable, but also suggests an additional possible solution, namely splitting Facility Based Services and Construction services. The two together are one of the more numerous categories of services, albiet still dwarfed by "other products" and clothing and subsitence.  
 
 #Multi-Level Model
 ### 15A: Product/Service/R&D and Platform
@@ -4177,7 +4700,6 @@ Model failed to converge with max|grad| = 0.0338872 (tol = 0.001, component 1)
 
 
 
-#Multi-Level Model
 ### 15D: Product/Service/R&D and Platform
 ```{r Model15D}
 summary(crisis_smp$PSA)
