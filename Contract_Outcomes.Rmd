@@ -1774,7 +1774,7 @@ binned_percent_plot(crisis_smp,"l_Ceil","Veh",bins=100)+
   geom_vline(xintercept=log(2500))+
   geom_vline(xintercept=log(150000))
 ```
-Two vertical lines are added to this plot, one for the lowest micro-purchase threshold during this period USD2,500. The other is the low end simplified acquisiton threshold, at USD150,000. Both of these have subsequently been raised and vary situationally. However, for simplicity the model is using the low and generally applicable value for categorization. This has a possible risk of colinearity, as it is derived from the input ceiling.
+Two vertical lines are added to this plot, one for the lowest micro-purchase threshold during this period USD2,500. The other is the low end simplified acquisiton threshold, at USD150,000. Both of these have subsequently been raised and vary situationally. However, for simplicity the model is using the low and generally applicable value for categorization. The next step is to attempt a piecemeal/segmented approach, which allows for different slopes for cl_ceil depending on whether the value is above or below certain thresholds.
 
 Expectation: Surpassing the microtransaction threshold and the simplified acquisition threshold mandates additional regulatory requirements and also scrutiny. Contracts that exceed them are thus likely to have a greater irreducible complexity that prevented use of smaller contracting forms. The study team expects that the lower thresholds will negatively estimate the probability of ceiling breaches and terminations.
 
@@ -1795,7 +1795,7 @@ CBre_05G <- glm (data=crisis_smp,
                  b_CBre ~  Crisis +NoComp +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+thresh+
+                   cl_Ceil+cl_Ceil:thresh+
                    cl_Ceil:NoComp,  
                  family=binomial(link="logit"))
 display(CBre_05G)
@@ -1804,7 +1804,7 @@ Term_05G <- glm (data=crisis_smp,
                   b_Term ~ Crisis +b_NoComp+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+thresh+
+                   cl_Ceil+cl_Ceil:thresh+
                    b_NoComp:Crisis+
                    b_UCA:Crisis+
                    
@@ -1819,8 +1819,27 @@ stargazer::stargazer(CBre_05E,CBre_05G,Term_05B,Term_05G,type="text",
 
 summary_residual_compare(CBre_05E,CBre_05G,Term_05B,Term_05G)
 
+
+
+Term_05G2 <- glm (data=crisis_smp,
+                  b_Term ~ Crisis +b_NoComp+
+                   b_UCA+
+                   OffPl99+ c_OffCri+
+                   cl_Ceil+cl_Ceil:thresh+
+                   b_NoComp:Crisis+
+                   b_UCA:Crisis, 
+                 family=binomial(link="logit"))
+display(Term_05G2)
+
+
+
+stargazer::stargazer(CBre_05E,CBre_05G,Term_05B,Term_05G2,type="text",
+                     digits=2,keep.stat=c("n","aic","res.dev","null.dev"))
+
+summary_residual_compare(CBre_05E,CBre_05G,Term_05B,Term_05G2)
+
 ```
-The results do not aligne with expectations, with the exception of terminations for contracts between the 2,500 and 150,000 for terminations. For these dummy variables to work, they apparently must be considered in interaction with the ceiling. This in essence would allow for a different slope for ceiling in each of the three categories.
+The results do not aligne with expectations, though the magnitude of the negative coefficient is surprising for threshold150k terminations because it flips the sign on the ceiling. However, while the coefficients make sense, the change is ultimately unsuccessful in its main goal, reducing the size of residuals in the model. As a result, given the increase in complexity and the greater difficulty in interpretability, it will be left out of the model.
 
 This causes cl_Ceil VIF to exceed 2, and thus it must be removed.
 
@@ -3509,7 +3528,7 @@ summary_residual_compare(CBre_12A,CBre_12B,Term_12A,Term_12B,bins=20)
 Expectations were met for terminations but not ceiling breaches. However, VIF was exceed in both cases, leaving this out.
 
 
-### 12C: Reachback Ceiling
+### 12C: Reachback Duration
 Expectation: In a crisis, remote deployment, there are sometimes rules against longer durations. Thus, the interaction of duration and international contracting offices positively estimate probability of ceiling breaches and terminations.
 
 ```{r Model12C}
@@ -3565,6 +3584,136 @@ summary_residual_compare(CBre_12A,CBre_12C,Term_12A,Term_12C,bins=20)
 
 ```
 Results were in line with expecatations for terminations but against them for crisis. The VIF proved too high in both cases, leaving this interaction out.
+
+
+### 12D: Reachback and Vehicle
+Expectation: Indirect Contract Vehicles lower the burden on contracting offices, whether or not they improve outcomes, because they can offer as a template where a large portion of the work is already done. As a result, the study team expects that international located contracts using any form of S-IDC/M-IDC/FSS/GWAC negatively estimated the probability of ceiling breaches and terminations. This may also be a benefit for domestic contracting offices as they may have a wider range of indirect contract vehicles to choose from. This seems unlikely to entirely explain the strengths of reachback contracting, but may reduce the coefficient on the base reachback domestic variables.
+
+```{r Model12D}
+
+
+#Create the model
+
+  CBre_12D <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                   Reach:Veh, 
+                   family=binomial(link="logit"))
+  display(CBre_12D)
+  
+  Term_12D <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                   Reach:Veh, 
+                   family=binomial(link="logit"))
+  display(Term_12D)
+  
+
+
+  stargazer::stargazer(CBre_12A,CBre_12D,Term_12A,Term_12D,type="text",
+                       digits=2)
+summary_residual_compare(CBre_12A,CBre_12D,Term_12A,Term_12D,bins=20)
+
+
+
+  CBre_12D2 <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                   Reach:Veh, 
+                   family=binomial(link="logit"))
+  display(CBre_12D2)
+  
+  Term_12D2 <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh+
+                   PSA+
+                   Reach:Veh, 
+                   family=binomial(link="logit"))
+  display(Term_12D2)
+
+  
+  
+  stargazer::stargazer(CBre_12A,CBre_12D2,Term_12A,Term_12D2,type="text",
+                       digits=2)
+summary_residual_compare(CBre_12A,CBre_12D2,Term_12A,Term_12D2,bins=20)
+
+
+
+
+  CBre_12D3 <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                   NoComp:Veh+
+                   PSA+
+                   Reach:Veh, 
+                   family=binomial(link="logit"))
+  display(CBre_12D3)
+
+  
+  stargazer::stargazer(CBre_12A,CBre_12D3,Term_12A,Term_12D2,type="text",
+                       digits=2)
+summary_residual_compare(CBre_12A,CBre_12D3,Term_12A,Term_12D2,bins=20)
+
+
+```
+Expectations were hold for ceiling breaches and single and multi award IDCs. However, not for FSS/GWAC nor for multiaward idcs for international contracts from internationally oriented contracting offies. Leaving it out.
 ## Customer Interactions
 ### 13A: Defense and Reachback
 
@@ -3631,7 +3780,7 @@ The results ran contrary to expectations and ran into VIF problems when combined
 Expectation: The relationship could run either way. One the one hand, DoD tends to operate in less permissive environments. On the other, the organization is more attuned to handling crisis and the challenging logistics of these situations and also has considerable advantages of scale. Leaning on the latter idea, the study team expects that the interaction of Defense and Crisis will negatively estimate the probability of ceiling breaches and terminations.
 
 ```{r Model13B}
-    summary_discrete_plot(crisis_smp,"Crisis","Is.Defense")
+    summary_discrete_plot(crisis_smp,"Is.Defense","Crisis")
 
 
 #Create the model
@@ -3692,7 +3841,8 @@ Expectation: The market for Defense goods is more of a monosopy than other forms
 
 
 ```{r Model13C}
-    summary_discrete_plot(crisis_smp,"Crisis","Is.Defense")
+    summary_discrete_plot(crisis_smp,"NoComp","Is.Defense")
+summary_discrete_plot(crisis_smp,"Comp","Is.Defense")
 
 
 #Create the model
@@ -3712,7 +3862,8 @@ Expectation: The market for Defense goods is more of a monosopy than other forms
                    NoComp:Veh+
                    PSA+
                      Reach:Crisis+
-                     Crisis:Is.Defense, 
+                     Crisis:Is.Defense+
+                     NoComp:Is.Defense, 
                    family=binomial(link="logit"))
   display(CBre_13C)
   
@@ -3733,19 +3884,46 @@ Expectation: The market for Defense goods is more of a monosopy than other forms
                      b_NoComp:Veh+
                    PSA+
                      Reach:Crisis+
-                     Crisis:Is.Defense, 
+                     Crisis:Is.Defense+
+                     b_NoComp:Is.Defense, 
                    family=binomial(link="logit"))
   display(Term_13C)
   
 
 
-  stargazer::stargazer(CBre_12A,CBre_13C,Term_12A,Term_13C,type="text",
+  stargazer::stargazer(CBre_13B,CBre_13C,Term_13B,Term_13C,type="text",
                        digits=2)
-  debug(summary_residual_compare)
-summary_residual_compare(CBre_12A,CBre_13C,Term_12A,Term_13C,bins=20)
 
+summary_residual_compare(CBre_13B,CBre_13C,Term_13B,Term_13C,bins=20)
+
+
+  CBre_13C2 <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   PSA+
+                     Reach:Crisis+
+                     NoComp:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(CBre_13C2)
+  
+  
+  stargazer::stargazer(CBre_13B,CBre_13C2,Term_13B,Term_13C,type="text",
+                       digits=2)
+
+summary_residual_compare(CBre_13B,CBre_13C2,Term_13B,Term_13C,bins=20)
 
 ```
+The results are striking and, for ceiling breaches, unexpected. For Defense contracts, competition estimateds a higher probability of a ceiling breach while the opposite is estimated for civilian contracts. With terminations, the results went the other way, aligning with expectations. For Ceiling breaches the VIF goes above 2, meaning that either Comp:Is.Defense or Crisis:Comp needs to be dropped. Dropping Comp:Is.Defense as the residuals seem smaller and it ran closer to expectations.
 
 ##Product or Service Area
 ### 14A: Defense and Product or Service Area
@@ -3995,3 +4173,66 @@ CBre_12C Model failed to converge with max|grad| = 0.0103776 (tol = 0.001, compo
 
 Term_12C 
 Model failed to converge with max|grad| = 0.0338872 (tol = 0.001, component 1)
+
+
+
+
+#Multi-Level Model
+### 15D: Product/Service/R&D and Platform
+```{r Model15D}
+summary(crisis_smp$PSA)
+crisis_smp$PSA<-factor(crisis_smp$PSA)
+#Frequency Plot
+freq_discrete_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+#Percent Terminated Plot 
+discrete_percent_cbre_plot(crisis_smp,"PSR_What")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+load("model15D.rdata")  
+
+  CBre_15D <- glmer (data=crisis_smp,
+                    b_CBre ~ NoComp +
+                     b_UCA +
+                     Reach + c_OffCri +
+                     cl_Ceil +
+                     cl_Days +
+                     Veh +
+                     n_Fixed +
+                     Is.Defense +
+                      cl_Ceil:NoComp+
+                      cl_Days:NoComp+
+                     cl_Days:Veh+
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+
+                     (1 + Reach + Is.Defense| Crisis) + (1 | PSA),
+                   family=binomial(link="logit"))
+display(CBre_15D)
+
+  Term_15D <- glmer(data=crisis_smp,
+                   b_Term ~ Crisis +
+                     b_NoComp +
+                     b_UCA +
+                     Reach + c_OffCri +
+                     cl_Ceil +
+                     cl_Days +
+                     Veh +
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     cl_Days:Veh+
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh+
+                  (1+ b_UCA + Reach + Is.Defense | Crisis) +  (1| PSA) ,
+                   family=binomial(link="logit"))
+
+
+display(Term_15D)
+# Plot the model and Vehicle 
+
+stargazer::stargazer(CBre_11B,CBre_15D,Term_11B,Term_15D,type="text",
+                        digits=2)
+summary_residual_compare(CBre_11B,CBre_15D,Term_11B,Term_15D)
+
+# save(CBre_15A,Term_15A, file="Model15A.RData")
+```
