@@ -4977,7 +4977,7 @@ summary(crisis_smp$ServCommCons)
 summary(crisis_smp$CPSA)
 
 load("model16A.rdata")  
-  CBre_16A <- glm (data=crisis_smp,
+  CBre_16A <- glmer (data=crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      Reach+ 
@@ -4996,7 +4996,7 @@ load("model16A.rdata")
                    family=binomial(link="logit"))
   display(CBre_16A)
   
-  Term_16A <- glm (data=crisis_smp,
+  Term_16A <- glmer (data=crisis_smp,
                    b_Term ~ Crisis +b_NoComp+
                      b_UCA+
                      c_OffCri+
@@ -5113,7 +5113,7 @@ load("Model16C.RData") #Only have CBre at the moment
   #                  family=binomial(link="logit"))
   display(CBre_16C)
   # 
-  # Term_16C <- glm (data=crisis_smp,
+  # Term_16C <- glmer (data=crisis_smp,
   #                  b_Term ~ Crisis + 
   #                    b_NoComp + 
   #                    b_UCA + 
@@ -5152,6 +5152,7 @@ Model failed to converge with max|grad| = 0.0338872 (tol = 0.001, component 1)
 
 
 ### 16D: Product/Service/R&D and Platform
+
 ```{r Model16D}
 summary(crisis_smp$PSA)
 crisis_smp$PSA<-factor(crisis_smp$PSA)
@@ -5206,6 +5207,61 @@ display(Term_16D)
 stargazer::stargazer(CBre_11B,CBre_16D,Term_11B,Term_16D,type="text",
                         digits=2)
 summary_residual_compare(CBre_11B,CBre_16D,Term_11B,Term_16D)
+
+# save(CBre_16A,Term_16A, file="Model16A.RData")
+```
+
+### 16E: Product/Service/R&D and Platform
+Initial multi-level analysis used CSIS's traditional product or service areas. After additional analysis in  step 15, this approach was rerun using 
+```{r Model16E}
+summary(crisis_smp$ServCommCons)
+summary(crisis_smp$CPSA)
+
+load("model16E.rdata")  
+  CBre_16E <- glmer (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                     Reach:Crisis+
+                     Crisis:Is.Defense+
+                     (1 | ServCommCons) + (1| CPSA), 
+                   family=binomial(link="logit"))
+  display(CBre_16E)
+  
+  Term_16E <- glmer (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh+
+                     Reach:Crisis+
+                     Crisis:Is.Defense+
+                     (1 | ServCommCons) + (1| CPSA), 
+                   family=binomial(link="logit"))
+  display(Term_16E)
+# Plot the model and Vehicle 
+
+stargazer::stargazer(CBre_15B,CBre_16E,Term_15B,Term_16E,type="text",
+                        digits=2)
+summary_residual_compare(CBre_15B,CBre_16E,Term_15B,Term_16E)
 
 # save(CBre_16A,Term_16A, file="Model16A.RData")
 ```
