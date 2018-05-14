@@ -116,8 +116,8 @@ load("Data\\crisis_smp.Rdata")
 # other_intl<-other_intl[sample(nrow(other_intl),100000),]
 # crisis_with_na<-rbind(crisis_with_na,other_dom,other_intl)
 # rm(other)
-
-  crisis_with_na<-csis360::read_and_join( crisis_with_na,
+sample_prep<-function(data){
+  data<-csis360::read_and_join( data,
                                  "ProductOrServiceCodes.csv",
                                  path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
                                  directory="",
@@ -130,41 +130,47 @@ load("Data\\crisis_smp.Rdata")
                                            "ProductOrServiceCodeText"
                                            ),
                                  new_var_checked=FALSE)
-  crisis_with_na$ProductServiceOrRnDarea<-factor(crisis_with_na$ProductServiceOrRnDarea)
-  crisis_with_na$ProductOrServiceArea<-factor(crisis_with_na$ProductOrServiceArea)
-  crisis_with_na$HostNation3Category<-factor(crisis_with_na$HostNation3Category)
-  crisis_with_na$CrisisProductOrServiceArea<-factor(crisis_with_na$CrisisProductOrServiceArea)
-  crisis_with_na$ProductOrServiceCodeText<-factor(crisis_with_na$ProductOrServiceCodeText)
+  data$ProductServiceOrRnDarea<-factor(data$ProductServiceOrRnDarea)
+  data$ProductOrServiceArea<-factor(data$ProductOrServiceArea)
+  data$HostNation3Category<-factor(data$HostNation3Category)
+  data$CrisisProductOrServiceArea<-factor(data$CrisisProductOrServiceArea)
+  data$ProductOrServiceCodeText<-factor(data$ProductOrServiceCodeText)
+data$ServCommCons<-data$HostNation3Category
+data$CPSA<-as.character(data$CrisisProductOrServiceArea)
+data$CPSA<-factor(gsub(" & ","+",data$CPSA))
+data$b_NoComp<-!data$b_Comp
+
+}
+
+get_complete_list<-function(data){
+!is.na(data$b_Term)&
+  !is.na(data$b_CBre)&
+  !is.na(data$b_Comp)&
+  !is.na(data$b_Urg)&
+  !is.na(data$l_Ceil)&
+  !is.na(data$l_Days)&
+  !is.na(data$Veh) &
+  !is.na(data$n_Fixed)&
+  !is.na(data$b_Intl)&
+  !is.na(data$b_UCA)&
+  !is.na(data$ProdServ)&
+  !is.na(data$Crisis)&
+  !is.na(data$Office)&
+!is.na(data$OffCri)&
+  !is.na(data$OffIntl)&
+  !is.na(data$Is.Defense)&
+  !is.na(data$ProductOrServiceArea)
+  # !is.na(data$cl_HHI_lag1)
+  
+}
 
 
-# summary(crisis_with_na$ProductServiceOrRnDarea)
-# summary(crisis_with_na$ProductOrServiceArea)
-# # summary(crisis_with_na$b_Comp )
-# # summary(crisis_with_na$n_Comp )
-# # summary(crisis_with_na$Comp )
-# # summary(crisis_with_na$CompOffr )
-# # summary(crisis_with_na$EffComp )
+
+# crisis_with_na<-sample_prep(crisis_with_na)
+# complete<-get_complete_list(crisis_with_na)  
+
 # 
-# crisis_with_na$b_NoComp<-!crisis_with_na$b_Comp
 # 
-complete<-!is.na(crisis_with_na$b_Term)&
-  !is.na(crisis_with_na$b_CBre)&
-  !is.na(crisis_with_na$b_Comp)&
-  !is.na(crisis_with_na$b_Urg)&
-  !is.na(crisis_with_na$l_Ceil)&
-  !is.na(crisis_with_na$l_Days)&
-  !is.na(crisis_with_na$Veh) &
-  !is.na(crisis_with_na$n_Fixed)&
-  !is.na(crisis_with_na$b_Intl)&
-  !is.na(crisis_with_na$b_UCA)&
-  !is.na(crisis_with_na$ProdServ)&
-  !is.na(crisis_with_na$Crisis)&
-  !is.na(crisis_with_na$Office)&
-!is.na(crisis_with_na$OffCri)&
-  !is.na(crisis_with_na$OffIntl)&
-  !is.na(crisis_with_na$Is.Defense)&
-  !is.na(crisis_with_na$ProductOrServiceArea)
-  # !is.na(crisis_with_na$cl_HHI_lag1)
 # 
 # summary(crisis_with_na$Crisis)
 # 
@@ -178,12 +184,9 @@ complete<-!is.na(crisis_with_na$b_Term)&
 # crisis_smp<-crisis_with_na[complete,]
 # # # 
 # # head(crisis_smp)
-crisis_smp$ServCommCons<-crisis_smp$HostNation3Category
-crisis_smp$CPSA<-as.character(crisis_smp$CrisisProductOrServiceArea)
-crisis_smp$CPSA<-factor(gsub(" & ","+",crisis_smp$CPSA))
-
 
 # save(crisis_smp,crisis_with_na,file="Data\\crisis_smp.Rdata")
+
 
 
 
@@ -197,47 +200,10 @@ crisis_smp$CPSA<-factor(gsub(" & ","+",crisis_smp$CPSA))
 # other_intl<-other_intl[sample(nrow(other_intl),300000),]
 # large_crisis_with_na<-rbind(large_crisis_with_na,other_dom,other_intl)
 # rm(other_dom,other_intl)
-# large_crisis_with_na$OffCri<-large_crisis_with_na$CrisisPercent
-# large_crisis_with_na$ProductOrServiceCode<-as.character(large_crisis_with_na$ProdServ)
-#   large_crisis_with_na<-csis360::read_and_join( large_crisis_with_na,
-#                                "ProductOrServiceCodes.csv",                             path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-#                                directory="",
-#                                by="ProductOrServiceCode",
-#                                add_var=c("Simple",
-#                                          "ProductServiceOrRnDarea",
-#                                          "ProductOrServiceArea"),
-#                                new_var_checked=FALSE)
-# large_crisis_with_na$ProductServiceOrRnDarea<-factor(large_crisis_with_na$ProductServiceOrRnDarea)
-# large_crisis_with_na$ProductOrServiceArea<-factor(large_crisis_with_na$ProductOrServiceArea)
-# summary(large_crisis_with_na$ProductServiceOrRnDarea)
-# summary(large_crisis_with_na$ProductOrServiceArea)
-# # summary(large_crisis_with_na$b_Comp )
-# # summary(large_crisis_with_na$n_Comp )
-# # summary(large_crisis_with_na$Comp )
-# # summary(large_crisis_with_na$CompOffr )
-# # summary(large_crisis_with_na$EffComp )
-# 
-# large_crisis_with_na$b_NoComp<-!large_crisis_with_na$b_Comp
-# 
-# complete<-!is.na(large_crisis_with_na$b_Term)&
-#   !is.na(large_crisis_with_na$b_CBre)&
-#   !is.na(large_crisis_with_na$b_Comp)&
-#   !is.na(large_crisis_with_na$b_Urg)&
-#   !is.na(large_crisis_with_na$l_Ceil)&
-#   !is.na(large_crisis_with_na$l_Days)&
-#   !is.na(large_crisis_with_na$Veh) &
-#   !is.na(large_crisis_with_na$n_Fixed)&
-#   !is.na(large_crisis_with_na$b_Intl)&
-#   !is.na(large_crisis_with_na$b_UCA)&
-#   !is.na(large_crisis_with_na$ProdServ)&
-#   !is.na(large_crisis_with_na$Crisis)&
-#   !is.na(large_crisis_with_na$Office)&
-# !is.na(large_crisis_with_na$OffCri)&
-#   !is.na(large_crisis_with_na$OffIntl)&
-#   !is.na(large_crisis_with_na$Is.Defense)&
-#   !is.na(large_crisis_with_na$ProductOrServiceArea)
-#   # !is.na(large_crisis_with_na$cl_HHI_lag1)
-# large_crisis_smp<-large_crisis_with_na[complete,]
+
+# large_crisis_with_na<-sample_prep(large_crisis_with_na)
+# large_complete<-get_complete_list(large_crisis_with_na)  
+# large_crisis_smp<-large_crisis_with_na[large_complete,]
 # # summary(large_crisis_with_na$Crisis)
 # # 
 # 
@@ -259,7 +225,7 @@ crisis_smp$CPSA<-factor(gsub(" & ","+",crisis_smp$CPSA))
 # 
 # large_crisis_smp$PSA<-as.character(large_crisis_smp$ProductOrServiceArea)
 # large_crisis_smp$PSA<-gsub(" & ","+",large_crisis_smp$PSA)
-# 
+# load("Data\\large_crisis_smp.Rdata")
 # save(large_crisis_smp,large_crisis_with_na,file="Data\\large_crisis_smp.Rdata")
 ```
 
@@ -4527,6 +4493,8 @@ summary_residual_compare(CBre_13B,CBre_14M,Term_13B,Term_13B,bins=20)
 ```
 The problem does appear to be with PSA. The study team considered reverting to product/service/R&D for ceiling, although classically in contingency situations, the division in construction/commodities(products)/services(other than construction including R&D.) That alternative approach is likely more suitable, but also suggests an additional possible solution, namely splitting Facility Based Services and Construction services. The two together are one of the more numerous categories of services, albiet still dwarfed by "other products" and clothing and subsitence.  A look back to 11A
 
+
+
 ## Breaking out Construction
 The study team had not initially focused on construction as a risk area and had been surprised to see that Facility-Related and Construction services had a high coefficient. The importance of this became clear on closer examination. The team spoke to two in-house experts for their opinions, to inform the expections below.
 
@@ -4970,6 +4938,196 @@ summary_residual_compare(CBre_15B,CBre_15E2,Term_15B,Term_15E2,bins=20)
 
 ```
 The results are somewhat interesting, with the US-50-Intl experience not quite running in line with expectation but instead specifically upholding hypothesis. However, the rarity of terminations for Intl-Dom contstruction would likely cause challenges further down the line. Leaving it out.
+
+### 15F: Crisis Product or Service Area
+Expectations mirrior earlier expecations, with the addition 
+```{r Model15F}
+crisis_smp$sqrcl_Ceil<-crisis_smp$cl_Ceil^2
+
+
+freq_discrete_plot(crisis_smp,"ServCommCons",rotate_text=TRUE)
+discrete_percent_plot(crisis_smp,"ServCommCons",caption=FALSE,rotate_text=TRUE)
+
+
+#Create the model
+
+  CBre_15F <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     sqrcl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh+
+                   CPSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(CBre_15F)
+  
+  Term_15F <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     sqrcl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh+
+                   CPSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(Term_15F)
+  
+
+
+  stargazer::stargazer(CBre_15B,Term_15F,Term_15B,Term_15F,type="text",
+                       digits=2)
+summary_residual_compare(CBre_15B,CBre_15F,Term_15B,Term_15F,bins=50)
+
+
+
+  CBre_15F2 <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     sqrcl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Ceil:NoComp+
+                     sqrcl_Ceil:Veh:NoComp+
+                     cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     sqrcl_Ceil:Veh+
+                   NoComp:Veh+
+                   CPSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(CBre_15F2)
+  
+  Term_15F2 <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     sqrcl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                      sqrcl_Ceil:Veh+
+
+                     b_NoComp:Veh+
+                   CPSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(Term_15F2)
+
+  
+    stargazer::stargazer(CBre_15B,Term_15F2,Term_15B,Term_15F2,type="text",
+                       digits=2)
+summary_residual_compare(CBre_15B,CBre_15F2,Term_15B,Term_15F2,bins=50)
+
+
+
+  CBre_15F3 <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     sqrcl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                     cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     sqrcl_Ceil:Veh+
+                   NoComp:Veh+
+                   CPSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(CBre_15F3)
+  
+  Term_15F3 <- glm (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     sqrcl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     b_NoComp:Veh+
+                   CPSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(Term_15F3)
+
+  stargazer::stargazer(CBre_15B,Term_15F3,Term_15B,Term_15F3,type="text",
+                       digits=2)
+summary_residual_compare(CBre_15B,CBre_15F3,Term_15B,Term_15F3,bins=50)
+
+
+  CBre_15F4 <- glm (data=crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     sqrcl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                     cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                   NoComp:Veh+
+                   CPSA+
+                     Reach:Crisis+
+                     Crisis:Is.Defense, 
+                   family=binomial(link="logit"))
+  display(CBre_15F4)
+  stargazer::stargazer(CBre_15B,CBre_15F4,Term_15B,Term_15F3,type="text",
+                       digits=2)
+summary_residual_compare(CBre_15B,CBre_15F4,Term_15B,Term_15F3,bins=50)
+  
+
+```
+Experimenting with a squared term is ultimately unsuccessful.
+
 #Multi-Level Model
 ### 16A: Product/Service/R&D and Platform
 ```{r Model16A}
@@ -4992,7 +5150,7 @@ load("model16A.rdata")
                    NoComp:Veh+
                      Reach:Crisis+
                      Crisis:Is.Defense+
-                     (1 | ServCommCons) + (1| CPSA), 
+                     (1 | Simple) + (1| PSA), 
                    family=binomial(link="logit"))
   display(CBre_16A)
   
@@ -5013,16 +5171,17 @@ load("model16A.rdata")
                      b_NoComp:Veh+
                      Reach:Crisis+
                      Crisis:Is.Defense+
-                     (1 | ServCommCons) + (1| CPSA), 
+                     (1 | Simple) + (1| PSA), 
                    family=binomial(link="logit"))
   display(Term_16A)
 # Plot the model and Vehicle 
-
+CBre_16A<-CBre_15A
+Term_16A<-Term_15A
 stargazer::stargazer(CBre_15B,CBre_16A,Term_15B,Term_16A,type="text",
                         digits=2)
 summary_residual_compare(CBre_15B,CBre_16A,Term_15B,Term_16A)
 
-# save(CBre_16A,Term_16A, file="Model16A.RData")
+save(CBre_16A,Term_16A, file="Model16A.RData")
 ```
 
 
@@ -5089,7 +5248,7 @@ The use of Comp as
 Ceil converges
 Term Model failed to converge with max|grad| = 0.00135324 (tol = 0.001, component 1)
 
-### 16C: Interactions
+### 16C: Code-level detail
 ```{r Model16C}
 load("Model16C.RData") #Only have CBre at the moment
 
@@ -5140,18 +5299,18 @@ load("Model16C.RData") #Only have CBre at the moment
                         digits=2)
 
 summary_residual_compare(CBre_16B,CBre_16C,Term_16A,Term_16B)
-# save(CBre_16C, file="Model16C.RData")
+# save(CBre_16C, Term_16C, file="Model16C.RData")
 ```
 
-CBre_12C Model failed to converge with max|grad| = 0.0103776 (tol = 0.001, component 1)
+CBre_16C Model failed to converge with max|grad| = 0.0103776 (tol = 0.001, component 1)
 
-Term_12C 
+Term_16C 
 Model failed to converge with max|grad| = 0.0338872 (tol = 0.001, component 1)
 
 
 
 
-### 16D: Product/Service/R&D and Platform
+### 16D: Crisis + Product ServiceArea
 
 ```{r Model16D}
 summary(crisis_smp$PSA)
@@ -5211,7 +5370,7 @@ summary_residual_compare(CBre_11B,CBre_16D,Term_11B,Term_16D)
 # save(CBre_16A,Term_16A, file="Model16A.RData")
 ```
 
-### 16E: Product/Service/R&D and Platform
+### 16E: Serv/Supply/Const + Area
 Initial multi-level analysis used CSIS's traditional product or service areas. After additional analysis in  step 15, this approach was rerun using 
 ```{r Model16E}
 summary(crisis_smp$ServCommCons)
@@ -5259,9 +5418,213 @@ load("model16E.rdata")
   display(Term_16E)
 # Plot the model and Vehicle 
 
-stargazer::stargazer(CBre_15B,CBre_16E,Term_15B,Term_16E,type="text",
+stargazer::stargazer(CBre_15B,CBre_16A,CBre_16C,CBre_16E,Term_15B,Term_16A,Term_16C,Term_16E,type="text",
                         digits=2)
 summary_residual_compare(CBre_15B,CBre_16E,Term_15B,Term_16E)
+summary_residual_compare(CBre_16A,CBre_16E,Term_16A,Term_16E)
+summary_residual_compare(CBre_16C,CBre_16E,Term_16C,Term_16E)
 
-# save(CBre_16A,Term_16A, file="Model16A.RData")
+  Term_16E2 <- glmer (data=crisis_smp,
+                   b_Term ~ Crisis +b_NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                     Is.Defense +
+                    cl_Days:b_NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     b_NoComp:Veh+
+                     Reach:Crisis+
+                     Crisis:Is.Defense+
+                    (1| CPSA), 
+                   family=binomial(link="logit"))
+  display(Term_16E2)
+
+  save(CBre_16E,Term_16E, file="Model16E.RData")
 ```
+Term  failed to converge 0.004
+
+
+
+
+
+### 16F: Code-level detail
+```{r Model16F}
+load("Model16F.RData") #Only have CBre at the moment
+
+    CBre_16F <- glmer (data=large_crisis_smp,
+                     b_CBre ~ Crisis + NoComp +
+                       b_UCA +
+                       Reach + 
+                       # c_OffCri +
+                       cl_Ceil +
+                       cl_Days +
+                       Veh +
+                       n_Fixed +
+                       Is.Defense +
+                       # NoComp:Crisis +
+                       # b_UCA:Crisis +
+                       # Reach:Crisis +
+                       # Reach:NoComp +
+                       # cl_Days:Veh +
+                       # cl_Ceil:Veh +
+                       # NoComp:Veh +
+                       (1 | ServCommCons)+(1 |  CPSA) + (1|ProdServ),
+                     family=binomial(link="logit"))
+    display(CBre_16F)
+    
+    
+    
+    CBre_16F2 <- glmer (data=large_crisis_smp,
+                     b_CBre ~ Crisis + NoComp +
+                       b_UCA +
+                       Reach + 
+                       # c_OffCri +
+                       cl_Ceil +
+                       # cl_Days +
+                       Veh +
+                       n_Fixed +
+                       Is.Defense +
+                       # NoComp:Crisis +
+                       # b_UCA:Crisis +
+                       # Reach:Crisis +
+                       # Reach:NoComp +
+                       # cl_Days:Veh +
+                       # cl_Ceil:Veh +
+                       # NoComp:Veh +
+                       # (1 | ServCommCons)+(1 |  CPSA) +
+                       (1|ProdServ),
+                     family=binomial(link="logit"))
+    display(CBre_16F2)
+    
+    
+     
+    CBre_16F3 <- glmer (data=large_crisis_smp,
+                     b_CBre ~ Crisis + NoComp +
+                       b_UCA +
+                       Reach + 
+                       c_OffCri +
+                       cl_Ceil +
+                       cl_Days +
+                       Veh +
+                       n_Fixed +
+                       Is.Defense +
+                       NoComp:Crisis + 
+                       b_UCA:Crisis +
+                       Reach:Crisis +
+                       Reach:NoComp +
+                       cl_Days:Veh +
+                       cl_Ceil:Veh +
+                       NoComp:Veh +
+                       (1 | ServCommCons)+(1 |  CPSA) +
+                       (1|ProdServ),
+                     family=binomial(link="logit"))
+
+    
+  large_crisis_smp$ProdServ2<-factor(substr(large_crisis_smp$ProdServ,1,2))
+     
+  CBre_16F4<-glmer(formula = b_CBre ~ Crisis + 
+                     NoComp + 
+                     b_UCA + 
+                     Reach + 
+                     cl_Ceil + 
+                     cl_Days + 
+                     Veh + 
+                     n_Fixed + 
+                     Is.Defense + 
+                     cl_Days:NoComp + 
+                     cl_Days:Veh + 
+                     cl_Ceil:Veh + 
+                     NoComp:Veh +
+                     Reach:Crisis 
+                   + Crisis:Is.Defense +
+                     (1 | ProdServ2),
+                   data = large_crisis_smp, family = binomial(link = "logit"))
+  display(CBre_16F4)
+  
+  CBre_16F5<-glmer(formula = b_CBre ~ Crisis + 
+                     NoComp + 
+                     b_UCA + 
+                     Reach + 
+                     cl_Ceil + 
+                     cl_Days + 
+                     Veh + 
+                     n_Fixed + 
+                     Is.Defense + 
+                     cl_Days:NoComp + 
+                     cl_Days:Veh + 
+                     cl_Ceil:Veh + 
+                     NoComp:Veh +
+                     # Reach:Crisis 
+                   + Crisis:Is.Defense +
+                     (1 | ProdServ2),
+                   data = large_crisis_smp, family = binomial(link = "logit"))
+  display(CBre_16F5)
+  
+  
+  CBre_16F6<-glmer(formula = b_CBre ~ Crisis + 
+                     NoComp + 
+                     b_UCA + 
+                     Reach + 
+                     cl_Ceil + 
+                     cl_Days + 
+                     Veh + 
+                     n_Fixed + 
+                     Is.Defense + 
+                     # cl_Days:NoComp + We're not that close to the max|grad, this is significant but runs contrary 
+                     #to expectation and is less interesting than the NoComp:Veh
+                     cl_Days:Veh + 
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+                     NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+                     # Reach:Crisis This 
+                   + Crisis:Is.Defense +
+                     (1 | ProdServ2),
+                   data = large_crisis_smp, family = binomial(link = "logit"))
+  display(CBre_16F6)
+      # 
+  # Term_16C <- glmer (data=crisis_smp,
+  #                  b_Term ~ Crisis + 
+  #                    b_NoComp + 
+  #                    b_UCA + 
+  #                    Reach + c_OffCri + 
+  #                    cl_Ceil + 
+  #                    cl_Days + 
+  #                    Veh +
+  #                    n_Fixed +
+  #                    Is.Defense + 
+  #                    # Crisis:b_NoComp + 
+  #                    # b_UCA:Crisis + 
+  #                    # Reach:Crisis + 
+  #                    # cl_Ceil:Crisis + 
+  #                    # cl_Ceil:Reach + 
+  #                    # cl_Days:Crisis + 
+  #                    # cl_Days:NoComp+ +
+  #                    # cl_Days:Veh + 
+  #                    # cl_Ceil:Veh +
+  #                    # b_NoComp:Veh+ 
+  #                      (1 | Simple)+(1 |  PSA) + (1|ProdServ), 
+  #                  family=binomial(link="logit"))
+  # display(Term_16C)
+  stargazer::stargazer(CBre_16C,CBre_16E,CBre_16F3,CBre_16F3,type="text",
+                        digits=2)
+
+summary_residual_compare(CBre_16C,CBre_16F3,Term_16C,Term_16C)
+# save(CBre_16C, Term_16C, file="Model16C.RData")
+``` 
+16F 2
+Model failed to converge with max|grad| = 0.20068 (tol = 0.001, component 1)
+
+16F3 failure to converge in 10000 evaluationsModel failed to converge with max|grad| = 0.0173215 (tol = 0.001, component 1)
+
+16F4 
+Model failed to converge with max|grad| = 0.00380252 (tol = 0.001, component 1)
+
+16F5
+Model failed to converge with max|grad| = 0.00894279 (tol = 0.001, component 1
+
+VIF threshold exceeded for reach, so removing Reach:Crisis is a straightforward next step.
