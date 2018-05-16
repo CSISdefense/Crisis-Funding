@@ -4612,6 +4612,9 @@ discrete_percent_plot(crisis_smp,"ServCommCons",caption=FALSE,rotate_text=TRUE)
   stargazer::stargazer(CBre_13B,Term_15B,Term_13B,Term_15B,type="text",
                        digits=2)
 summary_residual_compare(CBre_13B,CBre_15B,Term_13B,Term_15B,bins=50)
+
+
+coefplot(CBre_15B)
 ```
 
 ###15C: P/S/C and Crisis
@@ -5586,6 +5589,27 @@ load("Model16F.RData") #Only have CBre at the moment
                      (1 | ProdServ2),
                    data = large_crisis_smp, family = binomial(link = "logit"))
   display(CBre_16F6)
+  
+  
+  CBre_16F6<-glmer(formula = b_CBre ~ Crisis + 
+                     NoComp + 
+                     b_UCA + 
+                     Reach + 
+                     cl_Ceil + 
+                     cl_Days + 
+                     Veh + 
+                     n_Fixed + 
+                     Is.Defense + 
+                     # cl_Days:NoComp + We're not that close to the max|grad, this is significant but runs contrary 
+                     #to expectation and is less interesting than the NoComp:Veh
+                     cl_Days:Veh + 
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+                     NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+                     # Reach:Crisis This 
+                   + Crisis:Is.Defense +
+                     (1 | ProdServ2),
+                   data = large_crisis_smp, family = binomial(link = "logit"))
+  display(CBre_16F6)
       # 
   # Term_16C <- glmer (data=crisis_smp,
   #                  b_Term ~ Crisis + 
@@ -5613,8 +5637,58 @@ load("Model16F.RData") #Only have CBre at the moment
   stargazer::stargazer(CBre_16C,CBre_16E,CBre_16F3,CBre_16F3,type="text",
                         digits=2)
 
+  
+  
+    CBre_16F7 <- glmer (data=large_crisis_smp,
+                     b_CBre ~ Crisis + NoComp +
+                       b_UCA +
+                       Reach + 
+                       c_OffCri +
+                       cl_Ceil +
+                       cl_Days +
+                       Veh +
+                       n_Fixed +
+                       Is.Defense +
+                     cl_Days:NoComp +
+                     cl_Days:Veh + 
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+                     NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+                     # Reach:Crisis This 
+                   + Crisis:Is.Defense +
+                       (1 | ServCommCons)+(1 |  CPSA) +
+                       (1|ProdServ),
+                     family=binomial(link="logit"))
+
+
+    
+    CBre_16F8 <- glmer (data=large_crisis_smp,
+                     b_CBre ~ Crisis + NoComp +
+                       b_UCA +
+                       Reach + 
+                       c_OffCri +
+                       cl_Ceil +
+                       cl_Days +
+                       Veh +
+                       n_Fixed +
+                       Is.Defense +
+                     cl_Days:NoComp +
+                     cl_Days:Veh + 
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+                     NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+                     # Reach:Crisis This 
+                   + Crisis:Is.Defense +
+                       # (1 | ServCommCons)+
+                     (1 |  CPSA) +
+                       (1|ProdServ),
+                     family=binomial(link="logit"))
+
+      
 summary_residual_compare(CBre_16C,CBre_16F3,Term_16C,Term_16C)
+summary_residual_compare(CBre_16C,CBre_16F7,Term_16C,Term_16C)
+coef(CBre_16F7)
 # save(CBre_16C, Term_16C, file="Model16C.RData")
+
+
 ``` 
 16F 2
 Model failed to converge with max|grad| = 0.20068 (tol = 0.001, component 1)
@@ -5628,3 +5702,11 @@ Model failed to converge with max|grad| = 0.00380252 (tol = 0.001, component 1)
 Model failed to converge with max|grad| = 0.00894279 (tol = 0.001, component 1
 
 VIF threshold exceeded for reach, so removing Reach:Crisis is a straightforward next step.
+
+Model failed to converge with max|grad| = 0.01341 (tol = 0.001, component 1)
+
+GOing mroe detailed proved useful for 16F7
+
+Model failed to converge with max|grad| = 0.00400832 (tol = 0.001, component 1)
+
+
