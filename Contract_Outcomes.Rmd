@@ -4230,9 +4230,14 @@ display(CBre_15D)
 display(Term_15D)
 # Plot the model and Vehicle 
 
-stargazer::stargazer(CBre_11B,CBre_15D,Term_11B,Term_15D,type="text",
+stargazer::stargazer(CBre_15A,CBre_15D,Term_15A,Term_15D,type="text",
                         digits=2)
-summary_residual_compare(CBre_11B,CBre_15D,Term_11B,Term_15D)
+summary_residual_compare(CBre_15A,CBre_15D,Term_15A,Term_15D,50)
 
 # save(CBre_15A,Term_15A, file="Model15A.RData")
 ```
+
+CBre Model failed to converge with max|grad| = 0.00182267 (tol = 0.001, component 1)
+
+
+Term Model failed to converge with max|grad| = 0.00151616 (tol = 0.001, component 1)
