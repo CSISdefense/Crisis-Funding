@@ -5366,13 +5366,17 @@ display(CBre_16D)
 display(Term_16D)
 # Plot the model and Vehicle 
 
-stargazer::stargazer(CBre_11B,CBre_16D,Term_11B,Term_16D,type="text",
+stargazer::stargazer(CBre_15A,CBre_15D,Term_15A,Term_15D,type="text",
                         digits=2)
-summary_residual_compare(CBre_11B,CBre_16D,Term_11B,Term_16D)
+summary_residual_compare(CBre_15A,CBre_15D,Term_15A,Term_15D,50)
 
 # save(CBre_16A,Term_16A, file="Model16A.RData")
 ```
 
+CBre Model failed to converge with max|grad| = 0.00182267 (tol = 0.001, component 1)
+
+
+Term Model failed to converge with max|grad| = 0.00151616 (tol = 0.001, component 1)
 ### 16E: Serv/Supply/Const + Area
 Initial multi-level analysis used CSIS's traditional product or service areas. After additional analysis in  step 15, this approach was rerun using 
 ```{r Model16E}
