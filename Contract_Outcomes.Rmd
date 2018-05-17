@@ -5686,6 +5686,28 @@ load("Model16F.RData") #Only have CBre at the moment
                        (1|ProdServ),
                      family=binomial(link="logit"))
 
+    
+    
+    CBre_16F9<- glmer (data=large_crisis_smp,
+                     b_CBre ~ Crisis + NoComp +
+                       b_UCA +
+                       Reach + 
+                       c_OffCri +
+                       cl_Ceil +
+                       cl_Days +
+                       Veh +
+                       n_Fixed +
+                       Is.Defense +
+                     cl_Days:NoComp +
+                     cl_Days:Veh + 
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+                     NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+                     # Reach:Crisis This 
+                   + Crisis:Is.Defense +
+                       (1 | ServCommCons)+
+                     # (1 |  CPSA) +
+                       (1|ProdServ),
+                     family=binomial(link="logit"))
       
 summary_residual_compare(CBre_16C,CBre_16F3,Term_16C,Term_16C)
 summary_residual_compare(CBre_16C,CBre_16F7,Term_16C,Term_16C)
@@ -5713,4 +5735,5 @@ GOing mroe detailed proved useful for 16F7
 
 Model failed to converge with max|grad| = 0.00400832 (tol = 0.001, component 1)
 
-
+16F9
+failure to converge in 10000 evaluationsModel failed to converge with max|grad| = 0.00429031 (tol = 0.001, component 1)
