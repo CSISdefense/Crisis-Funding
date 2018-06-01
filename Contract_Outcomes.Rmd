@@ -5950,12 +5950,12 @@ Dropping CPSA raises the max|grad to 0.11. It appears the heirarchy does really 
 
 ### 16N: Multilevel Crisis
 ```{r Model16N}
+load("Model16N.RData")
 
-    
 # CBre_16G10<-     glmer (data=large_crisis_smp,
 #                       b_CBre ~  NoComp +
 #                         b_UCA +
-#                        Reach + 
+#                        Reach +
 #                         c_OffCri +
 #                         cl_Ceil +
 #                         cl_Days +
@@ -5963,27 +5963,50 @@ Dropping CPSA raises the max|grad to 0.11. It appears the heirarchy does really 
 #                         n_Fixed +
 #                        Is.Defense +
 #                      cl_Days:NoComp +
-#                      # cl_Days:Veh + 
+#                      # cl_Days:Veh +
 #                      # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
 #                       NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
-#   # Reach:Crisis This 
-#                        # (1 | ServCommCons)+   
+#   # Reach:Crisis This
+#                        # (1 | ServCommCons)+
 #   (1 |  CPSA) +
 #                       (1|ProdServ)+(1+Is.Defense |Crisis),
 #                       family=binomial(link="logit"))
 
            display(CBre_16G10)
     glmer_examine(CBre_16G10)
-    save(CBre_16G10, file="Model16N.RData")
-
-    ss<-getME(CBre_16G10,c("theta","fixef"))
-    CBre_16N2 <- update(CBre_16G10,start=ss,control=glmerControl(optimizer="bobyqa",
-                            optCtrl=list(maxfun=2e5)))
     
-        CBre_16N3 <- update(CBre_16G10,start=ss,control=glmerControl(optimizer="nloptwrap",
-                            optCtrl=list(maxfun=2e5)))
+
+    # ss<-getME(CBre_16G10,c("theta","fixef"))
+    # CBre_16N2 <- update(CBre_16G10,start=ss,control=glmerControl(optimizer="bobyqa",
+    #                         optCtrl=list(maxfun=2e5)))
+    # 
+    #     CBre_16N3 <- update(CBre_16G10,start=ss,control=glmerControl(optimizer="nloptwrap",
+    #                         optCtrl=list(maxfun=2e5)))
+        
+        
+CBre_16N4<-     glmer (data=extra_large_crisis_smp,
+                      b_CBre ~  NoComp +
+                        b_UCA +
+                       Reach +
+                        c_OffCri +
+                        cl_Ceil +
+                        cl_Days +
+                        Veh +
+                        n_Fixed +
+                       Is.Defense +
+                     cl_Days:NoComp +
+                     # cl_Days:Veh +
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+                      NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+  # Reach:Crisis This
+                       # (1 | ServCommCons)+
+  (1 |  CPSA) +
+                      (1|ProdServ)+(1+Is.Defense |Crisis),
+                      family=binomial(link="logit"))
+
+save(CBre_16N4, file="Model16N.RData")#CBre_16G10,
 ```
-Multi-level modeling of crisis, with seperate slopes based on the value for isdefense, lowers the max|grad to 0.0013, a new low. The alternate models were not saved due to user error but has max|grads of around 0.002 (bobyqa) and 0.004 (nloptwrap) respectively.
+Multi-level modeling of crisis, with seperate slopes based on the value for isdefense, lowers the max|grad to 0.0013, a new low. The alternate models were not saved due to user error but has max|grads of around 0.002 (bobyqa) and 0.004 (nloptwrap) respectively. Likewise switching to extra large resulted in a max|grid of 0.0057, all this suggests that adding crisis as a multilevel variable is not particularly robust.
 
 ### 16O: Crisis:Reach
 ```{r Model16O}           
