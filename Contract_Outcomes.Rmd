@@ -5983,7 +5983,7 @@ Dropping CPSA raises the max|grad to 0.11. It appears the heirarchy does really 
         CBre_16N3 <- update(CBre_16G10,start=ss,control=glmerControl(optimizer="nloptwrap",
                             optCtrl=list(maxfun=2e5)))
 ```
-Multi-level modeling of crisis, with seperate slopes based on the value for isdefense, lowers the max|grad to 0.0013, a new low.
+Multi-level modeling of crisis, with seperate slopes based on the value for isdefense, lowers the max|grad to 0.0013, a new low. The alternate models were not saved due to user error but has max|grads of around 0.002 (bobyqa) and 0.004 (nloptwrap) respectively.
 
 ### 16O: Crisis:Reach
 ```{r Model16O}           
