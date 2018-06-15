@@ -392,6 +392,8 @@ impute_unmodified<-function(unmodified,
   unmodified
 }
 
+
+
 input_sample_criteria<-function(contract=NULL,
                                 file="contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
                                 dir="Data\\",
@@ -399,11 +401,15 @@ input_sample_criteria<-function(contract=NULL,
                                 last_year=2015,
                                 retain_all=FALSE
                                 ){
-  if(!exists("contract")){
+
+  
+  
+  if(!exists("contract") | is.null(contract)){
+    input<-swap_in_zip(file,dir)
     contract <-readr::read_delim(
-      paste(file,dir,sep=""),
+      input,
       col_names=TRUE, 
-      delim="\t",
+      delim=get_delim(file),
       # , dec=".",
       trim_ws=TRUE,
       na=c("NULL","NA")
@@ -430,12 +436,12 @@ input_sample_criteria<-function(contract=NULL,
     )
   }
   
-  if(is.numeric(contract$Term)){
-    contract$Term<-factor(contract$Term,
-                          levels = c(0,1),
-                          labels = c("Unterminated", "Terminated")
-    )
-  }
+  # if(is.numeric(contract$Term)){
+  #   contract$Term<-factor(contract$Term,
+  #                         levels = c(0,1),
+  #                         labels = c("Unterminated", "Terminated")
+  #   )
+  # }
   
   # contract<-subset(contract,select=-c(StartFiscal_Year
   # ,IsClosed
@@ -461,13 +467,14 @@ input_sample_criteria<-function(contract=NULL,
   }
   contract
 }
-
-
+Contract.SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt
+Contract.SP_ContractUnmodifiedandOutcomeDetailsCustomer
 input_initial_scope<-function(contract,
                                 file="Contract.SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt",
                                 dir="Data\\",
                                 retain_all=FALSE
 ){
+  
     contract<-csis360::read_and_join_experiment(data=contract
                                                 ,file
                                                 ,path=""
