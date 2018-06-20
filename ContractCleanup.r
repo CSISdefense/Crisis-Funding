@@ -140,12 +140,9 @@ FormatContractModel<-function(dfContract){
   
   
   if ( "Dur" %in% colnames(dfContract) & 
-       levels(dfContract$Dur)[[2]] %in% c("[   61,  214)",
-                                                     "[     61,    214)")&
-       levels(dfContract$Dur)[[3]] %in% c("[  214,  366)",
-                                                     "[    214,    366)")&
-       levels(dfContract$Dur)[[4]] %in% c("[  366,  732)",
-                                                     "[    366,    732)")
+       gsub(" ","",levels(dfContract$Dur)[[2]]) =="[61,214)"&
+       gsub(" ","",levels(dfContract$Dur)[[3]]) =="[214,366)"&
+       gsub(" ","",levels(dfContract$Dur)[[4]]) =="[366,732)"
   ){
     dfContract$Dur<-factor(dfContract$Dur, 
                                       
@@ -229,10 +226,10 @@ FormatContractModel<-function(dfContract){
   
   
   if("MinOfEffectiveDate" %in% colnames(dfContract) & 
-     !"StartFY" %in% colnames(dfContract))
+     !"StartFY" %in% colnames(dfContract)){
     dfContract$MinOfEffectiveDate<-as.Date(as.character(dfContract$MinOfEffectiveDate))
   dfContract$StartFY<-DateToFiscalYear(dfContract$MinOfEffectiveDate)
-  
+  }
   
   if("MinOfEffectiveDate" %in% colnames(dfContract) &
      "UnmodifiedCurrentCompletionDate" %in% colnames(dfContract)){

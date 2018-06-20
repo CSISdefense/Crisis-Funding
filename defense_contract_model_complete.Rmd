@@ -100,6 +100,7 @@ load(file="Data\\def_all_complete.Rdata")
      
 def_full<-rename_dataset(def_full)
 def_full<-def_full[,colnames(def_full) %in% c(
+  "CSIScontractID",
    # IsIDV,
   "FxCb",
   "Fee",
@@ -140,8 +141,11 @@ def_full<-def_full[,colnames(def_full) %in% c(
   "NAICS",
   "MaxOfDecisionTree",
   # "MaxOfDecisionTreeStep4",
-  "MinOfDecisionTree"
+  "MinOfDecisionTree",
   # "MinOfDecisionTreeStep4"
+  "LastCurrentCompletionDate",
+  "UnmodifiedCurrentCompletionDate",
+  "IsClosed"
 )]
 # 
 
