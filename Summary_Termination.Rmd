@@ -14,7 +14,7 @@ Is Terminated exploration
 ```{r InputFiles, echo = TRUE}
 source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
 source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
-source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat")
+source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
 source("ContractCleanup.r")
 
 library(csis360)

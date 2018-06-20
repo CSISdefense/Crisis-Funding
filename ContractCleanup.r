@@ -467,8 +467,8 @@ input_sample_criteria<-function(contract=NULL,
   }
   contract
 }
-Contract.SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt
-Contract.SP_ContractUnmodifiedandOutcomeDetailsCustomer
+
+
 input_initial_scope<-function(contract,
                                 file="Contract.SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt",
                                 dir="Data\\",
@@ -594,7 +594,17 @@ input_initial_scope<-function(contract,
     
     summary(subset(contract$qCRais,contract$SumOfisChangeOrder>0    ))
     
-   
+  
+    
+    #Boolean value for ceiling breaches
+    #Safety measure to make sure we don't assume it's never NA.
+    contract$CBre <- NA
+    contract$CBre[!is.na(contract$SumOfisChangeOrder)] <- "None"
+    contract$CBre[contract$ChangeOrderBaseAndAllOptionsValue > 0
+                  & contract$SumOfisChangeOrder>0] <- "Ceiling Breach"
+    contract$CBre<-ordered(contract$CBre,levels=c("None","Ceiling Breach"))
+    
+     
   if(retain_all==FALSE){
     contract<-contract[,!colnames(contract) %in% 
                          c(
@@ -606,4 +616,6 @@ input_initial_scope<-function(contract,
     
   }
   contract
+  
+  
 }
