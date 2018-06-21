@@ -217,26 +217,26 @@ FormatContractModel<-function(dfContract){
   if("UnmodifiedCurrentCompletionDate" %in% colnames(dfContract))
     dfContract$UnmodifiedCurrentCompletionDate<-
     as.Date(dfContract$UnmodifiedCurrentCompletionDate)
-  if("MinOfEffectiveDate" %in% colnames(dfContract))
-    dfContract$MinOfEffectiveDate<-
-    as.Date(dfContract$MinOfEffectiveDate)
+  if("MinOfSignedDate" %in% colnames(dfContract))
+    dfContract$MinOfSignedDate<-
+    as.Date(dfContract$MinOfSignedDate)
   if("LastCurrentCompletionDate" %in% colnames(dfContract))
     dfContract$LastCurrentCompletionDate<-
     as.Date(dfContract$LastCurrentCompletionDate)
   
   
-  if("MinOfEffectiveDate" %in% colnames(dfContract) & 
+  if("MinOfSignedDate" %in% colnames(dfContract) & 
      !"StartFY" %in% colnames(dfContract)){
-    dfContract$MinOfEffectiveDate<-as.Date(as.character(dfContract$MinOfEffectiveDate))
-  dfContract$StartFY<-DateToFiscalYear(dfContract$MinOfEffectiveDate)
+    dfContract$MinOfSignedDate<-as.Date(as.character(dfContract$MinOfSignedDate))
+  dfContract$StartFY<-DateToFiscalYear(dfContract$MinOfSignedDate)
   }
   
-  if("MinOfEffectiveDate" %in% colnames(dfContract) &
+  if("MinOfSignedDate" %in% colnames(dfContract) &
      "UnmodifiedCurrentCompletionDate" %in% colnames(dfContract)){
     if(!"UnmodifiedDays" %in% colnames(dfContract))
       dfContract$UnmodifiedDays<-as.numeric(
         difftime(strptime(dfContract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")
-                 , strptime(dfContract$MinOfEffectiveDate,"%Y-%m-%d")
+                 , strptime(dfContract$MinOfSignedDate,"%Y-%m-%d")
                  , unit="days"
         ))+1
   }
@@ -489,17 +489,17 @@ input_initial_scope<-function(contract,
     #Calculate the number of days the contract lasts.
     contract$UnmodifiedDays<-as.numeric(
       difftime(strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")
-               , strptime(contract$MinOfEffectiveDate,"%Y-%m-%d")
+               , strptime(contract$MinOfSignedDate,"%Y-%m-%d")
                , unit="days"
       ))+1
     
     # 
     # CDuration<-as.duration(strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")-
-    #                 strptime(contract$MinOfEffectiveDate,"%Y-%m-%d"))
+    #                 strptime(contract$MinOfSignedDate,"%Y-%m-%d"))
     # 
     # CPeriod<-as.period(
     #     CInterval<-new_interval(ymd(contract$UnmodifiedCurrentCompletionDate),
-    #                 ymd(contract$MinOfEffectiveDate))
+    #                 ymd(contract$MinOfSignedDate))
     # 
     # 
     # 
@@ -660,7 +660,7 @@ input_initial_scope<-function(contract,
                          c(
                            #     UnmodifiedDays,
                            # UnmodifiedCurrentCompletionDate
-                           # "MinOfEffectiveDate",
+                           # "MinOfSignedDate",
                            "LastUltimateCompletionDate"
                          )]
     

@@ -45,19 +45,18 @@ def_all<-input_sample_criteria(def_all,
                       drop_incomplete=FALSE)
   
 
-save(file="Data\\def_all_complete.Rdata",def_all)
+save(file="Data\\def_all_detail.Rdata",def_all)
 
 ```
 
 
 ##Initial Scope
 ```{r Scope}
-# load(file="Data\\def_all_complete.Rdata")
+# load(file="Data\\def_all_detail.Rdata")
 debug(input_initial_scope)
-debug(read_and_join_experiment)
-def_all<-input_initial_scope(def_all                              )
+def_all<-input_initial_scope(def_all)
 
-save(file="Data\\def_all_complete.Rdata",def_all)
+save(file="Data\\def_all_detail.Rdata",def_all)
 ```
 
 #Final Cleanup and Output
@@ -95,7 +94,7 @@ save(file="Data\\def_contract_all_complete.Rdata",def_all)
 ##Dataset Output
 
 ```{r DatasetOutput}
-load(file="Data\\def_all_complete.Rdata")
+load(file="Data\\defense_contract_all_complete.Rdata")
 
      
 def_all<-rename_dataset(def_all)
