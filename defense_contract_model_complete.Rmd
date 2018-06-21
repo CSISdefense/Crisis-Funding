@@ -38,14 +38,14 @@ source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/
 #Combining Source Files
 ##Sample Criteria
 ```{r DetailCustomer}
-if(!exists("def_full")) def_full<-NULL
+if(!exists("def_all")) def_all<-NULL
 debug(input_sample_criteria)
-def_full<-input_sample_criteria(def_full,
+def_all<-input_sample_criteria(def_all,
                                 file="Defense_Contract_SP_ContractSampleCriteriaDetailsCustomer.csv",
                       drop_incomplete=FALSE)
   
 
-save(file="Data\\def_all_complete.Rdata",def_full)
+save(file="Data\\def_all_complete.Rdata",def_all)
 
 ```
 
@@ -55,9 +55,9 @@ save(file="Data\\def_all_complete.Rdata",def_full)
 # load(file="Data\\def_all_complete.Rdata")
 debug(input_initial_scope)
 debug(read_and_join_experiment)
-def_full<-input_initial_scope(def_full                              )
+def_all<-input_initial_scope(def_all                              )
 
-save(file="Data\\def_all_complete.Rdata",def_full)
+save(file="Data\\def_all_complete.Rdata",def_all)
 ```
 
 #Final Cleanup and Output
@@ -66,13 +66,13 @@ save(file="Data\\def_all_complete.Rdata",def_full)
 # debug(apply_lookups)
 
 
-def_full<-apply_lookups(Path,def_full)
+def_all<-apply_lookups(Path,def_all)
 
 
 
 
-# def_full<-csis360::read_and_join(
-#   def_full,
+# def_all<-csis360::read_and_join(
+#   def_all,
 #   "Lookup_SubCustomer.csv",
 #   by=c("Customer","SubCustomer"),
 #   # replace_na_var=NULL,
@@ -82,14 +82,14 @@ def_full<-apply_lookups(Path,def_full)
 #   # skip_check_var="CHPKisCrisisFunding"
 #   )
 
-# def_full$SubCustomer.sum<-factor(def_full$SubCustomer.sum)
-# def_full$SubCustomer.sum<-droplevels(def_full$SubCustomer.sum)
-# def_full$SubCustomer.sum<-droplevels(def_full$SubCustomer.sum)
+# def_all$SubCustomer.sum<-factor(def_all$SubCustomer.sum)
+# def_all$SubCustomer.sum<-droplevels(def_all$SubCustomer.sum)
+# def_all$SubCustomer.sum<-droplevels(def_all$SubCustomer.sum)
 
 
 
-save(file="Data\\def_all_complete.Rdata",def_full)
-# def_full<-rename_dataset(def_full)
+save(file="Data\\def_contract_all_complete.Rdata",def_all)
+# def_all<-rename_dataset(def_all)
 
 ```
 ##Dataset Output
@@ -98,8 +98,8 @@ save(file="Data\\def_all_complete.Rdata",def_full)
 load(file="Data\\def_all_complete.Rdata")
 
      
-def_full<-rename_dataset(def_full)
-def_full<-def_full[,colnames(def_full) %in% c(
+def_all<-rename_dataset(def_all)
+def_all<-def_all[,colnames(def_all) %in% c(
   "CSIScontractID",
    # IsIDV,
   "FxCb",
@@ -151,8 +151,8 @@ def_full<-def_full[,colnames(def_full) %in% c(
 
    
 
-write.table(def_full
-  ,file=paste("data\\defense_outcome_only.csv"
+write.table(def_all
+  ,file=paste("data\\defense_contract_all.csv"
     ,sep=""
   )
   #   ,header=TRUE
@@ -164,10 +164,9 @@ write.table(def_full
 
 
 
-summary(def_full$Agency[def_full$Who=="Uncategorized"])
-def<-def_full[def_full$Who!="Civilian",]
-save(def,file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
- save(def_full,file="Data\\def_fulleral_contract_CSIScontractID_detail.Rdata")
+summary(def_all$Agency[def_all$Who=="Uncategorized"])
+
+save(def_all,file="data\\defense_contract_all.RData")
   
 #Strip out the cuts
 
