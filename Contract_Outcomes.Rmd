@@ -7,7 +7,7 @@ output:
     keep_md: yes
 --- 
 
-Modeling Likelihood of Contract Termination
+Modeling Likelihood of Contract Termination or Ceiling Breach
 ============================================================================
 
 #Setup
@@ -117,6 +117,8 @@ load("Data\\crisis_smp.Rdata")
 # crisis_with_na<-rbind(crisis_with_na,other_dom,other_intl)
 # rm(other)
 sample_prep<-function(data){
+  colnames(data)[colnames(data)=="ProdServ"]<-"ProductOrServiceCode"
+  data$ProductOrServiceCode<-as.character(data$ProductOrServiceCode)
   data<-csis360::read_and_join( data,
                                  "ProductOrServiceCodes.csv",
                                  path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
@@ -135,15 +137,20 @@ sample_prep<-function(data){
   data$HostNation3Category<-factor(data$HostNation3Category)
   data$CrisisProductOrServiceArea<-factor(data$CrisisProductOrServiceArea)
   data$ProductOrServiceCodeText<-factor(data$ProductOrServiceCodeText)
+  data$ProductOrServiceCode<-factor(data$ProductOrServiceCode)
 data$ServCommCons<-data$HostNation3Category
 data$CPSA<-as.character(data$CrisisProductOrServiceArea)
 data$CPSA<-factor(gsub(" & ","+",data$CPSA))
-data$b_NoComp<-!data$b_Comp
 
+data$PSA<-as.character(data$ProductOrServiceArea)
+data$PSA<-gsub(" & ","+",data$PSA)
+data$b_NoComp<-!data$b_Comp
+  colnames(data)[colnames(data)=="ProductOrServiceCode"]<-"ProdServ"
+  data
 }
 
 get_complete_list<-function(data){
-!is.na(data$b_Term)&
+complete<-!is.na(data$b_Term)&
   !is.na(data$b_CBre)&
   !is.na(data$b_Comp)&
   !is.na(data$b_Urg)&
@@ -158,14 +165,14 @@ get_complete_list<-function(data){
   !is.na(data$Office)&
 !is.na(data$OffCri)&
   !is.na(data$OffIntl)&
-  !is.na(data$Is.Defense)&
-  !is.na(data$ProductOrServiceArea)
+  !is.na(data$Is.Defense)
   # !is.na(data$cl_HHI_lag1)
-  
+  complete
 }
 
-
-
+fed<-sample_prep(fed)
+fed_complete<-get_complete_list(fed)
+fed_no_na<-fed[fed_complete,]
 # crisis_with_na<-sample_prep(crisis_with_na)
 # complete<-get_complete_list(crisis_with_na)  
 
@@ -202,11 +209,11 @@ get_complete_list<-function(data){
 # rm(other_dom,other_intl)
 
 # large_crisis_with_na<-sample_prep(large_crisis_with_na)
-# large_complete<-get_complete_list(large_crisis_with_na)  
+# large_complete<-get_complete_list(large_crisis_with_na)
 # large_crisis_smp<-large_crisis_with_na[large_complete,]
 # # summary(large_crisis_with_na$Crisis)
-# # 
-# 
+# #
+#
 # large_crisis_smp$OffPl99<-Hmisc::cut2(large_crisis_smp$OffIntl,c(0.01,0.50))
 # summary(large_crisis_smp$OffPl99)
 #   levels(large_crisis_smp$OffPl99) <-
@@ -214,19 +221,55 @@ get_complete_list<-function(data){
 #          "Mixed"=c("[0.01,0.50)"),
 #          "Intl"=c("[0.50,1.00]"))
 #   large_crisis_smp$Reach<-factor(paste(large_crisis_smp$OffPl99,large_crisis_smp$Intl,sep="-"))
-# 
-#   
+#
+#
 #      levels(crisis_smp$Reach) <-
 #     list( "US50-Dom"=c("US99-Just U.S.","Mixed-Just U.S."),
 #          "Mixed-Dom"=c(),
 #          "Intl-Dom"=c("Intl-Just U.S."),
 #          "US50-Intl"=c("Mixed-Any International","US99-Any International"),
 #          "Intl-Intl"=c("Intl-Any International"))
-# 
+#
 # large_crisis_smp$PSA<-as.character(large_crisis_smp$ProductOrServiceArea)
 # large_crisis_smp$PSA<-gsub(" & ","+",large_crisis_smp$PSA)
 # load("Data\\large_crisis_smp.Rdata")
 # save(large_crisis_smp,large_crisis_with_na,file="Data\\large_crisis_smp.Rdata")
+# save(fed,file="Data\\transformed_fed.Rdata")
+# load(file="Data\\transformed_fed.Rdata")
+
+# extra_large_crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Dis","OCO"),]
+# other_intl<-fed[fed$Crisis %in% c("Other")&fed$OffIntl>=0.5,]
+# other_dom<-fed[fed$Crisis %in% c("Other")&(fed$OffIntl<0.5
+#                                            |is.na(fed$OffIntl)),]
+# other_dom<-other_dom[sample(nrow(other_dom),1000000),]
+# extra_large_crisis_with_na<-rbind(extra_large_crisis_with_na,other_dom,other_intl)
+# rm(other_dom,other_intl)
+# 
+# extra_large_crisis_with_na<-(extra_large_crisis_with_na)
+# extra_large_complete<-get_complete_list(extra_large_crisis_with_na)
+# extra_large_crisis_smp<-extra_large_crisis_with_na[extra_large_complete,]
+# # # summary(large_crisis_with_na$Crisis)
+# # #
+# #
+# extra_large_crisis_smp$OffPl99<-Hmisc::cut2(extra_large_crisis_smp$OffIntl,c(0.01,0.50))
+# summary(extra_large_crisis_smp$OffPl99)
+#   levels(extra_large_crisis_smp$OffPl99) <-
+#     list("US99"=c("[0.00,0.01)"),
+#          "Mixed"=c("[0.01,0.50)"),
+#          "Intl"=c("[0.50,1.00]"))
+#   extra_large_crisis_smp$Reach<-factor(paste(extra_large_crisis_smp$OffPl99,extra_large_crisis_smp$Intl,sep="-"))
+# 
+# 
+#      levels(extra_large_crisis_smp$Reach) <-
+#     list( "US50-Dom"=c("US99-Just U.S.","Mixed-Just U.S."),
+#          "Mixed-Dom"=c(),
+#          "Intl-Dom"=c("Intl-Just U.S."),
+#          "US50-Intl"=c("Mixed-Any International","US99-Any International"),
+#          "Intl-Intl"=c("Intl-Any International"))
+# 
+# save(extra_large_crisis_smp,extra_large_crisis_with_na,file="Data\\extra_large_crisis_smp.Rdata")
+load("Data\\extra_large_crisis_smp.Rdata")
+
 ```
 
 The sample is created by including the entirity of the ARRA and Disaster datasets, as well as 100,000 records each from the OCO datase and another 100,000 from all remaining records.
@@ -5154,7 +5197,8 @@ load("model16A.rdata")
                    NoComp:Veh+
                      Reach:Crisis+
                      Crisis:Is.Defense+
-                     (1 | Simple) + (1| PSA), 
+                     # (1 | Simple) + 
+                     (1| PSA), 
                    family=binomial(link="logit"))
   display(CBre_16A)
   
@@ -5175,19 +5219,18 @@ load("model16A.rdata")
                      b_NoComp:Veh+
                      Reach:Crisis+
                      Crisis:Is.Defense+
-                     (1 | Simple) + (1| PSA), 
+                     # (1 | Simple) +
+                     (1| PSA), 
                    family=binomial(link="logit"))
   display(Term_16A)
 # Plot the model and Vehicle 
-CBre_16A<-CBre_15A
-Term_16A<-Term_15A
 stargazer::stargazer(CBre_15B,CBre_16A,Term_15B,Term_16A,type="text",
                         digits=2)
 summary_residual_compare(CBre_15B,CBre_16A,Term_15B,Term_16A)
 
 save(CBre_16A,Term_16A, file="Model16A.RData")
 ```
-
+Note, the equatiosn don't actually match up. First thing I noticed was to remove the Simples.
 
 ### 16B: Interactions
 ```{r Model16B}
@@ -5461,58 +5504,67 @@ Term  failed to converge 0.004
 
 
 
-### 16F: Code-level detail
+### 16F: Revised Code-level detail no interactions
+Some of the discussions of a failure to converge suggest that the model is too complex. In this step we remove all the interactions.
 ```{r Model16F}
 load("Model16F.RData") #Only have CBre at the moment
 
-    CBre_16F <- glmer (data=large_crisis_smp,
-                     b_CBre ~ Crisis + NoComp +
-                       b_UCA +
-                       Reach + 
-                       # c_OffCri +
-                       cl_Ceil +
-                       cl_Days +
-                       Veh +
-                       n_Fixed +
-                       Is.Defense +
-                       # NoComp:Crisis +
-                       # b_UCA:Crisis +
-                       # Reach:Crisis +
-                       # Reach:NoComp +
-                       # cl_Days:Veh +
-                       # cl_Ceil:Veh +
-                       # NoComp:Veh +
-                       (1 | ServCommCons)+(1 |  CPSA) + (1|ProdServ),
-                     family=binomial(link="logit"))
-    display(CBre_16F)
+    # CBre_16F <- glmer (data=large_crisis_smp,
+    #                  b_CBre ~ Crisis + NoComp +
+    #                    b_UCA +
+    #                    Reach + 
+    #                    # c_OffCri +
+    #                    cl_Ceil +
+    #                    cl_Days +
+    #                    Veh +
+    #                    n_Fixed +
+    #                    Is.Defense +
+    #                    # NoComp:Crisis +
+    #                    # b_UCA:Crisis +
+    #                    # Reach:Crisis +
+    #                    # Reach:NoComp +
+    #                    # cl_Days:Veh +
+    #                    # cl_Ceil:Veh +
+    #                    # NoComp:Veh +
+    #                    (1 | ServCommCons)+(1 |  CPSA) + (1|ProdServ),
+    #                  family=binomial(link="logit"))
+    # display(CBre_16F)
+    # glmer_examine(CBre_16F)
+#This one was lost, but did and had a low Max|Grad than CBre_16F but still well above 
     
     
-    
-    CBre_16F2 <- glmer (data=large_crisis_smp,
-                     b_CBre ~ Crisis + NoComp +
-                       b_UCA +
-                       Reach + 
-                       # c_OffCri +
-                       cl_Ceil +
-                       # cl_Days +
-                       Veh +
-                       n_Fixed +
-                       Is.Defense +
-                       # NoComp:Crisis +
-                       # b_UCA:Crisis +
-                       # Reach:Crisis +
-                       # Reach:NoComp +
-                       # cl_Days:Veh +
-                       # cl_Ceil:Veh +
-                       # NoComp:Veh +
-                       # (1 | ServCommCons)+(1 |  CPSA) +
-                       (1|ProdServ),
-                     family=binomial(link="logit"))
+    # CBre_16F2 <- glmer (data=large_crisis_smp,
+    #                  b_CBre ~ Crisis + NoComp +
+    #                    b_UCA +
+    #                    Reach + 
+    #                    # c_OffCri +
+    #                    cl_Ceil +
+    #                    # cl_Days +
+    #                    Veh +
+    #                    n_Fixed +
+    #                    Is.Defense +
+    #                    # NoComp:Crisis +
+    #                    # b_UCA:Crisis +
+    #                    # Reach:Crisis +
+    #                    # Reach:NoComp +
+    #                    # cl_Days:Veh +
+    #                    # cl_Ceil:Veh +
+    #                    # NoComp:Veh +
+    #                    # (1 | ServCommCons)+(1 |  CPSA) +
+    #                    (1|ProdServ),
+    #                  family=binomial(link="logit"))
     display(CBre_16F2)
-    
-    
-     
-    CBre_16F3 <- glmer (data=large_crisis_smp,
+    glmer_examine(CBre_16F2)
+    save(CBre_16F2,file="Model16F.RData")
+    rm(CBre_16F2)
+```
+
+Removing all the interactions and c_OfficeCri doesn't help the convergence, even when limiting only to prodserv as a multilevel variable. An additional step, 16F2, also removed l_days and the model had an even harder time converging (max|grad| = 0.201). The 16F results were accidentally lost but were far from convergence and not worth rerunning.
+
+###16G: Revised Code level all interactions
+```{r Model16G}
+load("Model16G.RData") #Only have CBre at the moment
+    CBre_16G <- glmer (data=large_crisis_smp,
                      b_CBre ~ Crisis + NoComp +
                        b_UCA +
                        Reach + 
@@ -5532,28 +5584,66 @@ load("Model16F.RData") #Only have CBre at the moment
                        (1 | ServCommCons)+(1 |  CPSA) +
                        (1|ProdServ),
                      family=binomial(link="logit"))
+glmer_examine(CBre_16F3)
 
-    
+CBre_16G<- glmer (data=large_crisis_smp,
+                     b_CBre ~ Crisis + NoComp +
+                       b_UCA +
+                       Reach + 
+                       c_OffCri +
+                       cl_Ceil +
+                       cl_Days +
+                       Veh +
+                       n_Fixed +
+                       Is.Defense +
+                     cl_Days:NoComp +
+                     cl_Days:Veh + 
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+                     NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+                     # Reach:Crisis This 
+                   + Crisis:Is.Defense +
+                       (1 | ServCommCons)+(1 |  CPSA) +
+                       (1|ProdServ),
+                     family=binomial(link="logit"))
+glmer_examine(CBre_16G)
+display(CBre_16G)
+    save(CBre_16F3,CBre_16G,file="Model16G.RData")
+ 
+```
+
+16G ran into multicollinearity problems, necessitating the removal of some of the interactions. New interactions were also added the analysis in step 15. Step 16 groups all of the multilevel models together, because of run-time related complications and advice regarding logit models. In some cases though, dealing with the multilevel models resulted in ideas that were then fleshed out in earlier steps.
+
+Dropped interactions: NoComp:Crisis, b_UCA:Crisis, Reach:Crisis, Reach:NoComp,          cl_Ceil:Veh
+
+Added interactions: cl_Days:NoComp, Crisis:Is.Defense
+
+Collectively these changes reduced the max|grad| from 0.017 to 0.004.
+
+## 16H: 2-Digit Prodserv
+Since the max|grad| isn't reaching 0.001, trying to experiment with 2-character product or service codes, rather than the fully detailed 4-character ones.
+
+```{r Prodserv2}
   large_crisis_smp$ProdServ2<-factor(substr(large_crisis_smp$ProdServ,1,2))
      
-  CBre_16F4<-glmer(formula = b_CBre ~ Crisis + 
-                     NoComp + 
-                     b_UCA + 
-                     Reach + 
-                     cl_Ceil + 
-                     cl_Days + 
-                     Veh + 
-                     n_Fixed + 
-                     Is.Defense + 
-                     cl_Days:NoComp + 
-                     cl_Days:Veh + 
-                     cl_Ceil:Veh + 
-                     NoComp:Veh +
-                     Reach:Crisis 
-                   + Crisis:Is.Defense +
-                     (1 | ProdServ2),
-                   data = large_crisis_smp, family = binomial(link = "logit"))
+  # CBre_16F4<-glmer(formula = b_CBre ~ Crisis + 
+  #                    NoComp + 
+  #                    b_UCA + 
+  #                    Reach + 
+  #                    cl_Ceil + 
+  #                    cl_Days + 
+  #                    Veh + 
+  #                    n_Fixed + 
+  #                    Is.Defense + 
+  #                    cl_Days:NoComp + 
+  #                    cl_Days:Veh + 
+  #                    cl_Ceil:Veh + 
+  #                    NoComp:Veh +
+  #                    Reach:Crisis +
+  #                   Crisis:Is.Defense +
+  #                    (1 | ProdServ2),
+  #                  data = large_crisis_smp, family = binomial(link = "logit"))
   display(CBre_16F4)
+  glmer_examine(CBre_16F4)
   
   CBre_16F5<-glmer(formula = b_CBre ~ Crisis + 
                      NoComp + 
@@ -5573,28 +5663,7 @@ load("Model16F.RData") #Only have CBre at the moment
                      (1 | ProdServ2),
                    data = large_crisis_smp, family = binomial(link = "logit"))
   display(CBre_16F5)
-  
-  
-  CBre_16F6<-glmer(formula = b_CBre ~ Crisis + 
-                     NoComp + 
-                     b_UCA + 
-                     Reach + 
-                     cl_Ceil + 
-                     cl_Days + 
-                     Veh + 
-                     n_Fixed + 
-                     Is.Defense + 
-                     # cl_Days:NoComp + We're not that close to the max|grad, this is significant but runs contrary 
-                     #to expectation and is less interesting than the NoComp:Veh
-                     cl_Days:Veh + 
-                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
-                     NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
-                     # Reach:Crisis This 
-                   + Crisis:Is.Defense +
-                     (1 | ProdServ2),
-                   data = large_crisis_smp, family = binomial(link = "logit"))
-  display(CBre_16F6)
-  
+  glmer_examine(CBre_16F5)
   
   CBre_16F6<-glmer(formula = b_CBre ~ Crisis + 
                      NoComp + 
@@ -5615,58 +5684,150 @@ load("Model16F.RData") #Only have CBre at the moment
                      (1 | ProdServ2),
                    data = large_crisis_smp, family = binomial(link = "logit"))
   display(CBre_16F6)
-      # 
-  # Term_16C <- glmer (data=crisis_smp,
-  #                  b_Term ~ Crisis + 
-  #                    b_NoComp + 
-  #                    b_UCA + 
-  #                    Reach + c_OffCri + 
-  #                    cl_Ceil + 
-  #                    cl_Days + 
-  #                    Veh +
-  #                    n_Fixed +
-  #                    Is.Defense + 
-  #                    # Crisis:b_NoComp + 
-  #                    # b_UCA:Crisis + 
-  #                    # Reach:Crisis + 
-  #                    # cl_Ceil:Crisis + 
-  #                    # cl_Ceil:Reach + 
-  #                    # cl_Days:Crisis + 
-  #                    # cl_Days:NoComp+ +
-  #                    # cl_Days:Veh + 
-  #                    # cl_Ceil:Veh +
-  #                    # b_NoComp:Veh+ 
-  #                      (1 | Simple)+(1 |  PSA) + (1|ProdServ), 
-  #                  family=binomial(link="logit"))
-  # display(Term_16C)
-  stargazer::stargazer(CBre_16C,CBre_16E,CBre_16F3,CBre_16F3,type="text",
+  glmer_examine(CBre_16F6)
+  
+
+  stargazer::stargazer(CBre_16F4,CBre_16F5,CBre_16F6,type="text",
                         digits=2)
-
-  
-  
-    CBre_16F7 <- glmer (data=large_crisis_smp,
-                     b_CBre ~ Crisis + NoComp +
-                       b_UCA +
-                       Reach + 
-                       c_OffCri +
-                       cl_Ceil +
-                       cl_Days +
-                       Veh +
-                       n_Fixed +
-                       Is.Defense +
-                     cl_Days:NoComp +
-                     cl_Days:Veh + 
-                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
-                     NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
-                     # Reach:Crisis This 
-                   + Crisis:Is.Defense +
-                       (1 | ServCommCons)+(1 |  CPSA) +
-                       (1|ProdServ),
-                     family=binomial(link="logit"))
+save(CBre_16F4,CBre_16F5,CBre_16F6,file="Model16H.RData")
+```
+The first model had multicollinearity problems, but unfortunately the VIF for reach exceeded 2.0 and the only reach related interaction was crisis:reach. Taking out the variable increased the max|grad| from 0.0038 to 0.0089. 
+                    
+Removing additional variables (cl_Days:NoComp, cl_Ceil:Veh) for the third and final model further increased the max|grad, not helpful.
 
 
+
+
+GOing more detailed proved useful for 16F7
+
+Model failed to converge with max|grad| = 0.00400832 (tol = 0.001, component 1)
+
+
+## 16I: CPSA+Prodserv
+This step goes back to 4 character product or service codes. 16G included three levels in the hierarchy: ServCommCons (service/commodity/construction) and crisis product or service area, and the full product or service code. This approach drops out ServCommCons, as it had a slightly lower standard deviation.
+
+```{r Model16I}
+
+load(file="Model16I.RData")
+
+
+# CBre_16F9<-glmer(formula = b_CBre ~ Crisis + NoComp + b_UCA + Reach + c_OffCri + 
+#     cl_Ceil + cl_Days + Veh + n_Fixed + Is.Defense + cl_Days:NoComp + 
+#     cl_Days:Veh + NoComp:Veh + +Crisis:Is.Defense + (1 | ServCommCons) + 
+#     (1 | ProdServ), data = large_crisis_smp, family = binomial(link = "logit"))
+
+    glmer_examine(CBre_16F9)
+    display(CBre_16F9)
     
-    CBre_16F8 <- glmer (data=large_crisis_smp,
+    
+# CBre_16G2 <- glmer (data=large_crisis_smp,
+#                      b_CBre ~ Crisis + NoComp +
+#                        b_UCA +
+#                        Reach + 
+#                        c_OffCri +
+#                        cl_Ceil +
+#                        cl_Days +
+#                        Veh +
+#                        n_Fixed +
+#                        Is.Defense +
+#                      cl_Days:NoComp +
+#                      cl_Days:Veh + 
+#                      # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+#                      NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+#                      # Reach:Crisis This 
+#                    + Crisis:Is.Defense +
+#                        # (1 | ServCommCons)+
+#                      (1 |  CPSA) +
+#                        (1|ProdServ),
+#                      family=binomial(link="logit"))
+  glmer_examine(CBre_16G2)
+  
+  # CBre_16G3<- glmer (data=extra_large_crisis_smp,
+  #                    b_CBre ~ Crisis + NoComp +
+  #                      b_UCA +
+  #                      Reach + 
+  #                      c_OffCri +
+  #                      cl_Ceil +
+  #                      cl_Days +
+  #                      Veh +
+  #                      n_Fixed +
+  #                      Is.Defense +
+  #                    cl_Days:NoComp +
+  #                    cl_Days:Veh + 
+  #                    # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+  #                    NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+  #                    # Reach:Crisis This 
+  #                  + Crisis:Is.Defense +
+  #                      # (1 | ServCommCons)+
+  #                    (1 |  CPSA) +
+  #                      (1|ProdServ),
+  #                    family=binomial(link="logit"))
+    
+display(CBre_16G3)
+glmer_examine(CBre_16G3)
+
+   
+
+  save(CBre_16F9,CBre_16G2,CBre_16G3,file="Model16I.RData")
+  
+  
+```
+
+The Max|Grad of this model is still too high, but is already lower than that for model CBre_16G2 (or what will be once I rename things.) Switching to an extra-large version of the sample, including all international contracts and task orders and a million domestic ones, reduced the |max|grad but only from 0.0036 to 0.0024. 
+
+## 16J: Drop cl_Days:Veh
+
+```{r Model16J}
+
+  
+        display(CBre_16G3)
+    vif(CBre_16G3)
+summary_residual_compare(CBre_16C,CBre_16F3,Term_16C,Term_16C)
+summary_residual_compare(CBre_16C,CBre_16G,Term_16C,Term_16C)
+summary_residual_compare(CBre_16C,CBre_16G,Term_16C,Term_16C)
+summary_residual_compare(CBre_16C,CBre_16G3,Term_16C,Term_16C)
+coef(CBre_16G)
+save(CBre_16F2,CBre_16F3,CBre_16F4,CBre_16F5,CBre_16F6,CBre_16G,CBre_16G,CBre_16F9,CBre_16G3, file="Model16F.RData")
+
+summary_discrete_plot(large_crisis_smp,"Veh","NoComp")
+summary_continuous_plot(large_crisis_smp,"l_Days","Veh")
+table(fed$Crisis,fed$NoComp,fed$Veh)
+table(fed$Crisis,fed$NoComp,fed$Veh,fed$CBre)
+table(fed$Crisis,fed$NoComp,fed$Veh,fed$CBre)
+
+
+# CBre_16G4<-    glmer (data=large_crisis_smp,
+#                      b_CBre ~ Crisis + NoComp +
+#                        b_UCA +
+#                        Reach + 
+#                        c_OffCri +
+#                        cl_Ceil +
+#                        cl_Days +
+#                        Veh +
+#                        n_Fixed +
+#                        Is.Defense +
+#                      cl_Days:NoComp +
+#                      # cl_Days:Veh + 
+#                      # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+#                      NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+#                      # Reach:Crisis This 
+#                    + Crisis:Is.Defense +
+#                        # (1 | ServCommCons)+
+#                      (1 |  CPSA) +
+#                        (1|ProdServ),
+#                      family=binomial(link="logit"))
+    
+    display(CBre_16G4)
+glmer_examine(CBre_16G4)
+save(CBre_16G4,file="Model16J.RData")
+```
+After consideration, cl_Days:Veh seemed to add the least to the model. Comparing the large sample to large sample, taking out does lower the Max|Grid from 0.0036 to 0.0027 
+
+
+### 16K: Drop NoComp:Veh
+
+```{r Model16K}
+CBre_16G5 <- glmer (data=large_crisis_smp,
                      b_CBre ~ Crisis + NoComp +
                        b_UCA +
                        Reach + 
@@ -5677,72 +5838,363 @@ load("Model16F.RData") #Only have CBre at the moment
                        n_Fixed +
                        Is.Defense +
                      cl_Days:NoComp +
-                     cl_Days:Veh + 
+                     # cl_Days:Veh + 
                      # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
-                     NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+                     # NoComp:Veh + 
                      # Reach:Crisis This 
                    + Crisis:Is.Defense +
                        # (1 | ServCommCons)+
                      (1 |  CPSA) +
                        (1|ProdServ),
                      family=binomial(link="logit"))
+    
+    
+   display(CBre_16G5)
+glmer_examine(CBre_16G5)
+save(CBre_16G5,file="Model16K.RData")
 
-    
-    
-    CBre_16F9<- glmer (data=large_crisis_smp,
-                     b_CBre ~ Crisis + NoComp +
-                       b_UCA +
+
+
+```
+The next to test removing is top drop NoComp:Veh which often did not have significant differences between the no comp other and urgency variants, although it did in some cases. That dramatically ups the max|grad| to 0.01, so NoComp:Veh will be staying in.
+
+### 16L: Drop OffCri
+
+```{r Model16L}
+CBre_16G6 <- glmer (data=large_crisis_smp,
+                      b_CBre ~ Crisis + NoComp +
+                        b_UCA +
                        Reach + 
-                       c_OffCri +
-                       cl_Ceil +
-                       cl_Days +
-                       Veh +
-                       n_Fixed +
+# +                        c_OffCri +
+                        cl_Ceil +
+                        cl_Days +
+                        Veh +
+                        n_Fixed +
                        Is.Defense +
                      cl_Days:NoComp +
-                     cl_Days:Veh + 
+                     # cl_Days:Veh + 
                      # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
-                     NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
-                     # Reach:Crisis This 
+                      NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+  # Reach:Crisis This 
                    + Crisis:Is.Defense +
-                       (1 | ServCommCons)+
-                     # (1 |  CPSA) +
-                       (1|ProdServ),
-                     family=binomial(link="logit"))
+                       # (1 | ServCommCons)+   
+  (1 |  CPSA) +
+                      (1|ProdServ),
+                      family=binomial(link="logit"))
+    
+    
+    summary_residual_compare(CBre_16C,CBre_16G6,Term_16C,Term_16C)
+       display(CBre_16G6)
+glmer_examine(CBre_16G6)
+save(CBre_16G6,file="Model16L.RData")
+```
+Removing c_Offcri increases the max|grad from 0.0027 to 0.0042. Leaving it in.
+
+### 16M: Drop CPSA
+
+```{r Model16M}
+
+    # https://rstudio-pubs-static.s3.amazonaws.com/33653_57fc7b8e5d484c909b615d8633c01d51.html
+    library(numDeriv )
+    derivs1 <- CBre_16G6@optinfo$derivs
+sc_grad1 <- with(derivs1,solve(Hessian,gradient))
+max(abs(sc_grad1))
+
+max(pmin(abs(sc_grad1),abs(derivs1$gradient)))
+
+    derivs1 <- CBre_16E@optinfo$derivs
+sc_grad1 <- with(derivs1,solve(Hessian,gradient))
+max(abs(sc_grad1))
+
+max(pmin(abs(sc_grad1),abs(derivs1$gradient)))
+
+CBre_16G6a <- update(CBre_16G6,start=ss,control=glmerControl(optimizer="bobyqa",
+                            optCtrl=list(maxfun=2e5)))
+
+gr
+pars <- unlist(getME(CBre_16G6,c("theta","fixef")))
+grad2 <- grad(dd,pars)
+hess2 <- hessian(dd,pars)
+sc_grad2 <- solve(hess2,grad2)
+max(pmin(abs(sc_grad2),abs(grad2)))
+
+     
+     
+CBre_16G7 <- glmer (data=large_crisis_smp,
+                      b_CBre ~ Crisis + NoComp +
+                        b_UCA +
+                       Reach + 
++                        c_OffCri +
+                        cl_Ceil +
+                        cl_Days +
+                        Veh +
+                        n_Fixed +
+                       Is.Defense +
+                     cl_Days:NoComp +
+                     # cl_Days:Veh + 
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+                      NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+  # Reach:Crisis This 
+                   + Crisis:Is.Defense +
+                       # (1 | ServCommCons)+   
+  # (1 |  CPSA) +
+                      (1|ProdServ),
+                      family=binomial(link="logit"))
+    
+    
+glmer_examine(CBre_16G7)
+save(CBre_16G7, file="Model16M.RData")
+    ```
+    
+Dropping CPSA raises the max|grad to 0.11. It appears the heirarchy does really help.
+
+### 16N: Multilevel Crisis
+```{r Model16N}
+load("Model16N.RData")
+
+# CBre_16G10<-     glmer (data=large_crisis_smp,
+#                       b_CBre ~  NoComp +
+#                         b_UCA +
+#                        Reach +
+#                         c_OffCri +
+#                         cl_Ceil +
+#                         cl_Days +
+#                         Veh +
+#                         n_Fixed +
+#                        Is.Defense +
+#                      cl_Days:NoComp +
+#                      # cl_Days:Veh +
+#                      # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+#                       NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+#   # Reach:Crisis This
+#                        # (1 | ServCommCons)+
+#   (1 |  CPSA) +
+#                       (1|ProdServ)+(1+Is.Defense |Crisis),
+#                       family=binomial(link="logit"))
+
+           display(CBre_16G10)
+    glmer_examine(CBre_16G10)
+    
+
+    # ss<-getME(CBre_16G10,c("theta","fixef"))
+    # CBre_16N2 <- update(CBre_16G10,start=ss,control=glmerControl(optimizer="bobyqa",
+    #                         optCtrl=list(maxfun=2e5)))
+    # 
+    #     CBre_16N3 <- update(CBre_16G10,start=ss,control=glmerControl(optimizer="nloptwrap",
+    #                         optCtrl=list(maxfun=2e5)))
+        
+        
+CBre_16N4<-     glmer (data=extra_large_crisis_smp,
+                      b_CBre ~  NoComp +
+                        b_UCA +
+                       Reach +
+                        c_OffCri +
+                        cl_Ceil +
+                        cl_Days +
+                        Veh +
+                        n_Fixed +
+                       Is.Defense +
+                     cl_Days:NoComp +
+                     # cl_Days:Veh +
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+                      NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+  # Reach:Crisis This
+                       # (1 | ServCommCons)+
+  (1 |  CPSA) +
+                      (1|ProdServ)+(1+Is.Defense |Crisis),
+                      family=binomial(link="logit"))
+
+save(CBre_16N4, file="Model16N.RData")#CBre_16G10,
+```
+Multi-level modeling of crisis, with seperate slopes based on the value for isdefense, lowers the max|grad to 0.0013, a new low. The alternate models were not saved due to user error but has max|grads of around 0.002 (bobyqa) and 0.004 (nloptwrap) respectively. Likewise switching to extra large resulted in a max|grid of 0.0057, all this suggests that adding crisis as a multilevel variable is not particularly robust.
+
+### 16O: Crisis:Reach
+```{r Model16O}           
+CBre_16G9 <- glmer (data=large_crisis_smp,
+                      b_CBre ~  NoComp +
+                        b_UCA +
+                       Reach + 
+                        c_OffCri +
+                        cl_Ceil +
+                        cl_Days +
+                        Veh +
+                        n_Fixed +
+                       Is.Defense +
+                     cl_Days:NoComp +
+                     # cl_Days:Veh + 
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+                      NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+  # Reach:Crisis This 
+                       # (1 | ServCommCons)+   
+  (1 |  CPSA) +
+                      (1|ProdServ)+(1+Is.Defense + Reach|Crisis),
+                      family=binomial(link="logit"))
+
+           display(CBre_16G9)
+    glmer_examine(CBre_16G9)
+    save(CBre_16G9, file="Model16O.RData")
+```
+Switching Crisis to a multilevel model unfortunately doesn't resolve the problems with included Crisis:Reach. Adding that interaction dramatically increases the Max|Grad to 0.017
+
+### 16P: Dropping OffCri again
+    ```{r Model16P}
+    
+load(file="Model16P.RData")
+CBre_16G8 <- glmer (data=large_crisis_smp,
+                      b_CBre ~  NoComp +
+                        b_UCA +
+                       Reach + 
+#                         c_OffCri +
+                        cl_Ceil +
+                        cl_Days +
+                        Veh +
+                        n_Fixed +
+                       Is.Defense +
+                     cl_Days:NoComp +
+                     # cl_Days:Veh + 
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+                      NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+  # Reach:Crisis This 
+                       # (1 | ServCommCons)+   
+  (1 |  CPSA) +
+                      (1|ProdServ)+(1+Is.Defense|Crisis),
+                      family=binomial(link="logit"))
+    
+           display(CBre_16G8)
+    glmer_examine(CBre_16G8)
+    
+
+CBre_16M<-     glmer (data=extra_large_crisis_smp,
+                      b_CBre ~  NoComp +
+                        b_UCA +
+                       Reach + 
+                        # c_OffCri +
+                        cl_Ceil +
+                        cl_Days +
+                        Veh +
+                        n_Fixed +
+                       Is.Defense +
+                     cl_Days:NoComp +
+                     # cl_Days:Veh + 
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+                      NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+  # Reach:Crisis This 
+                       # (1 | ServCommCons)+   
+  (1 |  CPSA) +
+                      (1|ProdServ)+(1+Is.Defense |Crisis),
+                      family=binomial(link="logit"),
+verbose=1)
+     
+glmer_examine(CBre_16M) 
+save(CBre_16G8,CBre_16M, file="Model16P.RData")
+```
+Removing c_OffCri does help reducing the max|Grad to 0.0012. Unfortunately, the extra_data version of this query actually increases the max|grad to 0.0033.
+
+
+### 16Q: Dropping NoComp:Veh
+
+    ```{r Model16P}
+    
+    
+CBre_16G11 <- glmer (data=large_crisis_smp,
+                      b_CBre ~  NoComp +
+                        b_UCA +
+                       Reach + 
+                        # c_OffCri +
+                        cl_Ceil +
+                        cl_Days +
+                        Veh +
+                        n_Fixed +
+                       Is.Defense +
+                     cl_Days:NoComp +
+                     # cl_Days:Veh + 
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+#                       NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+  # Reach:Crisis This 
+                       # (1 | ServCommCons)+   
+  (1 |  CPSA) +
+                      (1|ProdServ)+(1+Is.Defense |Crisis),
+                      family=binomial(link="logit"))
+    glmer_examine(CBre_16G11) 
+      save(CBre_16G11, file="Model16Q.RData")
       
-summary_residual_compare(CBre_16C,CBre_16F3,Term_16C,Term_16C)
-summary_residual_compare(CBre_16C,CBre_16F7,Term_16C,Term_16C)
-summary_residual_compare(CBre_16C,CBre_16F8,Term_16C,Term_16C)
-coef(CBre_16F7)
-save(CBre_16F2,CBre_16F3,CBre_16F4,CBre_16F5,CBre_16F6,CBre_16F7,CBre_16F8, file="Model16F.RData")
+      
+      stargazer::stargazer(CBre_16F8,CBre_16G,type="text",
+                     digits=2)
+      rm(CBre_16F8)
 
+```
+Removing NoComp:Veh still ups the max|grid, in this case to 0.005.
+     
+     
+```{r Model16S}
+    
+CBre_16G12<-     glmer (data=large_crisis_smp,
+                      b_CBre ~  NoComp +
+                        b_UCA +
+                       Reach + 
+                        # c_OffCri +
+                        cl_Ceil +
+                        cl_Days +
+                        Veh +
+                        n_Fixed +
+                       Is.Defense +
+                     cl_Days:NoComp +
+                     cl_Days:Veh +
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+                      NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+  # Reach:Crisis This 
+                       # (1 | ServCommCons)+   
+  (1 |  CPSA) +
+                      (1|ProdServ)+(1+Is.Defense|Crisis),
+                      family=binomial(link="logit"))
+    glmer_examine(CBre_16F19) 
+    
+    
 
+     
+glmer_examine(CBre_16G10)
+glmer_examine(CBre_16G11)
+glmer_examine(CBre_16G11)      
 ```  
-16F 2
-Model failed to converge with max|grad| = 0.20068 (tol = 0.001, component 1)
 
-16F3 failure to converge in 10000 evaluationsModel failed to converge with max|grad| = 0.0173215 (tol = 0.001, component 1)
 
-16F4 
-Model failed to converge with max|grad| = 0.00380252 (tol = 0.001, component 1)
 
-16F5
-Model failed to converge with max|grad| = 0.00894279 (tol = 0.001, component 1
+16G5
 
-VIF threshold exceeded for reach, so removing Reach:Crisis is a straightforward next step.
+Model failed to converge with max|grad| = 0.0108034 (tol = 0.001, component 1)
+Not so close! Got worse,
 
-Model failed to converge with max|grad| = 0.01341 (tol = 0.001, component 1)
+16G6
+Model failed to converge with max|grad| = 0.00428272 (tol = 0.001, component 1)
 
-GOing mroe detailed proved useful for 16F7
+Interestingly, while Office Crisis adds fairly little to the model, it does notably help convergence, and removing it is a hinderance.
+After closer examination, the interaction between Days and Vehicle is less interesting than Days and Competion. There's peaks and complicated patterns in the Days and Vehicle interaction. On the other hand for the non-IDC vehicles, the interaction with urgency is interesting. 
 
-Model failed to converge with max|grad| = 0.00400832 (tol = 0.001, component 1)
+Stiooed here
 
-16F8
-Model failed to converge with max|grad| = 0.00361024 (tol = 0.001, component 1)
+Dropping cl_Days:NoComp because of the comparatively small effect size.
 
-16F9
-failure to converge in 10000 evaluationsModel failed to converge with max|grad| = 0.00429031 (tol = 0.001, component 1)
+Cbre16G8
+Model failed to converge with max|grad| = 0.00120517 (tol = 0.001, component 1)
 
+Cbre16G9
+failure to converge in 10000 evaluationsModel failed to converge with max|grad| = 0.0175398 (tol = 0.001, component 1)
+
+Clearly VIF problems don't go away just by switching to multilevel for the variable in question.
+
+  CBre_16G10
+  In this context OffCri doesn't add anything to the model
+  
+Model failed to converge with max|grad| = 0.00134054 (tol = 0.001, component 1)
+
+Let's try dropping NoComp:Veh because it's only really interestingly significant for FSS/GWAC
+
+16G11
+It's still value added, so leaving it in,.
+Model failed to converge with max|grad| = 0.00500009 (tol = 0.001, component 1)
+
+16G12 Maybe 
 
 ```{r Test}
     CBre_16G12<- glmer (data=large_crisis_smp,

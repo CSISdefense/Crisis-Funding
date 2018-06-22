@@ -140,12 +140,9 @@ FormatContractModel<-function(dfContract){
   
   
   if ( "Dur" %in% colnames(dfContract) & 
-       levels(dfContract$Dur)[[2]] %in% c("[   61,  214)",
-                                                     "[     61,    214)")&
-       levels(dfContract$Dur)[[3]] %in% c("[  214,  366)",
-                                                     "[    214,    366)")&
-       levels(dfContract$Dur)[[4]] %in% c("[  366,  732)",
-                                                     "[    366,    732)")
+       gsub(" ","",levels(dfContract$Dur)[[2]]) =="[61,214)"&
+       gsub(" ","",levels(dfContract$Dur)[[3]]) =="[214,366)"&
+       gsub(" ","",levels(dfContract$Dur)[[4]]) =="[366,732)"
   ){
     dfContract$Dur<-factor(dfContract$Dur, 
                                       
@@ -220,26 +217,26 @@ FormatContractModel<-function(dfContract){
   if("UnmodifiedCurrentCompletionDate" %in% colnames(dfContract))
     dfContract$UnmodifiedCurrentCompletionDate<-
     as.Date(dfContract$UnmodifiedCurrentCompletionDate)
-  if("MinOfEffectiveDate" %in% colnames(dfContract))
-    dfContract$MinOfEffectiveDate<-
-    as.Date(dfContract$MinOfEffectiveDate)
+  if("MinOfSignedDate" %in% colnames(dfContract))
+    dfContract$MinOfSignedDate<-
+    as.Date(dfContract$MinOfSignedDate)
   if("LastCurrentCompletionDate" %in% colnames(dfContract))
     dfContract$LastCurrentCompletionDate<-
     as.Date(dfContract$LastCurrentCompletionDate)
   
   
-  if("MinOfEffectiveDate" %in% colnames(dfContract) & 
-     !"StartFY" %in% colnames(dfContract))
-    dfContract$MinOfEffectiveDate<-as.Date(as.character(dfContract$MinOfEffectiveDate))
-  dfContract$StartFY<-DateToFiscalYear(dfContract$MinOfEffectiveDate)
+  if("MinOfSignedDate" %in% colnames(dfContract) & 
+     !"StartFY" %in% colnames(dfContract)){
+    dfContract$MinOfSignedDate<-as.Date(as.character(dfContract$MinOfSignedDate))
+  dfContract$StartFY<-DateToFiscalYear(dfContract$MinOfSignedDate)
+  }
   
-  
-  if("MinOfEffectiveDate" %in% colnames(dfContract) &
+  if("MinOfSignedDate" %in% colnames(dfContract) &
      "UnmodifiedCurrentCompletionDate" %in% colnames(dfContract)){
     if(!"UnmodifiedDays" %in% colnames(dfContract))
       dfContract$UnmodifiedDays<-as.numeric(
         difftime(strptime(dfContract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")
-                 , strptime(dfContract$MinOfEffectiveDate,"%Y-%m-%d")
+                 , strptime(dfContract$MinOfSignedDate,"%Y-%m-%d")
                  , unit="days"
         ))+1
   }
@@ -392,6 +389,8 @@ impute_unmodified<-function(unmodified,
   unmodified
 }
 
+
+
 input_sample_criteria<-function(contract=NULL,
                                 file="contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
                                 dir="Data\\",
@@ -399,11 +398,15 @@ input_sample_criteria<-function(contract=NULL,
                                 last_year=2015,
                                 retain_all=FALSE
                                 ){
-  if(!exists("contract")){
+
+  
+  
+  if(!exists("contract") | is.null(contract)){
+    input<-swap_in_zip(file,dir)
     contract <-readr::read_delim(
-      paste(file,dir,sep=""),
+      input,
       col_names=TRUE, 
-      delim="\t",
+      delim=get_delim(file),
       # , dec=".",
       trim_ws=TRUE,
       na=c("NULL","NA")
@@ -430,12 +433,12 @@ input_sample_criteria<-function(contract=NULL,
     )
   }
   
-  if(is.numeric(contract$Term)){
-    contract$Term<-factor(contract$Term,
-                          levels = c(0,1),
-                          labels = c("Unterminated", "Terminated")
-    )
-  }
+  # if(is.numeric(contract$Term)){
+  #   contract$Term<-factor(contract$Term,
+  #                         levels = c(0,1),
+  #                         labels = c("Unterminated", "Terminated")
+  #   )
+  # }
   
   # contract<-subset(contract,select=-c(StartFiscal_Year
   # ,IsClosed
@@ -468,6 +471,7 @@ input_initial_scope<-function(contract,
                                 dir="Data\\",
                                 retain_all=FALSE
 ){
+  
     contract<-csis360::read_and_join_experiment(data=contract
                                                 ,file
                                                 ,path=""
@@ -485,17 +489,17 @@ input_initial_scope<-function(contract,
     #Calculate the number of days the contract lasts.
     contract$UnmodifiedDays<-as.numeric(
       difftime(strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")
-               , strptime(contract$MinOfEffectiveDate,"%Y-%m-%d")
+               , strptime(contract$MinOfSignedDate,"%Y-%m-%d")
                , unit="days"
       ))+1
     
     # 
     # CDuration<-as.duration(strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")-
-    #                 strptime(contract$MinOfEffectiveDate,"%Y-%m-%d"))
+    #                 strptime(contract$MinOfSignedDate,"%Y-%m-%d"))
     # 
     # CPeriod<-as.period(
     #     CInterval<-new_interval(ymd(contract$UnmodifiedCurrentCompletionDate),
-    #                 ymd(contract$MinOfEffectiveDate))
+    #                 ymd(contract$MinOfSignedDate))
     # 
     # 
     # 
@@ -587,16 +591,81 @@ input_initial_scope<-function(contract,
     
     summary(subset(contract$qCRais,contract$SumOfisChangeOrder>0    ))
     
-   
+  
+    
+    #Boolean value for ceiling breaches
+    #Safety measure to make sure we don't assume it's never NA.
+    contract$CBre <- NA
+    contract$CBre[!is.na(contract$SumOfisChangeOrder)] <- "None"
+    contract$CBre[contract$ChangeOrderBaseAndAllOptionsValue > 0
+                  & contract$SumOfisChangeOrder>0] <- "Ceiling Breach"
+    contract$CBre<-ordered(contract$CBre,levels=c("None","Ceiling Breach"))
+    
+     
+    
+    #ContractWeighted <- apply_lookups(Path,ContractWeighted)
+    
+    
+    contract$TermNum<-as.integer(as.character(factor(contract$Term,
+                                                    levels=c("Terminated","Unterminated"),
+                                                    labels=c(1,0))))
+    
+    contract$ObligationWT<-contract$Action.Obligation
+    contract$ObligationWT[contract$ObligationWT<0]<-NA
+    
+    contract<-contract %>% group_by(Ceil) %>% 
+      mutate(ceil.median.wt = median(UnmodifiedContractBaseAndAllOptionsValue))
+    
+    
+    
+    contract$UnmodifiedYearsFloat<-contract$UnmodifiedDays/365.25
+    contract$UnmodifiedYearsCat<-floor(contract$UnmodifiedYearsFloat)
+    contract$Dur[contract$UnmodifiedYearsCat<0]<-NA
+    
+    contract$Dur.Simple<-as.character(contract$Dur)
+    contract$Dur.Simple[contract$Dur.Simple %in% c(
+      "[0 months,~2 months)",
+      "[~2 months,~7 months)",
+      "[~7 months-~1 year]")]<-"<~1 year"
+    contract$Dur.Simple<-factor(contract$Dur.Simple,
+                               levels=c("<~1 year",
+                                        "(~1 year,~2 years]",
+                                        "(~2 years+]"),
+                               ordered=TRUE
+    )
+    
+    contract$Ceil.Simple<-as.character(contract$Ceil)
+    
+    contract$Ceil.Simple[contract$Ceil.Simple %in% c(
+      "75m+",
+      "10m - <75m")]<-"10m+"
+    contract$Ceil.Simple[contract$Ceil.Simple %in% c(
+      "1m - <10m",
+      "100k - <1m")]<-"100k - <10m"
+    contract$Ceil.Simple[contract$Ceil.Simple %in% c(
+      "15k - <100k",
+      "0 - <15k")]<-"0k - <100k"
+    contract$Ceil.Simple<-factor(contract$Ceil.Simple,
+                                levels=c("0k - <100k",
+                                         "100k - <10m",
+                                         "10m+"),
+                                ordered=TRUE
+    )
+    
+    
+    
+    
   if(retain_all==FALSE){
     contract<-contract[,!colnames(contract) %in% 
                          c(
                            #     UnmodifiedDays,
                            # UnmodifiedCurrentCompletionDate
-                           # "MinOfEffectiveDate",
+                           # "MinOfSignedDate",
                            "LastUltimateCompletionDate"
                          )]
     
   }
   contract
+  
+  
 }
