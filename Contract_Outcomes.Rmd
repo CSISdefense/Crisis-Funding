@@ -6195,3 +6195,28 @@ It's still value added, so leaving it in,.
 Model failed to converge with max|grad| = 0.00500009 (tol = 0.001, component 1)
 
 16G12 Maybe 
+
+```{r Test}
+    CBre_16G12<- glmer (data=large_crisis_smp,
+                     b_CBre ~ Crisis + NoComp +
+                       b_UCA +
+                       Reach + 
+                       # c_OffCri +
+                       cl_Ceil +
+                       cl_Days +
+                       Veh +
+                       n_Fixed +
+                       Is.Defense +
+                     cl_Days:NoComp +
+                     cl_Days:Veh + 
+                     # cl_Ceil:Veh + Only significant relevant for BPA/BOA, runs contrary to expectation.
+                     NoComp:Veh + #This may be the  next to drop, though the urgency results are interested.
+                     # Reach:Crisis This 
+              
+                       # (1 | ServCommCons)+
+                     (1 |  CPSA) +
+                       (1|ProdServ)+
+                       (1+ Is.Defense|Crisis),
+   family=binomial(link="logit"))
+                  
+```
