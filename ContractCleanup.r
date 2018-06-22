@@ -54,14 +54,10 @@ FormatContractModel<-function(dfContract){
   
   
   if ("Ceil" %in% colnames(dfContract)&
-      levels(dfContract$Ceil)[[2]] %in% c("[1.50e+04,1.00e+05)",
-                                                     "[ 1.50e+04, 1.00e+05)")&
-      levels(dfContract$Ceil)[[3]] %in% c("[1.00e+05,1.00e+06)",
-                                                     "[ 1.00e+05, 1.00e+06)")&
-      levels(dfContract$Ceil)[[4]] %in% c("[1.00e+06,1.00e+07)",
-                                                     "[ 1.00e+06, 1.00e+07)")&
-      levels(dfContract$Ceil)[[5]] %in% c("[1.00e+07,7.50e+07)",
-                                                     "[ 1.00e+07, 7.50e+07)")){
+      gsub(" ","",levels(dfContract$Ceil)[[2]]) =="[1.50e+04,1.00e+05)"&
+      gsub(" ","",levels(dfContract$Ceil)[[3]]) =="[1.00e+05,1.00e+06)"&
+      gsub(" ","",levels(dfContract$Ceil)[[4]]) =="[1.00e+06,1.00e+07)"&
+      gsub(" ","",levels(dfContract$Ceil)[[5]]) =="[1.00e+07,7.50e+07)"){
     dfContract$Ceil<-factor(dfContract$Ceil, 
                                        
                                        levels=levels(dfContract$Ceil),
@@ -482,9 +478,13 @@ input_initial_scope<-function(contract,
     
     contract<-csis360::standardize_variable_names(contract)
     
-    
-    contract$UnmodifiedCurrentCompletionDate<-
-      strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d") 
+    #Clear out 0 dates
+    contract$MinOfEffectiveDate[contract$MinOfEffectiveDate=="1900-01-01"]<-NA
+    contract$MinOfSignedDate[contract$MinOfSignedDate=="1900-01-01"]<-NA
+    contract$UnmodifiedCurrentCompletionDate[contract$UnmodifiedCurrentCompletionDate=="1900-01-01"]<-NA
+    contract$UnmodifiedUltimateCompletionDate[contract$UnmodifiedUltimateCompletionDate=="1900-01-01"]<-NA
+    contract$LastCurrentCompletionDate[contract$LastCurrentCompletionDate=="1900-01-01"]<-NA
+    contract$UnmodifiedLastDateToOrder[contract$UnmodifiedLastDateToOrder=="1900-01-01"]<-NA
     
     #Calculate the number of days the contract lasts.
     contract$UnmodifiedDays<-as.numeric(
@@ -492,7 +492,7 @@ input_initial_scope<-function(contract,
                , strptime(contract$MinOfSignedDate,"%Y-%m-%d")
                , unit="days"
       ))+1
-    
+    contract$UnmodifiedDays[contract$UnmodifiedDays<1]<-NA
     # 
     # CDuration<-as.duration(strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")-
     #                 strptime(contract$MinOfSignedDate,"%Y-%m-%d"))
@@ -510,24 +510,29 @@ input_initial_scope<-function(contract,
     
     
     
-    
-    
-    if (levels(contract$qDuration)[[2]]=="[   61,  214)"){
+    if ( 
+         gsub(" ","",levels(contract$qDuration)[[2]]) =="[61,214)"&
+         gsub(" ","",levels(contract$qDuration)[[3]]) =="[214,366)"&
+         gsub(" ","",levels(contract$qDuration)[[4]]) =="[366,732)"
+    ){
       contract$qDuration<-factor(contract$qDuration, 
-                                 
-                                 levels=c("[    0,   61)",
-                                          "[   61,  214)",
-                                          "[  214,  366)",
-                                          "[  366,  732)",
-                                          "[  732,33192]"),
-                                 labels=c("[0 months,~2 months)",
-                                          "[~2 months,~7 months)",
-                                          "[~7 months-~1 year]",
-                                          "(~1 year,~2 years]",
-                                          "(~2 years+]"),
-                                 ordered=TRUE
+                             
+                             levels=levels(contract$qDuration),
+                             # "[    0,   61)",
+                             # "[   61,  214)",
+                             # "[  214,  366)",
+                             # "[  366,  732)",
+                             # "[  732,33192]"),
+                             labels=c("[0 months,~2 months)",
+                                      "[~2 months,~7 months)",
+                                      "[~7 months-~1 year]",
+                                      "(~1 year,~2 years]",
+                                      "(~2 years+]"),
+                             ordered=TRUE
       )
     }
+    
+    
     
     
     lowroundedcutoffs<-c(15000,100000,1000000,30000000)
@@ -538,53 +543,39 @@ input_initial_scope<-function(contract,
     
     
     
-    
-    if (all(levels(contract$qHighCeiling)==c("[0.00e+00,1.50e+04)",
-                                             "[1.50e+04,1.00e+05)",
-                                             "[1.00e+05,1.00e+06)",
-                                             "[1.00e+06,1.00e+07)",
-                                             "[1.00e+07,7.50e+07)",
-                                             "[7.50e+07,3.36e+12]"))){
+    if (gsub(" ","",levels(contract$qHighCeiling)[[2]]) =="[1.50e+04,1.00e+05)"&
+        gsub(" ","",levels(contract$qHighCeiling)[[3]]) =="[1.00e+05,1.00e+06)"&
+        gsub(" ","",levels(contract$qHighCeiling)[[4]]) =="[1.00e+06,1.00e+07)"&
+        gsub(" ","",levels(contract$qHighCeiling)[[5]]) =="[1.00e+07,7.50e+07)"){
       contract$qHighCeiling<-factor(contract$qHighCeiling, 
-                                    
-                                    levels=c("[0.00e+00,1.50e+04)",
-                                             "[1.50e+04,1.00e+05)",
-                                             "[1.00e+05,1.00e+06)",
-                                             "[1.00e+06,1.00e+07)",
-                                             "[1.00e+07,7.50e+07)",
-                                             "[7.50e+07,3.36e+12]"),
-                                    labels=c("[0,15k)",
-                                             "[15k,100k)",
-                                             "[100k,1m)",
-                                             "[1m,10m)",
-                                             "[10m,75m)",
-                                             "[75m+]"),
-                                    ordered=TRUE
+                              
+                              levels=levels(qHighCeiling$Ceil),
+                              labels=c("[0,15k)",
+                                       "[15k,100k)",
+                                       "[100k,1m)",
+                                       "[1m,10m)",
+                                       "[10m,75m)",
+                                       "[75m+]"),
+                              ordered=TRUE
       )
     }
     
-    if (all(levels(contract$qLowCeiling)==c("[0.00e+00,1.50e+04)",
-                                            "[1.50e+04,1.00e+05)",
-                                            "[1.00e+05,1.00e+06)",
-                                            "[1.00e+06,3.00e+07)",
-                                            "[3.00e+07,3.36e+12]"))){
+    
+    
+    if (gsub(" ","",levels(contract$qLowCeiling)[[2]]) =="[1.50e+04,1.00e+05)"&
+        gsub(" ","",levels(contract$qLowCeiling)[[3]]) =="[1.00e+05,1.00e+06)"&
+        gsub(" ","",levels(contract$qLowCeiling)[[4]]) =="[1.00e+06,3.00e+07)"){
       contract$qLowCeiling<-factor(contract$qLowCeiling, 
-                                   
-                                   levels=c("[0.00e+00,1.50e+04)",
-                                            "[1.50e+04,1.00e+05)",
-                                            "[1.00e+05,1.00e+06)",
-                                            "[1.00e+06,3.00e+07)",
-                                            "[3.00e+07,3.36e+12]"),
+                                    
+                                    levels=levels(qLowCeiling$Ceil),
                                    labels=c("[0,15k)",
                                             "[15k,100k)",
                                             "[100k,1m)",
                                             "[1m,30m)",
                                             "[30m+]"),
-                                   ordered=TRUE
+                                    ordered=TRUE
       )
     }
-    
-    
     
     
     
@@ -604,54 +595,6 @@ input_initial_scope<-function(contract,
      
     
     #ContractWeighted <- apply_lookups(Path,ContractWeighted)
-    
-    
-    contract$TermNum<-as.integer(as.character(factor(contract$Term,
-                                                    levels=c("Terminated","Unterminated"),
-                                                    labels=c(1,0))))
-    
-    contract$ObligationWT<-contract$Action.Obligation
-    contract$ObligationWT[contract$ObligationWT<0]<-NA
-    
-    contract<-contract %>% group_by(Ceil) %>% 
-      mutate(ceil.median.wt = median(UnmodifiedContractBaseAndAllOptionsValue))
-    
-    
-    
-    contract$UnmodifiedYearsFloat<-contract$UnmodifiedDays/365.25
-    contract$UnmodifiedYearsCat<-floor(contract$UnmodifiedYearsFloat)
-    contract$Dur[contract$UnmodifiedYearsCat<0]<-NA
-    
-    contract$Dur.Simple<-as.character(contract$Dur)
-    contract$Dur.Simple[contract$Dur.Simple %in% c(
-      "[0 months,~2 months)",
-      "[~2 months,~7 months)",
-      "[~7 months-~1 year]")]<-"<~1 year"
-    contract$Dur.Simple<-factor(contract$Dur.Simple,
-                               levels=c("<~1 year",
-                                        "(~1 year,~2 years]",
-                                        "(~2 years+]"),
-                               ordered=TRUE
-    )
-    
-    contract$Ceil.Simple<-as.character(contract$Ceil)
-    
-    contract$Ceil.Simple[contract$Ceil.Simple %in% c(
-      "75m+",
-      "10m - <75m")]<-"10m+"
-    contract$Ceil.Simple[contract$Ceil.Simple %in% c(
-      "1m - <10m",
-      "100k - <1m")]<-"100k - <10m"
-    contract$Ceil.Simple[contract$Ceil.Simple %in% c(
-      "15k - <100k",
-      "0 - <15k")]<-"0k - <100k"
-    contract$Ceil.Simple<-factor(contract$Ceil.Simple,
-                                levels=c("0k - <100k",
-                                         "100k - <10m",
-                                         "10m+"),
-                                ordered=TRUE
-    )
-    
     
     
     
