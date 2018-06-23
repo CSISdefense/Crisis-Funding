@@ -479,20 +479,27 @@ input_initial_scope<-function(contract,
     contract<-csis360::standardize_variable_names(contract)
     
     #Clear out 0 dates
-    contract$MinOfEffectiveDate[contract$MinOfEffectiveDate=="1900-01-01"]<-NA
-    contract$MinOfSignedDate[contract$MinOfSignedDate=="1900-01-01"]<-NA
-    contract$UnmodifiedCurrentCompletionDate[contract$UnmodifiedCurrentCompletionDate=="1900-01-01"]<-NA
-    contract$UnmodifiedUltimateCompletionDate[contract$UnmodifiedUltimateCompletionDate=="1900-01-01"]<-NA
-    contract$LastCurrentCompletionDate[contract$LastCurrentCompletionDate=="1900-01-01"]<-NA
-    contract$UnmodifiedLastDateToOrder[contract$UnmodifiedLastDateToOrder=="1900-01-01"]<-NA
+    na_nonsense_dates<-function(dates){
+      dates[dates=="1900-01-01" | dates=="9999-09-09"]<-NA
+      dates
+    }
+    contract$MinOfEffectiveDate<-na_nonsense_dates(contract$MinOfEffectiveDate)
+    contract$MinOfSignedDate<-na_nonsense_dates(contract$MinOfSignedDate)
+    contract$LastCurrentCompletionDate<-na_nonsense_dates(contract$LastCurrentCompletionDate)
+    contract$UnmodifiedCurrentCompletionDate<-na_nonsense_dates(contract$UnmodifiedCurrentCompletionDate)
+    contract$UnmodifiedUltimateCompletionDate<-na_nonsense_dates(contract$UnmodifiedUltimateCompletionDate)
+    contract$UnmodifiedLastDateToOrder<-na_nonsense_dates(contract$UnmodifiedLastDateToOrder)
     
+
     #Calculate the number of days the contract lasts.
     contract$UnmodifiedDays<-as.numeric(
       difftime(strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")
                , strptime(contract$MinOfSignedDate,"%Y-%m-%d")
                , unit="days"
       ))+1
-    contract$UnmodifiedDays[contract$UnmodifiedDays<1]<-NA
+    #Remove negative durations and century-plus durations.
+    contract$UnmodifiedDays[contract$UnmodifiedDays<1 |
+                              contract$UnmodifiedDays>36524]<-NA
     # 
     # CDuration<-as.duration(strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")-
     #                 strptime(contract$MinOfSignedDate,"%Y-%m-%d"))
@@ -549,7 +556,7 @@ input_initial_scope<-function(contract,
         gsub(" ","",levels(contract$qHighCeiling)[[5]]) =="[1.00e+07,7.50e+07)"){
       contract$qHighCeiling<-factor(contract$qHighCeiling, 
                               
-                              levels=levels(qHighCeiling$Ceil),
+                              levels=levels(contract$qHighCeiling),
                               labels=c("[0,15k)",
                                        "[15k,100k)",
                                        "[100k,1m)",
@@ -567,7 +574,7 @@ input_initial_scope<-function(contract,
         gsub(" ","",levels(contract$qLowCeiling)[[4]]) =="[1.00e+06,3.00e+07)"){
       contract$qLowCeiling<-factor(contract$qLowCeiling, 
                                     
-                                    levels=levels(qLowCeiling$Ceil),
+                                    levels=levels(contract$qLowCeiling),
                                    labels=c("[0,15k)",
                                             "[15k,100k)",
                                             "[100k,1m)",

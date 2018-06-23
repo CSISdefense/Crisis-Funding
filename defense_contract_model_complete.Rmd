@@ -52,8 +52,8 @@ save(file="Data\\def_all_detail.Rdata",def_all)
 
 ##Initial Scope
 ```{r Scope}
-# load(file="Data\\def_all_detail.Rdata")
-debug(input_initial_scope)
+# load(file="Data\\defense_contract_all_complete.Rdata")
+undebug(input_initial_scope)
 def_all<-input_initial_scope(def_all)
 
 save(file="Data\\def_all_detail.Rdata",def_all)
