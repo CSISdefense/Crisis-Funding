@@ -53,8 +53,19 @@ save(file="Data\\def_all_detail.Rdata",def_all)
 ##Initial Scope
 ```{r Scope}
 # load(file="Data\\defense_contract_all_complete.Rdata")
-undebug(input_initial_scope)
+# undebug(input_initial_scope)
 def_all<-input_initial_scope(def_all)
+
+save(file="Data\\def_all_detail.Rdata",def_all)
+```
+
+## Contract Delta
+
+```{r Delta}
+# load(file="Data\\defense_contract_all_complete.Rdata")
+# undebug(input_initial_scope)
+def_all<-input_contract_delta(def_all,
+                              file="Defense_Contract_SP_ContractModificationDeltaCustomer.csv")
 
 save(file="Data\\def_all_detail.Rdata",def_all)
 ```
