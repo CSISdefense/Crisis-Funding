@@ -140,6 +140,7 @@ def_all<-def_all[,colnames(def_all) %in% c(
   "UnmodifiedContractBaseAndAllOptionsValue",
   "SumOfisChangeOrder",
   "ChangeOrderBaseAndAllOptionsValue",
+  "NewWorkUnmodifiedBaseAndAll",
   # pChangeOrderObligated,
   "UnmodifiedDays",
   # "MinOfEffectiveDate",
