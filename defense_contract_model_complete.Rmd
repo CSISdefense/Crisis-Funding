@@ -41,7 +41,7 @@ source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/
 if(!exists("def_all")) def_all<-NULL
 debug(input_sample_criteria)
 def_all<-input_sample_criteria(def_all,
-                                file="Defense_Contract_SP_ContractSampleCriteriaDetailsCustomer.csv",
+                                file="Contract.Contract_SP_ContractSampleCriteriaDetailsCustomer.txt",
                       drop_incomplete=FALSE)
   
 
