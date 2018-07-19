@@ -398,7 +398,7 @@ input_sample_criteria<-function(contract=NULL,
   
   
   if(!exists("contract") | is.null(contract)){
-    input<-swap_in_zip(file,dir)
+    input<-swap_in_zip(file,"",dir)
     contract <-readr::read_delim(
       input,
       col_names=TRUE, 

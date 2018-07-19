@@ -39,13 +39,68 @@ source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/
 ##Sample Criteria
 ```{r DetailCustomer}
 if(!exists("def_all")) def_all<-NULL
+# debug(input_sample_criteria)
 debug(input_sample_criteria)
-def_all<-input_sample_criteria(def_all,
-                                file="Contract.Contract_SP_ContractSampleCriteriaDetailsCustomer.txt",
+def_all<-input_sample_criteria(def_all,                                file="Contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
                       drop_incomplete=FALSE)
   
-
+load(file="Data\\def_all_detail.Rdata")
 save(file="Data\\def_all_detail.Rdata",def_all)
+
+```
+
+
+
+## Top PSC Office NAICS
+```{r TopPSCofficeNAICS}
+# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+fed_full<-plyr::join(fed_full,test)
+test<-read_delim("Data\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
+                 na=c("NA","NULL"),
+                 col_types="icdcdcdcd")
+                   # c(col_integer(),
+                   #   col_character(),
+                   #   col_double(),
+                   #   col_character(),
+                   #   col_double(),
+                   #   col_character(),
+                   #   col_double(),
+                   #   col_character(),
+                   #   col_double()))
+fed_full<-csis360::read_and_join_experiment(data=fed_full
+  ,"Contract.SP_ContractTopPSCofficeNAICS.txt"
+  ,path=""
+  ,"Data\\"
+  ,by="CSIScontractID"
+  ,new_var_checked=FALSE
+)
+
+fed_full$topContractingOfficeAgencyID<-factor(
+  fed_full$topContractingOfficeAgencyID
+)
+fed_full$topContractingOfficeID<-factor(
+  fed_full$topContractingOfficeID
+)
+fed_full$topProductOrServiceCode<-factor(
+  fed_full$topProductOrServiceCode
+)
+fed_full$topPrincipalNAICScode<-factor(
+  fed_full$topPrincipalNAICScode
+)
+
+
+fed_full<-fed_full[,!colnames(fed_full) %in% 
+    c(
+      # "topContractingOfficeAgencyID",
+      "topContractingOfficeAgencyIDamount"      ,
+      # "topContractingOfficeID",
+      "topContractingOfficeAmount"  ,
+      # "topProductOrServiceCode",
+      "topProductOrServiceAmount"               ,
+      # "topPrincipalNAICScode",
+      "topPrincipalNAICSamount")]
+# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+
 
 ```
 
@@ -54,7 +109,8 @@ save(file="Data\\def_all_detail.Rdata",def_all)
 ```{r Scope}
 # load(file="Data\\defense_contract_all_complete.Rdata")
 # undebug(input_initial_scope)
-def_all<-input_initial_scope(def_all)
+def_all<-input_initial_scope(def_all,
+                             file="Contract.SP_ContractUnmodifiedAndOutcomeDetailsCustomer2017.txt")
 
 save(file="Data\\def_all_detail.Rdata",def_all)
 ```
