@@ -44,7 +44,7 @@ debug(input_sample_criteria)
 def_all<-input_sample_criteria(def_all,                                file="Contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
                       drop_incomplete=FALSE)
   
-load(file="Data\\def_all_detail.Rdata")
+# load(file="Data\\def_all_detail.Rdata")
 save(file="Data\\def_all_detail.Rdata",def_all)
 
 ```
@@ -53,55 +53,63 @@ save(file="Data\\def_all_detail.Rdata",def_all)
 
 ## Top PSC Office NAICS
 ```{r TopPSCofficeNAICS}
-# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
-fed_full<-plyr::join(fed_full,test)
-test<-read_delim("Data\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
-                 na=c("NA","NULL"),
-                 col_types="icdcdcdcd")
-                   # c(col_integer(),
-                   #   col_character(),
-                   #   col_double(),
-                   #   col_character(),
-                   #   col_double(),
-                   #   col_character(),
-                   #   col_double(),
-                   #   col_character(),
-                   #   col_double()))
-fed_full<-csis360::read_and_join_experiment(data=fed_full
-  ,"Contract.SP_ContractTopPSCofficeNAICS.txt"
-  ,path=""
-  ,"Data\\"
-  ,by="CSIScontractID"
-  ,new_var_checked=FALSE
-)
+debug(read_and_join_experiment)
+def_all<-input_contract_psc_office_naics(def_all,                                file="Contract.SP_ContractSampleCriteriaDetailsCustomer.txt")
 
-fed_full$topContractingOfficeAgencyID<-factor(
-  fed_full$topContractingOfficeAgencyID
-)
-fed_full$topContractingOfficeID<-factor(
-  fed_full$topContractingOfficeID
-)
-fed_full$topProductOrServiceCode<-factor(
-  fed_full$topProductOrServiceCode
-)
-fed_full$topPrincipalNAICScode<-factor(
-  fed_full$topPrincipalNAICScode
-)
+#This works!  
+test<-readr::read_delim("Data\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
+                   na=c("NA","NULL"),
+                   col_types="icdcdcdcd")
+  # c(col_integer(),
+  #   col_character(),
+  #   col_double(),
+  #   col_character(),
+  #   col_double(),
+  #   col_character(),
+  #   col_double(),
+  #   col_character(),
+  #   col_double()))
 
 
-fed_full<-fed_full[,!colnames(fed_full) %in% 
-    c(
-      # "topContractingOfficeAgencyID",
-      "topContractingOfficeAgencyIDamount"      ,
-      # "topContractingOfficeID",
-      "topContractingOfficeAmount"  ,
-      # "topProductOrServiceCode",
-      "topProductOrServiceAmount"               ,
-      # "topPrincipalNAICScode",
-      "topPrincipalNAICSamount")]
-# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+#This has problems. 
+# #lookup<-readr::read_delim(
+#       input,
+#       col_names=TRUE,
+#       delim=ifelse(substring(lookup_file,nchar(lookup_file)-3)==".csv",",","\t"),
+#       na=c("NA","NULL"),
+#       trim_ws=TRUE,
+#       col_types=col_types
+#     )
+
+def_all<-dplyr::left_join(def_all,test,by="CSIScontractID")
 
 
+  def_all$topContractingOfficeAgencyID<-factor(
+    def_all$topContractingOfficeAgencyID
+  )
+  def_all$topContractingOfficeID<-factor(
+    def_all$topContractingOfficeID
+  )
+  def_all$topProductOrServiceCode<-factor(
+    def_all$topProductOrServiceCode
+  )
+  def_all$topPrincipalNAICScode<-factor(
+    def_all$topPrincipalNAICScode
+  )
+  
+  
+  def_all<-def_all[,!colnames(def_all) %in% 
+                     c(
+                       # "topContractingOfficeAgencyID",
+                       "topContractingOfficeAgencyIDamount"      ,
+                       # "topContractingOfficeID",
+                       "topContractingOfficeAmount"  ,
+                       # "topProductOrServiceCode",
+                       "topProductOrServiceAmount"               ,
+                       # "topPrincipalNAICScode",
+                       "topPrincipalNAICSamount")]
+  # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+  
 ```
 
 

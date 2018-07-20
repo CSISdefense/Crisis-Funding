@@ -693,3 +693,61 @@ input_contract_delta<-function(contract,
   
   contract
 }
+
+input_contract_psc_office_naics<-function(contract,
+                                          file="Data\\Contract.SP_ContractTopPSCofficeNAICS.txt",
+                                          dir="Data\\",
+                                          retain_all=FALSE
+                                          ){
+  
+  # contract<-plyr::join(contract,test)
+  # test<-read_delim("Data\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
+  #                  na=c("NA","NULL"),
+  #                  col_types="icdcdcdcd")
+  # c(col_integer(),
+  #   col_character(),
+  #   col_double(),
+  #   col_character(),
+  #   col_double(),
+  #   col_character(),
+  #   col_double(),
+  #   col_character(),
+  #   col_double()))
+
+  
+  contract<-read_and_join_experiment(data=contract,
+                                             file,
+                                             "",
+                                             dir,
+                                             by="CSIScontractID",
+                                             new_var_checked=FALSE,
+                                             col_types="icdcdcdcd"
+  )
+  
+  contract$topContractingOfficeAgencyID<-factor(
+    contract$topContractingOfficeAgencyID
+  )
+  contract$topContractingOfficeID<-factor(
+    contract$topContractingOfficeID
+  )
+  contract$topProductOrServiceCode<-factor(
+    contract$topProductOrServiceCode
+  )
+  contract$topPrincipalNAICScode<-factor(
+    contract$topPrincipalNAICScode
+  )
+  
+  
+  contract<-contract[,!colnames(contract) %in% 
+                     c(
+                       # "topContractingOfficeAgencyID",
+                       "topContractingOfficeAgencyIDamount"      ,
+                       # "topContractingOfficeID",
+                       "topContractingOfficeAmount"  ,
+                       # "topProductOrServiceCode",
+                       "topProductOrServiceAmount"               ,
+                       # "topPrincipalNAICScode",
+                       "topPrincipalNAICSamount")]
+  # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+  
+}
