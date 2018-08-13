@@ -22,16 +22,72 @@ rename_dataset<-function(contract){
   colnames(contract)[colnames(contract)=="LabeledMDAP"]<-"MDAP"
   colnames(contract)[colnames(contract)=="qNChg"]<-"NChg"
   colnames(contract)[colnames(contract)=="qCRais"]<-"CRai"
-  colnames(contract)[colnames(contract)=="StartFiscal_Year"]<-"StartFY"
-  colnames(contract)[colnames(contract)=="StartFiscalYear"]<-"StartFY"
+  colnames(contract)[colnames(contract) %in% c("StartFiscal_Year","StartFiscalYear"]<-"StartFY"
   colnames(contract)[colnames(contract)=="topContractingOfficeAgencyID"]<-"Agency"
   colnames(contract)[colnames(contract)=="topContractingOfficeID"]<-"Office"
-  colnames(contract)[colnames(contract)=="topProductOrServiceCode"]<-"ProdServ"
+  colnames(contract)[colnames(contract) %in% c("topProductOrServiceCode","ProductOrServiceCode")]<-"ProdServ"
   colnames(contract)[colnames(contract)=="topPrincipalNAICScode"]<-"NAICS"
   colnames(contract)[colnames(contract)=="UnmodifiedPlaceCountryISO3"]<-"Where"
   
   
   contract
+}
+
+trim_dataset<-function(contract){
+  
+  contract<-contract[,colnames(contract) %in% c(
+    "CSIScontractID",
+    # IsIDV,
+    "FxCb",
+    "Fee",
+    "UCA",
+    "Comp",
+    "EffComp",
+    "Urg",
+    # MDAP,
+    # unmodifiedSystemequipmentcode,
+    "Who",
+    "Veh",
+    "PSR",
+    "What",
+    "Where",
+    "Intl",
+    # "LowCeil",
+    "Ceil",
+    "Dur",
+    "Offr",
+    # IsIDV,
+    # Soft,
+    "CBre",
+    "CRai",
+    "NChg",
+    "Term",
+    "UnmodifiedNumberOfOffersReceived",
+    "UnmodifiedContractBaseAndAllOptionsValue",
+    "SumOfisChangeOrder",
+    "ChangeOrderBaseAndAllOptionsValue",
+    "NewWorkUnmodifiedBaseAndAll",
+    # pChangeOrderObligated,
+    "UnmodifiedDays",
+    # "MinOfEffectiveDate",
+    "StartFY",
+    "StartCY",
+    "Action.Obligation",
+    "Agency",
+    "Office",
+    "ProdServ",
+    "NAICS",
+    "MaxOfDecisionTree",
+    # "MaxOfDecisionTreeStep4",
+    "MinOfDecisionTree",
+    # "MinOfDecisionTreeStep4"
+    "LastCurrentCompletionDate",
+    "UnmodifiedCurrentCompletionDate",
+    "IsClosed",
+    "MinOfSignedDate"
+  )]
+  # 
+  
 }
 
 FormatContractModel<-function(dfContract){
@@ -225,6 +281,7 @@ FormatContractModel<-function(dfContract){
      !"StartFY" %in% colnames(dfContract)){
     dfContract$MinOfSignedDate<-as.Date(as.character(dfContract$MinOfSignedDate))
     dfContract$StartFY<-DateToFiscalYear(dfContract$MinOfSignedDate)
+    dfContract$StartCY<-year(dfContract$MinOfSignedDate)
   }
   
   if("MinOfSignedDate" %in% colnames(dfContract) &
@@ -375,6 +432,13 @@ percent_obligated<-function(data,
   data$p_obligated
 }
 
+#Clear out 0 dates
+na_nonsense_dates<-function(dates){
+  dates[dates=="1900-01-01" | dates=="9999-09-09"]<-NA
+  dates
+}
+
+
 impute_unmodified<-function(unmodified,
                             full){
   NAlist<-is.na(unmodified)&
@@ -419,6 +483,12 @@ input_sample_criteria<-function(contract=NULL,
   }
   
   contract<-csis360::standardize_variable_names(contract)
+  
+  if("MinOfEffectiveDate" %in% colnames(contract)){
+    contract$MinOfEffectiveDate<-na_nonsense_dates(contract$MinOfEffectiveDate)
+  }
+  contract$MinOfSignedDate<-na_nonsense_dates(contract$MinOfSignedDate)
+  contract$LastCurrentCompletionDate<-na_nonsense_dates(contract$LastCurrentCompletionDate) 
   
   if(drop_incomplete==TRUE){
     #Limit to completed contracts that start in 2007 or later
@@ -478,14 +548,9 @@ input_initial_scope<-function(contract,
   
   contract<-csis360::standardize_variable_names(contract)
   
-  #Clear out 0 dates
-  na_nonsense_dates<-function(dates){
-    dates[dates=="1900-01-01" | dates=="9999-09-09"]<-NA
-    dates
-  }
-  contract$MinOfEffectiveDate<-na_nonsense_dates(contract$MinOfEffectiveDate)
-  contract$MinOfSignedDate<-na_nonsense_dates(contract$MinOfSignedDate)
-  contract$LastCurrentCompletionDate<-na_nonsense_dates(contract$LastCurrentCompletionDate)
+
+  
+
   contract$UnmodifiedCurrentCompletionDate<-na_nonsense_dates(contract$UnmodifiedCurrentCompletionDate)
   contract$UnmodifiedUltimateCompletionDate<-na_nonsense_dates(contract$UnmodifiedUltimateCompletionDate)
   contract$UnmodifiedLastDateToOrder<-na_nonsense_dates(contract$UnmodifiedLastDateToOrder)
