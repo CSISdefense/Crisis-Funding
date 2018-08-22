@@ -22,7 +22,7 @@ rename_dataset<-function(contract){
   colnames(contract)[colnames(contract)=="LabeledMDAP"]<-"MDAP"
   colnames(contract)[colnames(contract)=="qNChg"]<-"NChg"
   colnames(contract)[colnames(contract)=="qCRais"]<-"CRai"
-  colnames(contract)[colnames(contract) %in% c("StartFiscal_Year","StartFiscalYear"]<-"StartFY"
+  colnames(contract)[colnames(contract) %in% c("StartFiscal_Year","StartFiscalYear")]<-"StartFY"
   colnames(contract)[colnames(contract)=="topContractingOfficeAgencyID"]<-"Agency"
   colnames(contract)[colnames(contract)=="topContractingOfficeID"]<-"Office"
   colnames(contract)[colnames(contract) %in% c("topProductOrServiceCode","ProductOrServiceCode")]<-"ProdServ"
