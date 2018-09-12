@@ -1,0 +1,815 @@
+---
+title: "empty_model_multilevel_check"
+author: "Greg Sanders"
+date: "August 15, 2018"
+output: html_document
+---
+
+
+# Setup
+```{r Libraries, echo = FALSE}
+library(csis360)
+library(ggplot2)
+library(dplyr)
+library(arm)
+library(R2WinBUGS)
+library(Hmisc)
+library(sjstats)
+source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
+
+
+axis.text.size<-10
+strip.text.size<-10
+legend.text.size<-8
+# table.text.size<-5.75
+title.text.size<-12
+geom.text.size<-12
+
+main.text.size<-1
+note.text.size<-1.40
+
+
+```
+
+## Load in data
+```{r Sample}
+ load("Data\\crisis_smp.Rdata")
+# save(crisis_smp,crisis_smp,file="data//crisis_smp")
+
+
+
+# complete<-!is.na(def$b_Term)&
+#   !is.na(def$b_CBre)&
+#   !is.na(def$n_Comp)&
+#   !is.na(def$l_Ceil)&
+#   !is.na(def$l_Days)&
+#   !is.na(def$Veh) &
+#   !is.na(def$n_Fixed)&
+#   !is.na(def$b_Intl)&
+#   !is.na(def$b_UCA)&
+#   !is.na(def$ProductOrServiceCode)&
+#   !is.na(def$PSR)&
+#   !is.na(def$cl_def6_HHI_lag1)&
+#   !is.na(def$US6_avg_sal_lag1)
+# # 
+# crisis_smp<-def[complete,]
+# #8818392  to 8818392
+# 13057769 to 8335209
+# nrow(def[!complete,])/nrow(def)
+# sum(def[!complete,]$Action.Obligation,na.rm=TRUE)/sum(def$Action.Obligation,na.rm=TRUE)
+# 
+# crisis_smp<-crisis_smp[sample(nrow(crisis_smp),1000000),]
+# crisis_smp<-crisis_smp[sample(nrow(crisis_smp),250000),]
+# save(file="data//def_sample.Rdata",crisis_smp,crisis_smp)
+
+# levels(crisis_smp$Intl)<- list("Just U.S."=c("Just U.S."), 
+#                                 "Any Intl."=c("Any International"))
+# levels(crisis_smp$Intl)<- list("Just U.S."=c("Just U.S."), 
+#                                 "Any Intl."=c("Any International"))
+
+
+```
+
+#ICC Testing
+## Product Or Service Codes
+### Product Or Service Code
+```{r ProductOrServiceCode}
+load(file="Output//psc_empty_models.rdata")
+
+if(!exists("psc_cbre"))
+psc_cbre <- glmer(data=crisis_smp,
+                 b_CBre ~ (1 | ProductOrServiceCode)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_cbre)
+
+
+if(!exists("psc_term"))
+psc_term <- glmer(data=crisis_smp,
+                 b_Term ~ (1 | ProductOrServiceCode)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_term)
+
+
+```
+34% for Ceiling Breaches and 22% for Terminations, not a bad start.
+
+### Crisis Product Or Service Area
+```{r CrisisProductOrServiceArea}
+crisis_smp$CrisisProductOrServiceArea
+if(!exists("cpsa_cbre"))
+cpsa_cbre <- glmer(data=crisis_smp,
+                 b_CBre ~ (1 | CrisisProductOrServiceArea)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_cbre)
+
+if(!exists("cpsa_term"))
+cpsa_term <- glmer(data=crisis_smp,
+                 b_Term ~ (1 | CrisisProductOrServiceArea)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_term)
+
+
+```
+23% for Ceiling Breaches and 18% for Terminations. In particular for terminations, these high level categories seem to capture much of the differences without needing as much detail.
+
+### Service / Commdity / Construction
+```{r PSR}
+crisis_smp$ServCommCons<-crisis_smp$HostNation3Category
+
+
+if(!exists("ServCommCons_cbre"))
+ServCommCons_cbre <- glmer(data=crisis_smp,
+                 b_CBre ~ (1 | ServCommCons)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,ServCommCons_cbre)
+
+
+if(!exists("ServCommCons_term"))
+ServCommCons_term <- glmer(data=crisis_smp,
+                 b_Term ~ (1 | ServCommCons)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,ServCommCons_term)
+
+
+```
+
+
+### Crisis Product Or Service Area
+```{r CrisisProductOrServiceArea}
+crisis_smp$CrisisProductOrServiceArea
+if(!exists("cpsa_cbre"))
+cpsa_cbre <- glmer(data=crisis_smp,
+                 b_CBre ~ (1 | CrisisProductOrServiceArea)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_cbre)
+
+if(!exists("cpsa_term"))
+cpsa_term <- glmer(data=crisis_smp,
+                 b_Term ~ (1 | CrisisProductOrServiceArea)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_term)
+
+
+```
+23% for Ceiling Breaches and 18% for Terminations. In particular for terminations, these high level categories seem to capture much of the differences without needing as much detail.
+
+### Product Or Service Code two digit
+```{r PSC2}
+crisis_smp$psc2<-factor(substring(crisis_smp$ProductOrServiceCode,1,2))
+summary(factor(crisis_smp$psc2))
+
+
+
+if(!exists("psc2_cbre"))
+psc2_cbre <- glmer(data=crisis_smp,
+                 b_CBre ~ (1 | psc2)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,psc2_cbre)
+
+
+if(!exists("psc2_term"))
+psc2_term <- glmer(data=crisis_smp,
+                 b_Term ~ (1 | psc2)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,psc2_term)
+
+
+```
+
+
+Surprisingly, ServCommCons rockets to 31 percent ICC for ceiling breaches, while only achieving 6 percent for terminations. 
+### SSc/PSCA/ProdServ
+Three levels
+```{r ProdServ3level}
+
+
+if(!exists("psc_all3_cbre"))
+psc_all3_cbre <- glmer(data=crisis_smp,
+                 b_CBre ~ (1 | ServCommCons/CrisisProductOrServiceArea/ProductOrServiceCode)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_all3_cbre)
+
+
+if(!exists("psc_all3_term"))
+psc_all3_term <- glmer(data=crisis_smp,
+                 b_Term ~ (1 | ServCommCons/CrisisProductOrServiceArea/ProductOrServiceCode)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_all3_term)
+
+
+```
+For ceiling breaches, the middle layer of crisisproductorservice area adds fairly little. The three levels together account  for 36 percent of the variation, a bit over productserivcecode alone. With terminations, there's a bit of an increase over product or service code alone, but servcommcons adds no value.
+
+### CPSA/ProdServ
+Three levels
+```{r Area_Code}
+
+
+if(!exists("cpsa_psc_cbre"))
+cpsa_psc_cbre <- glmer(data=crisis_smp,
+                 b_CBre ~ (1 | CrisisProductOrServiceArea/ProductOrServiceCode)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_psc_cbre)
+
+
+if(!exists("cpsa_psc_term"))
+cpsa_psc_term <- glmer(data=crisis_smp,
+                 b_Term ~ (1 | CrisisProductOrServiceArea/ProductOrServiceCode)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_psc_term)
+
+
+```
+Oddly, crisis product or service area just doesn't seem to add anything to the 
+
+### SSc/ProdServ
+The other two levels combined.
+```{r ProdServ3level}
+
+
+if(!exists("ssc_psc_cbre"))
+ssc_psc_cbre <- glmer(data=crisis_smp,
+                 b_CBre ~ (1 | ServCommCons/ProductOrServiceCode)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_psc_cbre)
+
+
+if(!exists("ssc_psc_term"))
+ssc_psc_term <- glmer(data=crisis_smp,
+                      b_Term ~ (1 | ServCommCons/ProductOrServiceCode)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_psc_term)
+
+
+```
+ServCommCons continues to add no value to the termination model while being quite important to ceiling breaches.
+### Compare ProductOrServiceCode
+
+```{r Empty_Compare_CBre}
+
+save(psc_cbre,psc_term,
+     cpsa_cbre,cpsa_term,
+     ServCommCons_cbre,ServCommCons_term,
+     psc_all3_cbre,psc_all3_term,
+     cpsa_psc_cbre,cpsa_psc_term,
+     ssc_psc_cbre,ssc_psc_term,
+     file="Output//psc_empty_models.rdata")
+
+
+get_icc(psc_cbre)
+get_icc(psc2_cbre)
+get_icc(cpsa_cbre)
+get_icc(ServCommCons_cbre)
+get_icc(psc_all3_cbre)
+get_icc(cpsa_psc_cbre)
+get_icc(ssc_psc_cbre)
+```
+ServCommCons/ProductServiceCode easily explains the most about the model.
+```{r Empty_Compare_Term}
+get_icc(psc_term)
+get_icc(psc2_term)
+get_icc(cpsa_term)
+get_icc(ServCommCons_term)
+get_icc(psc_all3_term)
+get_icc(cpsa_psc_term)
+get_icc(ssc_psc_term)
+```
+CrisisProductOrSericeArea doesn't add much value versus ProductOrServiceCode alone but ServCommCons adds none.
+
+
+Proceeding with CrisisProductOrServiceArea/ProductOrServiceCode for Term and CrisisProductOrServiceArea/ProductOrServiceCode for CBre
+
+
+The ideal levels varies some depending on the output variable. On the whole ProductOrServiceCode 3 and ProductOrServiceCode 6 combined seem to explain comparatively high levels of variance when summed and are reasonably balanced between the two levels.
+
+Fiscal year generally has more explanatory power than calendar year.
+
+## Start Year
+
+### Calendar Year
+```{r StartFY}
+load(file="Output//when_empty_models.rdata")
+
+if(!exists("StartFY_cbre"))
+  StartFY_cbre <- glmer(data=crisis_smp,
+                        b_CBre ~ (1 | StartFY)
+                        , family=binomial(link="logit"))
+get_icc(display=TRUE,StartFY_cbre)
+
+if(!exists("StartFY_term"))
+  StartFY_term <- glmer(data=crisis_smp,
+                        b_Term ~ (1 | StartFY)
+                        , family=binomial(link="logit"))
+get_icc(display=TRUE,StartFY_term)
+rm(StartFY_cbre,StartFY_term)
+coef(StartFY_term)
+
+```
+
+The ICC is highEST for ceiling breaches and it is lowest in 2010 and highest in 2015.
+
+### Month Unnested
+```{r StartMonth}
+
+# crisis_smp$SignedMonth<-lubridate::month(crisis_smp$MinOfSignedDate)
+# 
+# if(!exists("SignedMonth_term"))
+#   SignedMonth_term <- glmer(data=crisis_smp,
+#                             b_Term ~ (1 | StartFY:SignedMonth)
+#                             , family=binomial(link="logit"))
+# get_icc(display=TRUE,SignedMonth_term)
+# 
+# if(!exists("SignedMonth_cbre"))
+#   SignedMonth_cbre <- glmer(data=crisis_smp,
+#                             b_CBre ~ (1 | StartFY:SignedMonth)
+#                             , family=binomial(link="logit"))
+# get_icc(display=TRUE,SignedMonth_cbre)
+
+```
+
+### Month Nested
+```{r NestedMonth}
+
+# if(!exists("NestedMonth_term"))
+# NestedMonth_term <- glmer(data=crisis_smp,
+#                  b_Term ~ (1 | StartFY/SignedMonth)
+#                   , family=binomial(link="logit"))
+# get_icc(display=TRUE,NestedMonth_term)
+# 
+# if(!exists("NestedMonth_cbre"))
+# NestedMonth_cbre <- glmer(data=crisis_smp,
+#                  b_CBre ~ (1 | StartFY/SignedMonth)
+#                   , family=binomial(link="logit"))
+# get_icc(display=TRUE,NestedMonth_cbre)
+
+```
+
+### ProductOrServiceCode and Calendar Year
+```{r NAICS_StartFY}
+
+if(!exists("psc_StartFY_cbre"))
+  NAICS_StartFY_cbre <- glmer(data=crisis_smp,
+                              b_CBre ~  (1 | ServCommCons/ProductOrServiceCode) + (1 | StartFY)
+                              , family=binomial(link="logit"))
+get_icc(display=TRUE,NAICS_StartFY_cbre)
+
+if(!exists("psc_StartFY_term"))
+  NAICS_StartFY_term <- glmer(data=crisis_smp,
+                              b_Term ~  (1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | StartFY)
+                              , family=binomial(link="logit"))
+get_icc(display=TRUE,NAICS_StartFY_term)
+
+
+
+```
+Start year explains rather little after inclusion of product or service categories.
+### Compare Signed Dates
+```{r Empty_Compare_When}
+
+save(StartFY_cbre,StartFY_term,
+     SignedMonth_cbre,SignedMonth_term,
+     NestedMonth_cbre,NestedMonth_term,
+     NAICS_StartFY_cbre,NAICS_StartFY_term,
+     file="Output//when_empty_models.rdata")
+
+get_icc(naics36_cbre)
+get_icc(StartFY_cbre)
+get_icc(SignedMonth_cbre)
+get_icc(NestedMonth_cbre)
+get_icc(NAICS_StartFY_cbre)
+
+get_icc(naics36_term)
+get_icc(StartFY_term)
+get_icc(SignedMonth_term)
+get_icc(NestedMonth_term)
+get_icc(NAICS_StartFY_term)
+
+
+```
+Signed month has ICC values typically below 0.03 and it appears it can be safely left out as start calendar year captures most of the variance. Interestingly, while start year had been most prominent for ceiling breaches no longer stands out once ProductOrServiceCode are incoporated in the model.
+##Customer
+### Office
+```{r Office}
+# load(file="Output//who_empty_models.rdata")
+if(!exists("Office_cbre"))
+  Office_cbre <- glmer(data=crisis_smp,
+                       b_CBre ~ (1 | Agency:Office)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Office_cbre)
+
+if(!exists("Office_term"))
+  Office_term <- glmer(data=crisis_smp,
+                       b_Term ~ (1 | Agency:Office)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Office_term)
+
+
+
+
+```
+Office immediately explains a great deal in both cases.
+
+### Agency
+```{r Agency}
+if(!exists("Agency_cbre"))
+  Agency_cbre <- glmer(data=crisis_smp,
+                       b_CBre ~ (1 | Agency)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Agency_cbre)
+
+
+if(!exists("Agency_term"))
+  Agency_term <- glmer(data=crisis_smp,
+                       b_Term ~ (1 | Agency)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Agency_term)
+
+
+```
+Agency has only about half the explainatory value as office. 
+
+### Customer
+```{r Customer}
+
+
+if(!exists("Customer_term"))
+  Customer_term <- glmer(data=crisis_smp,
+                       b_Term ~ (1 | Agency)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Customer_term)
+
+if(!exists("Customer_cbre"))
+  Customer_cbre <- glmer(data=crisis_smp,
+                       b_CBre ~ (1 | Agency)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Customer_cbre)
+
+```
+
+### Nested Office
+```{r NestedOffice}
+if(!exists("NestedOffice_cbre"))
+  NestedOffice_cbre <- glmer(data=crisis_smp,
+                             b_CBre ~ (1 | Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,NestedOffice_cbre)
+
+
+if(!exists("NestedOffice_term"))
+  NestedOffice_term <- glmer(data=crisis_smp,
+                             b_Term ~ (1 | Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,NestedOffice_term)
+
+
+```
+Somewhat surprisingly, in both cases office and agency combined have less explanatory value than office on its own.
+### PSC Office
+```{r NAICS02_Office}
+if(!exists("naics02_Office_term"))
+  naics02_Office_term <- glmer(data=crisis_smp,
+                             b_Term ~  (1 | PSR) + (1 | Agency:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,naics02_Office_term)
+
+if(!exists("naics02_Office_cbre"))
+  naics02_Office_cbre <- glmer(data=crisis_smp,
+                             b_CBre ~  (1 | PSR) + (1 | Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,naics02_Office_cbre)
+
+```
+
+### CrisisProductOrServiceArea Office
+```{r NAICS03_Office}
+# if(!exists("naics03_Office_term"))
+
+if(!exists("ssc_psc_office_cbre"))
+  ssc_psc_office_cbre <- glmer(data=crisis_smp,
+                              b_CBre ~  (1 | ServCommCons/ProductOrServiceCode) + (1 | Agency:Office)
+                              , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_psc_office_cbre)
+
+if(!exists("cpsa_psc_office_term"))
+  cpsa_psc_office_term <- glmer(data=crisis_smp,
+                              b_Term ~  (1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | Agency:Office)
+                              , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_psc_office_term)
+
+if(!exists("ssc_psc_office_term"))
+  ssc_psc_office_term <- glmer(data=crisis_smp,
+                              b_Term ~  (1 | ServCommCons/ProductOrServiceCode) + (1 | Agency:Office)
+                              , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_psc_office_term)
+
+if(!exists("psc_office_term"))
+  psc_office_term <- glmer(data=crisis_smp,
+                              b_Term ~  (1 | ProductOrServiceCode) + (1 | Agency:Office)
+                              , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_office_term)
+
+```
+Surprisingly Crisis/Product/Searvice Area went to zero fr termination. Double checking if Serv/Comm/Cons works any better.
+
+### PSC Office Start Year
+```{r NAICS03_Office}
+# if(!exists("naics03_Office_term"))
+
+if(!exists("ssc_psc_office_FY_cbre"))
+  ssc_psc_office_FY_cbre <- glmer(data=crisis_smp,
+                              b_CBre ~  (1 | ServCommCons/ProductOrServiceCode) + (1 | Agency:Office)+ (1|StartFY)
+                              , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_psc_office_FY_cbre)
+
+if(!exists("psc_office_FY_term"))
+  psc_office_FY_term <- glmer(data=crisis_smp,
+                              b_Term ~  (1 | ProductOrServiceCode) + (1 | Agency:Office) + (1|StartFY)
+                              , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_office_FY_term)
+
+```
+Start year adds nothing to the termination model and rather little to the ceiling breach modell. 
+
+
+
+
+### ProductOrServiceCode Office
+```{r psc_Office}
+if(!exists("psc_Office_term"))
+  psc_Office_term <- glmer(data=crisis_smp,
+                             b_Term ~  (1 | ProductOrServiceCode) + (1 | Agency:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_Office_term)
+
+if(!exists("psc_Office_cbre"))
+  psc_Office_cbre <- glmer(data=crisis_smp,
+                             b_CBre ~  (1 | ProductOrServiceCode) + (1 | Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_Office_cbre)
+
+```
+NAICS06 does come in a bit higher in summed VIF than NAICS36, but only a little.
+
+
+### CrisisProductOrServiceArea/Code Office
+```{r NAICS36_Office}
+if(!exists("naics36_Office_term"))
+  naics36_Office_term <- glmer(data=crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | Agency:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,naics36_Office_term)
+
+if(!exists("naics36_Office_cbre"))
+  naics36_Office_cbre <- glmer(data=crisis_smp,
+                             b_CBre ~  (1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,naics36_Office_cbre)
+
+```
+Office turns out to explain much of the variation previously captured by NAICS36, double checking next out NAICS6 alone holds up.
+
+
+
+### CrisisProductOrServiceArea/Code When Office
+```{r naics36_When_Office}
+if(!exists("ProductOrServiceAreaCode_When_Office_term"))
+  naics36_When_Office_term <- glmer(data=crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | StartFY) + (1 | Agency:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,naics36_When_Office_term)
+# 
+if(!exists("naics36_When_Office_cbre"))
+  naics36_When_Office_cbre <- glmer(data=crisis_smp,
+                             b_CBre ~  (1 | CrisisProductOrServiceArea/ProductOrServiceCode)+ (1 | StartFY) + (1 | Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,naics36_When_Office_cbre)
+
+```
+
+### ProductOrServiceCode When Office
+```{r psc_When_Office}
+if(!exists("psc_When_Office_term"))
+  psc_When_Office_term <- glmer(data=crisis_smp,
+                             b_Term ~  (1 | ProductOrServiceCode) + (1 | StartFY) + (1 | Agency:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_When_Office_term)
+
+if(!exists("psc_When_Office_cbre"))
+  psc_When_Office_cbre <- glmer(data=crisis_smp,
+                             b_CBre ~  (1 | ProductOrServiceCode)+ (1 | StartFY) + (1 | Agency:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_When_Office_cbre)
+
+save(file="output//naics6_when_office.rdta",psc_When_Office_term,psc_When_Office_cbre)
+```
+
+
+### Compare Who
+```{r Empty_Compare_Who_Term}
+
+save(Office_cbre,Office_term,
+     Agency_cbre,Agency_term,
+     Customer_cbre,Customer_term,
+     NestedOffice_cbre,NestedOffice_term,
+     naics02_Office_cbre,naics02_Office_term,
+     naics03_Office_cbre,naics03_Office_term,
+     psc_Office_cbre,psc_Office_term,
+     naics36_Office_cbre,naics36_Office_term,
+     naics46_Office_cbre,naics46_Office_term,
+     psc_When_Office_cbre,
+     naics36_When_Office_term,naics36_When_Office_cbre,
+     file="Output//who_empty_models.rdata")
+
+
+
+get_icc(naics36_term)
+# get_icc(NAICS_StartFY_term)
+get_icc(Office_term)
+get_icc(Agency_term)
+get_icc(NestedOffice_term)
+get_icc(naics02_Office_term)
+get_icc(psc_Office_term)
+get_icc(naics36_Office_term)
+get_icc(naics46_Office_term)
+get_icc(naics36_When_Office_term)
+# get_icc(psc_When_Office_term)
+
+
+debug(summary_residual_compare)
+summary_residual_compare(naics36_Office_term,naics46_Office_term,naics36_Office_cbre,naics46_Office_cbre,bins=10,suppress_vif=TRUE)
+summary_residual_compare(psc_Office_term,naics36_Office_term,psc_Office_cbre,naics36_Office_cbre,bins=10,suppress_vif=TRUE)
+summary_residual_compare(naics36_term,naics36_Office_term,naics36_cbre,naics36_Office_cbre,bins=10,suppress_vif=TRUE)
+summary_residual_compare(naics36_term,naics236_term,naics36_cbre,naics236_cbre,bins=10,suppress_vif=TRUE)
+summary_residual_compare(naics36_term,naics36_Office_term,naics36_cbre,naics36_Office_cbre,bins=10,suppress_vif=TRUE)
+```
+
+
+```{r Empty_Compare_Who_CBre}
+
+get_icc(Office_cbre)
+get_icc(Agency_cbre)
+get_icc(NestedOffice_cbre)
+get_icc(naics02_Office_cbre)
+get_icc(naics03_Office_cbre)
+get_icc(psc_Office_cbre)
+get_icc(naics36_Office_cbre)
+get_icc(naics46_Office_cbre)
+# get_icc(naics36_When_Office_cbre)
+get_icc(psc_When_Office_cbre)
+```
+There is some contradiction in which model best serves this category. For Comp, the nested office has the largest summed ICC, but for term this results in an failure to converge and a 0 ICC for agency. Agency:Office alone is respectable for all three so that is used in the combination attempt.
+
+## Funding Account
+### MAC
+```{r Office}
+# load(file="Output//who_empty_models.rdata")
+crisis_smp$
+if(!exists("Office_cbre"))
+  Office_cbre <- glmer(data=crisis_smp,
+                       b_CBre ~ (1 | Agency:Office)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Office_cbre)
+
+if(!exists("Office_term"))
+  Office_term <- glmer(data=crisis_smp,
+                       b_Term ~ (1 | Agency:Office)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Office_term)
+
+
+
+
+```
+
+# Competition Investigation
+## Numerical Competition
+
+### b_Comp CrisisProductOrServiceArea/Code Office
+```{r b_Comp_NAICS36_Office}
+if(!exists("b_Comp_naics36_Office_cbre"))
+  b_Comp_naics36_Office_cbre<- glmer(data=crisis_smp,
+                             b_CBre ~ b_Comp+ (1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,b_Comp_naics36_Office_cbre)
+
+
+if(!exists("b_Comp_naics36_Office_term"))
+  b_Comp_naics36_Office_term <- glmer(data=crisis_smp,
+                             b_Term ~  b_Comp+(1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | Agency:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,b_Comp_naics36_Office_term)
+
+
+```
+
+
+### n_Comp CrisisProductOrServiceArea/Code Office
+```{r b_Comp_NAICS36_Office}
+if(!exists("b_Comp_naics36_Office_cbre"))
+  b_Comp_naics36_Office_cbre<-naics36_Office_cbre <- glmer(data=crisis_smp,
+                             b_CBre ~ b_Comp+ (1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,b_Comp_naics36_Office_cbre)
+
+
+if(!exists("b_Comp_naics36_Office_term"))
+  b_Comp_naics36_Office_term <- glmer(data=crisis_smp,
+                             b_Term ~  b_Comp+(1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | Agency:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,b_Comp_naics36_Office_term)
+
+
+```
+### cl_Offr CrisisProductOrServiceArea/Code Office
+```{r NAICS36_Office}
+if(!exists("cl_Offr_aics36_Office_cbre"))
+  cl_Offr_naics36_Office_cbre <- glmer(data=crisis_smp,
+                             b_CBre ~ cl_Offr+ (1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,cl_Offr_naics36_Office_cbre)
+
+
+
+if(!exists("cl_Offr_naics36_Office_term"))
+  cl_Offr_naics36_Office_term <- glmer(data=crisis_smp,
+                             b_Term ~  cl_Offr+(1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | Agency:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,cl_Offr_naics36_Office_term)
+
+
+```
+
+
+
+### CompOffr CrisisProductOrServiceArea/Code Office
+```{r CompOffr_NAICS36_Office}
+  if(!exists("CompOffr_naics36_Office_cbre"))
+    CompOffr_naics36_Office_cbre<-naics36_Office_cbre <- glmer(data=crisis_smp,
+                               b_CBre ~ CompOffr+ (1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | Agency/Office)
+                               , family=binomial(link="logit"))
+  get_icc(display=TRUE,CompOffr_naics36_Office_cbre)
+  
+  
+  if(!exists("CompOffr_naics36_Office_term"))
+    CompOffr_naics36_Office_term <- glmer(data=crisis_smp,
+                               b_Term ~  CompOffr+(1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | Agency:Office)
+                               , family=binomial(link="logit"))
+  get_icc(display=TRUE,CompOffr_naics36_Office_term)
+  
+
+```
+
+
+
+### EffComp CrisisProductOrServiceArea/Code Office
+```{r CompOffr_NAICS36_Office}
+  if(!exists("CompOffr_naics36_Office_cbre"))
+    CompOffr_naics36_Office_cbre<-naics36_Office_cbre <- glmer(data=crisis_smp,
+                               b_CBre ~ CompOffr+ (1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | Agency/Office)
+                               , family=binomial(link="logit"))
+  get_icc(display=TRUE,CompOffr_naics36_Office_cbre)
+  
+  
+  if(!exists("CompOffr_naics36_Office_term"))
+    CompOffr_naics36_Office_term <- glmer(data=crisis_smp,
+                               b_Term ~  CompOffr+(1 | CrisisProductOrServiceArea/ProductOrServiceCode) + (1 | Agency:Office)
+                               , family=binomial(link="logit"))
+  get_icc(display=TRUE,CompOffr_naics36_Office_term)
+  crisis_smp$CompOffr
+
+```
+
+
+### Compare Who
+```{r Empty_Compare_Who_Term}
+
+save(b_Comp_naics36_Office_cbre,b_Comp_naics36_Office_term,
+     n_Comp_naics36_Office_cbre,n_Comp_naics36_Office_term,
+     cl_Offr_naics36_Office_cbre,cl_Offr_naics36_Office_term,
+     EffComp_naics36_Office_cbre,EffComp_naics36_Office_term,
+     CompOffr_naics36_Office_cbre,CompOffr_naics36_Office_term,
+     file="Output//comp_metric_only_models.rdata")
+
+
+stargazer::stargazer( b_Comp_naics36_Office_cbre,
+n_Comp_naics36_Office_cbre,
+cl_Offr_naics36_Office_cbre,
+EffComp_naics36_Office_cbre,
+CompOffr_naics36_Office_cbre,
+                     type="text",
+                       digits=2)
+
+
+
+
+stargazer::stargazer( b_Comp_naics36_Office_term,
+n_Comp_naics36_Office_term,
+cl_Offr_naics36_Office_term,
+EffComp_naics36_Office_term,
+CompOffr_naics36_Office_term,
+                     type="text",
+                       digits=2)
+
+# summary_residual_compare(EffComp_naics36_Office_cbre,CompOffr_naics36_Office_cbre,bins=10,suppress_vif=TRUE)
+```
+EffComp and CompOffr do seem to provide lower AICs, EffComp wins for CBre, but Compffr by a dramatic margin for terminations.
