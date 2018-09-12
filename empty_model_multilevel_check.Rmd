@@ -681,10 +681,76 @@ get_icc(display=TRUE,Office_term)
 
 ```
 
-# Competition Investigation
-## Numerical Competition
+
+
+
+## Location
+### Place
+```{r PlaceCountry}
+# load(file="Output//where_empty_models.rdata")
+
+if(!exists("PlaceCountry_cbre"))
+  PlaceCountry_cbre <- glmer(data=crisis_smp,
+                       b_CBre ~ (1 | PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,PlaceCountry_cbre)
+
+if(!exists("PlaceCountry_term"))
+  PlaceCountry_term <- glmer(data=crisis_smp,
+                       b_Term ~ (1 | PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,PlaceCountry_term)
+
+```
+
+### Vendor
+```{r VendorCountry}
+# load(file="Output//who_empty_models.rdata")
+fed_full$VendorCountryISO3
+crisis_smp$
+if(!exists("VendorCountry_cbre"))
+  VendorCountry_cbre <- glmer(data=crisis_smp,
+                       b_CBre ~ (1 | VendorCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,VendorCountry_cbre)
+
+if(!exists("VendorCountry_term"))
+  VendorCountry_term <- glmer(data=crisis_smp,
+                       b_Term ~ (1 | VendorCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,VendorCountry_term)
+
+
+
 
 ### b_Comp CrisisProductOrServiceArea/Code Office
+```
+
+
+### Origin
+```{r OriginCountry}
+# load(file="Output//who_empty_models.rdata")
+fed_full$OriginCountryISO3
+crisis_smp$
+if(!exists("OriginCountry_cbre"))
+  OriginCountry_cbre <- glmer(data=crisis_smp,
+                       b_CBre ~ (1 | OriginCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,OriginCountry_cbre)
+
+if(!exists("OriginCountry_term"))
+  OriginCountry_term <- glmer(data=crisis_smp,
+                       b_Term ~ (1 | OriginCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,OriginCountry_term)
+
+
+
+
+### b_Comp CrisisProductOrServiceArea/Code Office
+```
+
+
 ```{r b_Comp_NAICS36_Office}
 if(!exists("b_Comp_naics36_Office_cbre"))
   b_Comp_naics36_Office_cbre<- glmer(data=crisis_smp,
@@ -702,6 +768,8 @@ get_icc(display=TRUE,b_Comp_naics36_Office_term)
 
 ```
 
+# Competition Investigation
+## Numerical Competition
 
 ### n_Comp CrisisProductOrServiceArea/Code Office
 ```{r b_Comp_NAICS36_Office}
