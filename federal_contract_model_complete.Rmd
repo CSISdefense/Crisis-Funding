@@ -39,9 +39,9 @@ source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/
 ```{r DetailCustomer}
 if(!is.null(fed_full)){
 fed_full <-readr::read_delim(
-  "Data\\\contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
+  "Data\\contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
   col_names=TRUE, 
-  delim=",",
+  delim="\t",
   # , dec=".",
   trim_ws=TRUE,
   na=c("NULL","NA")
@@ -59,26 +59,23 @@ fed_full <-readr::read_delim(
 
 fed_full<-csis360::standardize_variable_names(fed_full)
 
-
+#Limit the strt years. Doing this first to get the size down.
+fed_full<-subset(fed_full, StartFiscal_Year>=2007   &
+                   StartFiscal_Year<=2015
+)
 #Limit to completed contracts that start in 2007 or later
 fed_full$LastCurrentCompletionDate<-strptime(fed_full$LastCurrentCompletionDate,"%Y-%m-%d") 
-#Drop contracts starting before the study period and not clearly end within it
-fed_full<-subset(fed_full, StartFiscal_Year>=2007   &
-    (LastCurrentCompletionDate<="2015-09-30" | IsClosed==1)
+#Drop contracts  not clearly finished within the study period.
+fed_full<-subset(fed_full,  (LastCurrentCompletionDate<="2016-09-30" | IsClosed==1)
 )
-
-if(is.numeric(fed_full$Term)){
-    fed_full$Term<-factor(fed_full$Term,
-                                levels = c(0,1),
-                                labels = c("Unterminated", "Terminated")
-    )
-}
 
 # fed_full<-subset(fed_full,select=-c(StartFiscal_Year
 # ,IsClosed
 # ,LastSignedLastDateToOrder
 #                                                       ,LastUltimateCompletionDate
 # ))
+
+fed_full$UnmodifiedLastDateToOrder<-strptime(fed_full$UnmodifiedLastDateToOrder,"%Y-%m-%d")
 
 
 fed_full<-fed_full[,!colnames(fed_full) %in% 
@@ -88,6 +85,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
     # "IsClosed"             ,
     "LastSignedLastDateToOrder",
      "LastUltimateCompletionDate",
+    "UnmodifiedLastDateToOrder",
     # "LastCurrentCompletionDate",
     # "MinOfSignedDate",
     # "MinOfEffectiveDate",
@@ -115,7 +113,16 @@ fed_full<-csis360::read_and_join_experiment(data=fed_full
 
 fed_full<-csis360::standardize_variable_names(fed_full)
 
+colnames(fed_full)[colnames(fed_full)=="IsTerminated"]<-"Term"
+if(is.numeric(fed_full$Term)){
+    fed_full$Term<-factor(fed_full$Term,
+                                levels = c(0,1),
+                                labels = c("Unterminated", "Terminated")
+    )
+}
 
+
+#failed here.
 fed_full$UnmodifiedCurrentCompletionDate<-
   strptime(fed_full$UnmodifiedCurrentCompletionDate,"%Y-%m-%d") 
 
@@ -125,6 +132,7 @@ fed_full$UnmodifiedDays<-as.numeric(
     , strptime(fed_full$MinOfEffectiveDate,"%Y-%m-%d")
     , unit="days"
   ))+1
+
 
 # 
 # CDuration<-as.duration(strptime(fed_full$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")-
@@ -138,91 +146,6 @@ fed_full$UnmodifiedDays<-as.numeric(
 # 
 # summary(dYears)
 
-#Break the count of days into four categories.
-fed_full$qDuration<-cut2(fed_full$UnmodifiedDays,cuts=c(61,214,366,732))
-
-
-
-
-
-if (levels(fed_full$qDuration)[[2]]=="[   61,  214)"){
-  fed_full$qDuration<-factor(fed_full$qDuration, 
-    
-    levels=c("[    0,   61)",
-      "[   61,  214)",
-      "[  214,  366)",
-      "[  366,  732)",
-      "[  732,33192]"),
-    labels=c("[0 months,~2 months)",
-      "[~2 months,~7 months)",
-      "[~7 months-~1 year]",
-      "(~1 year,~2 years]",
-      "(~2 years+]"),
-    ordered=TRUE
-  )
-}
-
-
-lowroundedcutoffs<-c(15000,100000,1000000,30000000)
-highroundedcutoffs<-c(15000,100000,1000000,10000000,75000000)
-fed_full$qLowCeiling <- cut2(fed_full$UnmodifiedContractBaseAndAllOptionsValue,cuts=lowroundedcutoffs)
-fed_full$qHighCeiling <- cut2(fed_full$UnmodifiedContractBaseAndAllOptionsValue,cuts=highroundedcutoffs)
-rm(lowroundedcutoffs,highroundedcutoffs)
-
-
-
-
-if (all(levels(fed_full$qHighCeiling)==c("[0.00e+00,1.50e+04)",
-  "[1.50e+04,1.00e+05)",
-  "[1.00e+05,1.00e+06)",
-  "[1.00e+06,1.00e+07)",
-  "[1.00e+07,7.50e+07)",
-  "[7.50e+07,3.36e+12]"))){
-  fed_full$qHighCeiling<-factor(fed_full$qHighCeiling, 
-    
-    levels=c("[0.00e+00,1.50e+04)",
-      "[1.50e+04,1.00e+05)",
-      "[1.00e+05,1.00e+06)",
-      "[1.00e+06,1.00e+07)",
-      "[1.00e+07,7.50e+07)",
-      "[7.50e+07,3.36e+12]"),
-    labels=c("[0,15k)",
-      "[15k,100k)",
-      "[100k,1m)",
-      "[1m,10m)",
-      "[10m,75m)",
-      "[75m+]"),
-    ordered=TRUE
-  )
-}
-
-if (all(levels(fed_full$qLowCeiling)==c("[0.00e+00,1.50e+04)",
-  "[1.50e+04,1.00e+05)",
-  "[1.00e+05,1.00e+06)",
-  "[1.00e+06,3.00e+07)",
-  "[3.00e+07,3.36e+12]"))){
-  fed_full$qLowCeiling<-factor(fed_full$qLowCeiling, 
-    
-    levels=c("[0.00e+00,1.50e+04)",
-      "[1.50e+04,1.00e+05)",
-      "[1.00e+05,1.00e+06)",
-      "[1.00e+06,3.00e+07)",
-      "[3.00e+07,3.36e+12]"),
-    labels=c("[0,15k)",
-      "[15k,100k)",
-      "[100k,1m)",
-      "[1m,30m)",
-      "[30m+]"),
-    ordered=TRUE
-  )
-}
-
-
-
-
-
-
-summary(subset(fed_full$qCRais,fed_full$SumOfisChangeOrder>0    ))
 
 fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
@@ -356,6 +279,9 @@ summary(fed_full$AnyPlaceInternational)
 fed_full$UnmodifiedPlaceCountryISO3[is.na(fed_full$UnmodifiedPlaceCountryISO3)]<-
   fed_full$PlaceCountryISO3[is.na(fed_full$UnmodifiedPlaceCountryISO3)]
 fed_full$UnmodifiedPlaceCountryISO3<-factor(fed_full$UnmodifiedPlaceCountryISO3)
+fed_full$PlaceCountryISO3<-factor(fed_full$PlaceCountryISO3)
+fed_full$VendorCountryISO3<-factor(fed_full$VendorCountryISO3)
+fed_full$OriginCountryISO3<-factor(fed_full$OriginCountryISO3)
 
 
 
@@ -367,13 +293,13 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
    # "AnyPlaceInternational",
   "PlaceIsInternational"  ,
   "UnmodifiedPlaceIsInternational",
-   "VendorCountryISO3",
+   # "VendorCountryISO3",
   "UnmodifiedVendorCountryISO3" ,
   "ObligatedAmountVendorIsInternational"  ,
    "AnyVendorInternational",
   "VendorIsInternational",
   "UnmodifiedVendorIsInternational"         ,
-   "OriginCountryISO3",
+   # "OriginCountryISO3",
   "UnmodifiedOriginCountryISO3",
   "ObligatedAmountOriginIsInternational"    ,
    "AnyOriginInternational",
@@ -394,7 +320,7 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
 #Note to identify is.defense here.
 fed_full<-csis360::read_and_join_experiment(data=fed_full
-  ,"Contract_SP_ContractBucketPlatformCustomer.txt"
+  ,"Contract.SP_ContractBucketPlatformCustomer.txt"
   ,path=""
   ,"Data\\"
   ,by="CSIScontractID"
@@ -1158,7 +1084,7 @@ summary(fed$Agency[fed$Who=="Uncategorized"])
 def<-fed[fed$Who!="Civilian",]
 save(def,file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
  save(fed,file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
-  
+  load("Data\\Federal_contract_CSIScontractID_detail.Rdata")
 #Strip out the cuts
 
 
