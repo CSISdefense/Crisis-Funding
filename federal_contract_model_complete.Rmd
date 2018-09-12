@@ -745,6 +745,13 @@ fed_full$pIsCombination<-percent_obligated(fed_full,
 
 
 
+fed_full$pIsOtherFee<-percent_obligated(fed_full,
+                                          "ObligatedAmountIsOtherFee",
+                                            "Action.Obligation",
+                                          "UnmodifiedIsOtherFee",
+                                          "IsOtherFee")
+
+
 #Assign FxCb
 fed_full$FxCb[fed_full$pIsFixedPrice>0  |
     fed_full$pIsCostBased>0 | 
@@ -786,13 +793,6 @@ fed_full$pIsFixedFee<-percent_obligated(fed_full,
                                           "IsFixedFee")
 
 
-
-
-fed_full$pIsOtherFee<-percent_obligated(fed_full,
-                                          "ObligatedAmountIsOtherFee",
-                                            "Action.Obligation",
-                                          "UnmodifiedIsOtherFee",
-                                          "IsOtherFee")
 
 
 #AssignFee
@@ -848,7 +848,7 @@ fed_full$UCA<-factor(fed_full$UnmodifiedIsUCA,
 
 #Imputing to make up for absence of 
 #There's no obligations in the dataset to UCAs using the regulated vehicle of FSS/GWAC
-fed_full$UCA[is.na(fed_full$UCA)&
+fed_full$IsUCA[is.na(fed_full$UCA)&
                fed_full$Veh=="FSS/GWAC"]<-"Not UCA"
 summary(fed_full$UCA)
 fed_full<-fed_full[,!colnames(fed_full) %in% 
