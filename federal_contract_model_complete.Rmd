@@ -819,7 +819,7 @@ summary(fed_full$FxCb)
 #Imput UCA unmodified values when consistent for the remainder of the vehicle
 fed_full$UnmodifiedIsUCA[is.na(fed_full$UnmodifiedIsUCA)&
   !is.na(fed_full$IsUCA)]<-
-  fed_full$UCA[is.na(fed_full$UnmodifiedIsUCA)&
+  fed_full$IsUCA[is.na(fed_full$UnmodifiedIsUCA)&
   !is.na(fed_full$IsUCA)]
 
 
@@ -901,6 +901,7 @@ fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,path=""
   ,"Data\\"
   ,by="CSIScontractID"
+  ,col_types="icdcdcdcd"
   ,new_var_checked=FALSE
 )
 
@@ -929,7 +930,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
       # "topPrincipalNAICScode",
       "topPrincipalNAICSamount")]
 # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
-
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 ```
 
@@ -938,7 +939,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
 # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
 
 fed<-csis360::read_and_join_experiment(data=fed,
-    lookup_file="Overall_Contract_SP_ContractBudgetDecisionTree.txt",
+    lookup_file="Contract_SP_ContractBudgetDecisionTree.txt",
   path="",
   directory = "Data/",
   by="CSIScontractID",
