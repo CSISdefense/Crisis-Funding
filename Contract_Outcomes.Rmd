@@ -121,9 +121,14 @@ load("Data\\crisis_smp.Rdata")
                                     new_var_checked=FALSE)
 colnames(crisis_smp)[colnames(crisis_smp)=="AgencyID"]<-"Agency"
 crisis_smp$Customer<-factor(crisis_smp$Customer)
+crisis_smp$DepartmentID<-factor(crisis_smp$DepartmentID)
+crisis_smp$SubCustomer<-factor(crisis_smp$SubCustomer)
+
 
 
 summary(factor(crisis_smp$Customer)  )
+summary(crisis_smp$DepartmentID)
+summary(crisis_smp$SubCustomer)
 
 
 fed<-sample_prep(fed)

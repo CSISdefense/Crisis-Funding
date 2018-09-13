@@ -390,7 +390,7 @@ Signed month has ICC values typically below 0.03 and it appears it can be safely
 ##Customer
 ### Office
 ```{r Office}
-# load(file="Output//who_empty_models.rdata")
+ load(file="Output//who_empty_models.rdata")
 if(!exists("Office_cbre"))
   Office_cbre <- glmer(data=crisis_smp,
                        b_CBre ~ (1 | Agency:Office)
@@ -692,6 +692,8 @@ get_icc(Department_term)
 get_icc(Customer_term)
 get_icc(NestedOffice_term)
 get_icc(OfficeCustomer_term)
+get_icc(OfficeDepartment_term)
+
 
 
 
@@ -722,6 +724,7 @@ get_icc(Department_cbre)
 get_icc(Customer_cbre)
 get_icc(NestedOffice_cbre)
 get_icc(OfficeCustomer_cbre)
+get_icc(OfficeDepartment_cbre)
 
 
 get_icc(naics02_Office_cbre)
