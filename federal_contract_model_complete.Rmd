@@ -506,19 +506,6 @@ fed_full$UnmodifiedNumberOfOffersReceived<-impute_unmodified(
   fed_full$NumberOfOffersReceived
 )
 
-fed_full$Offr <- cut2(fed_full$UnmodifiedNumberOfOffersReceived,cuts=c(1,2,3,5))
-
-
-
-if (all(levels(fed_full$Offr)==c("  1","  2","[  3,  5)","[  5,999]"))){
-  fed_full$Offr<-factor(fed_full$Offr, 
-    levels=c("  1","  2","[  3,  5)","[  5,999]"),
-    labels=c("1","2","3-4","5+"),
-    ordered=TRUE
-  )
-}
-
-
 
 
 #Competition
@@ -539,11 +526,7 @@ fed_full$UnmodifiedIsSomeCompetition[is.na(fed_full$UnmodifiedIsSomeCompetition)
     fed_full$UnmodifiedNumberOfOffersReceived>1
   ]<-1
 
-#Set number of offers =1 when there is a NA and no competition
-fed_full$Offr[is.na(fed_full$Offr)&
-    !is.na(fed_full$UnmodifiedIsSomeCompetition)&
-    fed_full$UnmodifiedIsSomeCompetition==0
-  ]<-"1"
+
 
 fed_full$UnmodifiedNumberOfOffersReceived[is.na(fed_full$UnmodifiedNumberOfOffersReceived)&
     !is.na(fed_full$UnmodifiedIsSomeCompetition)&
@@ -836,7 +819,7 @@ summary(fed_full$FxCb)
 #Imput UCA unmodified values when consistent for the remainder of the vehicle
 fed_full$UnmodifiedIsUCA[is.na(fed_full$UnmodifiedIsUCA)&
   !is.na(fed_full$IsUCA)]<-
-  fed_full$UCA[is.na(fed_full$UnmodifiedIsUCA)&
+  fed_full$IsUCA[is.na(fed_full$UnmodifiedIsUCA)&
   !is.na(fed_full$IsUCA)]
 
 
@@ -918,6 +901,7 @@ fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,path=""
   ,"Data\\"
   ,by="CSIScontractID"
+  ,col_types="icdcdcdcd"
   ,new_var_checked=FALSE
 )
 
@@ -946,7 +930,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
       # "topPrincipalNAICScode",
       "topPrincipalNAICSamount")]
 # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
-
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 ```
 
@@ -955,7 +939,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
 # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
 
 fed<-csis360::read_and_join_experiment(data=fed,
-    lookup_file="Overall_Contract_SP_ContractBudgetDecisionTree.txt",
+    lookup_file="Contract_SP_ContractBudgetDecisionTree.txt",
   path="",
   directory = "Data/",
   by="CSIScontractID",
