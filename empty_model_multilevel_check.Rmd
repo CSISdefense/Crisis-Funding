@@ -1,6 +1,6 @@
 ---
 title: "empty_model_multilevel_check"
-author: "Greg Sanders"
+author: "Greg Sanders"  
 date: "August 15, 2018"
 output: html_document
 ---
@@ -428,25 +428,47 @@ get_icc(display=TRUE,Agency_term)
 ```
 Agency has only about half the explainatory value as office. 
 
+### Department
+```{r Customer}
+
+
+if(!exists("Department_term"))
+  Department_term <- glmer(data=crisis_smp,
+                       b_Term ~ (1 | DepartmentID)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Department_term)
+
+if(!exists("Department_cbre"))
+  Department_cbre <- glmer(data=crisis_smp,
+                       b_CBre ~ (1 | DepartmentID)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Department_cbre)
+
+```
+
+
 ### Customer
 ```{r Customer}
 
 
 if(!exists("Customer_term"))
   Customer_term <- glmer(data=crisis_smp,
-                       b_Term ~ (1 | Agency)
+                       b_Term ~ (1 | Customer)
                        , family=binomial(link="logit"))
 get_icc(display=TRUE,Customer_term)
 
 if(!exists("Customer_cbre"))
   Customer_cbre <- glmer(data=crisis_smp,
-                       b_CBre ~ (1 | Agency)
+                       b_CBre ~ (1 | Customer)
                        , family=binomial(link="logit"))
 get_icc(display=TRUE,Customer_cbre)
 
 ```
 
-### Nested Office
+
+
+
+### Nested Office / Agency
 ```{r NestedOffice}
 if(!exists("NestedOffice_cbre"))
   NestedOffice_cbre <- glmer(data=crisis_smp,
@@ -464,6 +486,45 @@ get_icc(display=TRUE,NestedOffice_term)
 
 ```
 Somewhat surprisingly, in both cases office and agency combined have less explanatory value than office on its own.
+
+
+### Nested Department / Office
+```{r DepartmentOffice}
+if(!exists("OfficeDepartment_cbre"))
+  OfficeDepartment_cbre <- glmer(data=crisis_smp,
+                             b_CBre ~ (1 | DepartmentID/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeDepartment_cbre)
+
+
+if(!exists("OfficeDepartment_term"))
+  OfficeDepartment_term <- glmer(data=crisis_smp,
+                             b_Term ~ (1 | DepartmentID/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeDepartment_term)
+
+
+```
+
+
+### Nested Customer / Office
+```{r CustomerOffice}
+if(!exists("OfficeCustomer_cbre"))
+  OfficeCustomer_cbre <- glmer(data=crisis_smp,
+                             b_CBre ~ (1 | Customer/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeCustomer_cbre)
+
+
+if(!exists("OfficeCustomer_term"))
+  OfficeCustomer_term <- glmer(data=crisis_smp,
+                             b_Term ~ (1 | Customer/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeCustomer_term)
+
+
+```
+
 ### PSC Office
 ```{r NAICS02_Office}
 if(!exists("naics02_Office_term"))
@@ -618,6 +679,7 @@ save(Office_cbre,Office_term,
      naics46_Office_cbre,naics46_Office_term,
      psc_When_Office_cbre,
      naics36_When_Office_term,naics36_When_Office_cbre,
+     OfficeCustomer_cbre,OfficeCustomer_term,
      file="Output//who_empty_models.rdata")
 
 
@@ -626,13 +688,21 @@ get_icc(naics36_term)
 # get_icc(NAICS_StartFY_term)
 get_icc(Office_term)
 get_icc(Agency_term)
+get_icc(Department_term)
+get_icc(Customer_term)
 get_icc(NestedOffice_term)
+get_icc(OfficeCustomer_term)
+
+
+
+
 get_icc(naics02_Office_term)
 get_icc(psc_Office_term)
 get_icc(naics36_Office_term)
 get_icc(naics46_Office_term)
 get_icc(naics36_When_Office_term)
 # get_icc(psc_When_Office_term)
+
 
 
 debug(summary_residual_compare)
@@ -648,7 +718,12 @@ summary_residual_compare(naics36_term,naics36_Office_term,naics36_cbre,naics36_O
 
 get_icc(Office_cbre)
 get_icc(Agency_cbre)
+get_icc(Department_cbre)
+get_icc(Customer_cbre)
 get_icc(NestedOffice_cbre)
+get_icc(OfficeCustomer_cbre)
+
+
 get_icc(naics02_Office_cbre)
 get_icc(naics03_Office_cbre)
 get_icc(psc_Office_cbre)
@@ -688,6 +763,13 @@ get_icc(display=TRUE,Office_term)
 ### Place
 ```{r PlaceCountry}
 # load(file="Output//where_empty_models.rdata")
+
+
+fed_complete<-sample_prep(fed_full)
+fed_complete<-get_complete_list(fed_complete)
+fed_no_na<-fed[fed_complete,]
+# crisis_with_na<-sample_prep(crisis_with_na)
+
 
 if(!exists("PlaceCountry_cbre"))
   PlaceCountry_cbre <- glmer(data=crisis_smp,

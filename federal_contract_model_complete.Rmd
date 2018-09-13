@@ -1018,8 +1018,10 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ##Dataset Output
 
 ```{r DatasetOutput}
+# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
 fed<-rename_dataset(fed_full)
 fed<-fed[,colnames(fed) %in% c(
+  "CSIScontractID",
   # IsIDV,
   "FxCb",
   "Fee",
@@ -1035,6 +1037,9 @@ fed<-fed[,colnames(fed) %in% c(
   "What",
   "Where",
   "Intl",
+   "PlaceCountryISO3",
+   "VendorCountryISO3",
+   "OriginCountryISO3",
   # "LowCeil",
   "Ceil",
   "Dur",
@@ -1065,7 +1070,8 @@ fed<-fed[,colnames(fed) %in% c(
 )]
 # 
 
-   
+
+
 
 write.table(fed
   ,file=paste("data\\Federal_contract_CSIScontractID_detail.csv"
@@ -1081,10 +1087,11 @@ write.table(fed
 
 
 summary(fed$Agency[fed$Who=="Uncategorized"])
-def<-fed[fed$Who!="Civilian",]
-save(def,file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
+# def<-fed[fed$Who!="Civilian",]
+# save(def,file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
  save(fed,file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
-  load("Data\\Federal_contract_CSIScontractID_detail.Rdata")
+ 
+  # load("Data\\Federal_contract_CSIScontractID_detail.Rdata")
 #Strip out the cuts
 
 

@@ -41,6 +41,7 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
   load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
 
 head(fed)
+
 fed<-transform_contract(fed)
 
 # fed<-decision_tree(fed)
@@ -104,6 +105,37 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 ## Sample Creation
 ```{r Sample}
 load("Data\\crisis_smp.Rdata")
+
+
+  colnames(crisis_smp)[colnames(crisis_smp)=="Agency"]<-"AgencyID"
+  crisis_smp<-csis360::read_and_join( crisis_smp,
+                                    "Agency_AgencyID.csv",
+                                    path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                                    directory="",
+                                    by="AgencyID",
+                                    add_var=c("AgencyIDtext",
+                                              "DepartmentID",
+                                              "Customer",
+                                              "SubCustomer"
+                                    ),
+                                    new_var_checked=FALSE)
+colnames(crisis_smp)[colnames(crisis_smp)=="AgencyID"]<-"Agency"
+crisis_smp$Customer<-factor(crisis_smp$Customer)
+
+
+summary(factor(crisis_smp$Customer)  )
+
+
+fed<-sample_prep(fed)
+fed_complete<-get_complete_list(fed)
+fed_no_na<-fed[fed_complete,]
+
+
+
+# nrow(crisis_with_na[!complete,])/nrow(crisis_with_na)
+# sum(crisis_with_na[!complete,]$Action.Obligation,na.rm=TRUE)/sum(crisis_with_na$Action.Obligation,na.rm=TRUE)
+
+
 # crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Dis"),]
 # oco<-fed[fed$Crisis %in% c("OCO"),]
 # oco<-oco[sample(nrow(oco),100000),]
@@ -116,63 +148,7 @@ load("Data\\crisis_smp.Rdata")
 # other_intl<-other_intl[sample(nrow(other_intl),100000),]
 # crisis_with_na<-rbind(crisis_with_na,other_dom,other_intl)
 # rm(other)
-sample_prep<-function(data){
-  colnames(data)[colnames(data)=="ProdServ"]<-"ProductOrServiceCode"
-  data$ProductOrServiceCode<-as.character(data$ProductOrServiceCode)
-  data<-csis360::read_and_join( data,
-                                 "ProductOrServiceCodes.csv",
-                                 path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-                                 directory="",
-                                 by="ProductOrServiceCode",
-                                 add_var=c("Simple",
-                                           "ProductServiceOrRnDarea",
-                                           "ProductOrServiceArea",
-                                           "HostNation3Category",
-                                           "CrisisProductOrServiceArea",
-                                           "ProductOrServiceCodeText"
-                                           ),
-                                 new_var_checked=FALSE)
-  data$ProductServiceOrRnDarea<-factor(data$ProductServiceOrRnDarea)
-  data$ProductOrServiceArea<-factor(data$ProductOrServiceArea)
-  data$HostNation3Category<-factor(data$HostNation3Category)
-  data$CrisisProductOrServiceArea<-factor(data$CrisisProductOrServiceArea)
-  data$ProductOrServiceCodeText<-factor(data$ProductOrServiceCodeText)
-  data$ProductOrServiceCode<-factor(data$ProductOrServiceCode)
-data$ServCommCons<-data$HostNation3Category
-data$CPSA<-as.character(data$CrisisProductOrServiceArea)
-data$CPSA<-factor(gsub(" & ","+",data$CPSA))
 
-data$PSA<-as.character(data$ProductOrServiceArea)
-data$PSA<-gsub(" & ","+",data$PSA)
-data$b_NoComp<-!data$b_Comp
-  colnames(data)[colnames(data)=="ProductOrServiceCode"]<-"ProdServ"
-  data
-}
-
-get_complete_list<-function(data){
-complete<-!is.na(data$b_Term)&
-  !is.na(data$b_CBre)&
-  !is.na(data$b_Comp)&
-  !is.na(data$b_Urg)&
-  !is.na(data$l_Ceil)&
-  !is.na(data$l_Days)&
-  !is.na(data$Veh) &
-  !is.na(data$n_Fixed)&
-  !is.na(data$b_Intl)&
-  !is.na(data$b_UCA)&
-  !is.na(data$ProdServ)&
-  !is.na(data$Crisis)&
-  !is.na(data$Office)&
-!is.na(data$OffCri)&
-  !is.na(data$OffIntl)&
-  !is.na(data$Is.Defense)
-  # !is.na(data$cl_HHI_lag1)
-  complete
-}
-
-fed<-sample_prep(fed)
-fed_complete<-get_complete_list(fed)
-fed_no_na<-fed[fed_complete,]
 # crisis_with_na<-sample_prep(crisis_with_na)
 # complete<-get_complete_list(crisis_with_na)  
 
@@ -185,8 +161,6 @@ fed_no_na<-fed[fed_complete,]
 # 
 # #
 # #8811392  to 8811392
-# nrow(crisis_with_na[!complete,])/nrow(crisis_with_na)
-# sum(crisis_with_na[!complete,]$Action.Obligation,na.rm=TRUE)/sum(crisis_with_na$Action.Obligation,na.rm=TRUE)
 # # 
 # crisis_smp<-crisis_with_na[complete,]
 # # # 
