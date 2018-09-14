@@ -874,7 +874,7 @@ sample_prep<-function(contract){
   contract
 }
 
-get_complete_list<-function(contract){
+get_complete_list<-function(contract,crisis=FALSE){
   complete<-!is.na(contract$b_Term)&
     !is.na(contract$b_CBre)&
     !is.na(contract$b_Comp)&
@@ -887,10 +887,36 @@ get_complete_list<-function(contract){
     !is.na(contract$b_UCA)&
     !is.na(contract$ProdServ)&
     !is.na(contract$Crisis)&
-    !is.na(contract$Office)&
-    !is.na(contract$OffCri)&
-    !is.na(contract$OffIntl)&
-    !is.na(contract$Is.Defense)
+    !is.na(contract$Office)
+    # !is.na(contract$OffCri)&
+    # !is.na(contract$OffIntl)&
+    # !is.na(contract$Is.Defense)
   # !is.na(contract$cl_HHI_lag1)
+
   complete
 }
+
+#Creating crisis sample
+get_crisis_sample_with_na<-function(contract,large=FALSE){
+  batch_size<-100000
+  if(large==TRUE)
+    batch_size<-300000
+  
+  crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Dis"),]
+  oco<-fed[fed$Crisis %in% c("OCO"),]
+  if(large==FALSE)
+    oco<-oco[sample(nrow(oco),batch_size),]
+  crisis_with_na<-rbind(crisis_with_na,oco)
+  rm(oco)
+  other_intl<-fed[fed$Crisis %in% c("Other")&fed$b_Intl==1,]
+  other_dom<-fed[fed$Crisis %in% c("Other")&(fed$b_Intl==0
+                                             |is.na(fed$b_Intl)),]#This used to be OffCri
+  other_dom<-other_dom[sample(nrow(other_dom),batch_size),]
+  other_intl<-other_intl[sample(nrow(other_intl),batch_size),]
+  crisis_with_na<-rbind(crisis_with_na,other_dom,other_intl)
+  rm(other_dom,other_intl)
+  
+  crisis_with_na<-sample_prep(crisis_with_na)
+  
+}
+
