@@ -863,6 +863,14 @@ sample_prep<-function(contract){
   contract$PSA<-gsub(" & ","+",contract$PSA)
   contract$b_NoComp<-!contract$b_Comp
   colnames(contract)[colnames(contract)=="ProductOrServiceCode"]<-"ProdServ"
+  
+  
+  #Agency 
+  contract$Customer<-factor(contract$Customer)
+  contract$DepartmentID<-factor(contract$DepartmentID)
+  contract$SubCustomer<-factor(contract$SubCustomer)
+  
+  
   contract
 }
 
@@ -871,8 +879,8 @@ get_complete_list<-function(contract){
     !is.na(contract$b_CBre)&
     !is.na(contract$b_Comp)&
     !is.na(contract$b_Urg)&
-    !is.na(contract$l_Ceil)&
-    !is.na(contract$l_Days)&
+    !is.na(contract$cl_Ceil)&
+    !is.na(contract$cl_Days)&
     !is.na(contract$Veh) &
     !is.na(contract$n_Fixed)&
     !is.na(contract$b_Intl)&

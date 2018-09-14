@@ -16,6 +16,7 @@ library(csis360)
 library(ggplot2)
 library(arm)
 library(R2WinBUGS)
+library(dplyr)
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
 
 axis.text.size<-10
@@ -41,8 +42,10 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
   load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
 
 head(fed)
-
+debug(transform_contract)
 fed<-transform_contract(fed)
+
+
 
 # fed<-decision_tree(fed)
 
@@ -107,31 +110,8 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 load("Data\\crisis_smp.Rdata")
 
 
-  colnames(crisis_smp)[colnames(crisis_smp)=="Agency"]<-"AgencyID"
-  crisis_smp<-csis360::read_and_join( crisis_smp,
-                                    "Agency_AgencyID.csv",
-                                    path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-                                    directory="",
-                                    by="AgencyID",
-                                    add_var=c("AgencyIDtext",
-                                              "DepartmentID",
-                                              "Customer",
-                                              "SubCustomer"
-                                    ),
-                                    new_var_checked=FALSE)
-colnames(crisis_smp)[colnames(crisis_smp)=="AgencyID"]<-"Agency"
-crisis_smp$Customer<-factor(crisis_smp$Customer)
-crisis_smp$DepartmentID<-factor(crisis_smp$DepartmentID)
-crisis_smp$SubCustomer<-factor(crisis_smp$SubCustomer)
-
-
-
-summary(factor(crisis_smp$Customer)  )
-summary(crisis_smp$DepartmentID)
-summary(crisis_smp$SubCustomer)
-
-
 fed<-sample_prep(fed)
+debug(get_complete_list)
 fed_complete<-get_complete_list(fed)
 fed_no_na<-fed[fed_complete,]
 
