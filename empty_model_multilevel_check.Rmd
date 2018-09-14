@@ -907,7 +907,7 @@ save(PlaceCountry_cbre,PlaceCountry_term,
      VendorCountry_cbre,VendorCountry_term,
      OriginCountry_cbre,OriginCountry_term,
      Place_ssc_psc_cbre,Place_cpsa_psc_term,
-     Vendor_ssc_psc_cbre,Vendor_cpsa_psc_term
+     Vendor_ssc_psc_cbre,Vendor_cpsa_psc_term,
      file="Output//where_empty_models.rdata")
 
 
