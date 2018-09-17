@@ -964,52 +964,27 @@ get_icc(display=TRUE,OriginCountry_term)
 
 ### b_Comp CrisisProductOrServiceArea/Code Office
 ```
-### Place / PSC
-```{r PlaceCountry}
-# load(file="Output//where_empty_models.rdata")
 
+### nested PSC Customer/Office and Origin
+```{r cpsa_prodserv_customer_office_origin}
 
+if(!exists("ssc_prodserv_customer_office_origin_cbre"))
+  ssc_prodserv_customer_office_origin_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~  (1 | ServCommCons/ProdServ) + (1 | Customer/Office) + (1 | OriginCountryISO3)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_prodserv_customer_office_origin_cbre)
 
-if(!exists("Place_ssc_psc_cbre"))
-  Place_ssc_psc_cbre <- glmer(data=large_crisis_smp,
-                       b_CBre ~ (1 | ServCommCons/ProdServ) + 
-                         (1 | PlaceCountryISO3)
-                       , family=binomial(link="logit"))
-get_icc(display=TRUE,Place_ssc_psc_cbre)
-
-if(!exists("Place_cpsa_psc_term"))
-  Place_cpsa_psc_term <- glmer(data=large_crisis_smp,
-                       b_Term ~ (1 | CrisisProductOrServiceArea/ProdServ)+
-                         (1 | PlaceCountryISO3)
-                       , family=binomial(link="logit"))
-get_icc(display=TRUE,Place_cpsa_psc_term)
+if(!exists("cpsa_prodserv_customer_office_origin_term"))
+  cpsa_prodserv_customer_office_origin_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)+ (1 | OriginCountryISO3)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_prodserv_customer_office_origin_term)
 
 
 
 ```
-### Vendor / PSC
-```{r Place_ssc_psc}
-# load(file="Output//where_empty_models.rdata")
 
 
-
-if(!exists("Vendor_ssc_psc_cbre"))
-  Vendor_ssc_psc_cbre <- glmer(data=large_crisis_smp,
-                       b_CBre ~ (1 | ServCommCons/ProdServ) + 
-                         (1 | VendorCountryISO3)
-                       , family=binomial(link="logit"))
-get_icc(display=TRUE,Vendor_ssc_psc_cbre)
-
-if(!exists("Vendor_cpsa_psc_term"))
-  Vendor_cpsa_psc_term <- glmer(data=large_crisis_smp,
-                       b_Term ~ (1 | CrisisProductOrServiceArea/ProdServ)+
-                         (1 | VendorCountryISO3)
-                       , family=binomial(link="logit"))
-get_icc(display=TRUE,Vendor_cpsa_psc_term)
-
-
-
-```
 
 ### Compare Where
 ```{r Empty_Compare_Who_Term}
@@ -1017,7 +992,8 @@ get_icc(display=TRUE,Vendor_cpsa_psc_term)
 save(PlaceCountry_cbre,PlaceCountry_term,
      VendorCountry_cbre,VendorCountry_term,
      OriginCountry_cbre,OriginCountry_term,
-     ssc_prodserv_customer_office_place_cbre,cpsa_prodserv_customer_office_place_term
+     ssc_prodserv_customer_office_place_cbre,cpsa_prodserv_customer_office_place_term,
+     ssc_prodserv_customer_office_vendor_cbre,cpsa_prodserv_customer_office_vendor_term,
      # Place_ssc_psc_cbre,Place_cpsa_psc_term,
      # Vendor_ssc_psc_cbre,Vendor_cpsa_psc_term,
      file="Output//where_empty_models.rdata")
