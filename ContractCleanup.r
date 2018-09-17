@@ -878,23 +878,42 @@ sample_prep<-function(contract){
   contract$DepartmentID<-factor(contract$DepartmentID)
   contract$SubCustomer<-factor(contract$SubCustomer)
   
+  
   #Where - Place, Vendor, Origin
-  colnames(contract)[colnames(contract)=="OriginCountryISO3"]<-"alpha-3"
+  
+  iso3(contract,"PlaceCountryISO3","place")
+  iso3(contract,"VendorCountryISO3","vendor")
+  iso3(contract,"OriginCountryISO3","origin")
+  
+  contract
+}
+
+iso3<-function(contract,colname,prefix){
+  colnames(contract)[colnames(contract)==colname]<-"alpha.3"
   contract<-csis360::read_and_join( contract,
-                                    "Agency_AgencyID.csv",
+                                    "Location_CountryCodes.csv",
                                     path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-                                    directory="",
-                                    by="AgencyID",
+                                    directory="location/",
+                                    by="alpha.3",
                                     add_var=c("CrisisFundingTheater",
                                               "CombatantCommand",
                                               "isforeign",
                                               "SubCustomer"
                                     ),
                                     new_var_checked=FALSE)
-  colnames(contract)[colnames(contract)=="alpha-3"]<-"OriginCountryISO3"
-
- 
-  
+  colnames(contract)[colnames(contract)=="alpha.3"]<-colname
+  contract$CrisisFundingTheater<-factor(contract$CrisisFundingTheater)
+  contract$CombatantCommand<-factor(contract$CombatantCommand)
+  contract$isforeign<-factor(contract$isforeign)
+  colnames(contract)[colnames(contract) %in% c("CrisisFundingTheater",
+                                               "CombatantCommand",
+                                               "isforeign")]<-
+    paste(prefix,
+          colnames(contract)[colnames(contract) %in% c("CrisisFundingTheater",
+                                                       "CombatantCommand",
+                                                       "isforeign")]
+          ,sep="_"
+    )
   contract
 }
 

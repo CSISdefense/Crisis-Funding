@@ -868,6 +868,7 @@ get_icc(display=TRUE,Office_term)
 
 
 
+
 if(!exists("PlaceCountry_cbre"))
   PlaceCountry_cbre <- glmer(data=large_crisis_smp,
                        b_CBre ~ (1 | PlaceCountryISO3)
@@ -879,6 +880,24 @@ if(!exists("PlaceCountry_term"))
                        b_Term ~ (1 | PlaceCountryISO3)
                        , family=binomial(link="logit"))
 get_icc(display=TRUE,PlaceCountry_term)
+
+```
+
+```{r Place_isforeign_Country}
+# load(file="Output//where_empty_models.rdata")
+
+
+if(!exists("Place_isforeign_Country_cbre"))
+  Place_isforeign_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Place_isforeign_Country_cbre)
+
+if(!exists("Place_isforeign_Country_term"))
+  Place_isforeign_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Place_isforeign_Country_term)
 
 ```
 
@@ -999,6 +1018,7 @@ save(PlaceCountry_cbre,PlaceCountry_term,
      OriginCountry_cbre,OriginCountry_term,
      ssc_prodserv_customer_office_place_cbre,cpsa_prodserv_customer_office_place_term,
      ssc_prodserv_customer_office_vendor_cbre,cpsa_prodserv_customer_office_vendor_term,
+     ssc_prodserv_customer_office_origin_cbre,cpsa_prodserv_customer_office_origin_term,
      # Place_ssc_psc_cbre,Place_cpsa_psc_term,
      # Vendor_ssc_psc_cbre,Vendor_cpsa_psc_term,
      file="Output//where_empty_models.rdata")
@@ -1011,15 +1031,17 @@ get_icc(OriginCountry_cbre)
 get_icc(Place_ssc_psc_cbre)
 get_icc(ssc_prodserv_customer_office_place_cbre)
 get_icc(ssc_prodserv_customer_office_vendor_cbre)
+get_icc(ssc_prodserv_customer_office_origin_cbre)
 
 
 
 stargazer::stargazer( PlaceCountry_cbre,
 VendorCountry_cbre,
 OriginCountry_cbre,
-Place_ssc_psc_cbre,
+# Place_ssc_psc_cbre,
 ssc_prodserv_customer_office_place_cbre,
 ssc_prodserv_customer_office_vendor_cbre,
+ssc_prodserv_customer_office_origin_cbre,
                      type="text",
                        digits=2)
 
@@ -1032,6 +1054,7 @@ get_icc(OriginCountry_term)
 get_icc(Place_cpsa_psc_term)
 get_icc(cpsa_prodserv_customer_office_place_term)
 get_icc(cpsa_prodserv_customer_office_vendor_term)
+get_icc(cpsa_prodserv_customer_office_vendor_term)
 # get_icc(psc_When_Office_term)
 
 stargazer::stargazer( PlaceCountry_term,
@@ -1040,6 +1063,7 @@ OriginCountry_term,
 Place_cpsa_psc_term,
 cpsa_prodserv_customer_office_place_term,
 cpsa_prodserv_customer_office_vendor_term,
+cpsa_prodserv_customer_office_origin_term,
                      type="text",
                        digits=2)
 
