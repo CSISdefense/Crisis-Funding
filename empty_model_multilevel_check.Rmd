@@ -15,6 +15,8 @@ library(arm)
 library(R2WinBUGS)
 library(Hmisc)
 library(sjstats)
+library(optimx)
+library(lme4)
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
 
 
@@ -971,7 +973,10 @@ get_icc(display=TRUE,OriginCountry_term)
 if(!exists("ssc_prodserv_customer_office_origin_cbre"))
   ssc_prodserv_customer_office_origin_cbre <- glmer(data=large_crisis_smp,
                              b_CBre ~  (1 | ServCommCons/ProdServ) + (1 | Customer/Office) + (1 | OriginCountryISO3)
-                             , family=binomial(link="logit"))
+                             , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+     
 get_icc(display=TRUE,ssc_prodserv_customer_office_origin_cbre)
 
 if(!exists("cpsa_prodserv_customer_office_origin_term"))

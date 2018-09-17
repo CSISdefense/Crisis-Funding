@@ -819,6 +819,7 @@ input_contract_psc_office_naics<-function(contract,
 
 
 sample_prep<-function(contract){
+  #What - Product Or Service Code
   colnames(contract)[colnames(contract)=="ProdServ"]<-"ProductOrServiceCode"
   contract$ProductOrServiceCode<-as.character(contract$ProductOrServiceCode)
   contract<-csis360::read_and_join( contract,
@@ -834,7 +835,25 @@ sample_prep<-function(contract){
                                           "ProductOrServiceCodeText"
                                 ),
                                 new_var_checked=FALSE)
+  contract$ProductServiceOrRnDarea<-factor(contract$ProductServiceOrRnDarea)
+  contract$ProductOrServiceArea<-factor(contract$ProductOrServiceArea)
+  contract$HostNation3Category<-factor(contract$HostNation3Category)
+  contract$CrisisProductOrServiceArea<-factor(contract$CrisisProductOrServiceArea)
+  contract$ProductOrServiceCodeText<-factor(contract$ProductOrServiceCodeText)
+  contract$ProductOrServiceCode<-factor(contract$ProductOrServiceCode)
+  contract$ServCommCons<-contract$HostNation3Category
+  contract$CPSA<-as.character(contract$CrisisProductOrServiceArea)
+  contract$CPSA<-factor(gsub(" & ","+",contract$CPSA))
   
+  contract$PSA<-as.character(contract$ProductOrServiceArea)
+  contract$PSA<-gsub(" & ","+",contract$PSA)
+  contract$b_NoComp<-!contract$b_Comp
+  colnames(contract)[colnames(contract)=="ProductOrServiceCode"]<-"ProdServ"
+  
+  
+  
+  
+  #Who - Agency
   colnames(contract)[colnames(contract)=="Agency"]<-"AgencyID"
   contract<-csis360::read_and_join( contract,
                                     "Agency_AgencyID.csv",
@@ -855,27 +874,26 @@ sample_prep<-function(contract){
                                              "Civilian"=c("DHS","Energy","GSA","HHS","NASA",
                                                           "Other Agencies","State and IAP","VA"))
   }
-  contract$ProductServiceOrRnDarea<-factor(contract$ProductServiceOrRnDarea)
-  contract$ProductOrServiceArea<-factor(contract$ProductOrServiceArea)
-  contract$HostNation3Category<-factor(contract$HostNation3Category)
-  contract$CrisisProductOrServiceArea<-factor(contract$CrisisProductOrServiceArea)
-  contract$ProductOrServiceCodeText<-factor(contract$ProductOrServiceCodeText)
-  contract$ProductOrServiceCode<-factor(contract$ProductOrServiceCode)
-  contract$ServCommCons<-contract$HostNation3Category
-  contract$CPSA<-as.character(contract$CrisisProductOrServiceArea)
-  contract$CPSA<-factor(gsub(" & ","+",contract$CPSA))
-  
-  contract$PSA<-as.character(contract$ProductOrServiceArea)
-  contract$PSA<-gsub(" & ","+",contract$PSA)
-  contract$b_NoComp<-!contract$b_Comp
-  colnames(contract)[colnames(contract)=="ProductOrServiceCode"]<-"ProdServ"
-  
-  
-  #Agency 
   contract$Customer<-factor(contract$Customer)
   contract$DepartmentID<-factor(contract$DepartmentID)
   contract$SubCustomer<-factor(contract$SubCustomer)
   
+  #Where - Place, Vendor, Origin
+  colnames(contract)[colnames(contract)=="OriginCountryISO3"]<-"alpha-3"
+  contract<-csis360::read_and_join( contract,
+                                    "Agency_AgencyID.csv",
+                                    path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                                    directory="",
+                                    by="AgencyID",
+                                    add_var=c("CrisisFundingTheater",
+                                              "CombatantCommand",
+                                              "isforeign",
+                                              "SubCustomer"
+                                    ),
+                                    new_var_checked=FALSE)
+  colnames(contract)[colnames(contract)=="alpha-3"]<-"OriginCountryISO3"
+
+ 
   
   contract
 }
