@@ -849,6 +849,12 @@ sample_prep<-function(contract){
                                     new_var_checked=FALSE)
   colnames(contract)[colnames(contract)=="AgencyID"]<-"Agency"
   
+  if(!"Is.Defense" %in% colnames(contract)){
+  contract$Is.Defense<-contract$Customer
+    levels(contract$Is.Defense)<- list("Defense"=c("Defense"),
+                                             "Civilian"=c("DHS","Energy","GSA","HHS","NASA",
+                                                          "Other Agencies","State and IAP","VA"))
+  }
   contract$ProductServiceOrRnDarea<-factor(contract$ProductServiceOrRnDarea)
   contract$ProductOrServiceArea<-factor(contract$ProductOrServiceArea)
   contract$HostNation3Category<-factor(contract$HostNation3Category)

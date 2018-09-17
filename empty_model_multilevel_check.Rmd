@@ -33,7 +33,7 @@ note.text.size<-1.40
 
 ## Load in data
 ```{r Sample}
- load("Data\\large_crisis_smp.Rdata")
+ load("Data\\crisis_smp.Rdata")
 # save(large_crisis_smp,large_crisis_smp,file="data//large_crisis_smp")
 
 
@@ -288,6 +288,10 @@ get_icc(psc_all3_cbre)
 get_icc(cpsa_psc_cbre)
 get_icc(ssc_psc_cbre)
 get_icc(psc24_cbre)
+
+      stargazer::stargazer(psc_cbre,psc2_cbre,cpsa_cbre,ServCommCons_cbre,
+                           psc_all3_cbre,cpsa_psc_cbre,ssc_psc_cbre,psc24_cbre,type="text",
+                     digits=2)
 ```
 ServCommCons/ProductServiceCode easily explains the most about the model.
 ```{r Empty_Compare_Term}
@@ -454,6 +458,48 @@ get_icc(display=TRUE,Agency_term)
 ```
 Agency has only about half the explainatory value as office. 
 
+### SubCustomer
+```{r SubCustomer}
+large_crisis_smp$SubCustomer<-as.character(large_crisis_smp$SubCustomer)
+large_crisis_smp$SubCustomer[is.na(large_crisis_smp$SubCustomer)]<-
+  large_crisis_smp$Customer[is.na(large_crisis_smp$SubCustomer)]
+large_crisis_smp$SubCustomer<-factor(large_crisis_smp$SubCustomer)
+summary(large_crisis_smp$SubCustomer)
+
+if(!exists("SubCustomer_cbre"))
+  SubCustomer_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | Customer:SubCustomer)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,SubCustomer_cbre)
+
+if(!exists("SubCustomer_term"))
+  SubCustomer_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | Customer:SubCustomer)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,SubCustomer_term)
+
+
+```
+
+### Customer/SubCustomer
+```{r Customer_SubCustomer}
+
+if(!exists("Cust_SubCustomer_cbre"))
+  Cust_SubCustomer_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | Customer/SubCustomer)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Cust_SubCustomer_cbre)
+
+if(!exists("Cust_SubCustomer_term"))
+  Cust_SubCustomer_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | Customer/SubCustomer)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Cust_SubCustomer_term)
+
+
+```
+
+
 ### Department
 ```{r Customer}
 
@@ -494,26 +540,43 @@ get_icc(display=TRUE,Customer_cbre)
 
 
 
-### Nested Office / Agency
-```{r NestedOffice}
-if(!exists("NestedOffice_cbre"))
-  NestedOffice_cbre <- glmer(data=large_crisis_smp,
+
+### Nested Agency / Office
+```{r AgencyOffice}
+if(!exists("AgencyOffice_cbre"))
+  AgencyOffice_cbre <- glmer(data=large_crisis_smp,
                              b_CBre ~ (1 | Agency/Office)
                              , family=binomial(link="logit"))
-get_icc(display=TRUE,NestedOffice_cbre)
+get_icc(display=TRUE,AgencyOffice_cbre)
 
 
-if(!exists("NestedOffice_term"))
-  NestedOffice_term <- glmer(data=large_crisis_smp,
+if(!exists("AgencyOffice_term"))
+  AgencyOffice_term <- glmer(data=large_crisis_smp,
                              b_Term ~ (1 | Agency/Office)
                              , family=binomial(link="logit"))
-get_icc(display=TRUE,NestedOffice_term)
+get_icc(display=TRUE,AgencyOffice_term)
 
 
 ```
 Somewhat surprisingly, in both cases office and agency combined have less explanatory value than office on its own.
 
+### Nested SubCustomer / Office
+```{r OfficeSubCustomer}
+if(!exists("OfficeSubCustomer_cbre"))
+  OfficeSubCustomer_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~ (1 | Customer:SubCustomer) + (1 | Customer:SubCustomer:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeSubCustomer_cbre)
 
+
+if(!exists("OfficeSubCustomer_term"))
+  OfficeSubCustomer_term <- glmer(data=large_crisis_smp,
+                             b_Term ~ (1 | Customer:SubCustomer)+ (1 | Customer:SubCustomer:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeSubCustomer_term)
+
+
+```
 ### Nested Department / Office
 ```{r DepartmentOffice}
 if(!exists("OfficeDepartment_cbre"))
@@ -551,19 +614,64 @@ get_icc(display=TRUE,OfficeCustomer_term)
 
 ```
 
-### PSC Office
-```{r NAICS02_Office}
-if(!exists("naics02_Office_term"))
-  naics02_Office_term <- glmer(data=large_crisis_smp,
-                             b_Term ~  (1 | PSR) + (1 | Agency:Office)
-                             , family=binomial(link="logit"))
-get_icc(display=TRUE,naics02_Office_term)
+### Nested Civ/Def / Office
+```{r DefCivOffice}
+large_crisis_smp$Is.Defense<-large_crisis_smp$Customer
+levels(large_crisis_smp$Customer)
 
-if(!exists("naics02_Office_cbre"))
-  naics02_Office_cbre <- glmer(data=large_crisis_smp,
-                             b_CBre ~  (1 | PSR) + (1 | Agency/Office)
+    levels(large_crisis_smp$Is.Defense)<- list("Defense"=c("Defense"),
+                                 "Civilian"=c("DHS","Energy","GSA","HHS","NASA",
+                                              "Other Agencies","State and IAP","VA"))
+
+if(!exists("OfficeDefCiv_cbre"))
+  OfficeDefCiv_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~ (1 | Is.Defense/Office)
                              , family=binomial(link="logit"))
-get_icc(display=TRUE,naics02_Office_cbre)
+get_icc(display=TRUE,OfficeDefCiv_cbre)
+
+
+if(!exists("OfficeDefCiv_term"))
+  OfficeDefCiv_term <- glmer(data=large_crisis_smp,
+                             b_Term ~ (1 | Is.Defense/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeDefCiv_term)
+
+
+```
+
+### Nested Customer Agency / Office
+```{r AgencyOffice}
+if(!exists("CustomerAgencyOffice_cbre"))
+  CustomerAgencyOffice_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~ (1 | Customer/Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,CustomerAgencyOffice_cbre)
+
+
+if(!exists("CustomerAgencyOffice_term"))
+  CustomerAgencyOffice_term <- glmer(data=large_crisis_smp,
+                             b_Term ~ (1 | Customer/Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,CustomerAgencyOffice_term)
+
+
+```
+### nested PSC Customer/Office
+```{r cpsa_prodserv_customer_office}
+
+if(!exists("ssc_prodserv_customer_office_cbre"))
+  ssc_prodserv_customer_office_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~  (1 | ServCommCons/ProdServ) + (1 | Customer/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_prodserv_customer_office_cbre)
+
+if(!exists("cpsa_prodserv_customer_office_term"))
+  cpsa_prodserv_customer_office_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_prodserv_customer_office_term)
+
+
 
 ```
 
@@ -695,33 +803,63 @@ save(file="output//naics6_when_office.rdta",psc_When_Office_term,psc_When_Office
 ```{r Empty_Compare_Who_Term}
 
 save(Office_cbre,Office_term,
-     Agency_cbre,Agency_term,
-     Customer_cbre,Customer_term,
-     NestedOffice_cbre,NestedOffice_term,
-     naics02_Office_cbre,naics02_Office_term,
-     naics03_Office_cbre,naics03_Office_term,
-     psc_Office_cbre,psc_Office_term,
-     naics36_Office_cbre,naics36_Office_term,
-     naics46_Office_cbre,naics46_Office_term,
+     
+     SubCustomer_cbre,SubCustomer_term,
+     
+     OfficeDepartment_cbre,OfficeDepartment_term,
+     OfficeSubCustomer_cbre,OfficeSubCustomer_term,
+     OfficeCustomer_cbre,OfficeCustomer_term,
+     OfficeDefCiv_cbre,OfficeDefCiv_term,
      psc_When_Office_cbre,
      naics36_When_Office_term,naics36_When_Office_cbre,
      OfficeCustomer_cbre,OfficeCustomer_term,
      file="Output//who_empty_models.rdata")
 
+save(Office_cbre,Office_term,
+     # Agency_cbre,Agency_term,
+     SubCustomer_cbre,SubCustomer_term,
+     # Department_cbre,Department_term,
+     # Customer_cbre,Customer_term,
+     # AgencyOffice_cbre,AgencyOffice_term,
+    Cust_SubCustomer_cbre,Cust_SubCustomer_term,
+     OfficeDepartment_cbre,OfficeDepartment_term,
+     OfficeSubCustomer_cbre,OfficeSubCustomer_term,
+     OfficeCustomer_cbre,OfficeCustomer_term,
+     OfficeDefCiv_cbre,OfficeDefCiv_term,
+    ssc_prodserv_customer_office_cbre,cpsa_prodserv_customer_office_term,
+     file="Output//who_empty_models2.rdata")
+
+stargazer::stargazer(Office_cbre,
+     SubCustomer_cbre,
+    Cust_SubCustomer_cbre,
+     OfficeDepartment_cbre,
+     OfficeSubCustomer_cbre,
+     OfficeCustomer_cbre,
+     OfficeDefCiv_cbre,
+    type="text",
+                     digits=2)
 
 
-get_icc(naics36_term)
-# get_icc(NAICS_StartFY_term)
 get_icc(Office_term)
 get_icc(Agency_term)
+get_icc(SubCustomer_term)
 get_icc(Department_term)
 get_icc(Customer_term)
-get_icc(NestedOffice_term)
-get_icc(OfficeCustomer_term)
+get_icc(AgencyOffice_term)
+get_icc(OfficeSubCustomer_term)
 get_icc(OfficeDepartment_term)
+get_icc(OfficeCustomer_term)
+get_icc(OfficeDefCiv_term)
 
-
-
+stargazer::stargazer(Office_term,
+     SubCustomer_term,
+    Cust_SubCustomer_term,
+     OfficeDepartment_term,
+     OfficeSubCustomer_term,
+     OfficeCustomer_term,
+     OfficeDefCiv_term,
+    type="text",
+                     digits=2)
 
 
 get_icc(naics02_Office_term)
@@ -746,11 +884,15 @@ summary_residual_compare(naics36_term,naics36_Office_term,naics36_cbre,naics36_O
 
 get_icc(Office_cbre)
 get_icc(Agency_cbre)
+get_icc(SubCustomer_cbre)
 get_icc(Department_cbre)
 get_icc(Customer_cbre)
-get_icc(NestedOffice_cbre)
-get_icc(OfficeCustomer_cbre)
+get_icc(AgencyOffice_cbre)
+get_icc(OfficeSubCustomer_cbre)
 get_icc(OfficeDepartment_cbre)
+get_icc(OfficeCustomer_cbre)
+get_icc(OfficeDefCiv_cbre)
+
 
 
 get_icc(naics02_Office_cbre)
