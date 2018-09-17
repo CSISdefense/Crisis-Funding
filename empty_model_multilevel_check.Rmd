@@ -889,13 +889,13 @@ get_icc(display=TRUE,PlaceCountry_term)
 
 if(!exists("Place_isforeign_Country_cbre"))
   Place_isforeign_Country_cbre <- glmer(data=large_crisis_smp,
-                       b_CBre ~ (1 | PlaceCountryISO3)
+                       b_CBre ~ (1 | place_isforeign/PlaceCountryISO3)
                        , family=binomial(link="logit"))
 get_icc(display=TRUE,Place_isforeign_Country_cbre)
 
 if(!exists("Place_isforeign_Country_term"))
   Place_isforeign_Country_term <- glmer(data=large_crisis_smp,
-                       b_Term ~ (1 | PlaceCountryISO3)
+                       b_Term ~ (1 | place_isforeign/PlaceCountryISO3)
                        , family=binomial(link="logit"))
 get_icc(display=TRUE,Place_isforeign_Country_term)
 
