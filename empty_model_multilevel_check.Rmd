@@ -1009,7 +1009,19 @@ get_icc(PlaceCountry_cbre)
 get_icc(VendorCountry_cbre)
 get_icc(OriginCountry_cbre)
 get_icc(Place_ssc_psc_cbre)
+get_icc(ssc_prodserv_customer_office_place_cbre)
+get_icc(ssc_prodserv_customer_office_vendor_cbre)
 
+
+
+stargazer::stargazer( PlaceCountry_cbre,
+VendorCountry_cbre,
+OriginCountry_cbre,
+Place_ssc_psc_cbre,
+ssc_prodserv_customer_office_place_cbre,
+ssc_prodserv_customer_office_vendor_cbre,
+                     type="text",
+                       digits=2)
 
 
 
@@ -1018,8 +1030,18 @@ get_icc(PlaceCountry_term)
 get_icc(VendorCountry_term)
 get_icc(OriginCountry_term)
 get_icc(Place_cpsa_psc_term)
+get_icc(cpsa_prodserv_customer_office_place_term)
+get_icc(cpsa_prodserv_customer_office_vendor_term)
 # get_icc(psc_When_Office_term)
 
+stargazer::stargazer( PlaceCountry_term,
+VendorCountry_term,
+OriginCountry_term,
+Place_cpsa_psc_term,
+cpsa_prodserv_customer_office_place_term,
+cpsa_prodserv_customer_office_vendor_term,
+                     type="text",
+                       digits=2)
 
 
 ```
