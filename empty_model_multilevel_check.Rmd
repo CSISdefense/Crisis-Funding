@@ -863,11 +863,9 @@ get_icc(display=TRUE,Office_term)
 
 ## Location
 ### Place
+#### Place Alone
 ```{r PlaceCountry}
 # load(file="Output//where_empty_models.rdata")
-
-
-
 
 if(!exists("PlaceCountry_cbre"))
   PlaceCountry_cbre <- glmer(data=large_crisis_smp,
@@ -883,9 +881,9 @@ get_icc(display=TRUE,PlaceCountry_term)
 
 ```
 
+#### Is foreign / Place
 ```{r Place_isforeign_Country}
 # load(file="Output//where_empty_models.rdata")
-
 
 if(!exists("Place_isforeign_Country_cbre"))
   Place_isforeign_Country_cbre <- glmer(data=large_crisis_smp,
@@ -901,7 +899,49 @@ get_icc(display=TRUE,Place_isforeign_Country_term)
 
 ```
 
-### nested PSC Customer/Office and place
+#### Crisis theater / Place
+```{r Place_theater_Country}
+# load(file="Output//where_empty_models.rdata")
+
+if(!exists("Place_theater_Country_cbre"))
+  Place_theater_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | place_CrisisFundingTheater/PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Place_theater_Country_cbre)
+
+if(!exists("Place_theater_Country_term"))
+  Place_theater_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | place_CrisisFundingTheater/PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Place_theater_Country_term)
+
+```
+
+#### COCOM / Place
+```{r Place_cocom_Country}
+# load(file="Output//where_empty_models.rdata")
+
+
+if(!exists("Place_cocom_Country_cbre"))
+  Place_cocom_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | place_CombatantCommand/PlaceCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,Place_cocom_Country_cbre)
+
+if(!exists("Place_cocom_Country_term"))
+  Place_cocom_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | place_CombatantCommand/PlaceCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,Place_cocom_Country_term)
+
+```
+
+
+#### nested PSC Customer/Office and place
 ```{r cpsa_prodserv_customer_office}
 
 if(!exists("ssc_prodserv_customer_office_place_cbre"))
@@ -944,7 +984,66 @@ get_icc(display=TRUE,VendorCountry_term)
 
 
 
-### nested PSC Customer/Office and Vendor
+#### Is foreign / Vendor
+```{r Vendor_isforeign_Country}
+# load(file="Output//where_empty_models.rdata")
+
+if(!exists("Vendor_isforeign_Country_cbre"))
+  Vendor_isforeign_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | vendor_isforeign/VendorCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Vendor_isforeign_Country_cbre)
+
+if(!exists("vendor_isforeign_Country_term"))
+  vendor_isforeign_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | vendor_isforeign/VendorCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,vendor_isforeign_Country_term)
+
+```
+
+#### Crisis theater / Vendor
+```{r Vendor_theater_Country}
+# load(file="Output//where_empty_models.rdata")
+
+if(!exists("Vendor_theater_Country_cbre"))
+  Vendor_theater_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | vendor_CrisisFundingTheater/VendorCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Vendor_theater_Country_cbre)
+
+if(!exists("Vendor_theater_Country_term"))
+  Vendor_theater_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | vendor_CrisisFundingTheater/VendorCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Vendor_theater_Country_term)
+
+```
+
+#### COCOM / Vendor
+```{r Vendor_cocom_Country}
+# load(file="Output//where_empty_models.rdata")
+
+
+if(!exists("Vendor_cocom_Country_cbre"))
+  Vendor_cocom_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | vendor_CombatantCommand/VendorCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,Vendor_cocom_Country_cbre)
+
+if(!exists("Vendor_cocom_Country_term"))
+  Vendor_cocom_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | vendor_CombatantCommand/VendorCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,Vendor_cocom_Country_term)
+
+```
+
+#### nested PSC Customer/Office and Vendor
 ```{r cpsa_prodserv_customer_office_vendor}
 
 if(!exists("ssc_prodserv_customer_office_vendor_cbre"))
@@ -986,7 +1085,67 @@ get_icc(display=TRUE,OriginCountry_term)
 ### b_Comp CrisisProductOrServiceArea/Code Office
 ```
 
-### nested PSC Customer/Office and Origin
+#### Is foreign / Origin
+```{r Origin_isforeign_Country}
+# load(file="Output//where_empty_models.rdata")
+
+if(!exists("Origin_isforeign_Country_cbre"))
+  Origin_isforeign_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | origin_isforeign/OriginCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Origin_isforeign_Country_cbre)
+
+if(!exists("origin_isforeign_Country_term"))
+  origin_isforeign_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | origin_isforeign/OriginCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,origin_isforeign_Country_term)
+
+```
+
+#### Crisis theater / Origin
+```{r Origin_theater_Country}
+# load(file="Output//where_empty_models.rdata")
+
+if(!exists("Origin_theater_Country_cbre"))
+  Origin_theater_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | origin_CrisisFundingTheater/OriginCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Origin_theater_Country_cbre)
+
+if(!exists("Origin_theater_Country_term"))
+  Origin_theater_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | origin_CrisisFundingTheater/OriginCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Origin_theater_Country_term)
+
+```
+
+#### COCOM / Origin
+```{r Origin_cocom_Country}
+# load(file="Output//where_empty_models.rdata")
+
+
+if(!exists("Origin_cocom_Country_cbre"))
+  Origin_cocom_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | origin_CombatantCommand/OriginCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,Origin_cocom_Country_cbre)
+
+if(!exists("Origin_cocom_Country_term"))
+  Origin_cocom_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | origin_CombatantCommand/OriginCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,Origin_cocom_Country_term)
+
+```
+
+#### nested PSC Customer/Office and Origin
+
 ```{r cpsa_prodserv_customer_office_origin}
 
 if(!exists("ssc_prodserv_customer_office_origin_cbre"))
@@ -1007,41 +1166,218 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_origin_term)
 
 
 ```
+### Cross
+#### Place Vendor Origin
+```{r PlaceVendorOriginCountry}
+# load(file="Output//where2_empty_models.rdata")
+
+if(!exists("PlaceVendorOriginCountry_cbre"))
+  PlaceVendorOriginCountry_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | PlaceCountryISO3) + (1 |VendorCountryISO3) + (1|OriginCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorOriginCountry_cbre)
+
+if(!exists("PlaceVendorOriginCountry_term"))
+  PlaceVendorOriginCountry_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | PlaceCountryISO3 )+ (1| VendorCountryISO3) + (1|OriginCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorOriginCountry_term)
+
+```
 
 
+#### Place Vendor Origin Combined
+```{r PlaceVendorOriginCombined}
+# load(file="Output//where2_empty_models.rdata")
+
+if(!exists("PlaceVendorOriginCombined_cbre"))
+  PlaceVendorOriginCombined_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | PlaceCountryISO3:VendorCountryISO3:OriginCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorOriginCombined_cbre)
+
+
+
+if(!exists("PlaceVendorOriginCombined_term"))
+  PlaceVendorOriginCombined_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | PlaceCountryISO3:VendorCountryISO3:OriginCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorOriginCombined_term)
+coef(PlaceVendorOriginCombined_term)
+```
+
+#### Place / Vendor
+```{r PlaceVendorCountry}
+# load(file="Output//where2_empty_models.rdata")
+
+if(!exists("PlaceVendorCountry_cbre"))
+  PlaceVendorCountry_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | PlaceCountryISO3) + (1 |VendorCountryISO3) 
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorCountry_cbre)
+
+if(!exists("PlaceVendorCountry_term"))
+  PlaceVendorCountry_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | PlaceCountryISO3 )+ (1| VendorCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+
+
+PlaceVendorCountry_term_test <- glmer(data=large_crisis_smp[!is.na(large_crisis_smp$OriginCountryISO3),],
+                       b_Term ~ (1 | PlaceCountryISO3 )+ (1| VendorCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorCountry_term)
+get_icc(display=TRUE,PlaceVendorCountry_term_test)
+
+```
+
+#### Place Vendor Combined
+```{r PlaceVendorCombined}
+# load(file="Output//where2_empty_models.rdata")
+large_crisis_smp$PlaceVendor<-NA
+summary(factor(large_crisis_smp$PlaceCountryISO3))
+large_crisis_smp$place_CombatantCommand
+summary_discrete_plot(large_crisis_smp,"place_CrisisFundingTheater")
+summary_discrete_plot(large_crisis_smp,"place_isforeign")
+summary_discrete_plot(large_crisis_smp,"place_CombatantCommand")
+summary_discrete_plot(large_crisis_smp,"vendor_CrisisFundingTheater")
+summary_discrete_plot(large_crisis_smp,"vendor_isforeign")
+summary_discrete_plot(large_crisis_smp,"vendor_CombatantCommand")
+
+large_crisis_smp$PlaceVendor<-as.character(large_crisis_smp$PlaceVendor)
+large_crisis_smp$PlaceVendor[large_crisis_smp$PlaceCountryISO3!="USA"&
+                               large_crisis_smp$PlaceCountryISO3==large_crisis_smp$VendorCountryISO3]<-"Host Nation Vendor"
+large_crisis_smp$PlaceVendor[large_crisis_smp$VendorCountryISO3=="USA"]<-"U.S. vendor"
+large_crisis_smp$PlaceVendor[large_crisis_smp$PlaceCountryISO3!=large_crisis_smp$VendorCountryISO3&
+                               large_crisis_smp$VendorCountryISO3!="USA"]<-"Third Country Vendor"
+large_crisis_smp$PlaceVendor<-factor(large_crisis_smp$PlaceVendor)
+
+  summary_discrete_plot(large_crisis_smp,"PlaceVendor")
+
+
+if(!exists("PlaceVendorSimplified_cbre"))
+  PlaceVendorSimplified_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | PlaceCountryISO3/PlaceVendor)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorSimplified_cbre)
+
+if(!exists("PlaceVendorSimplified_term"))
+  PlaceVendorSimplified_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | PlaceCountryISO3/PlaceVendor)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorSimplified_term)
+```
+
+#### nested PSC Customer/Office and place
+```{r cpsa_prodserv_customer_office}
+
+if(!exists("ssc_prodserv_customer_office_placevendor_cbre"))
+  ssc_prodserv_customer_office_placevendor_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~  (1 | ServCommCons/ProdServ) + (1 | Customer/Office) + (1 | PlaceCountryISO3/PlaceVendor)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_prodserv_customer_office_placevendor_cbre)
+
+if(!exists("cpsa_prodserv_customer_office_placevendor_term"))
+  cpsa_prodserv_customer_office_placevendor_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)+ (1 | PlaceCountryISO3/PlaceVendor)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_term)
+
+
+
+```
+```{r cpsa_prodserv_customer_office_placevendor_when}
+
+if(!exists("ssc_prodserv_customer_office_placevendor_when_cbre"))
+  ssc_prodserv_customer_office_placevendor_when_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~  (1 | ServCommCons/ProdServ) + (1 | Customer/Office) + (1 | PlaceCountryISO3/PlaceVendor) + (1 | StartFY)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_prodserv_customer_office_placevendor_when_cbre)
+
+if(!exists("cpsa_prodserv_customer_office_placevendor_when_term"))
+  cpsa_prodserv_customer_office_placevendor_when_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)+ (1 | PlaceCountryISO3/PlaceVendor)+ (1 | StartFY)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_when_term)
+
+
+
+```
 
 ### Compare Where
 ```{r Empty_Compare_Who_Term}
 
-save(PlaceCountry_cbre,PlaceCountry_term,
-     VendorCountry_cbre,VendorCountry_term,
-     OriginCountry_cbre,OriginCountry_term,
-     ssc_prodserv_customer_office_place_cbre,cpsa_prodserv_customer_office_place_term,
-     ssc_prodserv_customer_office_vendor_cbre,cpsa_prodserv_customer_office_vendor_term,
-     ssc_prodserv_customer_office_origin_cbre,cpsa_prodserv_customer_office_origin_term,
-     # Place_ssc_psc_cbre,Place_cpsa_psc_term,
-     # Vendor_ssc_psc_cbre,Vendor_cpsa_psc_term,
-     file="Output//where_empty_models.rdata")
+    save(PlaceCountry_cbre,PlaceCountry_term,
+         Place_isforeign_Country_cbre,Place_isforeign_Country_term,
+         VendorCountry_cbre,VendorCountry_term,
+         OriginCountry_cbre,OriginCountry_term,
+         ssc_prodserv_customer_office_place_cbre,cpsa_prodserv_customer_office_place_term,
+         ssc_prodserv_customer_office_vendor_cbre,cpsa_prodserv_customer_office_vendor_term,
+         ssc_prodserv_customer_office_origin_cbre,cpsa_prodserv_customer_office_origin_term,
+         
+         Place_ssc_psc_cbre,Place_cpsa_psc_term,
+         Vendor_ssc_psc_cbre,Vendor_cpsa_psc_term,
+         PlaceVendorOriginCountry_cbre,PlaceVendorOriginCountry_term,
+         PlaceVendorOriginCombined_cbre,PlaceVendorOriginCombined_term,
+         PlaceVendorCountry_cbre,PlaceVendorCountry_term,
+         ssc_prodserv_customer_office_placevendor_cbre,cpsa_prodserv_customer_office_placevendor_term,
+
+PlaceVendorCountry_term_test,
+PlaceVendorCombined_cbre,PlaceVendorCombined_term,
+PlaceVendorSimplified_cbre,PlaceVendorSimplified_term,
+         file="Output//where_empty_models.rdata")
 
 
 
 get_icc(PlaceCountry_cbre)
 get_icc(VendorCountry_cbre)
 get_icc(OriginCountry_cbre)
+get_icc(PlaceVendorCountry_cbre)
+get_icc(PlaceVendorCombined_cbre)
+get_icc(PlaceVendorSimplified_cbre)
 get_icc(Place_ssc_psc_cbre)
+get_icc(Vendor_ssc_psc_cbre)
 get_icc(ssc_prodserv_customer_office_place_cbre)
 get_icc(ssc_prodserv_customer_office_vendor_cbre)
 get_icc(ssc_prodserv_customer_office_origin_cbre)
+get_icc(ssc_prodserv_customer_office_placevendor_cbre)
+get_icc(PlaceVendorCountry_cbre)
+
 
 
 
 stargazer::stargazer( PlaceCountry_cbre,
 VendorCountry_cbre,
 OriginCountry_cbre,
-# Place_ssc_psc_cbre,
+PlaceVendorCountry_cbre,
+PlaceVendorCombined_cbre,
+PlaceVendorSimplified_cbre,
+PlaceVendorOriginCountry_cbre,
+PlaceVendorOriginCombined_cbre,
+type="text",
+                       digits=2)
+stargazer::stargazer( 
 ssc_prodserv_customer_office_place_cbre,
 ssc_prodserv_customer_office_vendor_cbre,
 ssc_prodserv_customer_office_origin_cbre,
+ssc_prodserv_customer_office_placevendor_cbre,
                      type="text",
                        digits=2)
 
@@ -1051,19 +1387,35 @@ ssc_prodserv_customer_office_origin_cbre,
 get_icc(PlaceCountry_term)
 get_icc(VendorCountry_term)
 get_icc(OriginCountry_term)
+get_icc(PlaceVendorCountry_term)
+get_icc(PlaceVendorCombined_term)
+get_icc(PlaceVendorSimplified_term)
+get_icc(PlaceVendorOriginCountry_term)
+get_icc(PlaceVendorOriginCombined_term)
 get_icc(Place_cpsa_psc_term)
+get_icc(Vendor_cpsa_psc_term)
 get_icc(cpsa_prodserv_customer_office_place_term)
 get_icc(cpsa_prodserv_customer_office_vendor_term)
-get_icc(cpsa_prodserv_customer_office_vendor_term)
+get_icc(cpsa_prodserv_customer_office_origin_term)
+get_icc(cpsa_prodserv_customer_office_placevendor_term)
+
 # get_icc(psc_When_Office_term)
 
 stargazer::stargazer( PlaceCountry_term,
 VendorCountry_term,
 OriginCountry_term,
+PlaceVendorOriginCountry_term,
+PlaceVendorOriginCombined_term,
+PlaceVendorCountry_term,
+PlaceVendorCountry_term_test,
+PlaceVendorSimplified_term,
 Place_cpsa_psc_term,
-cpsa_prodserv_customer_office_place_term,
+                     type="text",
+                       digits=2)
+stargazer::stargazer( cpsa_prodserv_customer_office_place_term,
 cpsa_prodserv_customer_office_vendor_term,
 cpsa_prodserv_customer_office_origin_term,
+cpsa_prodserv_customer_office_placevendor_term,
                      type="text",
                        digits=2)
 
