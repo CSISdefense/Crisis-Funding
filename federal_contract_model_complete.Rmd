@@ -262,9 +262,27 @@ fed_full$UnmodifiedPlaceCountryISO3[is.na(fed_full$UnmodifiedPlaceCountryISO3)]<
   fed_full$PlaceCountryISO3[is.na(fed_full$UnmodifiedPlaceCountryISO3)]
 fed_full$UnmodifiedPlaceCountryISO3<-factor(fed_full$UnmodifiedPlaceCountryISO3)
 
-fed_full$PlaceCountryISO3[is.na(fed_full$PlaceCountryISO3)&fed_full$AnyPlaceIsInternational]<-"*MU"
-fed_full$VendorCountryISO3[is.na(fed_full$VendorCountryISO3)&fed_full$AnyVendorIsInternational]<-"*MU"
-fed_full$OriginCountryISO3[is.na(fed_full$OriginCountryISO3)&fed_full$AnyOriginIsInternational]<-"*MU"
+fed_full$PlaceCountryISO3<-as.character(fed_full$PlaceCountryISO3)
+fed_full$VendorCountryISO3<-as.character(fed_full$VendorCountryISO3)
+fed_full$OriginCountryISO3<-as.character(fed_full$OriginCountryISO3)
+
+fed_full$PlaceCountryISO3[is.na(fed_full$PlaceCountryISO3)&
+                            fed_full$PlaceIsInternational==1]<-"*MF"
+fed_full$PlaceCountryISO3[is.na(fed_full$PlaceCountryISO3)&
+                            fed_full$AnyPlaceInternational=="Any International"]<-"*MU"
+
+fed_full$VendorCountryISO3[is.na(fed_full$VendorCountryISO3)&
+                            fed_full$VendorIsInternational==1]<-"*MF"
+fed_full$VendorCountryISO3[is.na(fed_full$VendorCountryISO3)&
+                            fed_full$AnyVendorInternational=="Any International"]<-"*MU"
+
+
+
+fed_full$OriginCountryISO3[is.na(fed_full$OriginCountryISO3)&
+                            fed_full$OriginIsInternational==1]<-"*MF"
+fed_full$OriginCountryISO3[is.na(fed_full$OriginCountryISO3)&
+                            fed_full$AnyOriginInternational=="Any International"]<-"*MU"
+
 
 
 fed_full$PlaceCountryISO3<-factor(fed_full$PlaceCountryISO3)
@@ -303,6 +321,124 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 
 ```
+
+##FundingAccount
+```{r Location}
+# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+
+fed_full<-csis360::read_and_join_experiment(fed_full,
+    "Contract.SP_ContractFundingAccount.txt"
+  ,path=""
+  ,dir="Data\\"
+  ,by="CSIScontractID"
+  ,new_var_checked=FALSE
+  # ,zip_file="Contract.SP_ContractFundingAccount.zip"
+)
+
+fed_full<-csis360::standardize_variable_names(fed_full)
+
+
+
+# fed_full$pIsInternational<-
+#   as.double(fed_full$ObligatedAmountPlaceIsInternational)/
+#   as.double(fed_full$Action.Obligation)
+# length(fed_full$pIsInternational[
+#   # is.na(fed_full$pIsInternational)&
+#     fed_full$PlaceIsInternational==1
+# ])<-0
+# summary(fed_full$pIsInternational)
+# summary(fed_full$PlaceIsInternational)
+# summary(subset(fed_full,is.finite(pIsInternational)))
+# 
+# ggplot(fed_full, aes(x=ObligatedAmountPlaceIsInternational))+geom_histogram()
+
+# summary(fed_full$ObligatedAmountPlaceIsInternational)
+# summary(fed_full$PlaceIsInternational)
+
+fed_full$AnyPlaceInternational[is.na(fed_full$PlaceIsInternational) &
+    is.na(fed_full$UnmodifiedPlaceIsInternational)]<-NA
+
+summary(fed_full$AnyPlaceInternational)
+summary(fed_full$PlaceIsInternational)
+summary(fed_full$UnmodifiedPlaceIsInternational)
+summary(factor(fed_full$PlaceCountryISO3))
+summary(factor(fed_full$UnmodifiedPlaceCountryISO3))
+
+
+if(is.numeric(fed_full$AnyPlaceInternational)){
+  fed_full$AnyPlaceInternational<-factor(fed_full$AnyPlaceInternational,
+    exclude=NULL,
+    levels=c(0,1,NA),
+    labels=c("Just U.S.","Any International",NA)
+  )
+}
+
+summary(fed_full$AnyPlaceInternational)
+fed_full$UnmodifiedPlaceCountryISO3[is.na(fed_full$UnmodifiedPlaceCountryISO3)]<-
+  fed_full$PlaceCountryISO3[is.na(fed_full$UnmodifiedPlaceCountryISO3)]
+fed_full$UnmodifiedPlaceCountryISO3<-factor(fed_full$UnmodifiedPlaceCountryISO3)
+
+fed_full$PlaceCountryISO3<-as.character(fed_full$PlaceCountryISO3)
+fed_full$VendorCountryISO3<-as.character(fed_full$VendorCountryISO3)
+fed_full$OriginCountryISO3<-as.character(fed_full$OriginCountryISO3)
+
+fed_full$PlaceCountryISO3[is.na(fed_full$PlaceCountryISO3)&
+                            fed_full$PlaceIsInternational==1]<-"*MF"
+fed_full$PlaceCountryISO3[is.na(fed_full$PlaceCountryISO3)&
+                            fed_full$AnyPlaceInternational=="Any International"]<-"*MU"
+
+fed_full$VendorCountryISO3[is.na(fed_full$VendorCountryISO3)&
+                            fed_full$VendorIsInternational==1]<-"*MF"
+fed_full$VendorCountryISO3[is.na(fed_full$VendorCountryISO3)&
+                            fed_full$AnyVendorInternational=="Any International"]<-"*MU"
+
+
+
+fed_full$OriginCountryISO3[is.na(fed_full$OriginCountryISO3)&
+                            fed_full$OriginIsInternational==1]<-"*MF"
+fed_full$OriginCountryISO3[is.na(fed_full$OriginCountryISO3)&
+                            fed_full$AnyOriginInternational=="Any International"]<-"*MU"
+
+
+
+fed_full$PlaceCountryISO3<-factor(fed_full$PlaceCountryISO3)
+fed_full$VendorCountryISO3<-factor(fed_full$VendorCountryISO3)
+fed_full$OriginCountryISO3<-factor(fed_full$OriginCountryISO3)
+
+
+
+
+
+fed_full<-fed_full[,!colnames(fed_full) %in% 
+    c(
+  # "PlaceCountryISO3",
+  # "UnmodifiedPlaceCountryISO3",
+  "ObligatedAmountPlaceIsInternational"     ,
+   # "AnyPlaceInternational",
+  "PlaceIsInternational"  ,
+  "UnmodifiedPlaceIsInternational",
+   # "VendorCountryISO3",
+  "UnmodifiedVendorCountryISO3" ,
+  "ObligatedAmountVendorIsInternational"  ,
+   "AnyVendorInternational",
+  "VendorIsInternational",
+  "UnmodifiedVendorIsInternational"         ,
+   # "OriginCountryISO3",
+  "UnmodifiedOriginCountryISO3",
+  "ObligatedAmountOriginIsInternational"    ,
+   "AnyOriginInternational",
+  "OriginIsInternational",
+  "UnmodifiedOriginIsInternational" ,
+  "pIsInternational" #This just isn't working
+    )]
+
+fed_full$AnyPlaceInternational<-droplevels(fed_full$AnyPlaceInternational)
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+
+
+```
+
+
 
 
 ##BucketPlatform
