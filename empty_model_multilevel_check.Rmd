@@ -1218,7 +1218,7 @@ coef(PlaceVendorOriginCombined_term)
 
 #### Place / Vendor
 ```{r PlaceVendorCountry}
-# load(file="Output//where2_empty_models.rdata")
+# load(file="Output//where_empty_models.rdata")
 
 if(!exists("PlaceVendorCountry_cbre"))
   PlaceVendorCountry_cbre <- glmer(data=large_crisis_smp,
@@ -1307,6 +1307,8 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_term)
 
 
 ```
+#### nested PSC Customer/Office and place and year
+
 ```{r cpsa_prodserv_customer_office_placevendor_when}
 
 if(!exists("ssc_prodserv_customer_office_placevendor_when_cbre"))
@@ -1318,7 +1320,9 @@ get_icc(display=TRUE,ssc_prodserv_customer_office_placevendor_when_cbre)
 if(!exists("cpsa_prodserv_customer_office_placevendor_when_term"))
   cpsa_prodserv_customer_office_placevendor_when_term <- glmer(data=large_crisis_smp,
                              b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)+ (1 | PlaceCountryISO3/PlaceVendor)+ (1 | StartFY)
-                             , family=binomial(link="logit"))
+                             , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_when_term)
 
 
@@ -1346,6 +1350,7 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_when_term)
 PlaceVendorCountry_term_test,
 PlaceVendorCombined_cbre,PlaceVendorCombined_term,
 PlaceVendorSimplified_cbre,PlaceVendorSimplified_term,
+ssc_prodserv_customer_office_placevendor_when_cbre,cpsa_prodserv_customer_office_placevendor_when_term,
          file="Output//where_empty_models.rdata")
 
 
