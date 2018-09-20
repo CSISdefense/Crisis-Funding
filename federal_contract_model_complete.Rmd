@@ -39,9 +39,9 @@ source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/
 ```{r DetailCustomer}
 if(!is.null(fed_full)){
 fed_full <-readr::read_delim(
-  "Data\\\contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
+  "Data\\contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
   col_names=TRUE, 
-  delim=",",
+  delim="\t",
   # , dec=".",
   trim_ws=TRUE,
   na=c("NULL","NA")
@@ -59,26 +59,23 @@ fed_full <-readr::read_delim(
 
 fed_full<-csis360::standardize_variable_names(fed_full)
 
-
+#Limit the strt years. Doing this first to get the size down.
+fed_full<-subset(fed_full, StartFiscal_Year>=2007   &
+                   StartFiscal_Year<=2015
+)
 #Limit to completed contracts that start in 2007 or later
 fed_full$LastCurrentCompletionDate<-strptime(fed_full$LastCurrentCompletionDate,"%Y-%m-%d") 
-#Drop contracts starting before the study period and not clearly end within it
-fed_full<-subset(fed_full, StartFiscal_Year>=2007   &
-    (LastCurrentCompletionDate<="2015-09-30" | IsClosed==1)
+#Drop contracts  not clearly finished within the study period.
+fed_full<-subset(fed_full,  (LastCurrentCompletionDate<="2016-09-30" | IsClosed==1)
 )
-
-if(is.numeric(fed_full$Term)){
-    fed_full$Term<-factor(fed_full$Term,
-                                levels = c(0,1),
-                                labels = c("Unterminated", "Terminated")
-    )
-}
 
 # fed_full<-subset(fed_full,select=-c(StartFiscal_Year
 # ,IsClosed
 # ,LastSignedLastDateToOrder
 #                                                       ,LastUltimateCompletionDate
 # ))
+
+fed_full$UnmodifiedLastDateToOrder<-strptime(fed_full$UnmodifiedLastDateToOrder,"%Y-%m-%d")
 
 
 fed_full<-fed_full[,!colnames(fed_full) %in% 
@@ -88,6 +85,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
     # "IsClosed"             ,
     "LastSignedLastDateToOrder",
      "LastUltimateCompletionDate",
+    "UnmodifiedLastDateToOrder",
     # "LastCurrentCompletionDate",
     # "MinOfSignedDate",
     # "MinOfEffectiveDate",
@@ -115,7 +113,16 @@ fed_full<-csis360::read_and_join_experiment(data=fed_full
 
 fed_full<-csis360::standardize_variable_names(fed_full)
 
+colnames(fed_full)[colnames(fed_full)=="IsTerminated"]<-"Term"
+if(is.numeric(fed_full$Term)){
+    fed_full$Term<-factor(fed_full$Term,
+                                levels = c(0,1),
+                                labels = c("Unterminated", "Terminated")
+    )
+}
 
+
+#failed here.
 fed_full$UnmodifiedCurrentCompletionDate<-
   strptime(fed_full$UnmodifiedCurrentCompletionDate,"%Y-%m-%d") 
 
@@ -125,6 +132,7 @@ fed_full$UnmodifiedDays<-as.numeric(
     , strptime(fed_full$MinOfEffectiveDate,"%Y-%m-%d")
     , unit="days"
   ))+1
+
 
 # 
 # CDuration<-as.duration(strptime(fed_full$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")-
@@ -138,91 +146,6 @@ fed_full$UnmodifiedDays<-as.numeric(
 # 
 # summary(dYears)
 
-#Break the count of days into four categories.
-fed_full$qDuration<-cut2(fed_full$UnmodifiedDays,cuts=c(61,214,366,732))
-
-
-
-
-
-if (levels(fed_full$qDuration)[[2]]=="[   61,  214)"){
-  fed_full$qDuration<-factor(fed_full$qDuration, 
-    
-    levels=c("[    0,   61)",
-      "[   61,  214)",
-      "[  214,  366)",
-      "[  366,  732)",
-      "[  732,33192]"),
-    labels=c("[0 months,~2 months)",
-      "[~2 months,~7 months)",
-      "[~7 months-~1 year]",
-      "(~1 year,~2 years]",
-      "(~2 years+]"),
-    ordered=TRUE
-  )
-}
-
-
-lowroundedcutoffs<-c(15000,100000,1000000,30000000)
-highroundedcutoffs<-c(15000,100000,1000000,10000000,75000000)
-fed_full$qLowCeiling <- cut2(fed_full$UnmodifiedContractBaseAndAllOptionsValue,cuts=lowroundedcutoffs)
-fed_full$qHighCeiling <- cut2(fed_full$UnmodifiedContractBaseAndAllOptionsValue,cuts=highroundedcutoffs)
-rm(lowroundedcutoffs,highroundedcutoffs)
-
-
-
-
-if (all(levels(fed_full$qHighCeiling)==c("[0.00e+00,1.50e+04)",
-  "[1.50e+04,1.00e+05)",
-  "[1.00e+05,1.00e+06)",
-  "[1.00e+06,1.00e+07)",
-  "[1.00e+07,7.50e+07)",
-  "[7.50e+07,3.36e+12]"))){
-  fed_full$qHighCeiling<-factor(fed_full$qHighCeiling, 
-    
-    levels=c("[0.00e+00,1.50e+04)",
-      "[1.50e+04,1.00e+05)",
-      "[1.00e+05,1.00e+06)",
-      "[1.00e+06,1.00e+07)",
-      "[1.00e+07,7.50e+07)",
-      "[7.50e+07,3.36e+12]"),
-    labels=c("[0,15k)",
-      "[15k,100k)",
-      "[100k,1m)",
-      "[1m,10m)",
-      "[10m,75m)",
-      "[75m+]"),
-    ordered=TRUE
-  )
-}
-
-if (all(levels(fed_full$qLowCeiling)==c("[0.00e+00,1.50e+04)",
-  "[1.50e+04,1.00e+05)",
-  "[1.00e+05,1.00e+06)",
-  "[1.00e+06,3.00e+07)",
-  "[3.00e+07,3.36e+12]"))){
-  fed_full$qLowCeiling<-factor(fed_full$qLowCeiling, 
-    
-    levels=c("[0.00e+00,1.50e+04)",
-      "[1.50e+04,1.00e+05)",
-      "[1.00e+05,1.00e+06)",
-      "[1.00e+06,3.00e+07)",
-      "[3.00e+07,3.36e+12]"),
-    labels=c("[0,15k)",
-      "[15k,100k)",
-      "[100k,1m)",
-      "[1m,30m)",
-      "[30m+]"),
-    ordered=TRUE
-  )
-}
-
-
-
-
-
-
-summary(subset(fed_full$qCRais,fed_full$SumOfisChangeOrder>0    ))
 
 fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
@@ -240,7 +163,7 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(fed_full,
-  "contract_SP_ContractModificationDeltaCustomer.csv",
+  "contract_SP_ContractModificationDeltaCustomer.txt",
   "",
   "Data\\",
   by="CSIScontractID",
@@ -254,18 +177,6 @@ fed_full$ChangeOrderBaseAndAllOptionsValue<-FactorToNumber(fed_full$ChangeOrderB
 
 
 
-fed_full$qNChg <- cut2(fed_full$SumOfisChangeOrder,c(1,2,3))
-
-
-# fed_full$pChangeOrderObligated<-fed_full$ChangeOrderObligatedAmount/
-#   fed_full$Action.Obligation
-# fed_full$pChangeOrderObligated[is.na(fed_full$pChangeOrderObligated)&
-#     fed_full$SumOfisChangeOrder==0]<-0
-fed_full$pChangeOrderUnmodifiedBaseAndAll<-fed_full$ChangeOrderBaseAndAllOptionsValue/
-  fed_full$UnmodifiedContractBaseAndAllOptionsValue
-fed_full$pChangeOrderUnmodifiedBaseAndAll[
-  is.na(fed_full$pChangeOrderUnmodifiedBaseAndAll) & fed_full$SumOfisChangeOrder==0]<-0
-
 #Boolean value for ceiling breaches
 #Safety measure to make sure we don't assume it's never NA.
 fed_full$CBre <- NA
@@ -275,12 +186,6 @@ fed_full$CBre[fed_full$ChangeOrderBaseAndAllOptionsValue > 0
 fed_full$CBre<-ordered(fed_full$CBre,levels=c("None","Ceiling Breach"))
 
 
-fed_full$qCRais <- cut2(
-  fed_full$pChangeOrderUnmodifiedBaseAndAll,c(
-    -0.001,
-    0.001,
-    0.15)
-)
 #                                               min(subset(
 #                                                   fed_full$pChangeOrderObligated,
 #                                                   fed_full$pChangeOrderObligated>0)),
@@ -357,6 +262,17 @@ fed_full$UnmodifiedPlaceCountryISO3[is.na(fed_full$UnmodifiedPlaceCountryISO3)]<
   fed_full$PlaceCountryISO3[is.na(fed_full$UnmodifiedPlaceCountryISO3)]
 fed_full$UnmodifiedPlaceCountryISO3<-factor(fed_full$UnmodifiedPlaceCountryISO3)
 
+fed_full$PlaceCountryISO3[is.na(fed_full$PlaceCountryISO3)&fed_full$AnyPlaceIsInternational]<-"*MU"
+fed_full$VendorCountryISO3[is.na(fed_full$VendorCountryISO3)&fed_full$AnyVendorIsInternational]<-"*MU"
+fed_full$OriginCountryISO3[is.na(fed_full$OriginCountryISO3)&fed_full$AnyOriginIsInternational]<-"*MU"
+
+
+fed_full$PlaceCountryISO3<-factor(fed_full$PlaceCountryISO3)
+fed_full$VendorCountryISO3<-factor(fed_full$VendorCountryISO3)
+fed_full$OriginCountryISO3<-factor(fed_full$OriginCountryISO3)
+
+
+
 
 
 fed_full<-fed_full[,!colnames(fed_full) %in% 
@@ -367,13 +283,13 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
    # "AnyPlaceInternational",
   "PlaceIsInternational"  ,
   "UnmodifiedPlaceIsInternational",
-   "VendorCountryISO3",
+   # "VendorCountryISO3",
   "UnmodifiedVendorCountryISO3" ,
   "ObligatedAmountVendorIsInternational"  ,
    "AnyVendorInternational",
   "VendorIsInternational",
   "UnmodifiedVendorIsInternational"         ,
-   "OriginCountryISO3",
+   # "OriginCountryISO3",
   "UnmodifiedOriginCountryISO3",
   "ObligatedAmountOriginIsInternational"    ,
    "AnyOriginInternational",
@@ -382,7 +298,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
   "pIsInternational" #This just isn't working
     )]
 
-
+fed_full$AnyPlaceInternational<-droplevels(fed_full$AnyPlaceInternational)
 save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 
@@ -391,155 +307,156 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 ##BucketPlatform
 ```{r BucketPlatform}
-# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
-#Note to identify is.defense here.
-fed_full<-csis360::read_and_join_experiment(data=fed_full
-  ,"Contract_SP_ContractBucketPlatformCustomer.txt"
-  ,path=""
-  ,"Data\\"
-  ,by="CSIScontractID"
-  ,new_var_checked=FALSE
-)
-# 
-# fed_full$ObligatedAmountIsProducts<-FactorToNumber(fed_full$ObligatedAmountIsProducts)
-# 
-# fed_full$ObligatedAmountIsServices<-FactorToNumber(fed_full$ObligatedAmountIsServices)
-# 
-# fed_full$ObligatedAmountIsRnD<-FactorToNumber(fed_full$ObligatedAmountIsRnD)
-# 
-# fed_full$pIsProducts <- fed_full$ObligatedAmountIsProducts/fed_full$Action.Obligation
-# fed_full$pIsProducts[is.na(fed_full$ObligatedAmountIsProducts)] <- 0
-# 
-# fed_full$pIsServices <- fed_full$ObligatedAmountIsServices/fed_full$Action.Obligation
-# fed_full$pIsServices[is.na(fed_full$ObligatedAmountIsServices)] <- 0
-# 
-# fed_full$pIsRnD <- fed_full$ObligatedAmountIsRnD/fed_full$Action.Obligation
-# fed_full$pIsRnD[is.na(fed_full$ObligatedAmountIsRnD)] <- 0
-
-#Need to update these to the new platform portfolios
-# 
-# 
-# fed_full$ObligatedAmountIsLand<-FactorToNumber(fed_full$ObligatedAmountIsLand)
-# 
-# fed_full$ObligatedAmountIsVessel<-FactorToNumber(fed_full$ObligatedAmountIsVessel)
-# 
-# 
-# fed_full$ObligatedAmountIsVessel<-FactorToNumber(fed_full$ObligatedAmountIsAir)
-# 
-# fed_full$ObligatedAmountIsVessel<-FactorToNumber(fed_full$ObligatedAmountIsOtherPP)
-# 
-# fed_full$ObligatedAmountIsWnA<-FactorToNumber(fed_full$ObligatedAmountIsWnA)
-# 
-# fed_full$ObligatedAmountIsMnS<-FactorToNumber(fed_full$ObligatedAmountIsMnS)
-# 
-# fed_full$ObligatedAmountIsEnC<-FactorToNumber(fed_full$ObligatedAmountIsEnC)
-# 
-# fed_full$ObligatedAmountIsFRSnC<-FactorToNumber(fed_full$ObligatedAmountIsFRSnC)
-# 
-# 
-# fed_full$pIsLand <- fed_full$ObligatedAmountIsLand/fed_full$Action.Obligation
-# fed_full$pIsLand[is.nan(fed_full$pIsLand)|is.infinite(fed_full$pIsLand)|is.na(fed_full$ObligatedAmountIsLand)] <- 0
-# 
-# fed_full$pIsVessel <- fed_full$ObligatedAmountIsVessel/fed_full$Action.Obligation
-# fed_full$pIsVessel[is.nan(fed_full$pIsVessel)|is.infinite(fed_full$pIsVessel)|is.na(fed_full$ObligatedAmountIsVessel)] <- 0
-# 
-# fed_full$pIsOtherPP <- fed_full$ObligatedAmountIsOtherPP/fed_full$Action.Obligation
-# fed_full$pIsOtherPP[is.nan(fed_full$pIsOtherPP)|is.infinite(fed_full$pIsOtherPP)|is.na(fed_full$ObligatedAmountIsOtherPP)] <- 0
-# 
-# fed_full$pIsAir <- fed_full$ObligatedAmountIsAir/fed_full$Action.Obligation
-# fed_full$pIsAir[is.nan(fed_full$pIsAir)|is.infinite(fed_full$pIsAir)|is.na(fed_full$ObligatedAmountIsAir)] <- 0
-# 
-# fed_full$pIsEnC <- fed_full$ObligatedAmountIsEnC/fed_full$Action.Obligation
-# fed_full$pIsEnC[is.nan(fed_full$pIsEnC)|is.infinite(fed_full$pIsEnC)|is.na(fed_full$ObligatedAmountIsEnC)] <- 0
-# 
-# fed_full$pIsFRSnC <- fed_full$ObligatedAmountIsFRSnC/fed_full$Action.Obligation
-# fed_full$pIsFRSnC[is.nan(fed_full$pIsFRSnC)|is.infinite(fed_full$pIsFRSnC)|is.na(fed_full$ObligatedAmountIsFRSnC)] <- 0
-# 
-# 
-# fed_full$pIsMnS <- fed_full$ObligatedAmountIsMnS/fed_full$Action.Obligation
-# fed_full$pIsMnS[is.nan(fed_full$pIsMnS)|is.infinite(fed_full$pIsMnS)|is.na(fed_full$ObligatedAmountIsMnS)] <- 0
-
-
-# TempList<-c("PlatformPortfolio","UnmodifiedPlatformPortfolio","ObligatedAmountIsAir","ObligatedAmountIsEnC","ObligatedAmountIsFRSnC","ObligatedAmountIsLand","ObligatedAmountIsMnS","ObligatedAmountIsOtherPP","ObligatedAmountIsVessel","ObligatedAmountIsWnA","ProductOrServiceArea","UnmodifiedProductOrServiceArea","SimpleArea","UnmodifiedSimpleArea","ObligatedAmountIsProducts","ObligatedAmountIsServices","ObligatedAmountIsRnD","MaxOfIsPossibleSoftwareEngineering")
-
-# TempList<-TempList[TempList %in% names(fed_full)]
-# fed_full<-subset(fed_full,select=-c(PlatformPortfolio,
-#                                                       UnmodifiedPlatformPortfolio,
-#                                                       SimpleArea,UnmodifiedSimpleArea ))
-
-NASimpleArea<-(fed_full$SimpleArea=="Mixed or Unlabeled" | is.na(fed_full$SimpleArea))&
-  !is.na(fed_full$UnmodifiedSimpleArea) & fed_full$UnmodifiedSimpleArea!="NULL"
-fed_full$SimpleArea[NASimpleArea]<-fed_full$UnmodifiedSimpleArea[NASimpleArea]
-# fed_full$SimpleArea[fed_full$SimpleArea=="Mixed or Unlabeled" & fed_full$pIsProducts>0.5]<-"Products"
-# fed_full$SimpleArea[fed_full$SimpleArea=="Mixed or Unlabeled" & fed_full$pIsServices>0.5]<-"Services"
-# fed_full$SimpleArea[fed_full$SimpleArea=="Mixed or Unlabeled" & fed_full$pIsRnD>0.5]<-"R&D"
-
-
-
-# fed_full$PlatformPortfolio.sum[fed_full$pIsLand>=0.75&
-#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Land Vehicles"
-# fed_full$PlatformPortfolio.sum[fed_full$pIsVessel>=0.75&
-#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Ships & Submarines"
-# fed_full$PlatformPortfolio.sum[fed_full$pIsAir>=0.75&
-#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Aircraft and Drones"
-# fed_full$PlatformPortfolio.sum[fed_full$pIsOtherPP>=0.75&
-#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Other"
-# fed_full$PlatformPortfolio.sum[fed_full$pIsWnA>=0.75&
-#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Weapons and Ammunition"
-# fed_full$PlatformPortfolio.sum[fed_full$pIsMnS>=0.75&
-#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Missile and Space Systems"
-# fed_full$PlatformPortfolio.sum[fed_full$pIsEnC>=0.75&
-#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Electronics and Communications"
-# fed_full$PlatformPortfolio.sum[fed_full$pIsFRSnC>=0.75&
-#     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Facilities and Construction"
-# 
-# fed_full$SoftwareEng<-factor(fed_full$MaxOfIsPossibleSoftwareEngineering,
-#   levels=c(0,1),
-#   labels=c("Not Software Eng.","Possible Software Eng.")
+#Not used in crisis
+# # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+# #Note to identify is.defense here.
+# fed_full<-csis360::read_and_join_experiment(data=fed_full
+#   ,"Contract.SP_ContractBucketPlatformCustomer.txt"
+#   ,path=""
+#   ,"Data\\"
+#   ,by="CSIScontractID"
+#   ,new_var_checked=FALSE
 # )
+# # 
+# # fed_full$ObligatedAmountIsProducts<-FactorToNumber(fed_full$ObligatedAmountIsProducts)
+# # 
+# # fed_full$ObligatedAmountIsServices<-FactorToNumber(fed_full$ObligatedAmountIsServices)
+# # 
+# # fed_full$ObligatedAmountIsRnD<-FactorToNumber(fed_full$ObligatedAmountIsRnD)
+# # 
+# # fed_full$pIsProducts <- fed_full$ObligatedAmountIsProducts/fed_full$Action.Obligation
+# # fed_full$pIsProducts[is.na(fed_full$ObligatedAmountIsProducts)] <- 0
+# # 
+# # fed_full$pIsServices <- fed_full$ObligatedAmountIsServices/fed_full$Action.Obligation
+# # fed_full$pIsServices[is.na(fed_full$ObligatedAmountIsServices)] <- 0
+# # 
+# # fed_full$pIsRnD <- fed_full$ObligatedAmountIsRnD/fed_full$Action.Obligation
+# # fed_full$pIsRnD[is.na(fed_full$ObligatedAmountIsRnD)] <- 0
 # 
-# fed_full$SoftwareEng[is.na(fed_full$SoftwareEng)&
-#     !is.na(fed_full$SimpleArea)]<-"Not Software Eng."
-
-
-
-fed_full$PlatformPortfolio<-factor(fed_full$PlatformPortfolio)
-fed_full$UnmodifiedPlatformPortfolio<-factor(fed_full$UnmodifiedPlatformPortfolio)
-
-fed_full$ProductOrServiceArea<-factor(fed_full$ProductOrServiceArea)
-fed_full$UnmodifiedProductOrServiceArea<-factor(fed_full$UnmodifiedProductOrServiceArea)
-
-fed_full$SimpleArea<-factor(fed_full$SimpleArea)
-fed_full$UnmodifiedSimpleArea<-factor(fed_full$UnmodifiedSimpleArea)
-
-
-fed_full<-subset(fed_full,select=-c(
-  # UnmodifiedSimpleArea,
-  # SimpleArea,
-  MaxOfIsPossibleSoftwareEngineering
-  # ObligatedAmountIsProducts,
-  # ObligatedAmountIsServices,
-  # ObligatedAmountIsRnD,
-  # ObligatedAmountIsLand,
-  # ObligatedAmountIsVessel,
-  # ObligatedAmountIsOtherPP,
-  # ObligatedAmountIsAir,
-  # ObligatedAmountIsEnC,
-  # ObligatedAmountIsFRSnC,
-  # ObligatedAmountIsMnS,
-  # ObligatedAmountIsWnA
-  
-  
-))
-
-
-fed_full$AnyPlaceInternational<-droplevels(fed_full$AnyPlaceInternational)
-
-
-fed_full$SimpleArea<-droplevels(fed_full$SimpleArea)
-
-
-save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+# #Need to update these to the new platform portfolios
+# # 
+# # 
+# # fed_full$ObligatedAmountIsLand<-FactorToNumber(fed_full$ObligatedAmountIsLand)
+# # 
+# # fed_full$ObligatedAmountIsVessel<-FactorToNumber(fed_full$ObligatedAmountIsVessel)
+# # 
+# # 
+# # fed_full$ObligatedAmountIsVessel<-FactorToNumber(fed_full$ObligatedAmountIsAir)
+# # 
+# # fed_full$ObligatedAmountIsVessel<-FactorToNumber(fed_full$ObligatedAmountIsOtherPP)
+# # 
+# # fed_full$ObligatedAmountIsWnA<-FactorToNumber(fed_full$ObligatedAmountIsWnA)
+# # 
+# # fed_full$ObligatedAmountIsMnS<-FactorToNumber(fed_full$ObligatedAmountIsMnS)
+# # 
+# # fed_full$ObligatedAmountIsEnC<-FactorToNumber(fed_full$ObligatedAmountIsEnC)
+# # 
+# # fed_full$ObligatedAmountIsFRSnC<-FactorToNumber(fed_full$ObligatedAmountIsFRSnC)
+# # 
+# # 
+# # fed_full$pIsLand <- fed_full$ObligatedAmountIsLand/fed_full$Action.Obligation
+# # fed_full$pIsLand[is.nan(fed_full$pIsLand)|is.infinite(fed_full$pIsLand)|is.na(fed_full$ObligatedAmountIsLand)] <- 0
+# # 
+# # fed_full$pIsVessel <- fed_full$ObligatedAmountIsVessel/fed_full$Action.Obligation
+# # fed_full$pIsVessel[is.nan(fed_full$pIsVessel)|is.infinite(fed_full$pIsVessel)|is.na(fed_full$ObligatedAmountIsVessel)] <- 0
+# # 
+# # fed_full$pIsOtherPP <- fed_full$ObligatedAmountIsOtherPP/fed_full$Action.Obligation
+# # fed_full$pIsOtherPP[is.nan(fed_full$pIsOtherPP)|is.infinite(fed_full$pIsOtherPP)|is.na(fed_full$ObligatedAmountIsOtherPP)] <- 0
+# # 
+# # fed_full$pIsAir <- fed_full$ObligatedAmountIsAir/fed_full$Action.Obligation
+# # fed_full$pIsAir[is.nan(fed_full$pIsAir)|is.infinite(fed_full$pIsAir)|is.na(fed_full$ObligatedAmountIsAir)] <- 0
+# # 
+# # fed_full$pIsEnC <- fed_full$ObligatedAmountIsEnC/fed_full$Action.Obligation
+# # fed_full$pIsEnC[is.nan(fed_full$pIsEnC)|is.infinite(fed_full$pIsEnC)|is.na(fed_full$ObligatedAmountIsEnC)] <- 0
+# # 
+# # fed_full$pIsFRSnC <- fed_full$ObligatedAmountIsFRSnC/fed_full$Action.Obligation
+# # fed_full$pIsFRSnC[is.nan(fed_full$pIsFRSnC)|is.infinite(fed_full$pIsFRSnC)|is.na(fed_full$ObligatedAmountIsFRSnC)] <- 0
+# # 
+# # 
+# # fed_full$pIsMnS <- fed_full$ObligatedAmountIsMnS/fed_full$Action.Obligation
+# # fed_full$pIsMnS[is.nan(fed_full$pIsMnS)|is.infinite(fed_full$pIsMnS)|is.na(fed_full$ObligatedAmountIsMnS)] <- 0
+# 
+# 
+# # TempList<-c("PlatformPortfolio","UnmodifiedPlatformPortfolio","ObligatedAmountIsAir","ObligatedAmountIsEnC","ObligatedAmountIsFRSnC","ObligatedAmountIsLand","ObligatedAmountIsMnS","ObligatedAmountIsOtherPP","ObligatedAmountIsVessel","ObligatedAmountIsWnA","ProductOrServiceArea","UnmodifiedProductOrServiceArea","SimpleArea","UnmodifiedSimpleArea","ObligatedAmountIsProducts","ObligatedAmountIsServices","ObligatedAmountIsRnD","MaxOfIsPossibleSoftwareEngineering")
+# 
+# # TempList<-TempList[TempList %in% names(fed_full)]
+# # fed_full<-subset(fed_full,select=-c(PlatformPortfolio,
+# #                                                       UnmodifiedPlatformPortfolio,
+# #                                                       SimpleArea,UnmodifiedSimpleArea ))
+# 
+# NASimpleArea<-(fed_full$SimpleArea=="Mixed or Unlabeled" | is.na(fed_full$SimpleArea))&
+#   !is.na(fed_full$UnmodifiedSimpleArea) & fed_full$UnmodifiedSimpleArea!="NULL"
+# fed_full$SimpleArea[NASimpleArea]<-fed_full$UnmodifiedSimpleArea[NASimpleArea]
+# # fed_full$SimpleArea[fed_full$SimpleArea=="Mixed or Unlabeled" & fed_full$pIsProducts>0.5]<-"Products"
+# # fed_full$SimpleArea[fed_full$SimpleArea=="Mixed or Unlabeled" & fed_full$pIsServices>0.5]<-"Services"
+# # fed_full$SimpleArea[fed_full$SimpleArea=="Mixed or Unlabeled" & fed_full$pIsRnD>0.5]<-"R&D"
+# 
+# 
+# 
+# # fed_full$PlatformPortfolio.sum[fed_full$pIsLand>=0.75&
+# #     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Land Vehicles"
+# # fed_full$PlatformPortfolio.sum[fed_full$pIsVessel>=0.75&
+# #     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Ships & Submarines"
+# # fed_full$PlatformPortfolio.sum[fed_full$pIsAir>=0.75&
+# #     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Aircraft and Drones"
+# # fed_full$PlatformPortfolio.sum[fed_full$pIsOtherPP>=0.75&
+# #     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Other"
+# # fed_full$PlatformPortfolio.sum[fed_full$pIsWnA>=0.75&
+# #     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Weapons and Ammunition"
+# # fed_full$PlatformPortfolio.sum[fed_full$pIsMnS>=0.75&
+# #     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Missile and Space Systems"
+# # fed_full$PlatformPortfolio.sum[fed_full$pIsEnC>=0.75&
+# #     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Electronics and Communications"
+# # fed_full$PlatformPortfolio.sum[fed_full$pIsFRSnC>=0.75&
+# #     fed_full$PlatformPortfolio.sum=="Unlabeled"]<-"Facilities and Construction"
+# # 
+# # fed_full$SoftwareEng<-factor(fed_full$MaxOfIsPossibleSoftwareEngineering,
+# #   levels=c(0,1),
+# #   labels=c("Not Software Eng.","Possible Software Eng.")
+# # )
+# # 
+# # fed_full$SoftwareEng[is.na(fed_full$SoftwareEng)&
+# #     !is.na(fed_full$SimpleArea)]<-"Not Software Eng."
+# 
+# 
+# 
+# fed_full$PlatformPortfolio<-factor(fed_full$PlatformPortfolio)
+# fed_full$UnmodifiedPlatformPortfolio<-factor(fed_full$UnmodifiedPlatformPortfolio)
+# 
+# fed_full$ProductOrServiceArea<-factor(fed_full$ProductOrServiceArea)
+# fed_full$UnmodifiedProductOrServiceArea<-factor(fed_full$UnmodifiedProductOrServiceArea)
+# 
+# fed_full$SimpleArea<-factor(fed_full$SimpleArea)
+# fed_full$UnmodifiedSimpleArea<-factor(fed_full$UnmodifiedSimpleArea)
+# 
+# 
+# fed_full<-subset(fed_full,select=-c(
+#   # UnmodifiedSimpleArea,
+#   # SimpleArea,
+#   MaxOfIsPossibleSoftwareEngineering
+#   # ObligatedAmountIsProducts,
+#   # ObligatedAmountIsServices,
+#   # ObligatedAmountIsRnD,
+#   # ObligatedAmountIsLand,
+#   # ObligatedAmountIsVessel,
+#   # ObligatedAmountIsOtherPP,
+#   # ObligatedAmountIsAir,
+#   # ObligatedAmountIsEnC,
+#   # ObligatedAmountIsFRSnC,
+#   # ObligatedAmountIsMnS,
+#   # ObligatedAmountIsWnA
+#   
+#   
+# ))
+# 
+# 
+# 
+# 
+# 
+# fed_full$SimpleArea<-droplevels(fed_full$SimpleArea)
+# 
+# 
+# save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 ```
 
@@ -580,19 +497,6 @@ fed_full$UnmodifiedNumberOfOffersReceived<-impute_unmodified(
   fed_full$NumberOfOffersReceived
 )
 
-fed_full$Offr <- cut2(fed_full$UnmodifiedNumberOfOffersReceived,cuts=c(1,2,3,5))
-
-
-
-if (all(levels(fed_full$Offr)==c("  1","  2","[  3,  5)","[  5,999]"))){
-  fed_full$Offr<-factor(fed_full$Offr, 
-    levels=c("  1","  2","[  3,  5)","[  5,999]"),
-    labels=c("1","2","3-4","5+"),
-    ordered=TRUE
-  )
-}
-
-
 
 
 #Competition
@@ -613,11 +517,7 @@ fed_full$UnmodifiedIsSomeCompetition[is.na(fed_full$UnmodifiedIsSomeCompetition)
     fed_full$UnmodifiedNumberOfOffersReceived>1
   ]<-1
 
-#Set number of offers =1 when there is a NA and no competition
-fed_full$Offr[is.na(fed_full$Offr)&
-    !is.na(fed_full$UnmodifiedIsSomeCompetition)&
-    fed_full$UnmodifiedIsSomeCompetition==0
-  ]<-"1"
+
 
 fed_full$UnmodifiedNumberOfOffersReceived[is.na(fed_full$UnmodifiedNumberOfOffersReceived)&
     !is.na(fed_full$UnmodifiedIsSomeCompetition)&
@@ -910,7 +810,7 @@ summary(fed_full$FxCb)
 #Imput UCA unmodified values when consistent for the remainder of the vehicle
 fed_full$UnmodifiedIsUCA[is.na(fed_full$UnmodifiedIsUCA)&
   !is.na(fed_full$IsUCA)]<-
-  fed_full$UCA[is.na(fed_full$UnmodifiedIsUCA)&
+  fed_full$IsUCA[is.na(fed_full$UnmodifiedIsUCA)&
   !is.na(fed_full$IsUCA)]
 
 
@@ -992,6 +892,7 @@ fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,path=""
   ,"Data\\"
   ,by="CSIScontractID"
+  ,col_types="icdcdcdcd"
   ,new_var_checked=FALSE
 )
 
@@ -1020,7 +921,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
       # "topPrincipalNAICScode",
       "topPrincipalNAICSamount")]
 # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
-
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 ```
 
@@ -1028,25 +929,27 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
 ```{r DecisionTree}
 # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
 
-fed<-csis360::read_and_join_experiment(data=fed,
-    lookup_file="Overall_Contract_SP_ContractBudgetDecisionTree.txt",
+fed_full<-csis360::read_and_join_experiment(data=fed_full,
+    lookup_file="Contract.SP_ContractBudgetDecisionTree.txt",
   path="",
   directory = "Data/",
   by="CSIScontractID",
   new_var_checked=FALSE
 )
-fed$MaxOfDecisionTree<-factor(fed$MaxOfDecisionTree)
-fed$MaxOfDecisionTreeStep4 <-factor(fed$MaxOfDecisionTreeStep4 )
-fed$MinOfDecisionTree <-factor(fed$MinOfDecisionTree )
-fed$MinOfDecisionTreeStep4 <-factor(fed$MinOfDecisionTreeStep4 )
+fed_full$MaxOfDecisionTree<-factor(fed_full$MaxOfDecisionTree)
+fed_full$MaxOfDecisionTreeStep4 <-factor(fed_full$MaxOfDecisionTreeStep4 )
+fed_full$MinOfDecisionTree <-factor(fed_full$MinOfDecisionTree )
+fed_full$MinOfDecisionTreeStep4 <-factor(fed_full$MinOfDecisionTreeStep4 )
 
 
+save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 ```
 
 #Final Cleanup and Output
 ##Applying lookups
 ```{r PostApply}
+# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
 # debug(apply_lookups)
 
 
@@ -1071,17 +974,17 @@ fed_full<-apply_lookups(Path,fed_full)
 # fed_full$SubCustomer.sum<-droplevels(fed_full$SubCustomer.sum)
 
 
-fed_full<-csis360::read_and_join(
-  fed_full,
-  "LOOKUP_PlatformPortfolio.csv",
-  by="PlatformPortfolio",
-  # replace_na_var=NULL,
-  # overlap_var_replaced=TRUE,
-  add_var="PlatformPortfolio.sum"
-  # new_var_checked=TRUE,
-  # skip_check_var="CHPKisCrisisFunding"
-  )
-fed_full$PlatformPortfolio.sum<-factor(fed_full$PlatformPortfolio.sum)
+# fed_full<-csis360::read_and_join(
+#   fed_full,
+#   "LOOKUP_PlatformPortfolio.csv",
+#   by="PlatformPortfolio",
+#   # replace_na_var=NULL,
+#   # overlap_var_replaced=TRUE,
+#   add_var="PlatformPortfolio.sum"
+#   # new_var_checked=TRUE,
+#   # skip_check_var="CHPKisCrisisFunding"
+#   )
+# fed_full$PlatformPortfolio.sum<-factor(fed_full$PlatformPortfolio.sum)
 
 
 
@@ -1094,6 +997,7 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ```{r DatasetOutput}
 fed<-rename_dataset(fed_full)
 fed<-fed[,colnames(fed) %in% c(
+  "CSIScontractID",
   # IsIDV,
   "FxCb",
   "Fee",
@@ -1109,6 +1013,9 @@ fed<-fed[,colnames(fed) %in% c(
   "What",
   "Where",
   "Intl",
+  "PlaceCountryISO3",
+  "VendorCountryISO3",
+  "OriginCountryISO3",
   # "LowCeil",
   "Ceil",
   "Dur",
@@ -1139,26 +1046,25 @@ fed<-fed[,colnames(fed) %in% c(
 )]
 # 
 
-   
-
-write.table(fed
-  ,file=paste("data\\Federal_contract_CSIScontractID_detail.csv"
-    ,sep=""
-  )
-  #   ,header=TRUE
-  , sep=","
-  , row.names=FALSE
-  , append=FALSE
-)
-
+#    
+# write.table(fed
+#   ,file=paste("data\\Federal_contract_CSIScontractID_detail.csv"
+#     ,sep=""
+#   )
+#   #   ,header=TRUE
+#   , sep=","
+#   , row.names=FALSE
+#   , append=FALSE
+# )
 
 
 
-summary(fed$Agency[fed$Who=="Uncategorized"])
-def<-fed[fed$Who!="Civilian",]
-save(def,file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
+
+# summary(fed$Agency[fed$Who=="Uncategorized"])
+# def<-fed[fed$Who!="Civilian",]
+# save(def,file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
  save(fed,file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
-  
+  # load("Data\\Federal_contract_CSIScontractID_detail.Rdata")
 #Strip out the cuts
 
 

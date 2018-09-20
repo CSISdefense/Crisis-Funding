@@ -22,7 +22,7 @@ rename_dataset<-function(contract){
   colnames(contract)[colnames(contract)=="LabeledMDAP"]<-"MDAP"
   colnames(contract)[colnames(contract)=="qNChg"]<-"NChg"
   colnames(contract)[colnames(contract)=="qCRais"]<-"CRai"
-  colnames(contract)[colnames(contract) %in% c("StartFiscal_Year","StartFiscalYear"]<-"StartFY"
+  colnames(contract)[colnames(contract) %in% c("StartFiscal_Year","StartFiscalYear")]<-"StartFY"
   colnames(contract)[colnames(contract)=="topContractingOfficeAgencyID"]<-"Agency"
   colnames(contract)[colnames(contract)=="topContractingOfficeID"]<-"Office"
   colnames(contract)[colnames(contract) %in% c("topProductOrServiceCode","ProductOrServiceCode")]<-"ProdServ"
@@ -816,3 +816,150 @@ input_contract_psc_office_naics<-function(contract,
   # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
   
 }
+
+
+sample_prep<-function(contract){
+  #What - Product Or Service Code
+  colnames(contract)[colnames(contract)=="ProdServ"]<-"ProductOrServiceCode"
+  contract$ProductOrServiceCode<-as.character(contract$ProductOrServiceCode)
+  contract<-csis360::read_and_join( contract,
+                                "ProductOrServiceCodes.csv",
+                                path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                                directory="",
+                                by="ProductOrServiceCode",
+                                add_var=c("Simple",
+                                          "ProductServiceOrRnDarea",
+                                          "ProductOrServiceArea",
+                                          "HostNation3Category",
+                                          "CrisisProductOrServiceArea",
+                                          "ProductOrServiceCodeText"
+                                ),
+                                new_var_checked=FALSE)
+  contract$ProductServiceOrRnDarea<-factor(contract$ProductServiceOrRnDarea)
+  contract$ProductOrServiceArea<-factor(contract$ProductOrServiceArea)
+  contract$HostNation3Category<-factor(contract$HostNation3Category)
+  contract$CrisisProductOrServiceArea<-factor(contract$CrisisProductOrServiceArea)
+  contract$ProductOrServiceCodeText<-factor(contract$ProductOrServiceCodeText)
+  contract$ProductOrServiceCode<-factor(contract$ProductOrServiceCode)
+  contract$ServCommCons<-contract$HostNation3Category
+  contract$CPSA<-as.character(contract$CrisisProductOrServiceArea)
+  contract$CPSA<-factor(gsub(" & ","+",contract$CPSA))
+  
+  contract$PSA<-as.character(contract$ProductOrServiceArea)
+  contract$PSA<-gsub(" & ","+",contract$PSA)
+  contract$b_NoComp<-!contract$b_Comp
+  colnames(contract)[colnames(contract)=="ProductOrServiceCode"]<-"ProdServ"
+  
+  
+  
+  
+  #Who - Agency
+  colnames(contract)[colnames(contract)=="Agency"]<-"AgencyID"
+  contract<-csis360::read_and_join( contract,
+                                    "Agency_AgencyID.csv",
+                                    path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                                    directory="",
+                                    by="AgencyID",
+                                    add_var=c("AgencyIDtext",
+                                              "DepartmentID",
+                                              "Customer",
+                                              "SubCustomer"
+                                    ),
+                                    new_var_checked=FALSE)
+  colnames(contract)[colnames(contract)=="AgencyID"]<-"Agency"
+  
+  if(!"Is.Defense" %in% colnames(contract)){
+  contract$Is.Defense<-contract$Customer
+    levels(contract$Is.Defense)<- list("Defense"=c("Defense"),
+                                             "Civilian"=c("DHS","Energy","GSA","HHS","NASA",
+                                                          "Other Agencies","State and IAP","VA"))
+  }
+  contract$Customer<-factor(contract$Customer)
+  contract$DepartmentID<-factor(contract$DepartmentID)
+  contract$SubCustomer<-factor(contract$SubCustomer)
+  
+  
+  #Where - Place, Vendor, Origin
+  
+  iso3(contract,"PlaceCountryISO3","place")
+  iso3(contract,"VendorCountryISO3","vendor")
+  iso3(contract,"OriginCountryISO3","origin")
+  
+  contract
+}
+
+iso3<-function(contract,colname,prefix){
+  colnames(contract)[colnames(contract)==colname]<-"alpha.3"
+  contract<-csis360::read_and_join( contract,
+                                    "Location_CountryCodes.csv",
+                                    path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                                    directory="location/",
+                                    by="alpha.3",
+                                    add_var=c("CrisisFundingTheater",
+                                              "CombatantCommand",
+                                              "isforeign",
+                                              "SubCustomer"
+                                    ),
+                                    new_var_checked=FALSE)
+  colnames(contract)[colnames(contract)=="alpha.3"]<-colname
+  contract$CrisisFundingTheater<-factor(contract$CrisisFundingTheater)
+  contract$CombatantCommand<-factor(contract$CombatantCommand)
+  contract$isforeign<-factor(contract$isforeign)
+  colnames(contract)[colnames(contract) %in% c("CrisisFundingTheater",
+                                               "CombatantCommand",
+                                               "isforeign")]<-
+    paste(prefix,
+          colnames(contract)[colnames(contract) %in% c("CrisisFundingTheater",
+                                                       "CombatantCommand",
+                                                       "isforeign")]
+          ,sep="_"
+    )
+  contract
+}
+
+get_complete_list<-function(contract,crisis=FALSE){
+  complete<-!is.na(contract$b_Term)&
+    !is.na(contract$b_CBre)&
+    !is.na(contract$b_Comp)&
+    !is.na(contract$b_Urg)&
+    !is.na(contract$cl_Ceil)&
+    !is.na(contract$cl_Days)&
+    !is.na(contract$Veh) &
+    !is.na(contract$n_Fixed)&
+    !is.na(contract$b_Intl)&
+    !is.na(contract$b_UCA)&
+    !is.na(contract$ProdServ)&
+    !is.na(contract$Crisis)&
+    !is.na(contract$Office)
+    # !is.na(contract$OffCri)&
+    # !is.na(contract$OffIntl)&
+    # !is.na(contract$Is.Defense)
+  # !is.na(contract$cl_HHI_lag1)
+
+  complete
+}
+
+#Creating crisis sample
+get_crisis_sample_with_na<-function(contract,large=FALSE){
+  batch_size<-100000
+  if(large==TRUE)
+    batch_size<-300000
+  
+  crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Dis"),]
+  oco<-fed[fed$Crisis %in% c("OCO"),]
+  if(large==FALSE)
+    oco<-oco[sample(nrow(oco),batch_size),]
+  crisis_with_na<-rbind(crisis_with_na,oco)
+  rm(oco)
+  other_intl<-fed[fed$Crisis %in% c("Other")&fed$b_Intl==1,]
+  other_dom<-fed[fed$Crisis %in% c("Other")&(fed$b_Intl==0
+                                             |is.na(fed$b_Intl)),]#This used to be OffCri
+  other_dom<-other_dom[sample(nrow(other_dom),batch_size),]
+  other_intl<-other_intl[sample(nrow(other_intl),batch_size),]
+  crisis_with_na<-rbind(crisis_with_na,other_dom,other_intl)
+  rm(other_dom,other_intl)
+  
+  crisis_with_na<-sample_prep(crisis_with_na)
+  
+}
+

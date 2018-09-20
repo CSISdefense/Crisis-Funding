@@ -37,16 +37,17 @@ BEGIN
 		--Copy the start of your query here
 	 
 		select distinct cc.[CSIScontractID]
-      ,[PlatformPortfolio]
+      ,cc.[PlatformPortfolio]
       ,[UnmodifiedPlatformPortfolio]
-	       ,[ObligatedAmountIsAir]
-      ,[ObligatedAmountIsEnC]
+      ,[ObligatedAmountIsAir]
+      ,[ObligatedAmountIsECnS]
       ,[ObligatedAmountIsFRSnC]
       ,[ObligatedAmountIsLand]
-      ,[ObligatedAmountIsMnS]
-      ,[ObligatedAmountIsOtherPP]
+      ,[ObligatedAmountIsMisDef]
+      ,[ObligatedAmountIsSpace]
       ,[ObligatedAmountIsVessel]
-      ,[ObligatedAmountIsWnA]
+      ,[ObligatedAmountIsOrd]
+      ,[ObligatedAmountIsOtherPP]
       ,[ProductOrServiceArea]
       ,[UnmodifiedProductOrServiceArea]
       ,[SimpleArea]
@@ -54,7 +55,7 @@ BEGIN
       ,[ObligatedAmountIsProducts]
       ,[ObligatedAmountIsServices]
       ,[ObligatedAmountIsRnD]
-	  ,MaxOfIsPossibleSoftwareEngineering
+      ,[MaxOfIsPossibleSoftwareEngineering]
 from contract.fpds f
 inner join contract.CSIStransactionID ct
 on ct.CSIStransactionID=f.CSIStransactionID
@@ -67,17 +68,18 @@ where a.customer=@Customer
 	ELSE --Begin sub path wall Customers will be returned
 		BEGIN
 		--Copy the start of your query here
-		select distinct cc.[CSIScontractID]
+		select distinct [CSIScontractID]
       ,[PlatformPortfolio]
       ,[UnmodifiedPlatformPortfolio]
-	       ,[ObligatedAmountIsAir]
-      ,[ObligatedAmountIsEnC]
+      ,[ObligatedAmountIsAir]
+      ,[ObligatedAmountIsECnS]
       ,[ObligatedAmountIsFRSnC]
       ,[ObligatedAmountIsLand]
-      ,[ObligatedAmountIsMnS]
-      ,[ObligatedAmountIsOtherPP]
+      ,[ObligatedAmountIsMisDef]
+      ,[ObligatedAmountIsSpace]
       ,[ObligatedAmountIsVessel]
-      ,[ObligatedAmountIsWnA]
+      ,[ObligatedAmountIsOrd]
+      ,[ObligatedAmountIsOtherPP]
       ,[ProductOrServiceArea]
       ,[UnmodifiedProductOrServiceArea]
       ,[SimpleArea]
@@ -85,7 +87,7 @@ where a.customer=@Customer
       ,[ObligatedAmountIsProducts]
       ,[ObligatedAmountIsServices]
       ,[ObligatedAmountIsRnD]
-	  ,MaxOfIsPossibleSoftwareEngineering
+      ,[MaxOfIsPossibleSoftwareEngineering]
 from contract.ContractPlatformBucket cc
 
 		--End of your query

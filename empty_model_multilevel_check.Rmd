@@ -1,0 +1,1541 @@
+---
+title: "empty_model_multilevel_check"
+author: "Greg Sanders"  
+date: "August 15, 2018"
+output: html_document
+---
+
+
+# Setup
+```{r Libraries, echo = FALSE}
+library(csis360)
+library(ggplot2)
+library(dplyr)
+library(arm)
+library(R2WinBUGS)
+library(Hmisc)
+library(sjstats)
+library(optimx)
+library(lme4)
+source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
+
+
+axis.text.size<-10
+strip.text.size<-10
+legend.text.size<-8
+# table.text.size<-5.75
+title.text.size<-12
+geom.text.size<-12
+
+main.text.size<-1
+note.text.size<-1.40
+
+
+```
+
+## Load in data
+```{r Sample}
+ load("Data\\crisis_smp.Rdata")
+# save(large_crisis_smp,large_crisis_smp,file="data//large_crisis_smp")
+
+
+
+# complete<-!is.na(def$b_Term)&
+#   !is.na(def$b_CBre)&
+#   !is.na(def$n_Comp)&
+#   !is.na(def$l_Ceil)&
+#   !is.na(def$l_Days)&
+#   !is.na(def$Veh) &
+#   !is.na(def$n_Fixed)&
+#   !is.na(def$b_Intl)&
+#   !is.na(def$b_UCA)&
+#   !is.na(def$ProdServ)&
+#   !is.na(def$PSR)&
+#   !is.na(def$cl_def6_HHI_lag1)&
+#   !is.na(def$US6_avg_sal_lag1)
+# # 
+# large_crisis_smp<-def[complete,]
+# #8818392  to 8818392
+# 13057769 to 8335209
+# nrow(def[!complete,])/nrow(def)
+# sum(def[!complete,]$Action.Obligation,na.rm=TRUE)/sum(def$Action.Obligation,na.rm=TRUE)
+# 
+# large_crisis_smp<-large_crisis_smp[sample(nrow(large_crisis_smp),1000000),]
+# large_crisis_smp<-large_crisis_smp[sample(nrow(large_crisis_smp),250000),]
+# save(file="data//def_sample.Rdata",large_crisis_smp,large_crisis_smp)
+
+# levels(large_crisis_smp$Intl)<- list("Just U.S."=c("Just U.S."), 
+#                                 "Any Intl."=c("Any International"))
+# levels(large_crisis_smp$Intl)<- list("Just U.S."=c("Just U.S."), 
+#                                 "Any Intl."=c("Any International"))
+
+
+```
+
+#ICC Testing
+## Product Or Service Codes
+### Product Or Service Code
+```{r ProdServ}
+load(file="Output//psc_empty_models.rdata")
+
+if(!exists("psc_cbre"))
+psc_cbre <- glmer(data=large_crisis_smp,
+                 b_CBre ~ (1 | ProdServ)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_cbre)
+
+
+if(!exists("psc_term"))
+psc_term <- glmer(data=large_crisis_smp,
+                 b_Term ~ (1 | ProdServ)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_term)
+
+
+```
+34% for Ceiling Breaches and 22% for Terminations, not a bad start.
+
+### Crisis Product Or Service Area
+```{r CrisisProductOrServiceArea}
+large_crisis_smp$CrisisProductOrServiceArea
+if(!exists("cpsa_cbre"))
+cpsa_cbre <- glmer(data=large_crisis_smp,
+                 b_CBre ~ (1 | CrisisProductOrServiceArea)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_cbre)
+
+if(!exists("cpsa_term"))
+cpsa_term <- glmer(data=large_crisis_smp,
+                 b_Term ~ (1 | CrisisProductOrServiceArea)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_term)
+
+
+```
+23% for Ceiling Breaches and 18% for Terminations. In particular for terminations, these high level categories seem to capture much of the differences without needing as much detail.
+
+### Service / Commdity / Construction
+```{r PSR}
+large_crisis_smp$ServCommCons<-large_crisis_smp$HostNation3Category
+
+
+if(!exists("ServCommCons_cbre"))
+ServCommCons_cbre <- glmer(data=large_crisis_smp,
+                 b_CBre ~ (1 | ServCommCons)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,ServCommCons_cbre)
+
+
+if(!exists("ServCommCons_term"))
+ServCommCons_term <- glmer(data=large_crisis_smp,
+                 b_Term ~ (1 | ServCommCons)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,ServCommCons_term)
+
+
+```
+
+
+### Crisis Product Or Service Area
+```{r CrisisProductOrServiceArea}
+large_crisis_smp$CrisisProductOrServiceArea
+if(!exists("cpsa_cbre"))
+cpsa_cbre <- glmer(data=large_crisis_smp,
+                 b_CBre ~ (1 | CrisisProductOrServiceArea)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_cbre)
+
+if(!exists("cpsa_term"))
+cpsa_term <- glmer(data=large_crisis_smp,
+                 b_Term ~ (1 | CrisisProductOrServiceArea)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_term)
+
+
+```
+23% for Ceiling Breaches and 18% for Terminations. In particular for terminations, these high level categories seem to capture much of the differences without needing as much detail.
+
+### Product Or Service Code two digit
+```{r PSC2}
+large_crisis_smp$psc2<-factor(substring(large_crisis_smp$ProdServ,1,2))
+summary(factor(large_crisis_smp$psc2))
+
+
+
+if(!exists("psc2_cbre"))
+psc2_cbre <- glmer(data=large_crisis_smp,
+                 b_CBre ~ (1 | psc2)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,psc2_cbre)
+
+
+if(!exists("psc2_term"))
+psc2_term <- glmer(data=large_crisis_smp,
+                 b_Term ~ (1 | psc2)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,psc2_term)
+
+
+```
+
+
+Surprisingly, ServCommCons rockets to 31 percent ICC for ceiling breaches, while only achieving 6 percent for terminations. 
+### SSc/PSCA/ProdServ
+Three levels
+```{r ProdServ3level}
+
+
+if(!exists("psc_all3_cbre"))
+psc_all3_cbre <- glmer(data=large_crisis_smp,
+                 b_CBre ~ (1 | ServCommCons/CrisisProductOrServiceArea/ProdServ)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_all3_cbre)
+
+
+if(!exists("psc_all3_term"))
+psc_all3_term <- glmer(data=large_crisis_smp,
+                 b_Term ~ (1 | ServCommCons/CrisisProductOrServiceArea/ProdServ)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_all3_term)
+
+
+```
+For ceiling breaches, the middle layer of crisisproductorservice area adds fairly little. The three levels together account  for 36 percent of the variation, a bit over productserivcecode alone. With terminations, there's a bit of an increase over product or service code alone, but servcommcons adds no value.
+
+### CPSA/ProdServ
+Three levels
+```{r Area_Code}
+
+
+if(!exists("cpsa_psc_cbre"))
+cpsa_psc_cbre <- glmer(data=large_crisis_smp,
+                 b_CBre ~ (1 | CrisisProductOrServiceArea/ProdServ)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_psc_cbre)
+
+
+if(!exists("cpsa_psc_term"))
+cpsa_psc_term <- glmer(data=large_crisis_smp,
+                 b_Term ~ (1 | CrisisProductOrServiceArea/ProdServ)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_psc_term)
+
+
+```
+Oddly, crisis product or service area just doesn't seem to add anything to the 
+
+### SSc/ProdServ
+The other two levels combined.
+```{r ProdServ3level}
+
+
+if(!exists("ssc_psc_cbre"))
+ssc_psc_cbre <- glmer(data=large_crisis_smp,
+                 b_CBre ~ (1 | ServCommCons/ProdServ)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_psc_cbre)
+
+
+if(!exists("ssc_psc_term"))
+ssc_psc_term <- glmer(data=large_crisis_smp,
+                      b_Term ~ (1 | ServCommCons/ProdServ)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_psc_term)
+
+
+```
+ServCommCons continues to add no value to the termination model while being quite important to ceiling breaches.
+
+### ProdServ2/4
+The other two levels combined.
+```{r ProdServ24level}
+
+
+if(!exists("psc24_cbre"))
+psc24_cbre <- glmer(data=large_crisis_smp,
+                 b_CBre ~ (1 | psc2/ProdServ)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,psc24_cbre)
+
+
+if(!exists("psc24_term"))
+psc24_term <- glmer(data=large_crisis_smp,
+                      b_Term ~ (1 | psc2/ProdServ)
+                  , family=binomial(link="logit"))
+get_icc(display=TRUE,psc24_term)
+
+
+```
+
+### Compare ProdServ
+
+```{r Empty_Compare_CBre}
+
+save(psc_cbre,psc_term,
+     psc2_cbre,psc2_term,
+     cpsa_cbre,cpsa_term,
+     ServCommCons_cbre,ServCommCons_term,
+     psc_all3_cbre,psc_all3_term,
+     cpsa_psc_cbre,cpsa_psc_term,
+     ssc_psc_cbre,ssc_psc_term,
+     psc24_cbre,psc24_term,
+     file="Output//psc_empty_models.rdata")
+
+
+get_icc(psc_cbre)
+get_icc(psc2_cbre)
+get_icc(cpsa_cbre)
+get_icc(ServCommCons_cbre)
+get_icc(psc_all3_cbre)
+get_icc(cpsa_psc_cbre)
+get_icc(ssc_psc_cbre)
+get_icc(psc24_cbre)
+
+      stargazer::stargazer(psc_cbre,psc2_cbre,cpsa_cbre,ServCommCons_cbre,
+                           psc_all3_cbre,cpsa_psc_cbre,ssc_psc_cbre,psc24_cbre,type="text",
+                     digits=2)
+```
+ServCommCons/ProductServiceCode easily explains the most about the model.
+```{r Empty_Compare_Term}
+get_icc(psc_term)
+get_icc(psc2_term)
+get_icc(cpsa_term)
+get_icc(ServCommCons_term)
+get_icc(psc_all3_term)
+get_icc(cpsa_psc_term)
+get_icc(ssc_psc_term)
+get_icc(psc24_term)
+```
+CrisisProductOrSericeArea doesn't add much value versus ProdServ alone but ServCommCons adds none.
+
+
+Proceeding with CrisisProductOrServiceArea/ProdServ for Term and CrisisProductOrServiceArea/ProdServ for CBre
+
+
+The ideal levels varies some depending on the output variable. On the whole ProdServ 3 and ProdServ 6 combined seem to explain comparatively high levels of variance when summed and are reasonably balanced between the two levels.
+
+Fiscal year generally has more explanatory power than calendar year.
+
+## Start Year
+
+### Calendar Year
+```{r StartFY}
+load(file="Output//when_empty_models.rdata")
+
+if(!exists("StartFY_cbre"))
+  StartFY_cbre <- glmer(data=large_crisis_smp,
+                        b_CBre ~ (1 | StartFY)
+                        , family=binomial(link="logit"))
+get_icc(display=TRUE,StartFY_cbre)
+
+if(!exists("StartFY_term"))
+  StartFY_term <- glmer(data=large_crisis_smp,
+                        b_Term ~ (1 | StartFY)
+                        , family=binomial(link="logit"))
+get_icc(display=TRUE,StartFY_term)
+rm(StartFY_cbre,StartFY_term)
+coef(StartFY_term)
+
+```
+
+The ICC is highEST for ceiling breaches and it is lowest in 2010 and highest in 2015.
+
+### Month Unnested
+```{r StartMonth}
+
+# large_crisis_smp$SignedMonth<-lubridate::month(large_crisis_smp$MinOfSignedDate)
+# 
+# if(!exists("SignedMonth_term"))
+#   SignedMonth_term <- glmer(data=large_crisis_smp,
+#                             b_Term ~ (1 | StartFY:SignedMonth)
+#                             , family=binomial(link="logit"))
+# get_icc(display=TRUE,SignedMonth_term)
+# 
+# if(!exists("SignedMonth_cbre"))
+#   SignedMonth_cbre <- glmer(data=large_crisis_smp,
+#                             b_CBre ~ (1 | StartFY:SignedMonth)
+#                             , family=binomial(link="logit"))
+# get_icc(display=TRUE,SignedMonth_cbre)
+
+```
+
+### Month Nested
+```{r NestedMonth}
+
+# if(!exists("NestedMonth_term"))
+# NestedMonth_term <- glmer(data=large_crisis_smp,
+#                  b_Term ~ (1 | StartFY/SignedMonth)
+#                   , family=binomial(link="logit"))
+# get_icc(display=TRUE,NestedMonth_term)
+# 
+# if(!exists("NestedMonth_cbre"))
+# NestedMonth_cbre <- glmer(data=large_crisis_smp,
+#                  b_CBre ~ (1 | StartFY/SignedMonth)
+#                   , family=binomial(link="logit"))
+# get_icc(display=TRUE,NestedMonth_cbre)
+
+```
+
+### ProdServ and Calendar Year
+```{r NAICS_StartFY}
+
+if(!exists("psc_StartFY_cbre"))
+  NAICS_StartFY_cbre <- glmer(data=large_crisis_smp,
+                              b_CBre ~  (1 | ServCommCons/ProdServ) + (1 | StartFY)
+                              , family=binomial(link="logit"))
+get_icc(display=TRUE,NAICS_StartFY_cbre)
+
+if(!exists("psc_StartFY_term"))
+  NAICS_StartFY_term <- glmer(data=large_crisis_smp,
+                              b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | StartFY)
+                              , family=binomial(link="logit"))
+get_icc(display=TRUE,NAICS_StartFY_term)
+
+
+
+```
+Start year explains rather little after inclusion of product or service categories.
+### Compare Signed Dates
+```{r Empty_Compare_When}
+
+save(StartFY_cbre,StartFY_term,
+     SignedMonth_cbre,SignedMonth_term,
+     NestedMonth_cbre,NestedMonth_term,
+     NAICS_StartFY_cbre,NAICS_StartFY_term,
+     file="Output//when_empty_models.rdata")
+
+get_icc(naics36_cbre)
+get_icc(StartFY_cbre)
+get_icc(SignedMonth_cbre)
+get_icc(NestedMonth_cbre)
+get_icc(NAICS_StartFY_cbre)
+
+get_icc(naics36_term)
+get_icc(StartFY_term)
+get_icc(SignedMonth_term)
+get_icc(NestedMonth_term)
+get_icc(NAICS_StartFY_term)
+
+
+```
+Signed month has ICC values typically below 0.03 and it appears it can be safely left out as start calendar year captures most of the variance. Interestingly, while start year had been most prominent for ceiling breaches no longer stands out once ProdServ are incoporated in the model.
+##Customer
+### Office
+```{r Office}
+ load(file="Output//who_empty_models.rdata")
+if(!exists("Office_cbre"))
+  Office_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | Agency:Office)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Office_cbre)
+
+if(!exists("Office_term"))
+  Office_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | Agency:Office)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Office_term)
+
+
+
+
+```
+Office immediately explains a great deal in both cases.
+
+### Agency
+```{r Agency}
+if(!exists("Agency_cbre"))
+  Agency_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | Agency)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Agency_cbre)
+
+
+if(!exists("Agency_term"))
+  Agency_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | Agency)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Agency_term)
+
+
+```
+Agency has only about half the explainatory value as office. 
+
+### SubCustomer
+```{r SubCustomer}
+large_crisis_smp$SubCustomer<-as.character(large_crisis_smp$SubCustomer)
+large_crisis_smp$SubCustomer[is.na(large_crisis_smp$SubCustomer)]<-
+  large_crisis_smp$Customer[is.na(large_crisis_smp$SubCustomer)]
+large_crisis_smp$SubCustomer<-factor(large_crisis_smp$SubCustomer)
+summary(large_crisis_smp$SubCustomer)
+
+if(!exists("SubCustomer_cbre"))
+  SubCustomer_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | Customer:SubCustomer)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,SubCustomer_cbre)
+
+if(!exists("SubCustomer_term"))
+  SubCustomer_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | Customer:SubCustomer)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,SubCustomer_term)
+
+
+```
+
+### Customer/SubCustomer
+```{r Customer_SubCustomer}
+
+if(!exists("Cust_SubCustomer_cbre"))
+  Cust_SubCustomer_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | Customer/SubCustomer)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Cust_SubCustomer_cbre)
+
+if(!exists("Cust_SubCustomer_term"))
+  Cust_SubCustomer_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | Customer/SubCustomer)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Cust_SubCustomer_term)
+
+
+```
+
+
+### Department
+```{r Customer}
+
+
+if(!exists("Department_term"))
+  Department_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | DepartmentID)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Department_term)
+
+if(!exists("Department_cbre"))
+  Department_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | DepartmentID)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Department_cbre)
+
+```
+
+
+### Customer
+```{r Customer}
+
+
+if(!exists("Customer_term"))
+  Customer_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | Customer)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Customer_term)
+
+if(!exists("Customer_cbre"))
+  Customer_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | Customer)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Customer_cbre)
+
+```
+
+
+
+
+
+### Nested Agency / Office
+```{r AgencyOffice}
+if(!exists("AgencyOffice_cbre"))
+  AgencyOffice_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~ (1 | Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,AgencyOffice_cbre)
+
+
+if(!exists("AgencyOffice_term"))
+  AgencyOffice_term <- glmer(data=large_crisis_smp,
+                             b_Term ~ (1 | Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,AgencyOffice_term)
+
+
+```
+Somewhat surprisingly, in both cases office and agency combined have less explanatory value than office on its own.
+
+### Nested SubCustomer / Office
+```{r OfficeSubCustomer}
+if(!exists("OfficeSubCustomer_cbre"))
+  OfficeSubCustomer_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~ (1 | Customer:SubCustomer) + (1 | Customer:SubCustomer:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeSubCustomer_cbre)
+
+
+if(!exists("OfficeSubCustomer_term"))
+  OfficeSubCustomer_term <- glmer(data=large_crisis_smp,
+                             b_Term ~ (1 | Customer:SubCustomer)+ (1 | Customer:SubCustomer:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeSubCustomer_term)
+
+
+```
+### Nested Department / Office
+```{r DepartmentOffice}
+if(!exists("OfficeDepartment_cbre"))
+  OfficeDepartment_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~ (1 | DepartmentID/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeDepartment_cbre)
+
+
+if(!exists("OfficeDepartment_term"))
+  OfficeDepartment_term <- glmer(data=large_crisis_smp,
+                             b_Term ~ (1 | DepartmentID/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeDepartment_term)
+
+
+```
+
+
+### Nested Customer / Office
+```{r CustomerOffice}
+if(!exists("OfficeCustomer_cbre"))
+  OfficeCustomer_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~ (1 | Customer/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeCustomer_cbre)
+
+
+if(!exists("OfficeCustomer_term"))
+  OfficeCustomer_term <- glmer(data=large_crisis_smp,
+                             b_Term ~ (1 | Customer/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeCustomer_term)
+
+
+```
+
+### Nested Civ/Def / Office
+```{r DefCivOffice}
+large_crisis_smp$Is.Defense<-large_crisis_smp$Customer
+levels(large_crisis_smp$Customer)
+
+    levels(large_crisis_smp$Is.Defense)<- list("Defense"=c("Defense"),
+                                 "Civilian"=c("DHS","Energy","GSA","HHS","NASA",
+                                              "Other Agencies","State and IAP","VA"))
+
+if(!exists("OfficeDefCiv_cbre"))
+  OfficeDefCiv_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~ (1 | Is.Defense/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeDefCiv_cbre)
+
+
+if(!exists("OfficeDefCiv_term"))
+  OfficeDefCiv_term <- glmer(data=large_crisis_smp,
+                             b_Term ~ (1 | Is.Defense/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,OfficeDefCiv_term)
+
+
+```
+
+### Nested Customer Agency / Office
+```{r AgencyOffice}
+if(!exists("CustomerAgencyOffice_cbre"))
+  CustomerAgencyOffice_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~ (1 | Customer/Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,CustomerAgencyOffice_cbre)
+
+
+if(!exists("CustomerAgencyOffice_term"))
+  CustomerAgencyOffice_term <- glmer(data=large_crisis_smp,
+                             b_Term ~ (1 | Customer/Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,CustomerAgencyOffice_term)
+
+
+```
+### nested PSC Customer/Office
+```{r cpsa_prodserv_customer_office}
+
+if(!exists("ssc_prodserv_customer_office_cbre"))
+  ssc_prodserv_customer_office_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~  (1 | ServCommCons/ProdServ) + (1 | Customer/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_prodserv_customer_office_cbre)
+
+if(!exists("cpsa_prodserv_customer_office_term"))
+  cpsa_prodserv_customer_office_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_prodserv_customer_office_term)
+
+
+
+```
+
+### CrisisProductOrServiceArea Office
+```{r NAICS03_Office}
+# if(!exists("naics03_Office_term"))
+
+if(!exists("ssc_psc_office_cbre"))
+  ssc_psc_office_cbre <- glmer(data=large_crisis_smp,
+                              b_CBre ~  (1 | ServCommCons/ProdServ) + (1 | Agency:Office)
+                              , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_psc_office_cbre)
+
+if(!exists("cpsa_psc_office_term"))
+  cpsa_psc_office_term <- glmer(data=large_crisis_smp,
+                              b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Agency:Office)
+                              , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_psc_office_term)
+
+if(!exists("ssc_psc_office_term"))
+  ssc_psc_office_term <- glmer(data=large_crisis_smp,
+                              b_Term ~  (1 | ServCommCons/ProdServ) + (1 | Agency:Office)
+                              , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_psc_office_term)
+
+if(!exists("psc_office_term"))
+  psc_office_term <- glmer(data=large_crisis_smp,
+                              b_Term ~  (1 | ProdServ) + (1 | Agency:Office)
+                              , family=binomial(link="logit"))
+get_icc(display=TRUE,psc_office_term)
+
+```
+Surprisingly Crisis/Product/Searvice Area went to zero fr termination. Double checking if Serv/Comm/Cons works any better.
+
+### nested PSC Customer/Office/ Start FY
+```{r cpsa_prodserv_customer_startfy_office}
+
+if(!exists("ssc_prodserv_customer_office_startfy_cbre"))
+  ssc_prodserv_customer_office_startfy_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~  (1 | ServCommCons/ProdServ) + (1 | Customer/Office) + (1 | StartFY)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_prodserv_customer_office_startfy_cbre)
+
+if(!exists("cpsa_prodserv_customer_office_startfy_term"))
+  cpsa_prodserv_customer_office_startfy_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office) + (1 | StartFY)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_prodserv_customer_office_startfy_term)
+
+
+
+```
+
+
+### Compare Who
+```{r Empty_Compare_Who_Term}
+
+save(Office_cbre,Office_term,
+     
+     SubCustomer_cbre,SubCustomer_term,
+     
+     OfficeDepartment_cbre,OfficeDepartment_term,
+     OfficeSubCustomer_cbre,OfficeSubCustomer_term,
+     OfficeCustomer_cbre,OfficeCustomer_term,
+     OfficeDefCiv_cbre,OfficeDefCiv_term,
+     psc_When_Office_cbre,
+     naics36_When_Office_term,naics36_When_Office_cbre,
+     OfficeCustomer_cbre,OfficeCustomer_term,
+     ssc_prodserv_customer_office_startfy_cbre,cpsa_prodserv_customer_office_startfy_term,
+     file="Output//who_empty_models.rdata")
+
+save(Office_cbre,Office_term,
+     # Agency_cbre,Agency_term,
+     SubCustomer_cbre,SubCustomer_term,
+     # Department_cbre,Department_term,
+     # Customer_cbre,Customer_term,
+     AgencyOffice_cbre,AgencyOffice_term,
+    Cust_SubCustomer_cbre,Cust_SubCustomer_term,
+     OfficeDepartment_cbre,OfficeDepartment_term,
+     OfficeSubCustomer_cbre,OfficeSubCustomer_term,
+     OfficeCustomer_cbre,OfficeCustomer_term,
+     OfficeDefCiv_cbre,OfficeDefCiv_term,
+    ssc_prodserv_customer_office_cbre,cpsa_prodserv_customer_office_term,
+    ssc_prodserv_customer_office_startfy_cbre,cpsa_prodserv_customer_office_startfy_term,
+     file="Output//who_empty_models2.rdata")
+
+stargazer::stargazer(Office_cbre,
+     SubCustomer_cbre,
+    Cust_SubCustomer_cbre,
+     OfficeDepartment_cbre,
+     OfficeSubCustomer_cbre,
+     OfficeCustomer_cbre,
+     OfficeDefCiv_cbre,
+    type="text",
+                     digits=2)
+
+
+get_icc(Office_term)
+get_icc(Agency_term)
+get_icc(SubCustomer_term)
+get_icc(Department_term)
+get_icc(Customer_term)
+get_icc(AgencyOffice_term)
+get_icc(OfficeSubCustomer_term)
+get_icc(OfficeDepartment_term)
+get_icc(OfficeCustomer_term)
+get_icc(OfficeDefCiv_term)
+
+stargazer::stargazer(Office_term,
+     SubCustomer_term,
+    Cust_SubCustomer_term,
+     OfficeDepartment_term,
+     OfficeSubCustomer_term,
+     OfficeCustomer_term,
+     OfficeDefCiv_term,
+    type="text",
+                     digits=2)
+
+
+get_icc(naics02_Office_term)
+get_icc(psc_Office_term)
+get_icc(naics36_Office_term)
+get_icc(naics46_Office_term)
+get_icc(naics36_When_Office_term)
+# get_icc(psc_When_Office_term)
+
+
+
+debug(summary_residual_compare)
+summary_residual_compare(naics36_Office_term,naics46_Office_term,naics36_Office_cbre,naics46_Office_cbre,bins=10,suppress_vif=TRUE)
+summary_residual_compare(psc_Office_term,naics36_Office_term,psc_Office_cbre,naics36_Office_cbre,bins=10,suppress_vif=TRUE)
+summary_residual_compare(naics36_term,naics36_Office_term,naics36_cbre,naics36_Office_cbre,bins=10,suppress_vif=TRUE)
+summary_residual_compare(naics36_term,naics236_term,naics36_cbre,naics236_cbre,bins=10,suppress_vif=TRUE)
+summary_residual_compare(naics36_term,naics36_Office_term,naics36_cbre,naics36_Office_cbre,bins=10,suppress_vif=TRUE)
+```
+
+
+```{r Empty_Compare_Who_CBre}
+
+get_icc(Office_cbre)
+get_icc(Agency_cbre)
+get_icc(SubCustomer_cbre)
+get_icc(Department_cbre)
+get_icc(Customer_cbre)
+get_icc(AgencyOffice_cbre)
+get_icc(OfficeSubCustomer_cbre)
+get_icc(OfficeDepartment_cbre)
+get_icc(OfficeCustomer_cbre)
+get_icc(OfficeDefCiv_cbre)
+
+
+
+get_icc(naics02_Office_cbre)
+get_icc(naics03_Office_cbre)
+get_icc(psc_Office_cbre)
+get_icc(naics36_Office_cbre)
+get_icc(naics46_Office_cbre)
+# get_icc(naics36_When_Office_cbre)
+get_icc(psc_When_Office_cbre)
+```
+There is some contradiction in which model best serves this category. For Comp, the nested office has the largest summed ICC, but for term this results in an failure to converge and a 0 ICC for agency. Agency:Office alone is respectable for all three so that is used in the combination attempt.
+
+## Funding Account
+### MAC
+```{r Office}
+# load(file="Output//who_empty_models.rdata")
+large_crisis_smp$
+if(!exists("Office_cbre"))
+  Office_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | Agency:Office)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Office_cbre)
+
+if(!exists("Office_term"))
+  Office_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | Agency:Office)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Office_term)
+
+
+
+
+```
+
+
+
+
+## Location
+### Place
+#### Place Alone
+```{r PlaceCountry}
+# load(file="Output//where_empty_models.rdata")
+
+if(!exists("PlaceCountry_cbre"))
+  PlaceCountry_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,PlaceCountry_cbre)
+
+if(!exists("PlaceCountry_term"))
+  PlaceCountry_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,PlaceCountry_term)
+
+
+
+```
+
+#### Is foreign / Place
+```{r Place_isforeign_Country}
+# load(file="Output//where_empty_models.rdata")
+
+if(!exists("Place_isforeign_Country_cbre"))
+  Place_isforeign_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | place_isforeign/PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Place_isforeign_Country_cbre)
+
+if(!exists("Place_isforeign_Country_term"))
+  Place_isforeign_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | place_isforeign/PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Place_isforeign_Country_term)
+
+```
+
+#### Crisis theater / Place
+```{r Place_theater_Country}
+# load(file="Output//where_empty_models.rdata")
+
+if(!exists("Place_theater_Country_cbre"))
+  Place_theater_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | place_CrisisFundingTheater/PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Place_theater_Country_cbre)
+
+if(!exists("Place_theater_Country_term"))
+  Place_theater_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | place_CrisisFundingTheater/PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Place_theater_Country_term)
+
+```
+
+#### COCOM / Place
+```{r Place_cocom_Country}
+# load(file="Output//where_empty_models.rdata")
+
+
+if(!exists("Place_cocom_Country_cbre"))
+  Place_cocom_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | place_CombatantCommand/PlaceCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,Place_cocom_Country_cbre)
+
+if(!exists("Place_cocom_Country_term"))
+  Place_cocom_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | place_CombatantCommand/PlaceCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,Place_cocom_Country_term)
+
+```
+
+
+#### nested PSC Customer/Office and place
+```{r cpsa_prodserv_customer_office}
+
+if(!exists("ssc_prodserv_customer_office_place_cbre"))
+  ssc_prodserv_customer_office_place_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~  (1 | ServCommCons/ProdServ) + (1 | Customer/Office) + (1 | PlaceCountryISO3)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_prodserv_customer_office_place_cbre)
+
+if(!exists("cpsa_prodserv_customer_office_place_term"))
+  cpsa_prodserv_customer_office_place_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)+ (1 | PlaceCountryISO3)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_prodserv_customer_office_place_term)
+
+
+
+```
+
+### Vendor
+```{r VendorCountry}
+# load(file="Output//who_empty_models.rdata")
+
+if(!exists("VendorCountry_cbre"))
+  VendorCountry_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | VendorCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,VendorCountry_cbre)
+
+if(!exists("VendorCountry_term"))
+  VendorCountry_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | VendorCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,VendorCountry_term)
+
+
+
+
+### b_Comp CrisisProductOrServiceArea/Code Office
+```
+
+
+
+#### Is foreign / Vendor
+```{r Vendor_isforeign_Country}
+# load(file="Output//where_empty_models.rdata")
+
+if(!exists("Vendor_isforeign_Country_cbre"))
+  Vendor_isforeign_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | vendor_isforeign/VendorCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Vendor_isforeign_Country_cbre)
+
+if(!exists("vendor_isforeign_Country_term"))
+  vendor_isforeign_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | vendor_isforeign/VendorCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,vendor_isforeign_Country_term)
+
+```
+
+#### Crisis theater / Vendor
+```{r Vendor_theater_Country}
+# load(file="Output//where_empty_models.rdata")
+
+if(!exists("Vendor_theater_Country_cbre"))
+  Vendor_theater_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | vendor_CrisisFundingTheater/VendorCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Vendor_theater_Country_cbre)
+
+if(!exists("Vendor_theater_Country_term"))
+  Vendor_theater_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | vendor_CrisisFundingTheater/VendorCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Vendor_theater_Country_term)
+
+```
+
+#### COCOM / Vendor
+```{r Vendor_cocom_Country}
+# load(file="Output//where_empty_models.rdata")
+
+
+if(!exists("Vendor_cocom_Country_cbre"))
+  Vendor_cocom_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | vendor_CombatantCommand/VendorCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,Vendor_cocom_Country_cbre)
+
+if(!exists("Vendor_cocom_Country_term"))
+  Vendor_cocom_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | vendor_CombatantCommand/VendorCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,Vendor_cocom_Country_term)
+
+```
+
+#### nested PSC Customer/Office and Vendor
+```{r cpsa_prodserv_customer_office_vendor}
+
+if(!exists("ssc_prodserv_customer_office_vendor_cbre"))
+  ssc_prodserv_customer_office_vendor_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~  (1 | ServCommCons/ProdServ) + (1 | Customer/Office) + (1 | VendorCountryISO3)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_prodserv_customer_office_vendor_cbre)
+
+if(!exists("cpsa_prodserv_customer_office_vendor_term"))
+  cpsa_prodserv_customer_office_vendor_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)+ (1 | VendorCountryISO3)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_prodserv_customer_office_vendor_term)
+
+
+
+```
+
+
+### Origin
+```{r OriginCountry}
+# load(file="Output//who_empty_models.rdata")
+
+if(!exists("OriginCountry_cbre"))
+  OriginCountry_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | OriginCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,OriginCountry_cbre)
+
+if(!exists("OriginCountry_term"))
+  OriginCountry_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | OriginCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,OriginCountry_term)
+
+
+
+
+### b_Comp CrisisProductOrServiceArea/Code Office
+```
+
+#### Is foreign / Origin
+```{r Origin_isforeign_Country}
+# load(file="Output//where_empty_models.rdata")
+
+if(!exists("Origin_isforeign_Country_cbre"))
+  Origin_isforeign_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | origin_isforeign/OriginCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Origin_isforeign_Country_cbre)
+
+if(!exists("origin_isforeign_Country_term"))
+  origin_isforeign_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | origin_isforeign/OriginCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,origin_isforeign_Country_term)
+
+```
+
+#### Crisis theater / Origin
+```{r Origin_theater_Country}
+# load(file="Output//where_empty_models.rdata")
+
+if(!exists("Origin_theater_Country_cbre"))
+  Origin_theater_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | origin_CrisisFundingTheater/OriginCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Origin_theater_Country_cbre)
+
+if(!exists("Origin_theater_Country_term"))
+  Origin_theater_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | origin_CrisisFundingTheater/OriginCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Origin_theater_Country_term)
+
+```
+
+#### COCOM / Origin
+```{r Origin_cocom_Country}
+# load(file="Output//where_empty_models.rdata")
+
+
+if(!exists("Origin_cocom_Country_cbre"))
+  Origin_cocom_Country_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | origin_CombatantCommand/OriginCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,Origin_cocom_Country_cbre)
+
+if(!exists("Origin_cocom_Country_term"))
+  Origin_cocom_Country_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | origin_CombatantCommand/OriginCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,Origin_cocom_Country_term)
+
+```
+
+#### nested PSC Customer/Office and Origin
+
+```{r cpsa_prodserv_customer_office_origin}
+
+if(!exists("ssc_prodserv_customer_office_origin_cbre"))
+  ssc_prodserv_customer_office_origin_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~  (1 | ServCommCons/ProdServ) + (1 | Customer/Office) + (1 | OriginCountryISO3)
+                             , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+     
+get_icc(display=TRUE,ssc_prodserv_customer_office_origin_cbre)
+
+if(!exists("cpsa_prodserv_customer_office_origin_term"))
+  cpsa_prodserv_customer_office_origin_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)+ (1 | OriginCountryISO3)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_prodserv_customer_office_origin_term)
+
+
+
+```
+### Cross
+#### Place Vendor Origin
+```{r PlaceVendorOriginCountry}
+# load(file="Output//where2_empty_models.rdata")
+
+if(!exists("PlaceVendorOriginCountry_cbre"))
+  PlaceVendorOriginCountry_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | PlaceCountryISO3) + (1 |VendorCountryISO3) + (1|OriginCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorOriginCountry_cbre)
+
+if(!exists("PlaceVendorOriginCountry_term"))
+  PlaceVendorOriginCountry_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | PlaceCountryISO3 )+ (1| VendorCountryISO3) + (1|OriginCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorOriginCountry_term)
+
+```
+
+
+#### Place Vendor Origin Combined
+```{r PlaceVendorOriginCombined}
+# load(file="Output//where2_empty_models.rdata")
+
+if(!exists("PlaceVendorOriginCombined_cbre"))
+  PlaceVendorOriginCombined_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | PlaceCountryISO3:VendorCountryISO3:OriginCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorOriginCombined_cbre)
+
+
+
+if(!exists("PlaceVendorOriginCombined_term"))
+  PlaceVendorOriginCombined_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | PlaceCountryISO3:VendorCountryISO3:OriginCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorOriginCombined_term)
+coef(PlaceVendorOriginCombined_term)
+```
+
+#### Place / Vendor
+```{r PlaceVendorCountry}
+# load(file="Output//where2_empty_models.rdata")
+
+if(!exists("PlaceVendorCountry_cbre"))
+  PlaceVendorCountry_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | PlaceCountryISO3) + (1 |VendorCountryISO3) 
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorCountry_cbre)
+
+if(!exists("PlaceVendorCountry_term"))
+  PlaceVendorCountry_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | PlaceCountryISO3 )+ (1| VendorCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+
+
+PlaceVendorCountry_term_test <- glmer(data=large_crisis_smp[!is.na(large_crisis_smp$OriginCountryISO3),],
+                       b_Term ~ (1 | PlaceCountryISO3 )+ (1| VendorCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorCountry_term)
+get_icc(display=TRUE,PlaceVendorCountry_term_test)
+
+```
+
+#### Place Vendor Combined
+```{r PlaceVendorCombined}
+# load(file="Output//where2_empty_models.rdata")
+large_crisis_smp$PlaceVendor<-NA
+summary(factor(large_crisis_smp$PlaceCountryISO3))
+large_crisis_smp$place_CombatantCommand
+summary_discrete_plot(large_crisis_smp,"place_CrisisFundingTheater")
+summary_discrete_plot(large_crisis_smp,"place_isforeign")
+summary_discrete_plot(large_crisis_smp,"place_CombatantCommand")
+summary_discrete_plot(large_crisis_smp,"vendor_CrisisFundingTheater")
+summary_discrete_plot(large_crisis_smp,"vendor_isforeign")
+summary_discrete_plot(large_crisis_smp,"vendor_CombatantCommand")
+
+large_crisis_smp$PlaceVendor<-as.character(large_crisis_smp$PlaceVendor)
+large_crisis_smp$PlaceVendor[large_crisis_smp$PlaceCountryISO3!="USA"&
+                               large_crisis_smp$PlaceCountryISO3==large_crisis_smp$VendorCountryISO3]<-"Host Nation Vendor"
+large_crisis_smp$PlaceVendor[large_crisis_smp$VendorCountryISO3=="USA"]<-"U.S. vendor"
+large_crisis_smp$PlaceVendor[large_crisis_smp$PlaceCountryISO3!=large_crisis_smp$VendorCountryISO3&
+                               large_crisis_smp$VendorCountryISO3!="USA"]<-"Third Country Vendor"
+large_crisis_smp$PlaceVendor<-factor(large_crisis_smp$PlaceVendor)
+
+  summary_discrete_plot(large_crisis_smp,"PlaceVendor")
+
+
+if(!exists("PlaceVendorSimplified_cbre"))
+  PlaceVendorSimplified_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | PlaceCountryISO3/PlaceVendor)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorSimplified_cbre)
+
+if(!exists("PlaceVendorSimplified_term"))
+  PlaceVendorSimplified_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | PlaceCountryISO3/PlaceVendor)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceVendorSimplified_term)
+```
+
+#### nested PSC Customer/Office and place
+```{r cpsa_prodserv_customer_office}
+
+if(!exists("ssc_prodserv_customer_office_placevendor_cbre"))
+  ssc_prodserv_customer_office_placevendor_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~  (1 | ServCommCons/ProdServ) + (1 | Customer/Office) + (1 | PlaceCountryISO3/PlaceVendor)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_prodserv_customer_office_placevendor_cbre)
+
+if(!exists("cpsa_prodserv_customer_office_placevendor_term"))
+  cpsa_prodserv_customer_office_placevendor_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)+ (1 | PlaceCountryISO3/PlaceVendor)
+                             , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_term)
+
+
+
+```
+```{r cpsa_prodserv_customer_office_placevendor_when}
+
+if(!exists("ssc_prodserv_customer_office_placevendor_when_cbre"))
+  ssc_prodserv_customer_office_placevendor_when_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~  (1 | ServCommCons/ProdServ) + (1 | Customer/Office) + (1 | PlaceCountryISO3/PlaceVendor) + (1 | StartFY)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_prodserv_customer_office_placevendor_when_cbre)
+
+if(!exists("cpsa_prodserv_customer_office_placevendor_when_term"))
+  cpsa_prodserv_customer_office_placevendor_when_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)+ (1 | PlaceCountryISO3/PlaceVendor)+ (1 | StartFY)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_when_term)
+
+
+
+```
+
+### Compare Where
+```{r Empty_Compare_Who_Term}
+
+    save(PlaceCountry_cbre,PlaceCountry_term,
+         Place_isforeign_Country_cbre,Place_isforeign_Country_term,
+         VendorCountry_cbre,VendorCountry_term,
+         OriginCountry_cbre,OriginCountry_term,
+         ssc_prodserv_customer_office_place_cbre,cpsa_prodserv_customer_office_place_term,
+         ssc_prodserv_customer_office_vendor_cbre,cpsa_prodserv_customer_office_vendor_term,
+         ssc_prodserv_customer_office_origin_cbre,cpsa_prodserv_customer_office_origin_term,
+         
+         Place_ssc_psc_cbre,Place_cpsa_psc_term,
+         Vendor_ssc_psc_cbre,Vendor_cpsa_psc_term,
+         PlaceVendorOriginCountry_cbre,PlaceVendorOriginCountry_term,
+         PlaceVendorOriginCombined_cbre,PlaceVendorOriginCombined_term,
+         PlaceVendorCountry_cbre,PlaceVendorCountry_term,
+         ssc_prodserv_customer_office_placevendor_cbre,cpsa_prodserv_customer_office_placevendor_term,
+
+PlaceVendorCountry_term_test,
+PlaceVendorCombined_cbre,PlaceVendorCombined_term,
+PlaceVendorSimplified_cbre,PlaceVendorSimplified_term,
+         file="Output//where_empty_models.rdata")
+
+
+
+get_icc(PlaceCountry_cbre)
+get_icc(VendorCountry_cbre)
+get_icc(OriginCountry_cbre)
+get_icc(PlaceVendorCountry_cbre)
+get_icc(PlaceVendorCombined_cbre)
+get_icc(PlaceVendorSimplified_cbre)
+get_icc(Place_ssc_psc_cbre)
+get_icc(Vendor_ssc_psc_cbre)
+get_icc(ssc_prodserv_customer_office_place_cbre)
+get_icc(ssc_prodserv_customer_office_vendor_cbre)
+get_icc(ssc_prodserv_customer_office_origin_cbre)
+get_icc(ssc_prodserv_customer_office_placevendor_cbre)
+get_icc(PlaceVendorCountry_cbre)
+
+
+
+
+stargazer::stargazer( PlaceCountry_cbre,
+VendorCountry_cbre,
+OriginCountry_cbre,
+PlaceVendorCountry_cbre,
+PlaceVendorCombined_cbre,
+PlaceVendorSimplified_cbre,
+PlaceVendorOriginCountry_cbre,
+PlaceVendorOriginCombined_cbre,
+type="text",
+                       digits=2)
+stargazer::stargazer( 
+ssc_prodserv_customer_office_place_cbre,
+ssc_prodserv_customer_office_vendor_cbre,
+ssc_prodserv_customer_office_origin_cbre,
+ssc_prodserv_customer_office_placevendor_cbre,
+                     type="text",
+                       digits=2)
+
+
+
+
+get_icc(PlaceCountry_term)
+get_icc(VendorCountry_term)
+get_icc(OriginCountry_term)
+get_icc(PlaceVendorCountry_term)
+get_icc(PlaceVendorCombined_term)
+get_icc(PlaceVendorSimplified_term)
+get_icc(PlaceVendorOriginCountry_term)
+get_icc(PlaceVendorOriginCombined_term)
+get_icc(Place_cpsa_psc_term)
+get_icc(Vendor_cpsa_psc_term)
+get_icc(cpsa_prodserv_customer_office_place_term)
+get_icc(cpsa_prodserv_customer_office_vendor_term)
+get_icc(cpsa_prodserv_customer_office_origin_term)
+get_icc(cpsa_prodserv_customer_office_placevendor_term)
+
+# get_icc(psc_When_Office_term)
+
+stargazer::stargazer( PlaceCountry_term,
+VendorCountry_term,
+OriginCountry_term,
+PlaceVendorOriginCountry_term,
+PlaceVendorOriginCombined_term,
+PlaceVendorCountry_term,
+PlaceVendorCountry_term_test,
+PlaceVendorSimplified_term,
+Place_cpsa_psc_term,
+                     type="text",
+                       digits=2)
+stargazer::stargazer( cpsa_prodserv_customer_office_place_term,
+cpsa_prodserv_customer_office_vendor_term,
+cpsa_prodserv_customer_office_origin_term,
+cpsa_prodserv_customer_office_placevendor_term,
+                     type="text",
+                       digits=2)
+
+
+```
+
+# Competition Investigation
+## Numerical Competition
+
+### n_Comp CrisisProductOrServiceArea/Code Office
+```{r b_Comp_NAICS36_Office}
+if(!exists("b_Comp_naics36_Office_cbre"))
+  b_Comp_naics36_Office_cbre<-naics36_Office_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~ b_Comp+ (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,b_Comp_naics36_Office_cbre)
+
+
+if(!exists("b_Comp_naics36_Office_term"))
+  b_Comp_naics36_Office_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  b_Comp+(1 | CrisisProductOrServiceArea/ProdServ) + (1 | Agency:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,b_Comp_naics36_Office_term)
+
+
+```
+### cl_Offr CrisisProductOrServiceArea/Code Office
+```{r NAICS36_Office}
+if(!exists("cl_Offr_aics36_Office_cbre"))
+  cl_Offr_naics36_Office_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~ cl_Offr+ (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,cl_Offr_naics36_Office_cbre)
+
+
+
+if(!exists("cl_Offr_naics36_Office_term"))
+  cl_Offr_naics36_Office_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  cl_Offr+(1 | CrisisProductOrServiceArea/ProdServ) + (1 | Agency:Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,cl_Offr_naics36_Office_term)
+
+
+```
+
+
+
+### CompOffr CrisisProductOrServiceArea/Code Office
+```{r CompOffr_NAICS36_Office}
+  if(!exists("CompOffr_naics36_Office_cbre"))
+    CompOffr_naics36_Office_cbre<-naics36_Office_cbre <- glmer(data=large_crisis_smp,
+                               b_CBre ~ CompOffr+ (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Agency/Office)
+                               , family=binomial(link="logit"))
+  get_icc(display=TRUE,CompOffr_naics36_Office_cbre)
+  
+  
+  if(!exists("CompOffr_naics36_Office_term"))
+    CompOffr_naics36_Office_term <- glmer(data=large_crisis_smp,
+                               b_Term ~  CompOffr+(1 | CrisisProductOrServiceArea/ProdServ) + (1 | Agency:Office)
+                               , family=binomial(link="logit"))
+  get_icc(display=TRUE,CompOffr_naics36_Office_term)
+  
+
+```
+
+
+
+### EffComp CrisisProductOrServiceArea/Code Office
+```{r CompOffr_NAICS36_Office}
+  if(!exists("CompOffr_naics36_Office_cbre"))
+    CompOffr_naics36_Office_cbre<-naics36_Office_cbre <- glmer(data=large_crisis_smp,
+                               b_CBre ~ CompOffr+ (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Agency/Office)
+                               , family=binomial(link="logit"))
+  get_icc(display=TRUE,CompOffr_naics36_Office_cbre)
+  
+  
+  if(!exists("CompOffr_naics36_Office_term"))
+    CompOffr_naics36_Office_term <- glmer(data=large_crisis_smp,
+                               b_Term ~  CompOffr+(1 | CrisisProductOrServiceArea/ProdServ) + (1 | Agency:Office)
+                               , family=binomial(link="logit"))
+  get_icc(display=TRUE,CompOffr_naics36_Office_term)
+  large_crisis_smp$CompOffr
+
+```
+
+
+### Compare Who
+```{r Empty_Compare_Who_Term}
+
+save(b_Comp_naics36_Office_cbre,b_Comp_naics36_Office_term,
+     n_Comp_naics36_Office_cbre,n_Comp_naics36_Office_term,
+     cl_Offr_naics36_Office_cbre,cl_Offr_naics36_Office_term,
+     EffComp_naics36_Office_cbre,EffComp_naics36_Office_term,
+     CompOffr_naics36_Office_cbre,CompOffr_naics36_Office_term,
+     file="Output//comp_metric_only_models.rdata")
+
+
+stargazer::stargazer( b_Comp_naics36_Office_cbre,
+n_Comp_naics36_Office_cbre,
+cl_Offr_naics36_Office_cbre,
+EffComp_naics36_Office_cbre,
+CompOffr_naics36_Office_cbre,
+                     type="text",
+                       digits=2)
+
+
+
+
+stargazer::stargazer( b_Comp_naics36_Office_term,
+n_Comp_naics36_Office_term,
+cl_Offr_naics36_Office_term,
+EffComp_naics36_Office_term,
+CompOffr_naics36_Office_term,
+                     type="text",
+                       digits=2)
+
+# summary_residual_compare(EffComp_naics36_Office_cbre,CompOffr_naics36_Office_cbre,bins=10,suppress_vif=TRUE)
+```
+EffComp and CompOffr do seem to provide lower AICs, EffComp wins for CBre, but Compffr by a dramatic margin for terminations.

@@ -16,6 +16,8 @@ library(csis360)
 library(ggplot2)
 library(arm)
 library(R2WinBUGS)
+library(dplyr)
+library(Hmisc)
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
 
 axis.text.size<-10
@@ -38,12 +40,14 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 
 
 ```{r ReadInData, echo = TRUE}
-  load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
+# load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
+load(file="Data/fed_transformed.Rdata")
 
-head(fed)
-fed<-transform_contract(fed)
+# head(fed)
+# debug(transform_contract)
+# fed<-transform_contract(fed)
 
-# fed<-decision_tree(fed)
+# save(fed,file="Data/fed_transformed.Rdata")
 
 
 ```
@@ -104,77 +108,44 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 ## Sample Creation
 ```{r Sample}
 load("Data\\crisis_smp.Rdata")
-# crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Dis"),]
-# oco<-fed[fed$Crisis %in% c("OCO"),]
-# oco<-oco[sample(nrow(oco),100000),]
-# crisis_with_na<-rbind(crisis_with_na,oco)
-# rm(oco)
-# other_intl<-fed[fed$Crisis %in% c("Other")&fed$OffIntl>=0.5,]
-# other_dom<-fed[fed$Crisis %in% c("Other")&(fed$OffIntl<0.5
-#                                            |is.na(fed$OffIntl)),]
-# other_dom<-other_dom[sample(nrow(other_dom),100000),]
-# other_intl<-other_intl[sample(nrow(other_intl),100000),]
-# crisis_with_na<-rbind(crisis_with_na,other_dom,other_intl)
-# rm(other)
-sample_prep<-function(data){
-  colnames(data)[colnames(data)=="ProdServ"]<-"ProductOrServiceCode"
-  data$ProductOrServiceCode<-as.character(data$ProductOrServiceCode)
-  data<-csis360::read_and_join( data,
-                                 "ProductOrServiceCodes.csv",
-                                 path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-                                 directory="",
-                                 by="ProductOrServiceCode",
-                                 add_var=c("Simple",
-                                           "ProductServiceOrRnDarea",
-                                           "ProductOrServiceArea",
-                                           "HostNation3Category",
-                                           "CrisisProductOrServiceArea",
-                                           "ProductOrServiceCodeText"
-                                           ),
-                                 new_var_checked=FALSE)
-  data$ProductServiceOrRnDarea<-factor(data$ProductServiceOrRnDarea)
-  data$ProductOrServiceArea<-factor(data$ProductOrServiceArea)
-  data$HostNation3Category<-factor(data$HostNation3Category)
-  data$CrisisProductOrServiceArea<-factor(data$CrisisProductOrServiceArea)
-  data$ProductOrServiceCodeText<-factor(data$ProductOrServiceCodeText)
-  data$ProductOrServiceCode<-factor(data$ProductOrServiceCode)
-data$ServCommCons<-data$HostNation3Category
-data$CPSA<-as.character(data$CrisisProductOrServiceArea)
-data$CPSA<-factor(gsub(" & ","+",data$CPSA))
 
-data$PSA<-as.character(data$ProductOrServiceArea)
-data$PSA<-gsub(" & ","+",data$PSA)
-data$b_NoComp<-!data$b_Comp
-  colnames(data)[colnames(data)=="ProductOrServiceCode"]<-"ProdServ"
-  data
-}
 
-get_complete_list<-function(data){
-complete<-!is.na(data$b_Term)&
-  !is.na(data$b_CBre)&
-  !is.na(data$b_Comp)&
-  !is.na(data$b_Urg)&
-  !is.na(data$l_Ceil)&
-  !is.na(data$l_Days)&
-  !is.na(data$Veh) &
-  !is.na(data$n_Fixed)&
-  !is.na(data$b_Intl)&
-  !is.na(data$b_UCA)&
-  !is.na(data$ProdServ)&
-  !is.na(data$Crisis)&
-  !is.na(data$Office)&
-!is.na(data$OffCri)&
-  !is.na(data$OffIntl)&
-  !is.na(data$Is.Defense)
-  # !is.na(data$cl_HHI_lag1)
-  complete
-}
 
+# debug(get_complete_list)
 fed<-sample_prep(fed)
 fed_complete<-get_complete_list(fed)
-fed_no_na<-fed[fed_complete,]
-# crisis_with_na<-sample_prep(crisis_with_na)
-# complete<-get_complete_list(crisis_with_na)  
+
+
+
+#Percent of records incomplete
+nrow(fed[!fed_complete,])/nrow(fed)
+#Percent of dollars incomplete
+sum(fed[!fed_complete,]$Action.Obligation,na.rm=TRUE)/
+  sum(fed$Action.Obligation,na.rm=TRUE)
+
+
+
+undebug(get_crisis_sample_with_na)
+crisis_with_na<-get_crisis_sample_with_na(fed)
+crisis_smp<-crisis_with_na[get_complete_list(crisis_with_na),]
+
+#Percent of records incomplete
+nrow(crisis_with_na[!get_complete_list(crisis_with_na),])/
+  nrow(crisis_with_na)
+#Percent of dollars incomplete
+sum(crisis_with_na[!get_complete_list(crisis_with_na),]$Action.Obligation,na.rm=TRUE)/
+  sum(crisis_with_na$Action.Obligation,na.rm=TRUE)
+
+
+
+large_crisis_with_na<-get_crisis_sample_with_na(fed,large=TRUE)
+nrow(large_crisis_with_na[!get_complete_list(large_crisis_with_na),])/
+  nrow(large_crisis_with_na)
+#Percent of dollars incomplete
+sum(large_crisis_with_na[!get_complete_list(large_crisis_with_na),]$Action.Obligation,na.rm=TRUE)/
+  sum(large_crisis_with_na$Action.Obligation,na.rm=TRUE)
+large_crisis_smp<-large_crisis_with_na[get_complete_list(large_crisis_with_na),]
+
 
 # 
 # 
@@ -185,34 +156,19 @@ fed_no_na<-fed[fed_complete,]
 # 
 # #
 # #8811392  to 8811392
-# nrow(crisis_with_na[!complete,])/nrow(crisis_with_na)
-# sum(crisis_with_na[!complete,]$Action.Obligation,na.rm=TRUE)/sum(crisis_with_na$Action.Obligation,na.rm=TRUE)
 # # 
 # crisis_smp<-crisis_with_na[complete,]
 # # # 
 # # head(crisis_smp)
 
-# save(crisis_smp,crisis_with_na,file="Data\\crisis_smp.Rdata")
+save(crisis_smp,crisis_with_na,
+     large_crisis_with_na,large_crisis_smp,file="Data\\crisis_smp.Rdata")
 
 
 
 
 
 
-# large_crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Dis","OCO"),]
-# other_intl<-fed[fed$Crisis %in% c("Other")&fed$OffIntl>=0.5,]
-# other_dom<-fed[fed$Crisis %in% c("Other")&(fed$OffIntl<0.5
-#                                            |is.na(fed$OffIntl)),]
-# other_dom<-other_dom[sample(nrow(other_dom),300000),]
-# other_intl<-other_intl[sample(nrow(other_intl),300000),]
-# large_crisis_with_na<-rbind(large_crisis_with_na,other_dom,other_intl)
-# rm(other_dom,other_intl)
-
-# large_crisis_with_na<-sample_prep(large_crisis_with_na)
-# large_complete<-get_complete_list(large_crisis_with_na)
-# large_crisis_smp<-large_crisis_with_na[large_complete,]
-# # summary(large_crisis_with_na$Crisis)
-# #
 #
 # large_crisis_smp$OffPl99<-Hmisc::cut2(large_crisis_smp$OffIntl,c(0.01,0.50))
 # summary(large_crisis_smp$OffPl99)
