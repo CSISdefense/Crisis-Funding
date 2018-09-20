@@ -261,9 +261,17 @@ summary(fed_full$AnyPlaceInternational)
 fed_full$UnmodifiedPlaceCountryISO3[is.na(fed_full$UnmodifiedPlaceCountryISO3)]<-
   fed_full$PlaceCountryISO3[is.na(fed_full$UnmodifiedPlaceCountryISO3)]
 fed_full$UnmodifiedPlaceCountryISO3<-factor(fed_full$UnmodifiedPlaceCountryISO3)
+
+fed_full$PlaceCountryISO3[is.na(fed_full$PlaceCountryISO3)&fed_full$AnyPlaceIsInternational]<-"*MU"
+fed_full$VendorCountryISO3[is.na(fed_full$VendorCountryISO3)&fed_full$AnyVendorIsInternational]<-"*MU"
+fed_full$OriginCountryISO3[is.na(fed_full$OriginCountryISO3)&fed_full$AnyOriginIsInternational]<-"*MU"
+
+
 fed_full$PlaceCountryISO3<-factor(fed_full$PlaceCountryISO3)
 fed_full$VendorCountryISO3<-factor(fed_full$VendorCountryISO3)
 fed_full$OriginCountryISO3<-factor(fed_full$OriginCountryISO3)
+
+
 
 
 

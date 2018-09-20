@@ -879,6 +879,8 @@ if(!exists("PlaceCountry_term"))
                        , family=binomial(link="logit"))
 get_icc(display=TRUE,PlaceCountry_term)
 
+
+
 ```
 
 #### Is foreign / Place
@@ -1297,7 +1299,9 @@ get_icc(display=TRUE,ssc_prodserv_customer_office_placevendor_cbre)
 if(!exists("cpsa_prodserv_customer_office_placevendor_term"))
   cpsa_prodserv_customer_office_placevendor_term <- glmer(data=large_crisis_smp,
                              b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)+ (1 | PlaceCountryISO3/PlaceVendor)
-                             , family=binomial(link="logit"))
+                             , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_term)
 
 
