@@ -158,11 +158,19 @@ large_crisis_smp<-large_crisis_with_na[get_complete_list(large_crisis_with_na),]
 # # # 
 # # head(crisis_smp)
 
+  crisis_smp<-sample_prep(crisis_smp)
+  large_crisis_smp<-sample_prep(large_crisis_smp)
 save(crisis_smp,crisis_with_na,
      large_crisis_with_na,large_crisis_smp,file="Data\\crisis_smp.Rdata")
 
 
 
+large_crisis_smp$origin_isforeign[large_crisis_smp$OriginCountryISO3=="*MF"]<-1
+large_crisis_smp$place_isforeign[large_crisis_smp$PlaceCountryISO3=="*MF"]<-1
+large_crisis_smp$vendor_isforeign[large_crisis_smp$VendorCountryISO3=="*MF"]<-1
+crisis_smp$origin_isforeign[crisis_smp$OriginCountryISO3=="*MF"]<-1
+crisis_smp$place_isforeign[crisis_smp$PlaceCountryISO3=="*MF"]<-1
+crisis_smp$vendor_isforeign[crisis_smp$VendorCountryISO3=="*MF"]<-1
 
 
 
