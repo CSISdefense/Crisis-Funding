@@ -881,9 +881,9 @@ sample_prep<-function(contract){
   
   #Where - Place, Vendor, Origin
   
-  iso3(contract,"PlaceCountryISO3","place")
-  iso3(contract,"VendorCountryISO3","vendor")
-  iso3(contract,"OriginCountryISO3","origin")
+  contract<-iso3(contract,"PlaceCountryISO3","place")
+  contract<-iso3(contract,"VendorCountryISO3","vendor")
+  contract<-iso3(contract,"OriginCountryISO3","origin")
   
   contract
 }
@@ -905,6 +905,8 @@ iso3<-function(contract,colname,prefix){
   contract$CrisisFundingTheater<-factor(contract$CrisisFundingTheater)
   contract$CombatantCommand<-factor(contract$CombatantCommand)
   contract$isforeign<-factor(contract$isforeign)
+  
+  
   colnames(contract)[colnames(contract) %in% c("CrisisFundingTheater",
                                                "CombatantCommand",
                                                "isforeign")]<-
