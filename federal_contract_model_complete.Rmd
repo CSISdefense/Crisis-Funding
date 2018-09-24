@@ -361,8 +361,11 @@ fed_full$SubAccountCode[is.na(fed_full$SubAccountCode)&
 fed_full$MainAccountCode[is.na(fed_full$MainAccountCode)&
                             fed_full$AnyMainAccountCode==1]<-"*MUL"
 
+
+
+
 fed_full$TreasuryAgencyCode[is.na(fed_full$TreasuryAgencyCode)&
-                            fed_full$OriginIsInternational==1]<-"*M"
+                            fed_full$AnyTreasuryAgencyCode==1]<-"*M"
 
 
 
@@ -370,9 +373,12 @@ fed_full$SubAccountCode<-factor(fed_full$SubAccountCode)
 fed_full$MainAccountCode<-factor(fed_full$MainAccountCode)
 fed_full$TreasuryAgencyCode<-factor(fed_full$TreasuryAgencyCode)
 summary(fed_full$SubAccountCode)
+summary(fed_full$AnySubAccountCode)
 summary(fed_full$MainAccountCode)
+summary(fed_full$AnyMainAccountCode)
 summary(fed_full$TreasuryAgencyCode)
-summary(fed_full$UnmodifiedTreasuryAgencyCode)
+summary(fed_full$AnyTreasuryAgencyCode)
+
 
 
 
@@ -380,24 +386,17 @@ summary(fed_full$UnmodifiedTreasuryAgencyCode)
 fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
   # "SubAccountCode",
-  # "UnmodifiedSubAccountCode",
-  "ObligatedAmountAnySubAccountCode"     ,
-   # "AnySubAccountCode",
-  "AnySubAccountCode"  ,
-  "UnmodifiedAnySubAccountCode",
+  "UnmodifiedSubAccountCode",
+  "AnySubAccountCode",
+  "AnyUnmodifiedAnySubAccountCode",
    # "MainAccountCode",
   "UnmodifiedMainAccountCode" ,
-  "ObligatedAmountAnyMainAccountCode"  ,
    "AnyMainAccountCode",
-  "AnyMainAccountCode",
-  "UnmodifiedAnyMainAccountCode"         ,
+  "AnyUnmodifiedAnyMainAccountCode"         ,
    # "TreasuryAgencyCode",
   "UnmodifiedTreasuryAgencyCode",
-  "ObligatedAmountOriginIsInternational"    ,
    "AnyTreasuryAgencyCode",
-  "OriginIsInternational",
-  "UnmodifiedOriginIsInternational" ,
-  "pIsInternational" #This just isn't working
+  "AnyUnmodifiedTreasuryAgencyCode"
     )]
 
 save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
