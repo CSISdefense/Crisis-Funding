@@ -269,33 +269,33 @@ fed_full$OriginCountryISO3<-as.character(fed_full$OriginCountryISO3)
 fed_full$PlaceCountryISO3[is.na(fed_full$PlaceCountryISO3)&
                             fed_full$PlaceIsInternational==1]<-"*MF"
 fed_full$PlaceCountryISO3[is.na(fed_full$PlaceCountryISO3)&
-                            fed_full$AnyPlaceInternational=="Any International"]<-"*MU"
-
-fed_full$VendorCountryISO3[is.na(fed_full$VendorCountryISO3)&
-                            fed_full$VendorIsInternational==1]<-"*MF"
-fed_full$VendorCountryISO3[is.na(fed_full$VendorCountryISO3)&
-                            fed_full$AnyVendorInternational=="Any International"]<-"*MU"
-
-
-
-fed_full$OriginCountryISO3[is.na(fed_full$OriginCountryISO3)&
-                            fed_full$OriginIsInternational==1]<-"*MF"
-fed_full$OriginCountryISO3[is.na(fed_full$OriginCountryISO3)&
-                            fed_full$AnyOriginInternational=="Any International"]<-"*MU"
-
-
-
-fed_full$PlaceCountryISO3<-factor(fed_full$PlaceCountryISO3)
-fed_full$VendorCountryISO3<-factor(fed_full$VendorCountryISO3)
-fed_full$OriginCountryISO3<-factor(fed_full$OriginCountryISO3)
-
-
-
-
-
-fed_full<-fed_full[,!colnames(fed_full) %in% 
-    c(
-  # "PlaceCountryISO3",
+                              fed_full$AnyPlaceInternational %in% c("Any International",1)]<-"*MU"
+  
+  fed_full$VendorCountryISO3[is.na(fed_full$VendorCountryISO3)&
+                              fed_full$VendorIsInternational==1]<-"*MF"
+  fed_full$VendorCountryISO3[is.na(fed_full$VendorCountryISO3)&
+                              fed_full$AnyVendorInternational %in% c("Any International",1)]<-"*MU"
+  
+  
+  
+  fed_full$OriginCountryISO3[is.na(fed_full$OriginCountryISO3)&
+                              fed_full$OriginIsInternational==1]<-"*MF"
+  fed_full$OriginCountryISO3[is.na(fed_full$OriginCountryISO3)&
+                              fed_full$AnyOriginInternational %in% c("Any International",1)]<-"*MU"
+  
+  
+  
+  fed_full$PlaceCountryISO3<-factor(fed_full$PlaceCountryISO3)
+  fed_full$VendorCountryISO3<-factor(fed_full$VendorCountryISO3)
+  fed_full$OriginCountryISO3<-factor(fed_full$OriginCountryISO3)
+  
+  
+  
+  
+  
+  fed_full<-fed_full[,!colnames(fed_full) %in% 
+      c(
+    # "PlaceCountryISO3",
   # "UnmodifiedPlaceCountryISO3",
   "ObligatedAmountPlaceIsInternational"     ,
    # "AnyPlaceInternational",
