@@ -110,11 +110,9 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 load("Data\\crisis_smp.Rdata")
 
 
-
 # debug(get_complete_list)
 fed<-sample_prep(fed)
 fed_complete<-get_complete_list(fed)
-
 
 
 #Percent of records incomplete

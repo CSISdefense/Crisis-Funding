@@ -1067,18 +1067,22 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_vendor_term)
 
 ### Origin
 ```{r OriginCountry}
-# load(file="Output//who_empty_models.rdata")
+# load(file="Output//where_empty_models.rdata")
 
-if(!exists("OriginCountry_cbre"))
+# if(!exists("OriginCountry_cbre"))
   OriginCountry_cbre <- glmer(data=large_crisis_smp,
                        b_CBre ~ (1 | OriginCountryISO3)
-                       , family=binomial(link="logit"))
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 get_icc(display=TRUE,OriginCountry_cbre)
 
-if(!exists("OriginCountry_term"))
+# if(!exists("OriginCountry_term"))
   OriginCountry_term <- glmer(data=large_crisis_smp,
                        b_Term ~ (1 | OriginCountryISO3)
-                       , family=binomial(link="logit"))
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 get_icc(display=TRUE,OriginCountry_term)
 
 
@@ -1091,16 +1095,20 @@ get_icc(display=TRUE,OriginCountry_term)
 ```{r Origin_isforeign_Country}
 # load(file="Output//where_empty_models.rdata")
 
-if(!exists("Origin_isforeign_Country_cbre"))
+# if(!exists("Origin_isforeign_Country_cbre"))
   Origin_isforeign_Country_cbre <- glmer(data=large_crisis_smp,
                        b_CBre ~ (1 | origin_isforeign/OriginCountryISO3)
-                       , family=binomial(link="logit"))
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 get_icc(display=TRUE,Origin_isforeign_Country_cbre)
 
-if(!exists("origin_isforeign_Country_term"))
+# if(!exists("origin_isforeign_Country_term"))
   origin_isforeign_Country_term <- glmer(data=large_crisis_smp,
                        b_Term ~ (1 | origin_isforeign/OriginCountryISO3)
-                       , family=binomial(link="logit"))
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 get_icc(display=TRUE,origin_isforeign_Country_term)
 
 ```
@@ -1331,7 +1339,7 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_when_term)
 
 ### Compare Where
 ```{r Empty_Compare_Who_Term}
-
+OriginCountry_cbre<-update(OriginCountry_cbre)
     save(PlaceCountry_cbre,PlaceCountry_term,
          Place_isforeign_Country_cbre,Place_isforeign_Country_term,
          VendorCountry_cbre,VendorCountry_term,
@@ -1352,6 +1360,31 @@ PlaceVendorCombined_cbre,PlaceVendorCombined_term,
 PlaceVendorSimplified_cbre,PlaceVendorSimplified_term,
 ssc_prodserv_customer_office_placevendor_when_cbre,cpsa_prodserv_customer_office_placevendor_when_term,
          file="Output//where_empty_models.rdata")
+
+PlaceCountry_cbre<-update(PlaceCountry_cbre)
+PlaceCountry_term<-update(PlaceCountry_term)
+Place_isforeign_Country_cbre<-update(Place_isforeign_Country_cbre)
+Place_isforeign_Country_term<-update(Place_isforeign_Country_term)
+VendorCountry_cbre<-update(VendorCountry_cbre)
+VendorCountry_term<-update(VendorCountry_term)
+ssc_prodserv_customer_office_place_cbre<-update(ssc_prodserv_customer_office_place_cbre)
+cpsa_prodserv_customer_office_place_term<-update(cpsa_prodserv_customer_office_place_term)
+ssc_prodserv_customer_office_vendor_cbre<-update(ssc_prodserv_customer_office_vendor_cbre)
+cpsa_prodserv_customer_office_vendor_term<-update(cpsa_prodserv_customer_office_vendor_term)
+ssc_prodserv_customer_office_origin_cbre<-update(ssc_prodserv_customer_office_origin_cbre)
+cpsa_prodserv_customer_office_origin_term<-update(cpsa_prodserv_customer_office_origin_term)
+Place_ssc_psc_cbre<-update(Place_ssc_psc_cbre)
+Place_cpsa_psc_term<-update(Place_cpsa_psc_term)
+Vendor_ssc_psc_cbre<-update(Vendor_ssc_psc_cbre)
+Vendor_cpsa_psc_term<-update(Vendor_cpsa_psc_term)
+PlaceVendorOriginCountry_cbre<-update(PlaceVendorOriginCountry_cbre)
+PlaceVendorOriginCountry_term<-update(PlaceVendorOriginCountry_term)
+PlaceVendorOriginCombined_cbre<-update(PlaceVendorOriginCombined_cbre)
+PlaceVendorOriginCombined_term<-update(PlaceVendorOriginCombined_term)
+PlaceVendorCountry_cbre<-update(PlaceVendorCountry_cbre)
+PlaceVendorCountry_term<-update(PlaceVendorCountry_term)
+ssc_prodserv_customer_office_placevendor_cbre<-update(ssc_prodserv_customer_office_placevendor_cbre)
+cpsa_prodserv_customer_office_placevendor_term<-update(cpsa_prodserv_customer_office_placevendor_term)
 
 
 
