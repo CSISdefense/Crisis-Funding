@@ -1343,7 +1343,6 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_when_term)
 
 ### Compare Where
 ```{r Empty_Compare_Who_Term}
-OriginCountry_cbre<-update(OriginCountry_cbre)
     save(PlaceCountry_cbre,PlaceCountry_term,
          Place_isforeign_Country_cbre,Place_isforeign_Country_term,
          VendorCountry_cbre,VendorCountry_term,
@@ -1365,16 +1364,16 @@ PlaceVendorSimplified_cbre,PlaceVendorSimplified_term,
 ssc_prodserv_customer_office_placevendor_when_cbre,cpsa_prodserv_customer_office_placevendor_when_term,
          file="Output//where_empty_models.rdata")
 
-PlaceCountry_cbre<-update(PlaceCountry_cbre)
-PlaceCountry_term<-update(PlaceCountry_term)
-Place_isforeign_Country_cbre<-update(Place_isforeign_Country_cbre)
-Place_isforeign_Country_term<-update(Place_isforeign_Country_term)
-VendorCountry_cbre<-update(VendorCountry_cbre)
-VendorCountry_term<-update(VendorCountry_term)
-ssc_prodserv_customer_office_place_cbre<-update(ssc_prodserv_customer_office_place_cbre)
-cpsa_prodserv_customer_office_place_term<-update(cpsa_prodserv_customer_office_place_term)
-ssc_prodserv_customer_office_vendor_cbre<-update(ssc_prodserv_customer_office_vendor_cbre)
-cpsa_prodserv_customer_office_vendor_term<-update(cpsa_prodserv_customer_office_vendor_term)
+# PlaceCountry_cbre<-update(PlaceCountry_cbre)
+# PlaceCountry_term<-update(PlaceCountry_term)
+# Place_isforeign_Country_cbre<-update(Place_isforeign_Country_cbre)
+# Place_isforeign_Country_term<-update(Place_isforeign_Country_term)
+# VendorCountry_cbre<-update(VendorCountry_cbre)
+# VendorCountry_term<-update(VendorCountry_term)
+# ssc_prodserv_customer_office_place_cbre<-update(ssc_prodserv_customer_office_place_cbre)
+# cpsa_prodserv_customer_office_place_term<-update(cpsa_prodserv_customer_office_place_term)
+# ssc_prodserv_customer_office_vendor_cbre<-update(ssc_prodserv_customer_office_vendor_cbre)
+# cpsa_prodserv_customer_office_vendor_term<-update(cpsa_prodserv_customer_office_vendor_term)
 ssc_prodserv_customer_office_origin_cbre<-update(ssc_prodserv_customer_office_origin_cbre)
 cpsa_prodserv_customer_office_origin_term<-update(cpsa_prodserv_customer_office_origin_term)
 Place_ssc_psc_cbre<-update(Place_ssc_psc_cbre)
