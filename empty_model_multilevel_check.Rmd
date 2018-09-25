@@ -1265,6 +1265,12 @@ summary_discrete_plot(large_crisis_smp,"vendor_CrisisFundingTheater")
 summary_discrete_plot(large_crisis_smp,"vendor_isforeign")
 summary_discrete_plot(large_crisis_smp,"vendor_CombatantCommand")
 
+debug(place_compare)
+large_crisis_smp<-place_compare(large_crisis_smp,
+                                comparecol="VendorCountryISO3",newcol="PlaceVendor",comparename="Vendor")
+large_crisis_smp<-place_compare(large_crisis_smp,
+                                comparecol="OriginCountryISO3",newcol="OriginVendor",comparename="Origin")
+
 large_crisis_smp$PlaceVendor<-as.character(large_crisis_smp$PlaceVendor)
 large_crisis_smp$PlaceVendor[large_crisis_smp$PlaceCountryISO3!="USA"&
                                large_crisis_smp$PlaceCountryISO3==large_crisis_smp$VendorCountryISO3]<-"Host Nation Vendor"

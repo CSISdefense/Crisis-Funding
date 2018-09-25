@@ -971,13 +971,15 @@ get_crisis_sample_with_na<-function(contract,large=FALSE){
 
 
 place_compare<-function(contract,comparecol,newcol,comparename,placecol="PlaceCountryISO3"){
-  contract[,newcol]<-NA
-  contract[,newcol][contract[,placecol]!="USA"&
-                                 contract[,placecol]==contract[,comparecol]]<-paste("Host Nation",comparename)
-  contract[,newcol][contract[,comparecol]=="USA"]<-paste("U.S. ",comparename)
-  contract[,newcol][contract[,comparecol]=="*MU"]<-paste("Foreign ",comparename,"s",sep="")
-  contract[,newcol][contract[,comparecol]=="*MF"]<-paste("U.S. & Foreign ",comparename,"s",sep="")
-  contract[,newcol][contract[,placecol]!=contract[,comparecol]&
-                                 contract[,comparecol]!="USA"]<-paste("Third Country",comparename)
-  contract[,newcol]<-factor(contract[,newcol])
+  contract[[newcol]]<-NA
+  contract[!(contract[[placecol]] %in% c("USA","*MF","*MU"))&
+                                 contract[[placecol]]==contract[[comparecol]],newcol]<-paste("Host Nation",comparename)
+  contract[contract[[comparecol]]=="USA",newcol]<-paste("U.S. ",comparename)
+  contract[contract[[comparecol]]=="*MF",newcol]<-paste("Foreign ",comparename,"s",sep="")
+  contract[contract[[comparecol]]=="*MU",newcol]<-paste("U.S. & Foreign ",comparename,"s",sep="")
+  contract[contract[[placecol]]!=contract[[comparecol]]&
+                                 !contract[[comparecol]] %in% c("USA","*MF","*MU"),
+           newcol]<-paste("Third Country",comparename)
+  contract[,newcol]<-factor(contract[[newcol]])
+  contract
 }

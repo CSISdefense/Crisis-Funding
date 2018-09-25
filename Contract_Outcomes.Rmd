@@ -126,6 +126,13 @@ undebug(get_crisis_sample_with_na)
 crisis_with_na<-get_crisis_sample_with_na(fed)
 crisis_smp<-crisis_with_na[get_complete_list(crisis_with_na),]
 
+
+large_crisis_with_na<-update_sample_col_CSIScontractID(sample=large_crisis_with_na,full=fed_full,
+                                 col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
+crisis_with_na<-update_sample_col_CSIScontractID(sample=crisis_with_na,full=fed_full,
+                                 col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
+
+
 #Percent of records incomplete
 nrow(crisis_with_na[!get_complete_list(crisis_with_na),])/
   nrow(crisis_with_na)
@@ -163,8 +170,7 @@ large_crisis_smp<-large_crisis_with_na[get_complete_list(large_crisis_with_na),]
 save(crisis_smp,crisis_with_na,
      large_crisis_with_na,large_crisis_smp,file="Data\\crisis_smp.Rdata")
 
-
-
+summary(factor(large_crisis_smp$PlaceCountryISO3))
 large_crisis_smp$origin_isforeign[large_crisis_smp$OriginCountryISO3=="*MF"]<-1
 large_crisis_smp$place_isforeign[large_crisis_smp$PlaceCountryISO3=="*MF"]<-1
 large_crisis_smp$vendor_isforeign[large_crisis_smp$VendorCountryISO3=="*MF"]<-1

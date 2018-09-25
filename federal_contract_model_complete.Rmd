@@ -292,7 +292,6 @@ fed_full$PlaceCountryISO3[is.na(fed_full$PlaceCountryISO3)&
   
   
   
-  
   fed_full<-fed_full[,!colnames(fed_full) %in% 
       c(
     # "PlaceCountryISO3",
