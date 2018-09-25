@@ -856,23 +856,7 @@ display(Crisis1level_term)
 
 ```
 
-```{r CrisisMultilevel}
-# load(file="Output//who_empty_models.rdata")
-
-if(!exists("Crisis_cbre"))
-  Crisis_cbre <- glmer(data=large_crisis_smp,
-                       b_CBre ~ (1 | Crisis)
-                       , family=binomial(link="logit"))
-display(Crisis_cbre)
-
-if(!exists("Crisis_term"))
-  Crisis_term <- glmer(data=large_crisis_smp,
-                       b_Term ~ (1| Crisis)
-                       , family=binomial(link="logit"))
-display(Crisis_term)
-
-```
-
+### Crisis Funded Multi Level
 
 ```{r CrisisMultilevel}
 # load(file="Output//who_empty_models.rdata")
@@ -881,18 +865,64 @@ if(!exists("Crisis_cbre"))
   Crisis_cbre <- glmer(data=large_crisis_smp,
                        b_CBre ~ (1 | Crisis)
                        , family=binomial(link="logit"))
-display(Crisis_cbre)
+get_icc(display=TRUE,Crisis_cbre)
 
 if(!exists("Crisis_term"))
   Crisis_term <- glmer(data=large_crisis_smp,
                        b_Term ~ (1| Crisis)
                        , family=binomial(link="logit"))
-display(Crisis_term)
+get_icc(display=TRUE,Crisis_term)
 
 ```
 
-### Compare Where
-```{r Empty_Compare_Who_Term}
+### nested PSC Customer/Office and 1 level funding
+```{r cpsa_prodserv_customer_office_crisis1level}
+# load(file="Output//who_empty_models.rdata")
+
+if(!exists("Crisis1level_cbre"))
+  Crisis1level_cbre <- glm(data=large_crisis_smp,
+                       b_CBre ~ Crisis
+                       , family=binomial(link="logit"))
+display(Crisis1level_cbre)
+
+if(!exists("Crisis1level_term"))
+  Crisis1level_term <- glm(data=large_crisis_smp,
+                       b_Term ~ Crisis
+                       , family=binomial(link="logit"))
+display(Crisis1level_term)
+
+
+```
+
+### Funding nested PSC Customer/Office
+```{r cpsa_prodserv_customer_office_crisis}
+
+if(!exists("ssc_prodserv_customer_office_funding1level_cbre"))
+  ssc_prodserv_customer_office_funding1level_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~  (1 | ServCommCons/ProdServ) +
+                               (1 | Customer/Office) + 
+                               Crisis
+                             , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,ssc_prodserv_customer_office_funding1level_cbre)
+
+if(!exists("cpsa_prodserv_customer_office_funding1level_term"))
+  cpsa_prodserv_customer_office_funding1level_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) + 
+                               (1 | Customer/Office)  + 
+                               Crisis
+                             , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,cpsa_prodserv_customer_office_funding1level_term)
+
+
+
+```
+
+### Compare Funding
+```{r Empty_Compare_Finding_Term}
 
 save(PlaceCountry_cbre,PlaceCountry_term,
      VendorCountry_cbre,VendorCountry_term,
