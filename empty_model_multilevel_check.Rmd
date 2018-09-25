@@ -1252,9 +1252,10 @@ get_icc(display=TRUE,PlaceVendorCountry_term_test)
 
 ```
 
-#### Place Vendor Combined
+#### Place Vendor Simplified
 ```{r PlaceVendorCombined}
-# load(file="Output//where2_empty_models.rdata")
+load(file="Output//where_empty_models.rdata")
+
 large_crisis_smp$PlaceVendor<-NA
 summary(factor(large_crisis_smp$PlaceCountryISO3))
 large_crisis_smp$place_CombatantCommand
@@ -1265,19 +1266,10 @@ summary_discrete_plot(large_crisis_smp,"vendor_CrisisFundingTheater")
 summary_discrete_plot(large_crisis_smp,"vendor_isforeign")
 summary_discrete_plot(large_crisis_smp,"vendor_CombatantCommand")
 
-debug(place_compare)
 large_crisis_smp<-place_compare(large_crisis_smp,
                                 comparecol="VendorCountryISO3",newcol="PlaceVendor",comparename="Vendor")
 large_crisis_smp<-place_compare(large_crisis_smp,
                                 comparecol="OriginCountryISO3",newcol="OriginVendor",comparename="Origin")
-
-large_crisis_smp$PlaceVendor<-as.character(large_crisis_smp$PlaceVendor)
-large_crisis_smp$PlaceVendor[large_crisis_smp$PlaceCountryISO3!="USA"&
-                               large_crisis_smp$PlaceCountryISO3==large_crisis_smp$VendorCountryISO3]<-"Host Nation Vendor"
-large_crisis_smp$PlaceVendor[large_crisis_smp$VendorCountryISO3=="USA"]<-"U.S. vendor"
-large_crisis_smp$PlaceVendor[large_crisis_smp$PlaceCountryISO3!=large_crisis_smp$VendorCountryISO3&
-                               large_crisis_smp$VendorCountryISO3!="USA"]<-"Third Country Vendor"
-large_crisis_smp$PlaceVendor<-factor(large_crisis_smp$PlaceVendor)
 
   summary_discrete_plot(large_crisis_smp,"PlaceVendor")
 
@@ -1299,6 +1291,70 @@ if(!exists("PlaceVendorSimplified_term"))
 get_icc(display=TRUE,PlaceVendorSimplified_term)
 ```
 
+#### Place Origin Simplified
+```{r PlaceOriginCombined}
+load(file="Output//where_empty_models.rdata")
+
+
+summary(factor(large_crisis_smp$PlaceCountryISO3))
+large_crisis_smp$place_CombatantCommand
+summary_discrete_plot(large_crisis_smp,"place_CrisisFundingTheater")
+summary_discrete_plot(large_crisis_smp,"place_isforeign")
+summary_discrete_plot(large_crisis_smp,"place_CombatantCommand")
+summary_discrete_plot(large_crisis_smp,"Origin_CrisisFundingTheater")
+summary_discrete_plot(large_crisis_smp,"Origin_isforeign")
+summary_discrete_plot(large_crisis_smp,"Origin_CombatantCommand")
+
+large_crisis_smp<-place_compare(large_crisis_smp,
+                                comparecol="OriginCountryISO3",newcol="PlaceOrigin",comparename="Origin")
+large_crisis_smp<-place_compare(large_crisis_smp,
+                                comparecol="OriginCountryISO3",newcol="OriginOrigin",comparename="Origin")
+
+  summary_discrete_plot(large_crisis_smp,"PlaceOrigin")
+
+
+if(!exists("PlaceOriginSimplified_cbre"))
+  PlaceOriginSimplified_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ (1 | PlaceCountryISO3/PlaceOrigin)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceOriginSimplified_cbre)
+
+if(!exists("PlaceOriginSimplified_term"))
+  PlaceOriginSimplified_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ (1 | PlaceCountryISO3/PlaceOrigin)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,PlaceOriginSimplified_term)
+```
+
+
+#### nested PSC Customer/Office and place
+```{r cpsa_prodserv_customer_placevendor_office}
+
+if(!exists("ssc_prodserv_customer_office_placeorigin_cbre"))
+  ssc_prodserv_customer_office_placeorigin_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~  (1 | ServCommCons/ProdServ) + 
+                               (1 | Customer/Office) + (1 | PlaceCountryISO3/PlaceVendor)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,ssc_prodserv_customer_office_placeorigin_cbre)
+
+if(!exists("cpsa_prodserv_customer_office_placeorigin_term"))
+  cpsa_prodserv_customer_office_placevendor_term <- glmer(data=large_crisis_smp,
+                             b_Term ~  (1 | CrisisProductOrServiceArea/ProdServ) +
+                               (1 | Customer/Office)+ (1 | PlaceCountryISO3/PlaceVendor)
+                             , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,cpsa_prodserv_customer_office_placeorigin_term)
+
+
+
+```
+
+
 #### nested PSC Customer/Office and place
 ```{r cpsa_prodserv_customer_office}
 
@@ -1319,6 +1375,7 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_term)
 
 
 ```
+
 #### nested PSC Customer/Office and place and year
 
 ```{r cpsa_prodserv_customer_office_placevendor_when}
@@ -1343,20 +1400,20 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_when_term)
 
 ### Compare Where
 ```{r Empty_Compare_Who_Term}
-    save(PlaceCountry_cbre,PlaceCountry_term,
+   save(PlaceCountry_cbre,PlaceCountry_term,
          Place_isforeign_Country_cbre,Place_isforeign_Country_term,
          VendorCountry_cbre,VendorCountry_term,
          OriginCountry_cbre,OriginCountry_term,
          ssc_prodserv_customer_office_place_cbre,cpsa_prodserv_customer_office_place_term,
          ssc_prodserv_customer_office_vendor_cbre,cpsa_prodserv_customer_office_vendor_term,
          ssc_prodserv_customer_office_origin_cbre,cpsa_prodserv_customer_office_origin_term,
-         
+
          Place_ssc_psc_cbre,Place_cpsa_psc_term,
          Vendor_ssc_psc_cbre,Vendor_cpsa_psc_term,
          PlaceVendorOriginCountry_cbre,PlaceVendorOriginCountry_term,
-         PlaceVendorOriginCombined_cbre,PlaceVendorOriginCombined_term,
          PlaceVendorCountry_cbre,PlaceVendorCountry_term,
          ssc_prodserv_customer_office_placevendor_cbre,cpsa_prodserv_customer_office_placevendor_term,
+        ssc_prodserv_customer_office_placeorigin_cbre,ssc_prodserv_customer_office_placeorigin_term,
 
 PlaceVendorCountry_term_test,
 PlaceVendorCombined_cbre,PlaceVendorCombined_term,
@@ -1364,8 +1421,11 @@ PlaceVendorSimplified_cbre,PlaceVendorSimplified_term,
 ssc_prodserv_customer_office_placevendor_when_cbre,cpsa_prodserv_customer_office_placevendor_when_term,
          file="Output//where_empty_models.rdata")
 
+# OriginCountry_cbre<-update(OriginCountry_cbre)
+# OriginCountry_term<-update(OriginCountry_term)
 # PlaceCountry_cbre<-update(PlaceCountry_cbre)
 # PlaceCountry_term<-update(PlaceCountry_term)
+
 # Place_isforeign_Country_cbre<-update(Place_isforeign_Country_cbre)
 # Place_isforeign_Country_term<-update(Place_isforeign_Country_term)
 # VendorCountry_cbre<-update(VendorCountry_cbre)
@@ -1382,8 +1442,6 @@ Vendor_ssc_psc_cbre<-update(Vendor_ssc_psc_cbre)
 Vendor_cpsa_psc_term<-update(Vendor_cpsa_psc_term)
 # PlaceVendorOriginCountry_cbre<-update(PlaceVendorOriginCountry_cbre)
 # PlaceVendorOriginCountry_term<-update(PlaceVendorOriginCountry_term)
-# PlaceVendorOriginCombined_cbre<-update(PlaceVendorOriginCombined_cbre)
-# PlaceVendorOriginCombined_term<-update(PlaceVendorOriginCombined_term)
 # PlaceVendorCountry_cbre<-update(PlaceVendorCountry_cbre)
 # PlaceVendorCountry_term<-update(PlaceVendorCountry_term)
 # ssc_prodserv_customer_office_placevendor_cbre<-update(ssc_prodserv_customer_office_placevendor_cbre)
@@ -1409,22 +1467,24 @@ get_icc(PlaceVendorCountry_cbre)
 
 
 stargazer::stargazer( PlaceCountry_cbre,
-VendorCountry_cbre,
-OriginCountry_cbre,
-PlaceVendorCountry_cbre,
-PlaceVendorCombined_cbre,
-PlaceVendorSimplified_cbre,
-PlaceVendorOriginCountry_cbre,
-PlaceVendorOriginCombined_cbre,
-type="text",
-                       digits=2)
+                      VendorCountry_cbre,
+                      OriginCountry_cbre,
+                      PlaceVendorCountry_cbre,
+                      PlaceVendorCombined_cbre,
+                      PlaceVendorSimplified_cbre,
+                      PlaceOriginSimplified_cbre,
+                      PlaceVendorOriginCountry_cbre,
+                      type="text",
+                      digits=2)
+
+
 stargazer::stargazer( 
-ssc_prodserv_customer_office_place_cbre,
-ssc_prodserv_customer_office_vendor_cbre,
-ssc_prodserv_customer_office_origin_cbre,
-ssc_prodserv_customer_office_placevendor_cbre,
-                     type="text",
-                       digits=2)
+  ssc_prodserv_customer_office_place_cbre,
+  ssc_prodserv_customer_office_vendor_cbre,
+  ssc_prodserv_customer_office_origin_cbre,
+  ssc_prodserv_customer_office_placevendor_cbre,
+  type="text",
+  digits=2)
 
 
 
@@ -1447,22 +1507,23 @@ get_icc(cpsa_prodserv_customer_office_placevendor_term)
 # get_icc(psc_When_Office_term)
 
 stargazer::stargazer( PlaceCountry_term,
-VendorCountry_term,
-OriginCountry_term,
-PlaceVendorOriginCountry_term,
-PlaceVendorOriginCombined_term,
-PlaceVendorCountry_term,
-PlaceVendorCountry_term_test,
-PlaceVendorSimplified_term,
-Place_cpsa_psc_term,
-                     type="text",
-                       digits=2)
+                      VendorCountry_term,
+                      OriginCountry_term,
+                      PlaceVendorOriginCountry_term,
+                      PlaceVendorCountry_term,
+                      PlaceVendorCountry_term_test,
+                      PlaceVendorSimplified_term,
+                      PlaceOriginSimplified_cbre,
+                      Place_cpsa_psc_term,
+                      type="text",
+                      digits=2)
+
 stargazer::stargazer( cpsa_prodserv_customer_office_place_term,
-cpsa_prodserv_customer_office_vendor_term,
-cpsa_prodserv_customer_office_origin_term,
-cpsa_prodserv_customer_office_placevendor_term,
-                     type="text",
-                       digits=2)
+                      cpsa_prodserv_customer_office_vendor_term,
+                      cpsa_prodserv_customer_office_origin_term,
+                      cpsa_prodserv_customer_office_placevendor_term,
+                      type="text",
+                      digits=2)
 
 
 ```
