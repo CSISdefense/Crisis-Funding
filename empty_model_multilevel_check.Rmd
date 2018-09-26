@@ -36,7 +36,6 @@ note.text.size<-1.40
 ## Load in data
 ```{r Sample}
  load("Data\\crisis_smp.Rdata")
-# save(large_crisis_smp,large_crisis_smp,file="data//large_crisis_smp")
 
 
 
@@ -62,7 +61,6 @@ note.text.size<-1.40
 # 
 # large_crisis_smp<-large_crisis_smp[sample(nrow(large_crisis_smp),1000000),]
 # large_crisis_smp<-large_crisis_smp[sample(nrow(large_crisis_smp),250000),]
-# save(file="data//def_sample.Rdata",large_crisis_smp,large_crisis_smp)
 
 # levels(large_crisis_smp$Intl)<- list("Just U.S."=c("Just U.S."), 
 #                                 "Any Intl."=c("Any International"))
