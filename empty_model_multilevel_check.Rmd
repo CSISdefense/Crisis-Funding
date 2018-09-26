@@ -1473,7 +1473,7 @@ get_icc(display=TRUE,PlaceVendorOriginCountry_term)
 ```{r PlaceVendorOriginCombined}
 # load(file="Output//where_empty_models2.rdata")
 
-# if(!exists("PlaceVendorOriginCombined_cbre"))
+if(!exists("PlaceVendorOriginCombined_cbre"))
   PlaceVendorOriginCombined_cbre <- glmer(data=large_crisis_smp,
                        b_CBre ~ (1 | PlaceCountryISO3 / VendorCountryISO3 / OriginCountryISO3)
                        , family=binomial(link="logit"),
@@ -1481,7 +1481,7 @@ get_icc(display=TRUE,PlaceVendorOriginCountry_term)
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 get_icc(display=TRUE,PlaceVendorOriginCombined_cbre)
 
-# if(!exists("PlaceVendorOriginCombined_term"))
+if(!exists("PlaceVendorOriginCombined_term"))
   PlaceVendorOriginCombined_term <- glmer(data=large_crisis_smp,
                        b_Term ~ (1 | PlaceCountryISO3 / VendorCountryISO3 /OriginCountryISO3)
                        , family=binomial(link="logit"),
@@ -1592,13 +1592,14 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_when_term)
        ssc_prodserv_customer_office_origin_cbre,cpsa_prodserv_customer_office_origin_term,
        Place_ssc_psc_cbre,Place_cpsa_psc_term,
        Vendor_ssc_psc_cbre,Vendor_cpsa_psc_term,
-       PlaceVendorOriginCountry_cbre,PlaceVendorOriginCountry_term,
        PlaceVendorCountry_cbre,PlaceVendorCountry_term,
        PlaceVendorCombined_cbre,PlaceVendorCombined_term,
        PlaceVendorSimplified_cbre,PlaceVendorSimplified_term,
        PlaceOriginCountry_cbre,PlaceOriginCountry_term,
        PlaceOriginSimplified_cbre,PlaceOriginSimplified_term,
        PlaceOriginCombined_cbre,PlaceOriginCombined_term,
+       PlaceVendorOriginCountry_cbre,PlaceVendorOriginCountry_term,
+        PlaceVendorOriginCombined_cbre,PlaceVendorOriginCombined_term,
        PlaceVendorOriginSimplified_cbre,PlaceVendorOriginSimplified_term,
        ssc_prodserv_customer_office_placevendor_cbre,cpsa_prodserv_customer_office_placevendor_term,
        # ssc_prodserv_customer_office_placeorigin_cbre,ssc_prodserv_customer_office_placeorigin_term,
@@ -1606,6 +1607,7 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_when_term)
        PlaceVendorCombined_cbre,PlaceVendorCombined_term,
        PlaceVendorSimplified_cbre,PlaceVendorSimplified_term,
        ssc_prodserv_customer_office_placevendor_when_cbre,cpsa_prodserv_customer_office_placevendor_when_term,
+       PlaceVendorOriginNested_cbre,PlaceVendorOriginNested_term,
        file="Output//where_empty_models.rdata")
 
 ssc_prodserv_customer_office_origin_cbre<-update(ssc_prodserv_customer_office_origin_cbre)
@@ -1628,6 +1630,7 @@ get_icc(PlaceOriginCountry_cbre)
 get_icc(PlaceOriginCombined_cbre)
 get_icc(PlaceOriginSimplified_cbre)
 get_icc(PlaceVendorOriginCountry_cbre)
+get_icc(PlaceVendorOriginCombined_cbre)
 get_icc(PlaceVendorOriginSimplified_cbre)
 get_icc(ssc_prodserv_customer_office_place_cbre)
 get_icc(ssc_prodserv_customer_office_vendor_cbre)
@@ -1645,6 +1648,7 @@ stargazer::stargazer( PlaceCountry_cbre,
                       PlaceOriginCombined_cbre,
                       PlaceOriginSimplified_cbre,
                       PlaceVendorOriginCountry_cbre,
+                      PlaceVendorOriginCombined_cbre,
                       PlaceVendorOriginSimplified_cbre,
                       type="text",
                       digits=2)
@@ -1692,6 +1696,7 @@ stargazer::stargazer( PlaceCountry_term,
                       PlaceOriginCombined_term,
                       PlaceOriginSimplified_term,
                       PlaceVendorOriginCountry_term,
+                      PlaceVendorOriginCombined_term,
                       PlaceVendorOriginSimplified_term,
                       type="text",
                       digits=2)
