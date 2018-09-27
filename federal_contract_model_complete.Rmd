@@ -1008,7 +1008,7 @@ fed_full$topPrincipalNAICScode<-factor(
   fed_full$topPrincipalNAICScode
 )
 
-
+fed_full$topProductOrServiceCode[fed_full$topProductOrServiceCode==""]<-NA
 fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
       # "topContractingOfficeAgencyID",
