@@ -1,0 +1,241 @@
+---
+title: "Contract Termination"
+author: "Greg Sanders"
+date: "Wednesday, February 8, 2117"
+output:
+  html_document:
+    keep_md: yes
+--- 
+
+Modeling Likelihood of Contract Termination or Ceiling Breach
+============================================================================
+
+#Setup
+```{r Libraries, echo = FALSE}
+library(csis360)
+library(ggplot2)
+library(arm)
+library(R2WinBUGS)
+library(dplyr)
+library(Hmisc)
+source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
+
+axis.text.size<-10
+strip.text.size<-10
+legend.text.size<-8
+# table.text.size<-5.75
+title.text.size<-12
+geom.text.size<-12
+
+main.text.size<-1
+note.text.size<-1.40
+
+
+```
+
+
+
+##Prepare Data
+First we load the data. The dataset used is a U.S. Defense Contracting dataset derived from   FPDS.
+
+
+```{r ReadInData, echo = TRUE}
+# load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
+load(file="Data/fed_transformed.Rdata")
+
+# head(fed)
+# debug(transform_contract)
+# fed<-transform_contract(fed)
+
+# save(fed,file="Data/fed_transformed.Rdata")
+
+```
+
+Contracts are classified using a mix of numerical and categorical variables. While the changes in numerical variables are easy to grasp and summarize, a contract may have one line item that is competed and another that is not. As is detailed in the exploration on R&D, we are only considering information available prior to contract start. The percentage of contract obligations that were competed is a valuable benchmark, but is highly influenced by factors that occured after contract start..
+
+### Contract Terminations
+
+Contract terminations and the number of change orders can be calculated for the entire sample.  Contract termination is determined using the *Reason for Modification* field in FPDS.  A contract is considered to be terminated if it has at least one modification with the following values:
+
+* "Terminate for Default (complete or partial)"
+* "Terminate for Convenience (complete or partial)"
+* "Terminate for Cause"
+* "Legal Contract Cancellation"
+
+These four catetegories and the "Close Out" category are used to mark a contract as closed.  Many contracts in FPDS and in the sample are never marked closed.  
+
+
+* b_CBre is a binary variable that has a value of 1 for any contracts that have experienced a partial or complete termination, 0 otherwise. ('r summary(fed$b_CBre)
+NA_stats(fed,"b_CBre")')
+* b_Comp is a binary variable based on competition. It has a value of 0 for uncompeted contracts and a value of 1 for competition, regardless of number of offers. 'r  summary(fed$b_Comp);
+NA_stats(fed,"b_Comp")'
+* n_Comp is a numeric variable based on competition and number of offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for multi-offer competition. 'r summary(fed$EffComp);
+NA_stats(fed,"n_Comp")' 
+* n_Offr is a numeric variable based on competition and with more granularity on number offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for 2-offers, 3 for 3-4 offers, and 4 for 5+ offers. 'r summary(fed$n_Offr);
+NA_stats(fed,"n_Offr")' 
+
+* n_Offr is a numeric variable based on competition and with more granularity on number offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for 2-offers, 3 for 3-4 offers, and 4 for 5+ offers. 'r summary(fed$Urg);
+NA_stats(fed,"b_Urg")' 
+* l_Offr is the natural log of the number of offers received. Uncompeted contracts are classified as having received one offer. 'r summary(fed$l_Offr)
+NA_stats(fed,"l_Offr")'
+* cl_Ceil is the natural log of the initial contract cost ceiling, in then-year dollars. 'r centered_log_description(fed$l_Ceil,"dollars")
+NA_stats(fed,"l_Ceil")'
+* cl_Days is the natural log of the initial maximum duration of the contract, in days. The variable is centered, by subtracting its mean ('r centered_log_description(fed$l_Days,"days");
+NA_stats(fed,"l_Days")' 
+* SIDV, MIDV, and OIDV are dummy variables based on the contract vehicle. They correspond to Single-Award IDVs, Multi-Award IDVs, and Other IDVs, respectively, having a value of 1 when the task order has that vehicle type, and having a 0 other. The remaining types, definitive contracts and purchase orders, are intentionally left out. ('r summary(fed$SIDV);
+summary(fed$MIDV);
+summary(fed$FSSGWAC);
+summary(fed$BPABOA);
+NA_stats(fed,"Veh")'
+* n_Fixed is a numeric variable based on contract pricing. It has a value of 0 for cost-based, 0.5 or "combination or other", 1 for any fixed price (excluding fixed-price level of effort which is classified as cost-based). ('r summary(fed$n_Fixed);
+NA_stats(fed,"n_Fixed")')
+* n_Incent is a numeric variable based on fee type. Ig has a value. 1 for incentive fee or cost sharing, 0.5 or "combination or other", 0 for all remaining types. ('r summary(fed$n_Incent);
+NA_stats(fed,"n_Incent")')
+* b_UCA is a binary variable with a value of 1 for contracts/task orders that begin as letter contracts or undefinitized contract awards (UCA) and a value of 0 otherwise. 'r
+summary(fed$b_UCA);
+NA_stats(fed,"b_UCA")'
+* b_Intl is a binary variable with a value of 1 for contracts/task orders with any transactions performed internationally and a value of 0 otherwise. 'r
+summary(fed$b_Intl);
+NA_stats(fed,"b_Intl")'
+
+
+In addition, l_Ceil and l_Days are rescaled to have an average value of 0 and a standard deviation of one. This standardizes interpretation and prevents a "very large eigen value" error later when l_Ceil:lDay is introduced.
+
+
+Next, we eliminate missing data entries and then draw a sample. The final computation uses all of the data, but as a computation shortcut, only a subset of the data is needed to allow for processing of models in minutes rather than hours.
+
+## Sample Creation
+```{r Sample}
+load("Data\\crisis_smp.Rdata")
+
+
+# debug(get_complete_list)
+fed<-sample_prep(fed)
+fed_complete<-get_complete_list(fed)
+
+
+#Percent of records incomplete
+nrow(fed[!fed_complete,])/nrow(fed)
+#Percent of dollars incomplete
+sum(fed[!fed_complete,]$Action.Obligation,na.rm=TRUE)/
+  sum(fed$Action.Obligation,na.rm=TRUE)
+
+
+
+undebug(get_crisis_sample_with_na)
+crisis_with_na<-get_crisis_sample_with_na(fed)
+crisis_smp<-crisis_with_na[get_complete_list(crisis_with_na),]
+
+
+large_crisis_with_na<-update_sample_col_CSIScontractID(sample=large_crisis_with_na,full=fed_full,
+                                 col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
+crisis_with_na<-update_sample_col_CSIScontractID(sample=crisis_with_na,full=fed_full,
+                                 col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
+
+
+#Percent of records incomplete
+nrow(crisis_with_na[!get_complete_list(crisis_with_na),])/
+  nrow(crisis_with_na)
+#Percent of dollars incomplete
+sum(crisis_with_na[!get_complete_list(crisis_with_na),]$Action.Obligation,na.rm=TRUE)/
+  sum(crisis_with_na$Action.Obligation,na.rm=TRUE)
+
+
+
+large_crisis_with_na<-get_crisis_sample_with_na(fed,large=TRUE)
+nrow(large_crisis_with_na[!get_complete_list(large_crisis_with_na),])/
+  nrow(large_crisis_with_na)
+#Percent of dollars incomplete
+sum(large_crisis_with_na[!get_complete_list(large_crisis_with_na),]$Action.Obligation,na.rm=TRUE)/
+  sum(large_crisis_with_na$Action.Obligation,na.rm=TRUE)
+large_crisis_smp<-large_crisis_with_na[get_complete_list(large_crisis_with_na),]
+
+
+# 
+# 
+# 
+# summary(crisis_with_na$Crisis)
+# 
+# 
+# 
+# #
+# #8811392  to 8811392
+# # 
+# crisis_smp<-crisis_with_na[complete,]
+# # # 
+# # head(crisis_smp)
+
+  crisis_smp<-sample_prep(crisis_smp)
+  large_crisis_smp<-sample_prep(large_crisis_smp)
+save(crisis_smp,crisis_with_na,
+     large_crisis_with_na,large_crisis_smp,file="Data\\crisis_smp.Rdata")
+
+summary(factor(large_crisis_smp$PlaceCountryISO3))
+large_crisis_smp$origin_isforeign[large_crisis_smp$OriginCountryISO3=="*MF"]<-1
+large_crisis_smp$place_isforeign[large_crisis_smp$PlaceCountryISO3=="*MF"]<-1
+large_crisis_smp$vendor_isforeign[large_crisis_smp$VendorCountryISO3=="*MF"]<-1
+crisis_smp$origin_isforeign[crisis_smp$OriginCountryISO3=="*MF"]<-1
+crisis_smp$place_isforeign[crisis_smp$PlaceCountryISO3=="*MF"]<-1
+crisis_smp$vendor_isforeign[crisis_smp$VendorCountryISO3=="*MF"]<-1
+
+
+
+#
+# large_crisis_smp$OffPl99<-Hmisc::cut2(large_crisis_smp$OffIntl,c(0.01,0.50))
+# summary(large_crisis_smp$OffPl99)
+#   levels(large_crisis_smp$OffPl99) <-
+#     list("US99"=c("[0.00,0.01)"),
+#          "Mixed"=c("[0.01,0.50)"),
+#          "Intl"=c("[0.50,1.00]"))
+#   large_crisis_smp$Reach<-factor(paste(large_crisis_smp$OffPl99,large_crisis_smp$Intl,sep="-"))
+#
+#
+#      levels(crisis_smp$Reach) <-
+#     list( "US50-Dom"=c("US99-Just U.S.","Mixed-Just U.S."),
+#          "Mixed-Dom"=c(),
+#          "Intl-Dom"=c("Intl-Just U.S."),
+#          "US50-Intl"=c("Mixed-Any International","US99-Any International"),
+#          "Intl-Intl"=c("Intl-Any International"))
+#
+# large_crisis_smp$PSA<-as.character(large_crisis_smp$ProductOrServiceArea)
+# large_crisis_smp$PSA<-gsub(" & ","+",large_crisis_smp$PSA)
+# load("Data\\large_crisis_smp.Rdata")
+# save(large_crisis_smp,large_crisis_with_na,file="Data\\large_crisis_smp.Rdata")
+# save(fed,file="Data\\transformed_fed.Rdata")
+# load(file="Data\\transformed_fed.Rdata")
+
+# extra_large_crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Dis","OCO"),]
+# other_intl<-fed[fed$Crisis %in% c("Other")&fed$OffIntl>=0.5,]
+# other_dom<-fed[fed$Crisis %in% c("Other")&(fed$OffIntl<0.5
+#                                            |is.na(fed$OffIntl)),]
+# other_dom<-other_dom[sample(nrow(other_dom),1000000),]
+# extra_large_crisis_with_na<-rbind(extra_large_crisis_with_na,other_dom,other_intl)
+# rm(other_dom,other_intl)
+# 
+# extra_large_crisis_with_na<-(extra_large_crisis_with_na)
+# extra_large_complete<-get_complete_list(extra_large_crisis_with_na)
+# extra_large_crisis_smp<-extra_large_crisis_with_na[extra_large_complete,]
+# # # summary(large_crisis_with_na$Crisis)
+# # #
+# #
+# extra_large_crisis_smp$OffPl99<-Hmisc::cut2(extra_large_crisis_smp$OffIntl,c(0.01,0.50))
+# summary(extra_large_crisis_smp$OffPl99)
+#   levels(extra_large_crisis_smp$OffPl99) <-
+#     list("US99"=c("[0.00,0.01)"),
+#          "Mixed"=c("[0.01,0.50)"),
+#          "Intl"=c("[0.50,1.00]"))
+#   extra_large_crisis_smp$Reach<-factor(paste(extra_large_crisis_smp$OffPl99,extra_large_crisis_smp$Intl,sep="-"))
+# 
+# 
+#      levels(extra_large_crisis_smp$Reach) <-
+#     list( "US50-Dom"=c("US99-Just U.S.","Mixed-Just U.S."),
+#          "Mixed-Dom"=c(),
+#          "Intl-Dom"=c("Intl-Just U.S."),
+#          "US50-Intl"=c("Mixed-Any International","US99-Any International"),
+#          "Intl-Intl"=c("Intl-Any International"))
+# 
+# save(extra_large_crisis_smp,extra_large_crisis_with_na,file="Data\\extra_large_crisis_smp.Rdata")
+load("Data\\extra_large_crisis_smp.Rdata")
+
+```
+
