@@ -18,6 +18,7 @@ library(arm)
 library(R2WinBUGS)
 library(dplyr)
 library(Hmisc)
+library(reshape2)
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
 
 axis.text.size<-10
@@ -42,7 +43,8 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 ```{r ReadInData, echo = TRUE}
 # load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
 load(file="Data/fed_transformed.Rdata")
-
+fed$Intl <- factor(fed$Intl, c("Just U.S.", "Any International"))
+save(fed,file="Data/fed_transformed.Rdata")
 # head(fed)
 # debug(transform_contract)
 # fed<-transform_contract(fed)
@@ -66,37 +68,154 @@ These four catetegories and the "Close Out" category are used to mark a contract
 
 
 * b_CBre is a binary variable that has a value of 1 for any contracts that have experienced a partial or complete termination, 0 otherwise. ('r summary(fed$b_CBre)
-NA_stats(fed,"b_CBre")')
-* b_Comp is a binary variable based on competition. It has a value of 0 for uncompeted contracts and a value of 1 for competition, regardless of number of offers. 'r  summary(fed$b_Comp);
+NA_stats(fed,"b_CBre")')     "the original variable is CBre(None/Ceiling Breach"
+
+```{r grouped barplot for variable: b_CBre}
+#the original variable for b_CBre is CBre(None/Ceiling Breach)
+
+statsummary_discrete("CBre", fed)
+grouped_barplot("CBre", fed)
+
+```
+
+* b_Comp is a binary variable based on competition. It has a value of 0 for uncompeted contracts and a value of 1 for competition, regardless of number of offers. 'r  summary(fed$b_Comp);         "the original variable is Comp(No Comp./Comp.)"
 NA_stats(fed,"b_Comp")'
+
+```{r grouped barplot for variable: b_Comp}
+#the original variable for b_CBre is Comp(No Comp./Comp.)
+
+statsummary_discrete("Comp", fed)
+grouped_barplot("Comp", fed)
+
+```
+
 * n_Comp is a numeric variable based on competition and number of offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for multi-offer competition. 'r summary(fed$EffComp);
-NA_stats(fed,"n_Comp")' 
+NA_stats(fed,"n_Comp")' "the original variable is EffComp(No Comp./1 Offer/2+ offers)"    
+```{r grouped barplot for variable: n_Comp}
+#the original variable for n_Comp is EffComp(No Comp./1 offer/2+ offers)
+
+statsummary_discrete("EffComp", fed)
+grouped_barplot("EffComp", fed)
+
+```
+
+
 * n_Offr is a numeric variable based on competition and with more granularity on number offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for 2-offers, 3 for 3-4 offers, and 4 for 5+ offers. 'r summary(fed$n_Offr);
 NA_stats(fed,"n_Offr")' 
 
-* n_Offr is a numeric variable based on competition and with more granularity on number offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for 2-offers, 3 for 3-4 offers, and 4 for 5+ offers. 'r summary(fed$Urg);
+
+
+* b_Urg is a categorical variable.
+It has a value of 0, stands for "Not Urgency", and 1 stands for "Urgency Except." 
+summary(fed$Urg);
 NA_stats(fed,"b_Urg")' 
-* l_Offr is the natural log of the number of offers received. Uncompeted contracts are classified as having received one offer. 'r summary(fed$l_Offr)
+
+```{r grouped barplot for variable: b_Urg}
+#The original variable for b_Urg is Urg(Not Urgency/Urgency Except.)
+
+statsummary_discrete("Urg", fed)
+grouped_barplot("Urg", fed)
+
+```
+
+
+* cl_Offr is the natural log of the number of offers received. Uncompeted contracts are classified as having received one offer. 'r summary(fed$l_Offr)
 NA_stats(fed,"l_Offr")'
+
+```{r statistical summary table for variable cl_Offer}
+#The original variable for cl_Offer is UnmodifiedNumberOfOffersReceived
+ 
+statsummary_continuous(("UnmodifiedNumberOfOffersReceived"), fed)
+
+```
+
+
 * cl_Ceil is the natural log of the initial contract cost ceiling, in then-year dollars. 'r centered_log_description(fed$l_Ceil,"dollars")
 NA_stats(fed,"l_Ceil")'
+
+```{r statistical summary table for variable cl_Ceil}
+#The original variable for cl_Ceil is UnmodifiedContractBaseAndAllOptionsValue
+
+statsummary_continuous(("UnmodifiedContractBaseAndAllOptionsValue"), fed)
+
+```
+
+
 * cl_Days is the natural log of the initial maximum duration of the contract, in days. The variable is centered, by subtracting its mean ('r centered_log_description(fed$l_Days,"days");
 NA_stats(fed,"l_Days")' 
+
+```{r statistical summary table for variable cl_Days}
+#The original variable for cl_Days is UnmodifiedDays
+
+statsummary_continuous(("UnmodifiedDays"), fed)
+
+```
+
+
 * SIDV, MIDV, and OIDV are dummy variables based on the contract vehicle. They correspond to Single-Award IDVs, Multi-Award IDVs, and Other IDVs, respectively, having a value of 1 when the task order has that vehicle type, and having a 0 other. The remaining types, definitive contracts and purchase orders, are intentionally left out. ('r summary(fed$SIDV);
 summary(fed$MIDV);
 summary(fed$FSSGWAC);
 summary(fed$BPABOA);
 NA_stats(fed,"Veh")'
+
+```{r grouped bar plot for variable Veh}
+
+statsummary_discrete("Veh", fed)
+grouped_barplot("Veh", fed)
+
+```
+
+
 * n_Fixed is a numeric variable based on contract pricing. It has a value of 0 for cost-based, 0.5 or "combination or other", 1 for any fixed price (excluding fixed-price level of effort which is classified as cost-based). ('r summary(fed$n_Fixed);
 NA_stats(fed,"n_Fixed")')
+
+```{r grouped bar plot for variable n_Fixed}
+#The original variable for n_Fixed is FxCb
+
+statsummary_discrete("FxCb", fed)
+grouped_barplot("FxCb", fed)
+
+```
+
+
 * n_Incent is a numeric variable based on fee type. Ig has a value. 1 for incentive fee or cost sharing, 0.5 or "combination or other", 0 for all remaining types. ('r summary(fed$n_Incent);
 NA_stats(fed,"n_Incent")')
+
+```{r grouped barplot for variable n_Incent}
+#The original variable for n_Incent is Fee
+
+statsummary_discrete("Fee", fed)
+grouped_barplot("Fee", fed)
+
+```
+
+
 * b_UCA is a binary variable with a value of 1 for contracts/task orders that begin as letter contracts or undefinitized contract awards (UCA) and a value of 0 otherwise. 'r
 summary(fed$b_UCA);
 NA_stats(fed,"b_UCA")'
+
+```{r grouped bar plot for variable b_UCA}
+#The original variable for b_UCA is UCA
+
+statsummary_discrete("UCA", fed)
+grouped_barplot("UCA", fed)
+
+```
+
+
 * b_Intl is a binary variable with a value of 1 for contracts/task orders with any transactions performed internationally and a value of 0 otherwise. 'r
 summary(fed$b_Intl);
 NA_stats(fed,"b_Intl")'
+
+
+```{r grouped bar plot for variable b_Intl}
+#The original variable for b_Intl is Intl
+
+statsummary_discrete("Intl", fed)
+grouped_barplot("Intl", fed)
+
+```
+
 
 
 In addition, l_Ceil and l_Days are rescaled to have an average value of 0 and a standard deviation of one. This standardizes interpretation and prevents a "very large eigen value" error later when l_Ceil:lDay is introduced.
