@@ -1684,7 +1684,7 @@ cpsa_prodserv_customer_office_placevendororigin_combined_term,
 
 
 
-
+save(ssc_prodserv_customer_office_origin_cbre,file="ssc_prodserv_customer_office_origin_cbre_update.rdata")
 
 
   save(PlaceCountry_cbre,PlaceCountry_term,
@@ -1717,9 +1717,7 @@ cpsa_prodserv_customer_office_placevendororigin_combined_term,
 load("Output//where_alone_empty_models.rdata")
 load("Output//where_prior_empty_models.rdata")
 load("Output//where_empty_models.rdata")
-load("Output//placevendororigin_combined.rdata")
-load("Output//ssc_prodserv_customer_office_placevendororigin_cbre.rdata")
-
+ssc_prodserv_customer_office_placeorigin_cbre.rdata
 ssc_prodserv_customer_office_origin_cbre<-update(ssc_prodserv_customer_office_origin_cbre)
 # Place_ssc_psc_cbre<-update(Place_ssc_psc_cbre)
 Place_cpsa_psc_term<-update(Place_cpsa_psc_term)
@@ -1732,8 +1730,8 @@ cpsa_prodserv_customer_office_place_term<-
   update(cpsa_prodserv_customer_office_place_term)
 cpsa_prodserv_customer_office_vendor_term<-
   update(cpsa_prodserv_customer_office_vendor_term)
-cpsa_prodserv_customer_office_origin_term<-
-  update(cpsa_prodserv_customer_office_origin_term)
+ssc_prodserv_customer_office_origin_cbre<-
+  update(ssc_prodserv_customer_office_origin_cbre)
 cpsa_prodserv_customer_office_placevendor_term<-
   update(cpsa_prodserv_customer_office_placevendor_term)
 
@@ -1764,7 +1762,7 @@ get_icc(ssc_prodserv_customer_office_place_cbre)
 get_icc(ssc_prodserv_customer_office_vendor_cbre)
 get_icc(ssc_prodserv_customer_office_origin_cbre)
 get_icc(ssc_prodserv_customer_office_placevendor_cbre)
-
+get_icc(ssc_prodserv_customer_office_placeorigin_cbre)
 
 stargazer::stargazer( PlaceCountry_cbre,
                       VendorCountry_cbre,
@@ -1782,13 +1780,13 @@ stargazer::stargazer( PlaceCountry_cbre,
                       digits=2)
 
 # get_icc(ssc_prodserv_customer_office_placevendororigin_cbre)
-
+rm(ssc_prodserv_customer_office_placevendororigin_cbre)
 stargazer::stargazer(
   ssc_prodserv_customer_office_place_cbre,
   ssc_prodserv_customer_office_vendor_cbre,
   ssc_prodserv_customer_office_origin_cbre, #Needs to be updated
   ssc_prodserv_customer_office_placevendor_cbre,
-  ssc_prodserv_customer_office_placevendor_when_cbre,
+  ssc_prodserv_customer_office_placevendor_when_cbre, #Old ID count
   ssc_prodserv_customer_office_placeorigin_cbre,
   ssc_prodserv_customer_office_placeorigin_combined_cbre,
   # ssc_prodserv_customer_office_placevendororigin_cbre, #Missing
