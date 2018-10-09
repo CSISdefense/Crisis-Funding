@@ -1,7 +1,7 @@
 ---
 title: "Contract Termination"
 author: "Greg Sanders"
-date: "Wednesday, February 8, 2117"
+date: "Wednesday, February 8, 2017"
 output:
   html_document:
     keep_md: yes
