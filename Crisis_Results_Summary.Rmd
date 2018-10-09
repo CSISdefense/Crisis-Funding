@@ -370,6 +370,49 @@ Office_Freq_TOP <- melt(Office_Freq_TOP, id = c("Office", "Description", "Count_
 part_grouped_barplot("Office", Office_Freq_TOP) + 
   ggtitle("Top 20 of the most frequently appeared Office")
 
+
+
+
+#######################################################
+#Group bar plot for discrete variable: PlaceCountryISO3
+#######################################################
+
+Place_Freq <- freq_table("PlaceCountryISO3", fed)
+Place_Freq <- Place_Freq[order(-Place_Freq$Percent_Obli),]
+Place_Freq <- Place_Freq[1:10, ]
+
+#Add a row representing all other PlaceCountry categories
+percent_freq_rest <- 100 - sum(Place_Freq$Percent_Freq, na.rm = TRUE)
+percent_obli_rest <- 100 - sum(Place_Freq$Percent_Obli, na.rm = TRUE)
+Place_Freq$PlaceCountryISO3 <- as.character(Place_Freq$PlaceCountryISO3)
+Place_Freq[11,] <- c("All other", "NA", percent_freq_rest, percent_obli_rest)
+Place_Freq[, c(3,4)] <- lapply(Place_Freq[, c(3,4)], function(x) as.numeric(x))
+Place_Freq$PlaceCountryISO3 <- factor(Place_Freq$PlaceCountryISO3, levels = rev(Place_Freq$PlaceCountryISO3))
+
+#Reshape the dataframe to long format for plot
+Place_Freq <- melt(Place_Freq, id <- c("PlaceCountryISO3", "Count_Freq"))
+
+#Generate the plot and add title manually
+part_barplot <- ggplot(data = Place_Freq, 
+                       aes(x = PlaceCountryISO3, 
+                           y = value, 
+                           fill=factor(variable))) + 
+                geom_bar(stat = "identity", 
+                         position= "dodge", 
+                         width = 0.8) + 
+                xlab("") + 
+                ylab("") + 
+                coord_flip() + 
+                theme_grey() +
+                scale_fill_grey(labels = c("% of records", "% of obligation"),
+                                guide = guide_legend(reverse = TRUE)) +
+                theme(legend.title = element_blank(),
+                      legend.position = "bottom",
+                      legend.margin = margin(t=-0.8, r=0, b=0.5, l=0, unit = "cm"),
+                      legend.text = element_text(margin = margin(r=0.5, unit = "cm")),
+                      plot.margin = margin(t=0.3, r=0.5, b=0, l=0.5, unit = "cm")) +
+                ggtitle("Top 10 of the most frequently appeared PlaceCountry")
+part_barplot 
 ```
 
 
