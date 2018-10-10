@@ -43,12 +43,11 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 ```{r ReadInData, echo = TRUE}
 # load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
 load(file="Data/fed_transformed.Rdata")
-fed$Intl <- factor(fed$Intl, c("Just U.S.", "Any International"))
-save(fed,file="Data/fed_transformed.Rdata")
+#fed$Intl <- factor(fed$Intl, c("Just U.S.", "Any International"))
+#save(fed,file="Data/fed_transformed.Rdata")
 # head(fed)
 # debug(transform_contract)
 # fed<-transform_contract(fed)
-
 # save(fed,file="Data/fed_transformed.Rdata")
 
 ```
@@ -78,11 +77,20 @@ grouped_barplot("CBre", fed)
 
 ```
 
+```{r grouped barplot for variable: b_Term}
+#The original variable for b_Term is Term
+
+statsummary_discrete("Term", fed)
+grouped_barplot("Term", fed)
+
+```
+
+
 * b_Comp is a binary variable based on competition. It has a value of 0 for uncompeted contracts and a value of 1 for competition, regardless of number of offers. 'r  summary(fed$b_Comp);         "the original variable is Comp(No Comp./Comp.)"
 NA_stats(fed,"b_Comp")'
 
 ```{r grouped barplot for variable: b_Comp}
-#the original variable for b_CBre is Comp(No Comp./Comp.)
+#the original variable for b_Comp is Comp(No Comp./Comp.)
 
 statsummary_discrete("Comp", fed)
 grouped_barplot("Comp", fed)
@@ -178,7 +186,7 @@ grouped_barplot("FxCb", fed)
 ```
 
 
-* n_Incent is a numeric variable based on fee type. Ig has a value. 1 for incentive fee or cost sharing, 0.5 or "combination or other", 0 for all remaining types. ('r summary(fed$n_Incent);
+* n_Incent is a numeric variable based on fee type. Ig has a value. 1 for incentive fee or cost sharing, 0.5 for "combination or other", 0 for all remaining types. ('r summary(fed$n_Incent);
 NA_stats(fed,"n_Incent")')
 
 ```{r grouped barplot for variable n_Incent}
@@ -192,7 +200,7 @@ grouped_barplot("Fee", fed)
 
 * b_UCA is a binary variable with a value of 1 for contracts/task orders that begin as letter contracts or undefinitized contract awards (UCA) and a value of 0 otherwise. 'r
 summary(fed$b_UCA);
-NA_stats(fed,"b_UCA")'
+NA_stats(fed,"b_UCA")'b
 
 ```{r grouped bar plot for variable b_UCA}
 #The original variable for b_UCA is UCA
@@ -220,7 +228,7 @@ grouped_barplot("Intl", fed)
 
 In addition, l_Ceil and l_Days are rescaled to have an average value of 0 and a standard deviation of one. This standardizes interpretation and prevents a "very large eigen value" error later when l_Ceil:lDay is introduced.
 
-```{r grouped bar plot for variable Agency, NAICS, ProdServ}
+```{r grouped bar plot for variable Agency, NAICS, ProdServ, Office, PlaceCountryISO3}
 
 #############################################
 #Group bar plot for discrete variable: Agency
