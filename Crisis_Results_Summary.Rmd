@@ -43,6 +43,7 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 ```{r ReadInData, echo = TRUE}
 # load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
 load(file="Data/fed_transformed.Rdata")
+#fed$capped_UnmodifiedDays <- ifelse(fed$UnmodifiedDays > 3650, 3650, fed$UnmodifiedDays)
 #fed$Intl <- factor(fed$Intl, c("Just U.S.", "Any International"))
 #save(fed,file="Data/fed_transformed.Rdata")
 # head(fed)
