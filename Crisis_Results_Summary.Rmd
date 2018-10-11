@@ -20,6 +20,7 @@ library(dplyr)
 library(Hmisc)
 library(reshape2)
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
+#source("/Users/XWang/Documents/vendor_StatisticTable/Vendor/DIIGstat.r")
 
 axis.text.size<-10
 strip.text.size<-10
@@ -156,6 +157,7 @@ NA_stats(fed,"l_Days")'
 ```{r statistical summary table for variable cl_Days}
 #The original variable for cl_Days is UnmodifiedDays
 
+fed$UnmodifiedDays[fed$UnmodifiedDays > 3650] <- NA
 statsummary_continuous(("UnmodifiedDays"), fed)
 
 ```
