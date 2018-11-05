@@ -1,7 +1,7 @@
 ---
 title: "Contract Termination"
 author: "Greg Sanders"
-date: "Wednesday, February 8, 2117"
+date: "Wednesday, February 8, 2017"
 output:
   html_document:
     keep_md: yes
@@ -20,7 +20,7 @@ library(dplyr)
 library(Hmisc)
 library(reshape2)
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
-
+source("ContractCleanup.r")
 axis.text.size<-10
 strip.text.size<-10
 legend.text.size<-8
@@ -43,12 +43,12 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 ```{r ReadInData, echo = TRUE}
 # load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
 load(file="Data/fed_transformed.Rdata")
-fed$Intl <- factor(fed$Intl, c("Just U.S.", "Any International"))
-save(fed,file="Data/fed_transformed.Rdata")
+#fed$capped_UnmodifiedDays <- ifelse(fed$UnmodifiedDays > 3650, 3650, fed$UnmodifiedDays)
+#fed$Intl <- factor(fed$Intl, c("Just U.S.", "Any International"))
+#save(fed,file="Data/fed_transformed.Rdata")
 # head(fed)
 # debug(transform_contract)
 # fed<-transform_contract(fed)
-
 # save(fed,file="Data/fed_transformed.Rdata")
 
 ```
@@ -78,11 +78,20 @@ grouped_barplot("CBre", fed)
 
 ```
 
+```{r grouped barplot for variable: b_Term}
+#The original variable for b_Term is Term
+
+statsummary_discrete("Term", fed)
+grouped_barplot("Term", fed)
+
+```
+
+
 * b_Comp is a binary variable based on competition. It has a value of 0 for uncompeted contracts and a value of 1 for competition, regardless of number of offers. 'r  summary(fed$b_Comp);         "the original variable is Comp(No Comp./Comp.)"
 NA_stats(fed,"b_Comp")'
 
 ```{r grouped barplot for variable: b_Comp}
-#the original variable for b_CBre is Comp(No Comp./Comp.)
+#the original variable for b_Comp is Comp(No Comp./Comp.)
 
 statsummary_discrete("Comp", fed)
 grouped_barplot("Comp", fed)
@@ -147,6 +156,7 @@ NA_stats(fed,"l_Days")'
 ```{r statistical summary table for variable cl_Days}
 #The original variable for cl_Days is UnmodifiedDays
 
+fed$UnmodifiedDays[fed$UnmodifiedDays > 3650] <- NA
 statsummary_continuous(("UnmodifiedDays"), fed)
 
 ```
@@ -178,7 +188,7 @@ grouped_barplot("FxCb", fed)
 ```
 
 
-* n_Incent is a numeric variable based on fee type. Ig has a value. 1 for incentive fee or cost sharing, 0.5 or "combination or other", 0 for all remaining types. ('r summary(fed$n_Incent);
+* n_Incent is a numeric variable based on fee type. Ig has a value. 1 for incentive fee or cost sharing, 0.5 for "combination or other", 0 for all remaining types. ('r summary(fed$n_Incent);
 NA_stats(fed,"n_Incent")')
 
 ```{r grouped barplot for variable n_Incent}
@@ -220,7 +230,7 @@ grouped_barplot("Intl", fed)
 
 In addition, l_Ceil and l_Days are rescaled to have an average value of 0 and a standard deviation of one. This standardizes interpretation and prevents a "very large eigen value" error later when l_Ceil:lDay is introduced.
 
-```{r grouped bar plot for variable Agency, NAICS, ProdServ}
+```{r grouped bar plot for variable Agency, NAICS, ProdServ, Office, PlaceCountryISO3}
 
 #############################################
 #Group bar plot for discrete variable: Agency
@@ -370,6 +380,49 @@ Office_Freq_TOP <- melt(Office_Freq_TOP, id = c("Office", "Description", "Count_
 part_grouped_barplot("Office", Office_Freq_TOP) + 
   ggtitle("Top 20 of the most frequently appeared Office")
 
+
+
+
+#######################################################
+#Group bar plot for discrete variable: PlaceCountryISO3
+#######################################################
+
+Place_Freq <- freq_table("PlaceCountryISO3", fed)
+Place_Freq <- Place_Freq[order(-Place_Freq$Percent_Obli),]
+Place_Freq <- Place_Freq[1:10, ]
+
+#Add a row representing all other PlaceCountry categories
+percent_freq_rest <- 100 - sum(Place_Freq$Percent_Freq, na.rm = TRUE)
+percent_obli_rest <- 100 - sum(Place_Freq$Percent_Obli, na.rm = TRUE)
+Place_Freq$PlaceCountryISO3 <- as.character(Place_Freq$PlaceCountryISO3)
+Place_Freq[11,] <- c("All other", "NA", percent_freq_rest, percent_obli_rest)
+Place_Freq[, c(3,4)] <- lapply(Place_Freq[, c(3,4)], function(x) as.numeric(x))
+Place_Freq$PlaceCountryISO3 <- factor(Place_Freq$PlaceCountryISO3, levels = rev(Place_Freq$PlaceCountryISO3))
+
+#Reshape the dataframe to long format for plot
+Place_Freq <- melt(Place_Freq, id <- c("PlaceCountryISO3", "Count_Freq"))
+
+#Generate the plot and add title manually
+part_barplot <- ggplot(data = Place_Freq, 
+                       aes(x = PlaceCountryISO3, 
+                           y = value, 
+                           fill=factor(variable))) + 
+                geom_bar(stat = "identity", 
+                         position= "dodge", 
+                         width = 0.8) + 
+                xlab("") + 
+                ylab("") + 
+                coord_flip() + 
+                theme_grey() +
+                scale_fill_grey(labels = c("% of records", "% of obligation"),
+                                guide = guide_legend(reverse = TRUE)) +
+                theme(legend.title = element_blank(),
+                      legend.position = "bottom",
+                      legend.margin = margin(t=-0.8, r=0, b=0.5, l=0, unit = "cm"),
+                      legend.text = element_text(margin = margin(r=0.5, unit = "cm")),
+                      plot.margin = margin(t=0.3, r=0.5, b=0, l=0.5, unit = "cm")) +
+                ggtitle("Top 10 of the most frequently appeared PlaceCountry")
+part_barplot 
 ```
 
 
