@@ -923,7 +923,9 @@ get_complete_list<-function(contract,crisis=FALSE){
   complete<-!is.na(contract$b_Term)&
     !is.na(contract$b_CBre)&
     !is.na(contract$b_Comp)&
+    !is.na(contract$b_NoComp)&
     !is.na(contract$b_Urg)&
+    !is.na(contract$NoCompOffr)&
     !is.na(contract$cl_Ceil)&
     !is.na(contract$cl_Days)&
     !is.na(contract$Veh) &
