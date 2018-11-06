@@ -44,11 +44,62 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 load(file="Data/fed_transformed.Rdata")
 
 # head(fed)
-# debug(transform_contract)
-# fed<-transform_contract(fed)
+debug(transform_contract)
+fed<-transform_contract(fed)
 
 # save(fed,file="Data/fed_transformed.Rdata")
 
+fed<-add_office(fed)
+
+debug(add_office)
+crisis_smp<-add_office(crisis_smp)
+
+
+add_office<-function(contract){
+    contract$ContractingOfficeCode<-as.character(contract$Office)
+    contract<-csis360::read_and_join( contract,
+                                      "Office.ContractingOfficeCode.txt",
+                                      path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                                      directory="office\\",
+                                      by="ContractingOfficeCode",
+                                      add_var=c("PlaceIntlPercent","CrisisPercent"),
+                                      new_var_checked=FALSE)
+
+
+
+    colnames(contract)[colnames(contract)=="PlaceIntlPercent"]<-"OffIntl"
+    contract$OffPl99<-Hmisc::cut2(contract$OffIntl,c(0.01,0.50))
+    levels(contract$OffPl99) <-
+      list("US99"=c("[0.00,0.01)"),
+           "Mixed"=c("[0.01,0.50)"),
+           "Intl"=c("[0.50,1.00]"))
+
+
+    contract<-contract[ ,!colnames(contract) %in% c("ContractingOfficeCode")]
+
+    contract$Reach6<-factor(paste(contract$OffPl99,contract$Intl,sep="-"))
+    levels(contract$Reach6) <-
+      list( "US99-Dom"=c("US99-Just U.S."),
+            "Mixed-Dom"=c("Mixed-Just U.S."),
+            "Intl-Dom"=c("Intl-Just U.S."),
+            "US99-Intl"=c("US99-Any International"),
+            "Mixed-Intl"=c("Mixed-Any International"),
+            "Intl-Intl"=c("Intl-Any International"))
+    contract$Reach<-contract$Reach6
+
+    levels(contract$Reach) <-
+      list( "US50-Dom"=c("US99-Just U.S.","Mixed-Just U.S."),
+            "Mixed-Dom"=c(),
+            "Intl-Dom"=c("Intl-Just U.S."),
+            "US50-Intl"=c("Mixed-Any International","US99-Any International"),
+            "Intl-Intl"=c("Intl-Any International"))
+
+    colnames(contract)[colnames(contract)=="CrisisPercent"]<-"OffCri"
+    contract$c_OffCri<-arm::rescale(contract$OffCri)
+
+
+contract
+}
 
 ```
 

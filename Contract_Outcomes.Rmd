@@ -430,9 +430,23 @@ Term_02K <- glm (data=crisis_smp,
 glmer_examine(Term_02K)
 
 
+Term_02K2 <- glm (data=large_crisis_smp,
+                 b_Term ~ Crisis +NoCompOffr , 
+                 family=binomial(link="logit"))
+glmer_examine(Term_02K2)
+
+
+
 stargazer::stargazer(CBre_02E,CBre_02I,CBre_02K,Term_02E,Term_02I,Term_02K,
                      type="text",
                      digits=2)
+
+
+
+
+stargazer::stargazer(CBre_02B,CBre_02I,CBre_02J,CBre_02K,Term_02B2,Term_02I2,Term_02J2,Term_02K2,type="text",
+                     digits=2)
+
 
 summary_residual_compare(CBre_02E,CBre_02K,Term_02E,Term_02K,bins=3)
 summary_residual_compare(CBre_02I,CBre_02K,Term_02I,Term_02K,bins=3)
@@ -580,7 +594,7 @@ CBre_03A <- glm (data=crisis_smp,
                  family=binomial(link="logit"))
 glmer_examine(CBre_03A)
 
-Term_03A <- glm (data=crisis_smp,
+Term_03A <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoComp +
                    b_UCA+
                   NoComp:Crisis, 
@@ -588,10 +602,10 @@ Term_03A <- glm (data=crisis_smp,
 glmer_examine(Term_03A)
 
 
-stargazer::stargazer(CBre_02L,CBre_03A,Term_02L,Term_03A,type="text",
+stargazer::stargazer(CBre_02J,CBre_03A,Term_02J2,Term_03A,type="text",
                      digits=2)
 
-summary_residual_compare(CBre_02L,CBre_03A,Term_02L,Term_03A,bins=7)
+summary_residual_compare(CBre_02J,CBre_03A,Term_02J2,Term_03A,bins=3)
 
 ```
 Expectations are upheld for ceiling breaches but not for terminations.
@@ -618,7 +632,7 @@ CBre_03B <- glm (data=crisis_smp,
                  family=binomial(link="logit"))
 glmer_examine(CBre_03B)
 
-Term_03B <- glm (data=crisis_smp,
+Term_03B <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoComp +
                    b_UCA+
                   NoComp:Crisis+
@@ -631,14 +645,14 @@ stargazer::stargazer(CBre_03A,CBre_03B,Term_03A,Term_03B,type="text",
                      digits=2)
 
 
-summary_residual_compare(CBre_03A,CBre_03B,Term_03A,Term_03B,bins=7)
+summary_residual_compare(CBre_03A,CBre_03B,Term_03A,Term_03B,bins=4)
 
 ```
 Expectations were not supported.
 
 In exploratory graphs, the interaction of UCA and appear to be largely absent for breaches and while present for terminations, given that competition for terminations has a small coefficient and is not significant, it's probably not time to add an interaction. Instead this step adds an interaction between UCAs and crisis funds. The result is striking, in aknist all cases, UCAs for crisis funds have lower correlation with negative outcomes than those in the general contract population. In many cases, the coefficient is sufficient to cancel out much of the estimate for UCA directly, although for OCO ceiling breaches the coefficient is only reduced by roughly a half.
 
-For terminations, nothing reaches 0.05 p-value significance and contrary to expectation that OCO funded UCAs would estimate a lower risk of terminations. However, this is an interaction directly relevant to a hypothesis, so keeping it in.
+For terminations, nothing reaches 0.05 p-value significance and contrary to expectation that OCO funded UCAs would estimate a lower risk of terminations. It also reduces the AIC. Leaving it in for now, but considering taking it out later.
 
 ## Reachback Contracting
 
@@ -648,6 +662,7 @@ Expectation: Crisis-contracting is challenging, and there will be an estimated p
 
 ```{r Model04A}
 #The model building did experiment with sqrts for before deciding against them for intepretability reasons.
+
 crisis_smp$sqrt_OffCri<-sqrt(crisis_smp$OffCri)
 
 corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,
@@ -679,7 +694,7 @@ CBre_04A <- glm (data=crisis_smp,
                  family=binomial(link="logit"))
 glmer_examine(CBre_04A)
 
-Term_04A <- glm (data=crisis_smp,
+Term_04A <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoComp +
                    b_UCA+c_OffCri+
                   NoComp:Crisis , 
