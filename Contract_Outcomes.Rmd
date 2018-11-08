@@ -18,6 +18,7 @@ library(arm)
 library(R2WinBUGS)
 library(dplyr)
 library(Hmisc)
+library(stargazer)
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
 
 axis.text.size<-10
@@ -110,7 +111,7 @@ The expected sign was found for ceiling breaches but not for terminations.
 
 
 Expectation: The literature suggests that competition versus non-competition could be even more important in crisis situations. The base competition variable is still expected to be negative.
-### 02B: No Competition / Competition
+### 02B: No Competition / Competition Interaction
 ```{r Model02B}
 
 summary_discrete_plot(crisis_smp,"Comp","Crisis")
@@ -142,7 +143,7 @@ The expectation were fulfilled for ceiling breaches for OCO, but not for the oth
 
 The Variance Inflation Factor exceeds 2 for the interaction term with the addition of the interaction term.
 
-### 02C: No Competition / Single Offer / Competition
+### 02C: No / 1 / 2+ 
 The next step is to look at a more detailed model, where single offer competition is broken out as a middle option between competition and no competion.
 
 Expectation: Competition has the potential to reduce terminations and ceiling breaches by giving the government more options in vendors and encouraging better behavior from the contractor that was chosen. More offers could in theory mean greater benefit, although this was not directly mentioned by the literature.
@@ -174,7 +175,7 @@ The results when single-offer and multi-offer competition are split are quite od
 
 
 Expectation: The literature suggests that competition versus non-competition could be even more important in crisis situations. The base competition variable is still expected to be negative.
-### 02D: No Competition / Single Offer / Competition
+### 02D: No / 1 / 2+ Interaction
 ```{r Model02D}
 summary_discrete_plot(crisis_smp,"EffComp","Crisis")
 
