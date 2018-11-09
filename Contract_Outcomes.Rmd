@@ -698,7 +698,8 @@ glmer_examine(CBre_04A)
 Term_04A <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoComp +
                    b_UCA+c_OffCri+
-                  NoComp:Crisis , 
+                  NoComp:Crisis+
+                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
 glmer_examine(Term_04A)
 
@@ -750,7 +751,7 @@ glmer_examine(Term_04B)
 stargazer::stargazer(CBre_03B,CBre_04B,Term_03B,Term_04B,type="text",
                      digits=2)
 
-summary_residual_compare(CBre_03B,CBre_04B,Term_03A,Term_04B,bins=3)
+summary_residual_compare(CBre_03B,CBre_04B,Term_03A,Term_04B,bins=4)
 summary_residual_compare(CBre_04A,CBre_04B,Term_04A,Term_04B)
 
 ```
@@ -904,7 +905,7 @@ stargazer::stargazer(CBre_04A,CBre_04C,CBre_04D,Term_04A,Term_04C,Term_04D,type=
                      digits=2)
 
 
-summary_residual_compare(CBre_04B,CBre_04D,Term_04B,Term_04D)
+summary_residual_compare(CBre_04B,CBre_04D,Term_04B,Term_04D,bins=3)
 summary_residual_compare(CBre_04C,CBre_04D,Term_04C,Term_04D,bins=1)
 
 ```
@@ -1021,7 +1022,7 @@ CBre_04B_curve<-function(x, Comp,Ceil,Days,SIDV,MIDV,OIDV,Fixed){invlogit(
 
 summary_residual_compare(CBre_04B,CBre_04E,Term_04B,Term_04E,bins=5)
 summary_residual_compare(CBre_04C,CBre_04E,Term_04C,Term_04E,bins=5)
-summary_residual_compare(CBre_04D,CBre_04E,Term_04D,Term_04E,bins=5)
+summary_residual_compare(CBre_04D,CBre_04E,Term_04D,Term_04E,bins=1)
 
 
 # residuals_cbre_plot("cl_days")+
@@ -1031,7 +1032,7 @@ summary_residual_compare(CBre_04D,CBre_04E,Term_04D,Term_04E,bins=5)
 While the deviance reduction is slightly greater for 
 
 ### 04F: OffPl. 95%
-
+## stopping point
 ```{r Model04F}
 
 
