@@ -449,7 +449,7 @@ large_crisis_smp<-add_col_from_transformed(sample=large_crisis_smp,
                                      transformed=fed)
 
 
-large_with_na<-add_col_from_transformed(sample=large_with_na,
+large_crisis_with_na<-add_col_from_transformed(sample=large_crisis_with_na,
                                      transformed=fed)
 
 
