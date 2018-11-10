@@ -123,7 +123,7 @@ CBre_02B <- glm (data=crisis_smp,
                    b_NoComp:Crisis, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_02B)
-
+ 
 Term_02B <- glm (data=crisis_smp,
                  b_Term ~ Crisis +b_NoComp +
                    b_NoComp:Crisis, 
@@ -3418,7 +3418,7 @@ Expectation: Reachback contracting is not particularly important for ARRA. Howev
                      cl_Days+
                      Veh+
                      n_Fixed +
-                     Is.Defense +
+                     Customer +
                     cl_Ceil:NoComp+cl_Days:NoComp+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
@@ -3437,7 +3437,7 @@ Expectation: Reachback contracting is not particularly important for ARRA. Howev
                      cl_Days+
                      Veh+
                      n_Fixed +
-                     Is.Defense +
+                     Customer +
                     cl_Days:NoComp+
                      b_UCA:Crisis+
                      cl_Days:Veh+ 
