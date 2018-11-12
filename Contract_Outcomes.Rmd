@@ -705,10 +705,10 @@ glmer_examine(Term_04A)
 
 
 
-stargazer::stargazer(CBre_03B,CBre_04A,Term_03A,Term_04A,type="text",
+stargazer::stargazer(CBre_03B,CBre_04A,Term_03B,Term_04A,type="text",
                      digits=2)
 
-summary_residual_compare(CBre_03B,CBre_04A,Term_03A,Term_04A,bins=4)
+summary_residual_compare(CBre_03B,CBre_04A,Term_03B,Term_04A,bins=4)
 ```
 The estimate was vindicated in for both outcomes.
 
@@ -2313,7 +2313,10 @@ CBre_07C <- glm (data=large_crisis_smp,
                    cl_Ceil+
                    cl_Days+
                    Veh+
-                  cl_Ceil+Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+cl_Days:NoComp+
+                  cl_Ceil+Crisis:NoComp+
+                   b_UCA:Crisis+
+                   cl_Ceil:NoComp+
+                   cl_Days:NoComp+
                    
                    
                    
@@ -2330,11 +2333,7 @@ Term_07C <- glm (data=large_crisis_smp,
                    cl_Days+
                    Veh+
                   NoComp:Crisis+
-                  
                    b_UCA:Crisis+
-                   
-                   
-                   
                    cl_Days:Veh+ 
                  cl_Ceil:Veh, 
                  family=binomial(link="logit"))
@@ -2391,9 +2390,7 @@ Term_07D <- glm (data=large_crisis_smp,
                   NoComp:Crisis+                  
                    b_UCA:Crisis+
 
-                   
-                   
-                   
+     
                    cl_Days:Veh+ 
                    cl_Ceil:Veh+
                  NoComp:Veh, 
@@ -2415,9 +2412,11 @@ summary(large_crisis_smp$Term[large_crisis_smp$NoComp=="Urgency"&large_crisis_sm
 
 
 ```
+VIF precludes inclusion for terminations.
+
 Expectations held with the biggest exception of BPA/BOA.
 
-The average plots did show varying relationships and slopes between different types of vehicles. Uncompeted single-awards and fss/gwacs are associated with more terminations as are uncompeted multiawards/ Urgency exceptions for FSS?GWAC are strongly correlated with a greater risk of ceiling breaches. 
+The average plots did show varying relationships and slopes between different types of vehicles.  uncompeted multiawards/ Urgency exceptions for FSS?GWAC are strongly correlated with a greater risk of ceiling breaches. 
 
 ##Type of Contract
 
@@ -2466,18 +2465,17 @@ Term_08A <- glm (data=large_crisis_smp,
                    b_UCA:Crisis+
 
                    cl_Days:Veh+ 
-                   cl_Ceil:Veh+
-                   NoComp:Veh
+                   cl_Ceil:Veh
                  , 
                  family=binomial(link="logit"))
 glmer_examine(Term_08A)
 
-stargazer::stargazer(CBre_07D,CBre_08A,Term_07D,Term_08A,type="text",
+stargazer::stargazer(CBre_07D,CBre_08A,Term_07C,Term_08A,type="text",
                      digits=2)
 
 
 
-summary_residual_compare(CBre_07D,CBre_08A,Term_07D,Term_08A,30)
+summary_residual_compare(CBre_07D,CBre_08A,Term_07C,Term_08A,30)
 
 
 ```
@@ -2780,10 +2778,11 @@ The expectation holds true for ceiling breaches and not terminations, but in nei
 ### 10A: Product/Service/R&D and Platform
 ```{r Model10A}
 
-  
   CBre_10A <- glm (data=large_crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
+                     
+                     c_OffCri+
                      OffPl99+
                      cl_Ceil+
                      cl_Days+
@@ -2812,11 +2811,10 @@ The expectation holds true for ceiling breaches and not terminations, but in nei
                      cl_Days+
                      Veh+
                      n_Fixed +
-                    
+                          Crisis:NoComp+            
                      b_UCA:Crisis+
                      cl_Days:Veh+ 
-                     cl_Ceil:Veh+
-                     NoComp:Veh,
+                     cl_Ceil:Veh,
                      # Reach:Crisis+
                      # (1 | Simple) +
                      # (1| PSA), 
@@ -2870,7 +2868,6 @@ load("model16A.rdata")
                      b_UCA:Crisis+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
-                     NoComp:Veh+
                      Reach:Crisis+
                      Crisis:Is.Defense+
                      # (1 | Simple) +
@@ -2992,7 +2989,6 @@ load("Model16C.RData") #Only have CBre at the moment
   #                    # cl_Days:NoComp+ +
   #                    # cl_Days:Veh + 
   #                    # cl_Ceil:Veh +
-  #                    # NoComp:Veh+ 
   #                      (1 | Simple)+(1 |  PSA) + (1|ProdServ), 
   #                  family=binomial(link="logit"))
   # glmer_examine(Term_16C)
@@ -3056,7 +3052,7 @@ glmer_examine(CBre_16D)
                     # cl_Days:NoComp+
                      cl_Days:Veh+
                      cl_Ceil:Veh+
-                     NoComp:Veh+
+                     
                   (1+ b_UCA + Reach + Is.Defense | Crisis) +  (1| PSA) ,
                    family=binomial(link="logit"))
 
@@ -3115,7 +3111,7 @@ load("model16E.rdata")
                      b_UCA:Crisis+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
-                     NoComp:Veh+
+                     
                      Reach:Crisis+
                      Crisis:Is.Defense+
                      (1 | ServCommCons) + (1| CPSA), 
@@ -3143,7 +3139,7 @@ summary_residual_compare(CBre_16C,CBre_16E,Term_16C,Term_16E)
                      b_UCA:Crisis+
                      cl_Days:Veh+ 
                      cl_Ceil:Veh+
-                     NoComp:Veh+
+                     
                      Reach:Crisis+
                      Crisis:Is.Defense+
                     (1| CPSA), 

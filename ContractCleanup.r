@@ -937,9 +937,9 @@ get_complete_list<-function(contract,crisis=FALSE){
     !is.na(contract$Office)&
     !is.na(contract$PlaceCountryISO3)&
     !is.na(contract$VendorCountryISO3)&
-    !is.na(contract$OriginCountryISO3)
-    # !is.na(contract$OffCri)&
-    # !is.na(contract$OffIntl)&
+    !is.na(contract$OriginCountryISO3)&
+    !is.na(contract$OffCri)&
+    !is.na(contract$OffIntl)
     # !is.na(contract$Is.Defense)
   # !is.na(contract$cl_HHI_lag1)
 
