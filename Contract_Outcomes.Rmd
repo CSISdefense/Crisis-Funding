@@ -1,5 +1,5 @@
 ---
-title: "Contract Termination"
+title: "Contract Termination and Ceiling Breaches "
 author: "Greg Sanders"
 date: "Wednesday, February 8, 2117"
 output:
@@ -2769,6 +2769,7 @@ summary_residual_compare(CBre_08B,CBre_08F,Term_08A,Term_08F,bins=20)
 ```
 The expectation holds true for ceiling breaches and not terminations, but in neither case is significant. The VIF surpasses 2.0, leaving this off.
 
+# Dummies that will be covered by Multilevel
 ##Place of Performance
 ### 09A: Any International
 Because office level and contract level location are highly correlated (specifically the Intl state), they both can't be included in the model. This step will check the inclusion of both but expect a VIF problem.
