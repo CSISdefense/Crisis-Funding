@@ -44,7 +44,12 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 # load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
 load(file="Data/fed_transformed.Rdata")
 
-
+# crisis_smp<-add_col_from_transformed(crisis_smp,fed)
+# crisis_with_na<-add_col_from_transformed(crisis_with_na,fed)
+# large_crisis_smp<-add_col_from_transformed(large_crisis_smp,fed)  
+# large_crisis_with_na<-add_col_from_transformed(large_crisis_with_na,fed)  
+    
+    
 #fed$Intl <- factor(fed$Intl, c("Just U.S.", "Any International"))
 #save(fed,file="Data/fed_transformed.Rdata")
 # head(fed)
@@ -449,7 +454,7 @@ large_crisis_smp<-add_col_from_transformed(sample=large_crisis_smp,
                                      transformed=fed)
 
 
-large_with_na<-add_col_from_transformed(sample=large_with_na,
+large_crisis_with_na<-add_col_from_transformed(sample=large_crisis_with_na,
                                      transformed=fed)
 
 
@@ -509,7 +514,6 @@ large_crisis_smp<-large_crisis_with_na[get_complete_list(large_crisis_with_na),]
 # crisis_smp<-crisis_with_na[complete,]
 # # # 
 # # head(crisis_smp)
-
   crisis_smp<-sample_prep(crisis_smp)
   large_crisis_smp<-sample_prep(large_crisis_smp)
 save(crisis_smp,crisis_with_na,
