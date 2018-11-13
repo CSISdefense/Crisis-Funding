@@ -2704,12 +2704,12 @@ Estimate: Larger contracts are likely to be more complex, and thus positively es
   glmer_examine(Term_08E)
   
 
-  stargazer::stargazer(CBre_08B,CBre_08E,Term_08A,Term_08E,type="text",
+  stargazer::stargazer(CBre_08A,CBre_08E,Term_08A,Term_08E,type="text",
                        digits=2)
   
   
 
-summary_residual_compare(CBre_08B,CBre_08E,Term_08A,Term_08E,bins=30)
+summary_residual_compare(CBre_08A,CBre_08E,Term_08A,Term_08E,bins=30)
 
 ```
 Expecations are upheld. Larger fixed price contracts are associated with larger negative outcomes, though not significantly for terminations. The VIF however well exceeds 2. Leaving it out.
@@ -2764,15 +2764,304 @@ summary_discrete_plot(large_crisis_smp,"n_Fixed","FxCb")
   glmer_examine(Term_08F)
   
 
-  stargazer::stargazer(CBre_08B,CBre_08F,Term_08A,Term_08F,type="text",
+  stargazer::stargazer(CBre_08A,CBre_08F,Term_08A,Term_08F,type="text",
                        digits=2)
   
   
 
-summary_residual_compare(CBre_08B,CBre_08F,Term_08A,Term_08F,bins=20)
+summary_residual_compare(CBre_08A,CBre_08F,Term_08A,Term_08F,bins=20)
 
 ```
 The expectation holds true for ceiling breaches and not terminations, but in neither case is significant. The VIF surpasses 2.0, leaving this off.
+
+
+### 08G: Fixed price dummies
+
+
+The next step adds a measure for whether the contract was cost-based or fixed-price. 
+
+Expectation Prior CSIS research has found that fixed-price contracts estimate a higher probability of terminations but did not find a notable relationship for ceiling breaches.
+
+```{r Model08G}
+  summary_discrete_plot(large_crisis_smp,"FxCb")
+
+
+  CBre_08G <- glm (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     FxCb +
+                    cl_Ceil+Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+capped_cl_Days:NoComp+
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_08G)
+  
+  Term_08G <- glm (data=large_crisis_smp,
+                   b_Term ~ Crisis +NoComp+
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     FxCb +
+Crisis:NoComp+
+                     b_UCA:Crisis+
+                     
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(Term_08G)
+  
+
+  stargazer::stargazer(CBre_08A,CBre_08G,Term_08A,Term_08G,type="text",
+                       digits=2)
+  
+  
+
+summary_residual_compare(CBre_08A,CBre_08G,Term_08A,Term_08G,bins=20)
+
+```
+
+### 08H: Fixed price details
+
+
+The next step further breaks out different types of fixed price and time and materials.
+
+Firm Fixed Price is the least flexible and is expected to be most likely to have breaches or terminations.
+Other fixed price is expected to be more likely to terminate relative to other forms.
+Cost based is expected to be less likely to terminate or ceiling breach
+T&M/FP:LoE/LH expected between other fixed price and cost based.
+Combo: Middling termination and ceiling breach
+
+Expectation Prior CSIS research has found that fixed-price contracts estimate a higher probability of terminations but did not find a notable relationship for ceiling breaches.
+
+```{r Model08H}
+  summary_discrete_plot(large_crisis_smp,"Pricing",rotate_text = TRUE)
+
+
+  CBre_08H <- glm (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     Pricing +
+                    cl_Ceil+Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+capped_cl_Days:NoComp+
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_08H)
+
+  Term_08H <- glm (data=large_crisis_smp,
+                   b_Term ~ Crisis +NoComp+
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     Pricing +
+                     Crisis:NoComp+
+                     b_UCA:Crisis+
+                     
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(Term_08H)
+  
+
+  stargazer::stargazer(CBre_08A,CBre_08G,CBre_08H,Term_08A,Term_08G,Term_08H,type="text",
+                       digits=2)
+  
+summary_residual_compare(CBre_08A,CBre_08H,Term_08A,Term_08H,bins=50)
+summary_residual_compare(CBre_08G,CBre_08H,Term_08G,Term_08H,bins=50)
+
+```
+Expectations were largely upheld, with partial exception of combo/other and larger exception for other fixed price.Substantial improvement in AIC but the residuals grow more extreme relative to hthe numerical version.
+
+
+
+
+
+```{r Model08H}
+  summary_discrete_plot(large_crisis_smp,"Pricing",rotate_text = TRUE)
+levels(large_crisis_smp)
+
+  CBre_08H <- glm (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     Pricing +
+                    cl_Ceil+Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+capped_cl_Days:NoComp+
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_08H)
+
+  Term_08H <- glm (data=large_crisis_smp,
+                   b_Term ~ Crisis +NoComp+
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     Pricing +
+                     Crisis:NoComp+
+                     b_UCA:Crisis+
+                     
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(Term_08H)
+  
+
+  stargazer::stargazer(CBre_08A,CBre_08G,CBre_08H,Term_08A,Term_08G,Term_08H,type="text",
+                       digits=2)
+  
+summary_residual_compare(CBre_08A,CBre_08H,Term_08A,Term_08H,bins=50)
+summary_residual_compare(CBre_08G,CBre_08H,Term_08G,Term_08H,bins=50)
+```
+
+### 08I: Fixed price  fee
+
+
+```{r Model08I}
+ #  summary_discrete_plot(large_crisis_smp,"Pricing")
+ # levels(contract$Reach) <-
+ #      list( "US50-Dom"=c("US99-Just U.S.","Mixed-Just U.S."),
+ #            "Mixed-Dom"=c(),
+ #            "Intl-Dom"=c("Intl-Just U.S."),
+ #            "US50-Intl"=c("Mixed-Any International","US99-Any International"),
+ #            "Intl-Intl"=c("Intl-Any International"))
+
+  CBre_08I <- glm (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                    cl_Ceil+Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+capped_cl_Days:NoComp+
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_08I)
+
+  Term_08I <- glm (data=large_crisis_smp,
+                   b_Term ~ Crisis +NoComp+
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     Crisis:NoComp+
+                     b_UCA:Crisis+
+                     
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(Term_08I)
+  
+
+  stargazer::stargazer(CBre_08A,CBre_08H,CBre_08I,Term_08A,Term_08H,Term_08I,type="text",
+                       digits=2)
+  
+summary_residual_compare(CBre_08A,CBre_08I,Term_08A,Term_08I,bins=50)
+summary_residual_compare(CBre_08G,CBre_08I,Term_08G,Term_08I,bins=50)
+
+```
+### 08J: Fixed price recombining fixed price fee
+
+
+```{r Model08J}
+ #  summary_discrete_plot(large_crisis_smp,"Pricing")
+large_crisis_smp$PricingBasis<-large_crisis_smp$Pricing
+
+
+
+ levels(large_crisis_smp$PricingBasis) <-
+      list( "Fixed-Price"=c("FFP","Other FP"),
+            "Comb. or Other"=c("Combination or Other"),
+            "T&M/LH/FPLOE" =c("T&M/LH/FPLOE"),
+             "Cost-Based"=c( "Cost-Based"))
+
+   summary_discrete_plot(large_crisis_smp,"PricingBasis")
+ 
+  CBre_08J <- glm (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingBasis +
+                    cl_Ceil+Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+capped_cl_Days:NoComp+
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_08J)
+
+  Term_08J <- glm (data=large_crisis_smp,
+                   b_Term ~ Crisis +NoComp+
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingBasis +
+                     Crisis:NoComp+
+                     b_UCA:Crisis+
+                     
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(Term_08J)
+  
+
+  stargazer::stargazer(CBre_08A,CBre_08H,CBre_08I,CBre_08J,Term_08A,Term_08H,Term_08I,Term_08J,type="text",
+                       digits=2)
+  
+summary_residual_compare(CBre_08A,CBre_08J,Term_08A,Term_08J,bins=50)
+summary_residual_compare(CBre_08G,CBre_08J,Term_08G,Term_08J,bins=50)
+summary_residual_compare(CBre_08H,CBre_08J,Term_08H,Term_08J,bins=50)
+summary_residual_compare(CBre_08I,CBre_08J,Term_08I,Term_08J,bins=50)
+
+```
+While for terminations the AIC is slightly worse than for numeric fixed price, for ceiling breach it's slightly better. On the whole the residuals are more moderate and the results align with expectations.
 
 #Checking Interactions
 ### 10A: Removing interactions and office cri.
@@ -2787,7 +3076,7 @@ The expectation holds true for ceiling breaches and not terminations, but in nei
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
                     cl_Ceil,#+
                    #   Crisis:NoComp+
                    #   b_UCA:Crisis+
@@ -2807,7 +3096,7 @@ The expectation holds true for ceiling breaches and not terminations, but in nei
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed, #+
+                     PricingBasis, #+
                      #      Crisis:NoComp+            
                      # b_UCA:Crisis+
                      # capped_cl_Days:Veh+ 
@@ -2837,7 +3126,7 @@ Checking Office Cri first. Expectation is that these offices are correlated with
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
                      Crisis:NoComp,
                    #   b_UCA:Crisis+
                    #   cl_Ceil:NoComp+
@@ -2856,7 +3145,7 @@ Checking Office Cri first. Expectation is that these offices are correlated with
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed, #+
+                     PricingBasis, #+
                      #      Crisis:NoComp+            
                      # b_UCA:Crisis+
                      # capped_cl_Days:Veh+ 
@@ -2884,7 +3173,7 @@ Crisis:NoComp. Expecation is that competition correlates with lower estimates of
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed+
+                     PricingBasis+
                      Crisis:NoComp,#+
                    #   b_UCA:Crisis+
                    #   cl_Ceil:NoComp+
@@ -2903,7 +3192,7 @@ Crisis:NoComp. Expecation is that competition correlates with lower estimates of
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed+
+                     PricingBasis+
                           Crisis:NoComp, #+
                      # b_UCA:Crisis+
                      # capped_cl_Days:Veh+ 
@@ -2934,7 +3223,7 @@ Crisis:NoComp. Expecation is that competition correlates with lower estimates of
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed+
+                     PricingBasis+
                      Crisis:NoComp+
                      b_UCA:Crisis,#+
                    #   cl_Ceil:NoComp+
@@ -2953,7 +3242,7 @@ Crisis:NoComp. Expecation is that competition correlates with lower estimates of
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed+
+                     PricingBasis+
                           Crisis:NoComp+
                      b_UCA:Crisis,#+
                      # capped_cl_Days:Veh+ 
@@ -2982,7 +3271,7 @@ Expectation: Indefinite vehicles allow for disaggregation of larger contracts in
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed+
+                     PricingBasis+
                      Crisis:NoComp+
                      b_UCA:Crisis+
                    #   cl_Ceil:NoComp+
@@ -3001,7 +3290,7 @@ Expectation: Indefinite vehicles allow for disaggregation of larger contracts in
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed+
+                     PricingBasis+
                           Crisis:NoComp+
                      b_UCA:Crisis+
                      capped_cl_Days:Veh,
@@ -3017,6 +3306,7 @@ summary_residual_compare(CBre_10D,CBre_10E,Term_10D,Term_10E,bins=50)
 The results do not particularly align with expectations. The AIC reductions are dramatic. However, there are clear patterns introduced to the residuals for ceiling breach and the outliers are more pronounced for terminations and a larger curve seems to emerge. Removing this.
 
 ### 10F:  ceiling:Veh
+Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregation of larger contracts into smaller task orders. As a result, when the ceiling on these contracts they may act more like definitive contracts. The interaction of duration and initial ceiling may have the opposite coefficient as the base vehicle coefficients.
 
 
 ```{r Model10F}
@@ -3030,7 +3320,7 @@ The results do not particularly align with expectations. The AIC reductions are 
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed+
+                     PricingBasis+
                      Crisis:NoComp+
                      b_UCA:Crisis+
                    #   cl_Ceil:NoComp+
@@ -3048,7 +3338,7 @@ The results do not particularly align with expectations. The AIC reductions are 
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed+
+                     PricingBasis+
                           Crisis:NoComp+
                      b_UCA:Crisis+
                      cl_Ceil:Veh,
@@ -3060,23 +3350,82 @@ stargazer::stargazer(CBre_10D,CBre_10F,Term_10D,Term_10F,type="text",
 summary_residual_compare(CBre_10D,CBre_10F,Term_10D,Term_10F,bins=50)
 
 ```
+Expectations were not met, AIC is improved, though residuals get a bit worth. Leaving out.
+
 
 
 #Multi-Level Model
-### 16A: Product/Service/R&D and Platform
+### 20A:
 ```{r Model16A}
-summary(large_crisis_smp$ServCommCons)
-summary(large_crisis_smp$CPSA)
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
 
-load("model16A.rdata")  
-  CBre_16A <- glmer (data=large_crisis_smp,
+# load("model20A.rdata")  
+  CBre_20A <- glmer (data=large_crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      Reach+ 
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
+                     # Is.Defense +
+                    # Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+capped_cl_Days:NoComp+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                   # NoComp:Veh+
+                     # Reach:Crisis+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) + 
+                     (1 | ServCommCons/ProdServ) + (1 | Customer/Office) + (1 | PlaceCountryISO3) + (1 | StartFY)
+               , 
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_20A)
+  
+  Term_20A <- glmer (data=large_crisis_smp,
+                   b_Term ~ Crisis +NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingBasis +
+                     # Is.Defense +
+                    
+                     # b_UCA:Crisis+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                     # Reach:Crisis+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) +
+                     (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)+ (1 | PlaceCountryISO3), 
+                   family=binomial(link="logit"))
+  glmer_examine(Term_20A)
+# Plot the model and Vehicle 
+# stargazer::stargazer(CBre_15B,CBre_20A,Term_15B,Term_20A,type="text",
+                        # digits=2)
+# summary_residual_compare(CBre_15B,CBre_20A,Term_15B,Term_20A)
+
+save(CBre_20A,Term_20A, file="Model20A.RData")
+```
+
+### 20A: Product/Service/R&D and Platform
+
+
+```{r Model20A}
+summary(large_crisis_smp$ServCommCons)
+summary(large_crisis_smp$CPSA)
+
+load("model20A.rdata")  
+  CBre_20A <- glmer (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingBasis +
                      Is.Defense +
                     cl_Ceil+Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+capped_cl_Days:NoComp+
                      capped_cl_Days:Veh+ 
@@ -3087,9 +3436,9 @@ load("model16A.rdata")
                      # (1 | Simple) + 
                      (1| PSA), 
                    family=binomial(link="logit"))
-  glmer_examine(CBre_16A)
+  glmer_examine(CBre_20A)
   
-  Term_16A <- glmer (data=large_crisis_smp,
+  Term_20A <- glmer (data=large_crisis_smp,
                    b_Term ~ Crisis +NoComp+
                      b_UCA+
                      c_OffCri+
@@ -3097,7 +3446,7 @@ load("model16A.rdata")
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
                      Is.Defense +
                     
                      b_UCA:Crisis+
@@ -3108,13 +3457,13 @@ load("model16A.rdata")
                      # (1 | Simple) +
                      (1| PSA), 
                    family=binomial(link="logit"))
-  glmer_examine(Term_16A)
+  glmer_examine(Term_20A)
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_15B,CBre_16A,Term_15B,Term_16A,type="text",
+stargazer::stargazer(CBre_15B,CBre_20A,Term_15B,Term_20A,type="text",
                         digits=2)
-summary_residual_compare(CBre_15B,CBre_16A,Term_15B,Term_16A)
+summary_residual_compare(CBre_15B,CBre_20A,Term_15B,Term_20A)
 
-save(CBre_16A,Term_16A, file="Model16A.RData")
+save(CBre_20A,Term_20A, file="Model20A.RData")
 ```
 Note, the equatiosn don't actually match up. First thing I noticed was to remove the Simples.
 
@@ -3131,7 +3480,7 @@ load("model16B.rdata")
   #                    cl_Ceil + 
   #                    capped_cl_Days + 
   #                    Veh + 
-  #                    n_Fixed + 
+  #                    PricingBasis + 
   #                    Is.Defense + 
   #                    # NoComp:Crisis +
   #                    # b_UCA:Crisis + 
@@ -3152,7 +3501,7 @@ load("model16B.rdata")
   #                    cl_Ceil + 
   #                    capped_cl_Days + 
   #                    Veh +
-  #                    n_Fixed +
+  #                    PricingBasis +
   #                    Is.Defense + 
   #                    # Crisis:NoComp + 
   #                    # b_UCA:Crisis + 
@@ -3192,7 +3541,7 @@ load("Model16C.RData") #Only have CBre at the moment
   #                    cl_Ceil + 
   #                    capped_cl_Days + 
   #                    Veh + 
-  #                    n_Fixed + 
+  #                    PricingBasis + 
   #                    Is.Defense + 
   #                    # NoComp:Crisis +
   #                    # b_UCA:Crisis + 
@@ -3213,7 +3562,7 @@ load("Model16C.RData") #Only have CBre at the moment
   #                    cl_Ceil + 
   #                    capped_cl_Days + 
   #                    Veh +
-  #                    n_Fixed +
+  #                    PricingBasis +
   #                    Is.Defense + 
   #                    # Crisis:NoComp + 
   #                    # b_UCA:Crisis + 
@@ -3262,7 +3611,7 @@ load("model16D.rdata")
                      cl_Ceil +
                      capped_cl_Days +
                      Veh +
-                     n_Fixed +
+                     PricingBasis +
                      Is.Defense +
                       cl_Ceil+Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+
                       capped_cl_Days:NoComp+
@@ -3282,7 +3631,7 @@ glmer_examine(CBre_16D)
                      cl_Ceil +
                      capped_cl_Days +
                      Veh +
-                     n_Fixed +
+                     PricingBasis +
                      Is.Defense +
                     # capped_cl_Days:NoComp+
                      capped_cl_Days:Veh+
@@ -3320,7 +3669,7 @@ load("model16E.rdata")
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
                      Is.Defense +
                     cl_Ceil+Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+capped_cl_Days:NoComp+
                      capped_cl_Days:Veh+ 
@@ -3340,7 +3689,7 @@ load("model16E.rdata")
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
                      Is.Defense +
                     # capped_cl_Days:NoComp+
                      b_UCA:Crisis+
@@ -3368,7 +3717,7 @@ summary_residual_compare(CBre_16C,CBre_16E,Term_16C,Term_16E)
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
                      Is.Defense +
                     capped_cl_Days:NoComp+
                      b_UCA:Crisis+
@@ -3402,7 +3751,7 @@ load("Model16F.RData") #Only have CBre at the moment
     #                    cl_Ceil +
     #                    capped_cl_Days +
     #                    Veh +
-    #                    n_Fixed +
+    #                    PricingBasis +
     #                    Is.Defense +
     #                    # NoComp:Crisis +
     #                    # b_UCA:Crisis +
@@ -3426,7 +3775,7 @@ load("Model16F.RData") #Only have CBre at the moment
     #                    cl_Ceil +
     #                    # capped_cl_Days +
     #                    Veh +
-    #                    n_Fixed +
+    #                    PricingBasis +
     #                    Is.Defense +
     #                    # NoComp:Crisis +
     #                    # b_UCA:Crisis +
@@ -3457,7 +3806,7 @@ load("Model16G.RData") #Only have CBre at the moment
                        cl_Ceil +
                        capped_cl_Days +
                        Veh +
-                       n_Fixed +
+                       PricingBasis +
                        Is.Defense +
                        NoComp:Crisis + 
                        b_UCA:Crisis +
@@ -3479,7 +3828,7 @@ CBre_16G<- glmer (data=large_crisis_smp,
                        cl_Ceil +
                        capped_cl_Days +
                        Veh +
-                       n_Fixed +
+                       PricingBasis +
                        Is.Defense +
                      capped_cl_Days:NoComp +
                      capped_cl_Days:Veh + 
@@ -3517,7 +3866,7 @@ Since the max|grad| isn't reaching 0.001, trying to experiment with 2-character 
   #                    cl_Ceil + 
   #                    capped_cl_Days + 
   #                    Veh + 
-  #                    n_Fixed + 
+  #                    PricingBasis + 
   #                    Is.Defense + 
   #                    capped_cl_Days:NoComp + 
   #                    capped_cl_Days:Veh + 
@@ -3537,7 +3886,7 @@ Since the max|grad| isn't reaching 0.001, trying to experiment with 2-character 
                      cl_Ceil + 
                      capped_cl_Days + 
                      Veh + 
-                     n_Fixed + 
+                     PricingBasis + 
                      Is.Defense + 
                      capped_cl_Days:NoComp + 
                      capped_cl_Days:Veh + 
@@ -3557,7 +3906,7 @@ Since the max|grad| isn't reaching 0.001, trying to experiment with 2-character 
                      cl_Ceil + 
                      capped_cl_Days + 
                      Veh + 
-                     n_Fixed + 
+                     PricingBasis + 
                      Is.Defense + 
                      # capped_cl_Days:NoComp + We're not that close to the max|grad, this is significant but runs contrary 
                      #to expectation and is less interesting than the NoComp:Veh
@@ -3597,7 +3946,7 @@ load(file="Model16I.RData")
 
 
 # CBre_16F9<-glmer(formula = b_CBre ~ Crisis + NoComp + b_UCA + Reach + c_OffCri + 
-#     cl_Ceil + capped_cl_Days + Veh + n_Fixed + Is.Defense + capped_cl_Days:NoComp + 
+#     cl_Ceil + capped_cl_Days + Veh + PricingBasis + Is.Defense + capped_cl_Days:NoComp + 
 #     capped_cl_Days:Veh + NoComp:Veh + +Crisis:Is.Defense + (1 | ServCommCons) + 
 #     (1 | ProdServ), data = large_crisis_smp, family = binomial(link = "logit"))
 
@@ -3613,7 +3962,7 @@ load(file="Model16I.RData")
 #                        cl_Ceil +
 #                        capped_cl_Days +
 #                        Veh +
-#                        n_Fixed +
+#                        PricingBasis +
 #                        Is.Defense +
 #                      capped_cl_Days:NoComp +
 #                      capped_cl_Days:Veh + 
@@ -3635,7 +3984,7 @@ load(file="Model16I.RData")
   #                      cl_Ceil +
   #                      capped_cl_Days +
   #                      Veh +
-  #                      n_Fixed +
+  #                      PricingBasis +
   #                      Is.Defense +
   #                    capped_cl_Days:NoComp +
   #                    capped_cl_Days:Veh + 
@@ -3689,7 +4038,7 @@ table(fed$Crisis,fed$NoComp,fed$Veh,fed$CBre)
 #                        cl_Ceil +
 #                        capped_cl_Days +
 #                        Veh +
-#                        n_Fixed +
+#                        PricingBasis +
 #                        Is.Defense +
 #                      capped_cl_Days:NoComp +
 #                      # capped_cl_Days:Veh + 
@@ -3720,7 +4069,7 @@ CBre_16G5 <- glmer (data=large_crisis_smp,
                        cl_Ceil +
                        capped_cl_Days +
                        Veh +
-                       n_Fixed +
+                       PricingBasis +
                        Is.Defense +
                      capped_cl_Days:NoComp +
                      # capped_cl_Days:Veh + 
@@ -3754,7 +4103,7 @@ CBre_16G6 <- glmer (data=large_crisis_smp,
                         cl_Ceil +
                         capped_cl_Days +
                         Veh +
-                        n_Fixed +
+                        PricingBasis +
                        Is.Defense +
                      capped_cl_Days:NoComp +
                      # capped_cl_Days:Veh + 
@@ -3813,7 +4162,7 @@ CBre_16G7 <- glmer (data=large_crisis_smp,
                         cl_Ceil +
                         capped_cl_Days +
                         Veh +
-                        n_Fixed +
+                        PricingBasis +
                        Is.Defense +
                      capped_cl_Days:NoComp +
                      # capped_cl_Days:Veh + 
@@ -3845,7 +4194,7 @@ load("Model16N.RData")
 #                         cl_Ceil +
 #                         capped_cl_Days +
 #                         Veh +
-#                         n_Fixed +
+#                         PricingBasis +
 #                        Is.Defense +
 #                      capped_cl_Days:NoComp +
 #                      # capped_cl_Days:Veh +
@@ -3876,7 +4225,7 @@ CBre_16N4<-     glmer (data=extra_large_crisis_smp,
                         cl_Ceil +
                         capped_cl_Days +
                         Veh +
-                        n_Fixed +
+                        PricingBasis +
                        Is.Defense +
                      capped_cl_Days:NoComp +
                      # capped_cl_Days:Veh +
@@ -3902,7 +4251,7 @@ CBre_16G9 <- glmer (data=large_crisis_smp,
                         cl_Ceil +
                         capped_cl_Days +
                         Veh +
-                        n_Fixed +
+                        PricingBasis +
                        Is.Defense +
                      capped_cl_Days:NoComp +
                      # capped_cl_Days:Veh + 
@@ -3931,7 +4280,7 @@ CBre_16G8 <- glmer (data=large_crisis_smp,
                         cl_Ceil +
                         capped_cl_Days +
                         Veh +
-                        n_Fixed +
+                        PricingBasis +
                        Is.Defense +
                      capped_cl_Days:NoComp +
                      # capped_cl_Days:Veh + 
@@ -3954,7 +4303,7 @@ CBre_16M<-     glmer (data=extra_large_crisis_smp,
                         cl_Ceil +
                         capped_cl_Days +
                         Veh +
-                        n_Fixed +
+                        PricingBasis +
                        Is.Defense +
                      capped_cl_Days:NoComp +
                      # capped_cl_Days:Veh + 
@@ -3986,7 +4335,7 @@ CBre_16G11 <- glmer (data=large_crisis_smp,
                         cl_Ceil +
                         capped_cl_Days +
                         Veh +
-                        n_Fixed +
+                        PricingBasis +
                        Is.Defense +
                      capped_cl_Days:NoComp +
                      # capped_cl_Days:Veh + 
@@ -4019,7 +4368,7 @@ CBre_16G12<-     glmer (data=large_crisis_smp,
                         cl_Ceil +
                         capped_cl_Days +
                         Veh +
-                        n_Fixed +
+                        PricingBasis +
                        Is.Defense +
                      capped_cl_Days:NoComp +
                      capped_cl_Days:Veh +
@@ -4087,7 +4436,7 @@ Model failed to converge with max|grad| = 0.00500009 (tol = 0.001, component 1)
                        cl_Ceil +
                        capped_cl_Days +
                        Veh +
-                       n_Fixed +
+                       PricingBasis +
                        Is.Defense +
                      capped_cl_Days:NoComp +
                      capped_cl_Days:Veh + 
