@@ -3355,7 +3355,7 @@ Expectations were not met, AIC is improved, though residuals get a bit worth. Le
 
 
 #Multi-Level Model
-### 20A:
+### 20A: No interactions
 ```{r Model16A}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
@@ -3403,8 +3403,8 @@ Expectations were not met, AIC is improved, though residuals get a bit worth. Le
                    family=binomial(link="logit"))
   glmer_examine(Term_20A)
 # Plot the model and Vehicle 
-# stargazer::stargazer(CBre_15B,CBre_20A,Term_15B,Term_20A,type="text",
-                        # digits=2)
+stargazer::stargazer(CBre_10A,CBre_10D,CBre_20A,Term_10A,Term_10D,Term_20A,type="text",
+                        digits=2)
 # summary_residual_compare(CBre_15B,CBre_20A,Term_15B,Term_20A)
 
 save(CBre_20A,Term_20A, file="Model20A.RData")
