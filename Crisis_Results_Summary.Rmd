@@ -57,6 +57,17 @@ load(file="Data/fed_transformed.Rdata")
 # fed<-transform_contract(fed)
 # save(fed,file="Data/fed_transformed.Rdata")
 
+    contract<-csis360::read_and_join( large_crisis_smp, #contract,
+                                      "Location_CountryCodes.txt",
+                                      path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                                      directory="location\\",
+                                      by="PlaceCountryISO3",
+                                      add_var=c("PlaceIntlPercent","CrisisPercent"),
+                                      new_var_checked=FALSE)
+
+
+
+
 ```
 
 Contracts are classified using a mix of numerical and categorical variables. While the changes in numerical variables are easy to grasp and summarize, a contract may have one line item that is competed and another that is not. As is detailed in the exploration on R&D, we are only considering information available prior to contract start. The percentage of contract obligations that were competed is a valuable benchmark, but is highly influenced by factors that occured after contract start..
