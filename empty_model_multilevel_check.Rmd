@@ -657,6 +657,48 @@ get_icc(display=TRUE,CustomerAgencyOffice_term)
 
 
 ```
+
+
+### Nested CivDef / Customer / Office
+```{r AgencyOffice}
+if(!exists("CivDefCustomerOffice_cbre"))
+  CivDefCustomerOffice_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~ (1 | Is.Defense/Customer/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,CivDefCustomerOffice_cbre)
+
+
+if(!exists("CivDefCustomerOffice_term"))
+  CivDefCustomerOffice_term <- glmer(data=large_crisis_smp,
+                             b_Term ~ (1 | Is.Defense/Customer/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,CivDefCustomerOffice_term)
+
+
+```
+
+
+
+
+### Nested CivDef / Agency / Office
+```{r AgencyOffice}
+if(!exists("CivDefAgencyOffice_cbre"))
+  CivDefAgencyOffice_cbre <- glmer(data=large_crisis_smp,
+                             b_CBre ~ (1 | Is.Defense/Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,CivDefAgencyOffice_cbre)
+
+
+if(!exists("CivDefAgencyOffice_term"))
+  CivDefAgencyOffice_term <- glmer(data=large_crisis_smp,
+                             b_Term ~ (1 | Is.Defense/Agency/Office)
+                             , family=binomial(link="logit"))
+get_icc(display=TRUE,CivDefAgencyOffice_term)
+
+
+```
+
+
 ### nested PSC Customer/Office
 ```{r cpsa_prodserv_customer_office}
 
@@ -731,21 +773,7 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_startfy_term)
 ```{r Empty_Compare_Who_Term}
 
 save(Office_cbre,Office_term,
-     
-     SubCustomer_cbre,SubCustomer_term,
-     
-     OfficeDepartment_cbre,OfficeDepartment_term,
-     OfficeSubCustomer_cbre,OfficeSubCustomer_term,
-     OfficeCustomer_cbre,OfficeCustomer_term,
-     OfficeDefCiv_cbre,OfficeDefCiv_term,
-     psc_When_Office_cbre,
-     naics36_When_Office_term,naics36_When_Office_cbre,
-     OfficeCustomer_cbre,OfficeCustomer_term,
-     ssc_prodserv_customer_office_startfy_cbre,cpsa_prodserv_customer_office_startfy_term,
-     file="Output//who_empty_models.rdata")
-
-save(Office_cbre,Office_term,
-     # Agency_cbre,Agency_term,
+     Agency_cbre,Agency_term,
      SubCustomer_cbre,SubCustomer_term,
      # Department_cbre,Department_term,
      # Customer_cbre,Customer_term,
@@ -755,9 +783,11 @@ save(Office_cbre,Office_term,
      OfficeSubCustomer_cbre,OfficeSubCustomer_term,
      OfficeCustomer_cbre,OfficeCustomer_term,
      OfficeDefCiv_cbre,OfficeDefCiv_term,
+    CustomerAgencyOffice_cbre,CustomerAgencyOffice_term,
+  CivDefCustomerOffice_cbre,  CivDefCustomerOffice_term,
     ssc_prodserv_customer_office_cbre,cpsa_prodserv_customer_office_term,
     ssc_prodserv_customer_office_startfy_cbre,cpsa_prodserv_customer_office_startfy_term,
-     file="Output//who_empty_models2.rdata")
+     file="Output//who_empty_models.rdata")
 
 stargazer::stargazer(Office_cbre,
      SubCustomer_cbre,
@@ -773,9 +803,9 @@ stargazer::stargazer(Office_cbre,
 get_icc(Office_term)
 get_icc(Agency_term)
 get_icc(SubCustomer_term)
-get_icc(Department_term)
-get_icc(Customer_term)
-get_icc(AgencyOffice_term)
+# get_icc(Department_term)
+# get_icc(Customer_term)
+# get_icc(AgencyOffice_term)
 get_icc(OfficeSubCustomer_term)
 get_icc(OfficeDepartment_term)
 get_icc(OfficeCustomer_term)
@@ -815,9 +845,9 @@ summary_residual_compare(naics36_term,naics36_Office_term,naics36_cbre,naics36_O
 get_icc(Office_cbre)
 get_icc(Agency_cbre)
 get_icc(SubCustomer_cbre)
-get_icc(Department_cbre)
-get_icc(Customer_cbre)
-get_icc(AgencyOffice_cbre)
+# get_icc(Department_cbre)
+# get_icc(Customer_cbre)
+# get_icc(AgencyOffice_cbre)
 get_icc(OfficeSubCustomer_cbre)
 get_icc(OfficeDepartment_cbre)
 get_icc(OfficeCustomer_cbre)
