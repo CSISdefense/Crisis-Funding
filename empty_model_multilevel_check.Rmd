@@ -39,6 +39,14 @@ note.text.size<-1.40
 
 summary(large_crisis_smp)
 
+large_crisis_smp$Is.Defense<-large_crisis_smp$Customer
+levels(large_crisis_smp$Customer)
+
+    levels(large_crisis_smp$Is.Defense)<- list("Defense"=c("Defense"),
+                                 "Civilian"=c("DHS","Energy","GSA","HHS","NASA",
+                                              "Other Agencies","State and IAP","VA"))
+
+
 # complete<-!is.na(def$b_Term)&
 #   !is.na(def$b_CBre)&
 #   !is.na(def$n_Comp)&
@@ -617,12 +625,6 @@ get_icc(display=TRUE,OfficeCustomer_term)
 
 ### Nested Civ/Def / Office
 ```{r DefCivOffice}
-large_crisis_smp$Is.Defense<-large_crisis_smp$Customer
-levels(large_crisis_smp$Customer)
-
-    levels(large_crisis_smp$Is.Defense)<- list("Defense"=c("Defense"),
-                                 "Civilian"=c("DHS","Energy","GSA","HHS","NASA",
-                                              "Other Agencies","State and IAP","VA"))
 
 if(!exists("OfficeDefCiv_cbre"))
   OfficeDefCiv_cbre <- glmer(data=large_crisis_smp,
@@ -664,14 +666,18 @@ get_icc(display=TRUE,CustomerAgencyOffice_term)
 if(!exists("CivDefCustomerOffice_cbre"))
   CivDefCustomerOffice_cbre <- glmer(data=large_crisis_smp,
                              b_CBre ~ (1 | Is.Defense/Customer/Office)
-                             , family=binomial(link="logit"))
+                             , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 get_icc(display=TRUE,CivDefCustomerOffice_cbre)
 
 
 if(!exists("CivDefCustomerOffice_term"))
   CivDefCustomerOffice_term <- glmer(data=large_crisis_smp,
                              b_Term ~ (1 | Is.Defense/Customer/Office)
-                             , family=binomial(link="logit"))
+                             , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 get_icc(display=TRUE,CivDefCustomerOffice_term)
 
 
@@ -1990,4 +1996,4 @@ CompOffr_naics36_Office_term,
 
 # summary_residual_compare(EffComp_naics36_Office_cbre,CompOffr_naics36_Office_cbre,bins=10,suppress_vif=TRUE)
 ```
-EffComp and CompOffr do seem to provide lower AICs, EffComp wins for CBre, but Compffr by a dramatic margin for terminations.s
+EffComp and CompOffr do seem to provide lower AICs, EffComp wins for CBre, but Compffr by a dramatic margin for terminations.
