@@ -2135,7 +2135,7 @@ Unfortunately, VIF knocks out this interaction as in both cases capped_cl_Days g
 
 
 #### 06F: Duration and Competition
-Expectation: Policy guidance often encourages regular use of competition, which suggests a believe that the results where off over time. This is disputed by others in the field. Nonetheless, the expectation is that the interaction of the absence of competition and duration negatively estimates a greater probability of terminations and ceiling breaches.
+Expectation: Policy guidance often encourages regular use of competition, which suggests a believe that the results wear off over time. This is disputed by others in the field. Nonetheless, the expectation is that the interaction of the absence of competition and duration negatively estimates a greater probability of terminations and ceiling breaches.
 ```{r Mode06F}
 summary_continuous_plot(large_crisis_smp,"l_Days","NoComp")
 
@@ -3108,9 +3108,9 @@ While for terminations the AIC is slightly worse than for numeric fixed price, f
                    family=binomial(link="logit"))
   glmer_examine(Term_10A)
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_08A,CBre_10A,Term_08A,Term_10A,type="text",
+stargazer::stargazer(CBre_08J,CBre_10A,Term_08J,Term_10A,type="text",
                         digits=2)
-summary_residual_compare(CBre_08A,CBre_10A,Term_08A,Term_10A)
+summary_residual_compare(CBre_08J,CBre_10A,Term_08J,Term_10A)
 
 ```
 
@@ -3125,13 +3125,13 @@ Checking Office Cri first. Expectation is that these offices are correlated with
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      
-
+c_OffCri+
                      OffPl99+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis +
-                     Crisis:NoComp,
+                     PricingBasis,# +
+                     # Crisis:NoComp,
                    #   b_UCA:Crisis+
                    #   cl_Ceil:NoComp+
                    #   capped_cl_Days:NoComp+
@@ -3163,6 +3163,8 @@ summary_residual_compare(CBre_10A,CBre_10B,Term_10A,Term_10B)
 
 ```
 
+OffCri doesn't add anything on the ceiling breaches but does for terminations.
+
 ### 10C: Adding Crisis:NoComp
 Crisis:NoComp. Expecation is that competition correlates with lower estimates of terminations and ceiling breaches for crisis subsets. Urgency is expected to estimate an even higher risk for crisis subsets.
 
@@ -3172,7 +3174,7 @@ Crisis:NoComp. Expecation is that competition correlates with lower estimates of
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      
-                     c_OffCri+
+ 
                      OffPl99+
                      cl_Ceil+
                      capped_cl_Days+
@@ -3222,7 +3224,7 @@ Crisis:NoComp. Expecation is that competition correlates with lower estimates of
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      
-                     c_OffCri+
+
                      OffPl99+
                      cl_Ceil+
                      capped_cl_Days+
@@ -3270,7 +3272,6 @@ Expectation: Indefinite vehicles allow for disaggregation of larger contracts in
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      
-                     c_OffCri+
                      OffPl99+
                      cl_Ceil+
                      capped_cl_Days+
@@ -3319,7 +3320,6 @@ Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregat
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      
-                     c_OffCri+
                      OffPl99+
                      cl_Ceil+
                      capped_cl_Days+
@@ -3356,10 +3356,151 @@ summary_residual_compare(CBre_10D,CBre_10F,Term_10D,Term_10F,bins=50)
 ```
 Expectations were not met, AIC is improved, though residuals get a bit worth. Leaving out.
 
+### 10G:  NoComp:UCA
+Expectation: The literature describes competition as a way to mitigate the risk of UCas, thus the expecation is that UCAs that are competed estimate a lower risk of ceiling breaches and terminations. 
 
 
+```{r Model10G}
+
+  CBre_10G <- glm (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     
+                     OffPl99+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingBasis+
+                     Crisis:NoComp+
+                     b_UCA:Crisis+
+                     b_UCA:NoComp,
+                   #   cl_Ceil:NoComp+
+                   #   capped_cl_Days:NoComp+
+                   # NoComp:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_10G)
+  
+  Term_10G <- glm (data=large_crisis_smp,
+                   b_Term ~ Crisis +NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     OffPl99+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingBasis+
+                          Crisis:NoComp+
+                     b_UCA:Crisis+
+                     b_UCA:NoComp,
+                   family=binomial(link="logit"))
+  glmer_examine(Term_10G)
+  
+  Term_10G2 <- glm (data=large_crisis_smp,
+                   b_Term ~ Crisis +NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     OffPl99+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingBasis+
+                          Crisis:NoComp+
+                     # b_UCA:Crisis+
+                     b_UCA:NoComp,
+                   family=binomial(link="logit"))
+  glmer_examine(Term_10G2)
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10D,CBre_10G,type="text",#Term_10D,Term_10G,
+                        digits=2)
+summary_residual_compare(CBre_10D,CBre_10G,bins=50)#Term_10D,Term_10G,
+
+```
+Does aid the model some, but runs contrary to expectation for ceiling breach and violates VIF for terminations. Leaving this out.
+
+### 10H:  cl_Ceil:NoComp
+Expectation: This is challenging, as competition for the largest contracts may encourage bidding to win rather than realistic pricing. The primary expectation is that competition will positively estimate a the probability of ceiling breaches and terminations.
+
+
+```{r Model10H}
+
+  CBre_10H <- glm (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     
+                     OffPl99+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingBasis+
+                     Crisis:NoComp+
+                     b_UCA:Crisis+
+                     cl_Ceil:NoComp,
+                   #   capped_cl_Days:NoComp+
+                   # NoComp:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_10H)
+  
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10D,CBre_10H,type="text",
+                        digits=2)
+summary_residual_compare(CBre_10D,CBre_10H,bins=50)
+
+```
+Results do run in line with expectation, though the urgency result is surprising and suggests that urgency might be a larger concern for smaller contracts than for large. Comp VIF is creeping up. That said, still only 1.76. The AIC does reduce by a hundred or so, but no real improvement in residuals. Still, seems worth keeping.
+
+
+### 10I:  capped_cl_Days:NoComp
+
+Expectation: Policy guidance often encourages regular use of competition, which suggests a believe that the results wear off over time. This is disputed by others in the field. Nonetheless, the expectation is that the interaction of the absence of competition and duration negatively estimates a greater probability of terminations and ceiling breaches.
+
+```{r Model10I}
+
+  CBre_10I <- glm (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     
+                     
+                     OffPl99+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingBasis+
+                     Crisis:NoComp+
+                     b_UCA:Crisis+
+                     cl_Ceil:NoComp+
+                     capped_cl_Days:NoComp,
+                   # NoComp:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_10I)
+  
+  
+    CBre_10I2 <- glm (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     
+                     
+                     OffPl99+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingBasis+
+                     Crisis:NoComp+
+                     b_UCA:Crisis+
+                     # cl_Ceil:NoComp+
+                     capped_cl_Days:NoComp,
+                   # NoComp:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_10I2)
+  
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10H,CBre_10I,CBre_10I2,type="text",
+                        digits=2)
+summary_residual_compare(CBre_10H,CBre_10I,bins=50)
+summary_residual_compare(CBre_10H,CBre_10I2,bins=50)
+
+```
 #Multi-Level Model
-### 20A:
+### 20A: No interactions
 ```{r Model16A}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
@@ -3407,8 +3548,8 @@ Expectations were not met, AIC is improved, though residuals get a bit worth. Le
                    family=binomial(link="logit"))
   glmer_examine(Term_20A)
 # Plot the model and Vehicle 
-# stargazer::stargazer(CBre_15B,CBre_20A,Term_15B,Term_20A,type="text",
-                        # digits=2)
+stargazer::stargazer(CBre_10A,CBre_10D,CBre_20A,Term_10A,Term_10D,Term_20A,type="text",
+                        digits=2)
 # summary_residual_compare(CBre_15B,CBre_20A,Term_15B,Term_20A)
 
 save(CBre_20A,Term_20A, file="Model20A.RData")
