@@ -1055,6 +1055,15 @@ get_icc(display=TRUE,Place_Country_offplace_term)
 
 
 
+stargazer::stargazer( PlaceCountry_cbre,PlaceCountry_term
+Place_Country_offplace_cbre,Place_Country_offplace_term,
+,
+
+                     type="text",
+                       digits=2)
+
+
+
 ```
 
 #### Is foreign / Place
@@ -1113,7 +1122,9 @@ get_icc(display=TRUE,Place_theater_Country_offplace_theater_term)
 
 
 stargazer::stargazer( Place_theater_Country_cbre,
-Place_theater_Country_offplace_theater_cbre,Place_theater_Country_term,Place_theater_Country_offplace_theater_term,
+Place_theater_Country_offplace_theater_cbre,Place_theater_Country_term,
+,
+
                      type="text",
                        digits=2)
 
