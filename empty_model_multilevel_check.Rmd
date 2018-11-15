@@ -1077,18 +1077,35 @@ if(!exists("Place_theater_Country_term"))
 get_icc(display=TRUE,Place_theater_Country_term)
 
 
-if(!exists("Place_theater_Country_offplace_theater_cbre"))
+# if(!exists("Place_theater_Country_offplace_theater_cbre"))
   Place_theater_Country_offplace_theater_cbre <- glmer(data=large_crisis_smp,
-                       b_CBre ~ place_CrisisFundingTheater+(1 | place_CrisisFundingTheater:PlaceCountryISO3)+(1 + OffPl99 | place_CrisisFundingTheater)
+                       b_CBre ~ OffPl99+(1 | place_CrisisFundingTheater:PlaceCountryISO3)+(1 + OffPl99 | place_CrisisFundingTheater)
                        , family=binomial(link="logit"))
 get_icc(display=TRUE,Place_theater_Country_offplace_theater_cbre)
 
-if(!exists("Place_theater_Country_offplace_theater_term"))
+# if(!exists("Place_theater_Country_offplace_theater_term"))
   Place_theater_Country_offplace_theater_term <- glmer(data=large_crisis_smp,
-                       b_Term ~ place_CrisisFundingTheater+(1 | place_CrisisFundingTheater:PlaceCountryISO3)+(1 + OffPl99 | place_CrisisFundingTheater)
+                       b_Term ~ OffPl99+(1 | place_CrisisFundingTheater:PlaceCountryISO3)+(1 + OffPl99 | place_CrisisFundingTheater)
                        , family=binomial(link="logit"))
 get_icc(display=TRUE,Place_theater_Country_offplace_theater_term)
 
+
+save(Place_theater_Country_cbre,Place_theater_Country_term,
+     Place_theater_Country_offplace_theater_cbre,Place_theater_Country_offplace_theater_term,
+      file="Output//where_empty_models.rdata"
+     )
+
+# if(!exists("Place_theater_Country_offplace_theater_cbre"))
+  Place_theater_Country_offplace_theater_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ place_CrisisFundingTheater+(1 + OffPl99 | PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Place_theater_Country_offplace_theater_cbre)
+
+# if(!exists("Place_theater_Country_offplace_theater_term"))
+  Place_theater_Country_offplace_theater_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ place_CrisisFundingTheater+(1 + OffPl99 | PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Place_theater_Country_offplace_theater_term)
 
 stargazer::stargazer( Place_theater_Country_cbre,
 Place_theater_Country_offplace_theater_cbre,Place_theater_Country_term,
