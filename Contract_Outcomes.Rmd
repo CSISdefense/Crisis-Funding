@@ -3636,6 +3636,8 @@ stargazer::stargazer(CBre_10A,CBre_10D,CBre_20A,CBre_20B,
                      Term_10A,Term_10D,Term_20A,Term_20B,type="text",
                         digits=2)
 
+summary_residual_compare(CBre_10A,CBre_20B,Term_10A,Term_20B,bins=50)
+summary_residual_compare(CBre_20A,CBre_20B,Term_20A,Term_20B,bins=50)
 summary_residual_compare(CBre_20A,CBre_20B,Term_20A,Term_20B,bins=50)
 
 save(CBre_20B,Term_20B, file="Model20B.RData")
