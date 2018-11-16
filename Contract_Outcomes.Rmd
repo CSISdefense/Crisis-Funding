@@ -3617,6 +3617,75 @@ save(CBre_20B,Term_20B, file="Model20B.RData")
 ```
 
 
+
+### 20C: No interactions
+```{r Model16A}
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
+
+# load("model20C.rdata")  
+  CBre_20C <- glmer (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     OffPl99+#Reach+ 
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     # Is.Defense +
+                    Crisis:NoComp+b_UCA:Crisis+
+                     #+cl_Ceil:NoComp+capped_cl_Days:NoComp+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                   # NoComp:Veh+
+                     # Reach:Crisis+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) + 
+                     (1 | ServCommCons/ProdServ) + (1 | Customer/Office) + (1 | PlaceCountryISO3) + (1 | StartFY), 
+                   family=binomial(link="logit"),
+                   verbose=1,
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(CBre_20C)
+  save(CBre_20C, file="Model20C.RData")
+  
+  Term_20C <- glmer (data=large_crisis_smp,
+                   b_Term ~ Crisis +NoComp+
+                     b_UCA+
+                     # c_OffCri+
+                     OffPl99+#Reach+ 
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     # Is.Defense +
+                    
+                     Crisis:NoComp+b_UCA:Crisis+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                     # Reach:Crisis+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) +
+                     (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)+ (1 | PlaceCountryISO3), 
+                   family=binomial(link="logit"),
+                   verbose=1,
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(Term_20C)
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10A,CBre_10D,CBre_20C,Term_10A,Term_10D,Term_20C,type="text",
+                        digits=2)
+# summary_residual_compare(CBre_15B,CBre_20C,Term_15B,Term_20C)
+
+save(CBre_20C,Term_20C, file="Model20C.RData")
+```
+
+
+
+
+
+
+
 ### 20A: Product/Service/R&D and Platform
 
 
