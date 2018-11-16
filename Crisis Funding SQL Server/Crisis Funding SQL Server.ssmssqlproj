@@ -56,15 +56,15 @@
           <FullPath>Budget_SP_LocationVendorCrisisFundingHistoryBucketCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
-          <AssociatedConnUserName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:vmsqldiig.database.windows.net:False:GSanders@csis.org</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>vmsqldiig.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>GSanders@csis.org</AssociatedConnUserName>
           <FullPath>Budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractBudgetDecisionTree.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
-          <AssociatedConnUserName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:vmsqldiig.database.windows.net:False:GSanders@csis.org</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>vmsqldiig.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>GSanders@csis.org</AssociatedConnUserName>
           <FullPath>Contract_SP_ContractBudgetDecisionTree.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_CompetitionContractSizeHistoryBucketSubCustomerClassification.sql">

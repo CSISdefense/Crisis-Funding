@@ -37,6 +37,23 @@ note.text.size<-1.40
 ```{r Sample}
  load("Data\\crisis_smp.Rdata")
 
+
+colnames(large_crisis_smp)[colnames(large_crisis_smp)=="PlaceCountryISO3"]<-"alpha.3"
+
+    large_crisis_smp<-csis360::read_and_join( large_crisis_smp,
+                                      "Location_CountryCodes.csv",
+                                      path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                                      directory="location\\",
+                                      by="alpha.3",
+                                      add_var=c("isforeign",	"WarTheater",	"CombatantCommand","CrisisFundingTheater","name"),
+                                      new_var_checked=FALSE)
+
+colnames(large_crisis_smp)[colnames(large_crisis_smp)=="alpha.3"]<-"PlaceCountryISO3"
+colnames(large_crisis_smp)[colnames(large_crisis_smp)=="CrisisFundingTheater"]<-"place_CrisisFundingTheater"
+
+place_CrisisFundingTheater
+
+
 summary(large_crisis_smp)
 
 large_crisis_smp$Is.Defense<-large_crisis_smp$Customer
@@ -1021,6 +1038,23 @@ if(!exists("PlaceCountry_term"))
                        , family=binomial(link="logit"))
 get_icc(display=TRUE,PlaceCountry_term)
 
+if(!exists("Place_Country_offplace_cbre"))
+  Place_Country_offplace_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ OffPl99+(1 + OffPl99 | PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Place_Country_offplace_cbre)
+
+
+if(!exists("Place_Country_offplace_term"))
+  Place_Country_offplace_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ OffPl99+(1 + OffPl99 | PlaceCountryISO3)
+                       , family=binomial(link="logit"))
+get_icc(display=TRUE,Place_Country_offplace_term)
+
+
+
+
+
 
 
 ```
@@ -1058,6 +1092,27 @@ if(!exists("Place_theater_Country_term"))
                        b_Term ~ (1 | place_CrisisFundingTheater/PlaceCountryISO3)
                        , family=binomial(link="logit"))
 get_icc(display=TRUE,Place_theater_Country_term)
+
+
+# if(!exists("Place_theater_Country_offplace_theater_cbre"))
+  Place_theater_Country_offplace_theater_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ OffPl99+(1 | place_CrisisFundingTheater:PlaceCountryISO3)+(1 + OffPl99 | place_CrisisFundingTheater)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,Place_theater_Country_offplace_theater_cbre)
+
+# if(!exists("Place_theater_Country_offplace_theater_term"))
+  Place_theater_Country_offplace_theater_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ OffPl99+(1 | place_CrisisFundingTheater:PlaceCountryISO3)+(1 + OffPl99 | place_CrisisFundingTheater)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+get_icc(display=TRUE,Place_theater_Country_offplace_theater_term)
+
+
+
+
 
 ```
 
@@ -1664,6 +1719,44 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_when_term)
 
 ### Compare Where
 ```{r Empty_Compare_Who_Term}
+
+save(PlaceCountry_cbre,PlaceCountry_term,
+     Place_Country_offplace_cbre,#Place_Country_offplace_term,
+     Place_theater_Country_cbre,Place_theater_Country_term,
+     Place_theater_Country_offplace_theater_cbre,Place_theater_Country_offplace_theater_term,
+      file="Output//where_empty_models.rdata"
+     )
+
+
+stargazer::stargazer( PlaceCountry_cbre,
+     Place_Country_offplace_cbre,
+     Place_theater_Country_cbre,
+     Place_theater_Country_offplace_theater_cbre,
+     PlaceCountry_term,
+     Place_theater_Country_term,
+     #Place_Country_offplace_term,
+     Place_theater_Country_offplace_theater_term,
+                     type="text",
+                       digits=2)
+
+
+get_icc(PlaceCountry_cbre)
+get_icc(Place_Country_offplace_cbre)
+get_icc(Place_theater_Country_cbre)
+get_icc(Place_theater_Country_offplace_theater_cbre)
+
+
+get_icc(PlaceCountry_term)
+get_icc(Place_theater_Country_term)
+# get_icc(Place_Country_offplace_term)
+get_icc(Place_theater_Country_offplace_theater_term)
+
+
+stargazer::stargazer(
+,
+
+                     type="text",
+                       digits=2)
 
   save(PlaceCountry_cbre,PlaceCountry_term,
        Place_isforeign_Country_cbre,Place_isforeign_Country_term,
