@@ -20,6 +20,7 @@ library(dplyr)
 library(Hmisc)
 library(stargazer)
 library(dummies)
+library(optimx)
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
 
 axis.text.size<-10
@@ -2774,10 +2775,6 @@ summary_residual_compare(CBre_08A,CBre_08F,Term_08A,Term_08F,bins=20)
 ```
 The expectation holds true for ceiling breaches and not terminations, but in neither case is significant. The VIF surpasses 2.0, leaving this off.
 
-# Dummies that will be covered by Multilevel
-##Place of Performance
-### 09A: Any International
-Because office level and contract level location are highly correlated (specifically the Intl state), they both can't be included in the model. This step will check the inclusion of both but expect a VIF problem.
 
 ### 08G: Fixed price dummies
 
@@ -3066,7 +3063,268 @@ summary_residual_compare(CBre_08I,CBre_08J,Term_08I,Term_08J,bins=50)
 
 ```
 While for terminations the AIC is slightly worse than for numeric fixed price, for ceiling breach it's slightly better. On the whole the residuals are more moderate and the results align with expectations.
+##Place of Performance
+### 09A: Any International
+Because office level and contract level location are highly correlated (specifically the Intl state), they both can't be included in the model. This step will check the inclusion of both but expect a VIF problem.
 
+Expectation: The reachback hypothesis suggests that international will postively estimate the probability of terminations and ceiling breaches
+```{r Model09A}
+corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(large_crisis_smp, select=c(b_UCA,
+                                                             c_OffCri,cl_Ceil,
+                                               cl_Days,n_Fixed,b_Intl)),
+                       dummies::dummy(large_crisis_smp$Crisis),
+                       dummies::dummy(large_crisis_smp$NoComp),
+                       dummies::dummy(large_crisis_smp$OffPl99),
+                       dummies::dummy(large_crisis_smp$Veh))))
+
+corrdisp[[1]]#[,1:9]
+
+
+
+  CBre_09A <- glm (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     b_Intl+
+                     c_OffCri+
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    cl_Ceil+Crisis:NoComp+
+                     b_UCA:Crisis+
+                     cl_Ceil:NoComp+
+                     cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_09A)
+  
+  Term_09A <- glm (data=large_crisis_smp,
+                   b_Term ~ Crisis +NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     b_Intl+
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    cl_Days:NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     NoComp:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(Term_09A)
+  
+
+  stargazer::stargazer(CBre_08A,CBre_09A,Term_08A,Term_09A,type="text",
+                       digits=2)
+  
+  
+
+summary_residual_compare(CBre_08A,CBre_09A,Term_08A,Term_09A,bins=20)
+
+```
+The expectation was fulfilled for ceiling breaches but not for terminations. This had not proven true in earlier versions of the sample, though the addition of a wider range of non-crisis international contracts changed the dynamic.
+
+International and Office place have roughly similar deviances, even though international has less granularity. However, for termination international is a much less effective estimator. Office place also ran contrary to expectation, so the choice of variables  does not appear to affect hypothesis outcome. From a diagnostic point of view, international is an improvement over office place, as it appears to reduce the magnitude of residuals. 
+
+### 09B: Reach 6 category
+
+```{r Model09B}
+large_crisis_smp$Reach<-factor(paste(large_crisis_smp$OffPl99,large_crisis_smp$Intl,sep="-"))
+summary(large_crisis_smp$Reach)
+
+  summary_discrete_plot(large_crisis_smp,"Intl","OffPl99")
+large_crisis_smp$Reach6<-large_crisis_smp$Reach
+    levels(large_crisis_smp$Reach6) <-
+    list( "US99-Dom"=c("US99-Just U.S."),
+          "Mixed-Dom"=c("Mixed-Just U.S."),
+         "Intl-Dom"=c("Intl-Just U.S."),
+         "US99-Intl"=c("US99-Any International"),
+         "Mixed-Intl"=c("Mixed-Any International"),
+         "Intl-Intl"=c("Intl-Any International"))
+
+
+  
+    summary_discrete_plot(large_crisis_smp,"Reach6")
+  
+
+  CBre_09B <- glm (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     c_OffCri+
+                     Reach6+
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    cl_Ceil+Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+
+                     cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_09B)
+  
+  Term_09B <- glm (data=large_crisis_smp,
+                   b_Term ~ Crisis +
+                     NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach6+
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    cl_Days:NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     NoComp:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(Term_09B)
+  
+
+  stargazer::stargazer(CBre_08A,CBre_09A,CBre_09B,Term_08A,Term_09A,Term_09B,type="text",
+                       digits=2)
+  
+  
+
+summary_residual_compare(CBre_08A,CBre_09B,Term_08A,Term_09B,bins=20)
+summary_residual_compare(CBre_09A,CBre_09B,Term_09A,Term_09B,bins=20)
+
+```
+Expectations were upheld for ceiling breaches but not for terminations. For terminations, expectations are reversed, mixed contracting offices, with more than 1% international contracting but less than 50%, have a higher termination rate regardless of whether the contracts
+
+Given the rarity of international contracts from contracting offices where 99% of dollars go to domestic contracts, and the similarity between US99-Dom annd Mixed-Dom, seperating out that category seems to add little value, at least on the ceiling side. 
+### 09C: Reach 4 Category
+Expectations: Unchanged from 6 category. Reachback contracting office negatively estimate, relative to international offices, the probabilit of ceilingbreaches and terminations.
+```{r Model09C}
+    levels(large_crisis_smp$Reach) <-
+    list( "US50-Dom"=c("US99-Just U.S.","Mixed-Just U.S."),
+         "Mixed-Dom"=c(),
+         "Intl-Dom"=c("Intl-Just U.S."),
+         "US50-Intl"=c("Mixed-Any International","US99-Any International"),
+         "Intl-Intl"=c("Intl-Any International"))
+
+
+  
+    summary_discrete_plot(large_crisis_smp,"Reach")
+  
+
+  CBre_09C <- glm (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     c_OffCri+
+                     Reach+
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    cl_Ceil+Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+
+                     cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_09C)
+  
+  Term_09C <- glm (data=large_crisis_smp,
+                   b_Term ~ Crisis +NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach++
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    cl_Days:NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     NoComp:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(Term_09C)
+  
+
+  stargazer::stargazer(CBre_08A,CBre_09A,CBre_09B,CBre_09C,Term_08A,Term_09A,Term_09B,Term_09C,type="text",
+                       digits=2)
+  
+  
+
+summary_residual_compare(CBre_08A,CBre_09C,Term_08A,Term_09C,bins=20)
+summary_residual_compare(CBre_09A,CBre_09C,Term_09A,Term_09C,bins=20)
+summary_residual_compare(CBre_09B,CBre_09C,Term_09B,Term_09C,bins=20)
+
+```
+Expectations are upheld for ceiling breaches but not for terminations.
+For ceiling breaches, the four category reach variation is an easy choice, it reduces deviance by a comparable degree to its more detailed alternative. For terminations, the choice is harder. The greater detail does distinguish between overwhelming domestic contrating offices and mixed ones. This is not directly relevant to the research question and does reduce the similarity between the two models but may be worth it. We will check one more variant, reach 5, in which the domestic and the rare international contracts for US99 contracting offices are grouped together.
+
+### 09D: Reach 5 Category
+Expectations: Unchanged from 6 category. Reachback contracting office negatively estimate, relative to international offices, the probabilit of ceilingbreaches and terminations.
+```{r Model09D}
+  large_crisis_smp$Reach5<-large_crisis_smp$Reach6
+    levels(large_crisis_smp$Reach5) <-
+    list( "US99-Dom"=c("US99-Just U.S.","US99-Any International"),
+         "Mixed-Dom"=c("Mixed-Just U.S."),
+         "Intl-Dom"=c("Intl-Just U.S."),
+         "Mixed-Intl"=c("Mixed-Any International"),
+         "Intl-Intl"=c("Intl-Any International"))
+
+
+  
+    summary_discrete_plot(large_crisis_smp,"Reach5")
+  
+
+  CBre_09D <- glm (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     c_OffCri+
+                     Reach5+
+                     cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    cl_Ceil+Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+
+                     cl_Days:NoComp+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                   NoComp:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_09D)
+  
+  Term_09D <- glm (data=large_crisis_smp,
+                   b_Term ~ Crisis +NoComp+
+                     b_UCA+
+                     c_OffCri+
+                     Reach5++
+                    cl_Ceil+
+                     cl_Days+
+                     Veh+
+                     n_Fixed +
+                    cl_Days:NoComp+
+                     b_UCA:Crisis+
+                     cl_Days:Veh+ 
+                     cl_Ceil:Veh+
+                     NoComp:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(Term_09D)
+  
+
+  stargazer::stargazer(CBre_08A,CBre_09B,CBre_09C,CBre_09D,Term_08A,Term_09B,Term_09C,Term_09D,type="text",
+                       digits=2)
+  
+  
+
+summary_residual_compare(CBre_08A,CBre_09D,Term_08A,Term_09D,bins=20)
+summary_residual_compare(CBre_09A,CBre_09D,Term_09A,Term_09D,bins=20)
+summary_residual_compare(CBre_09B,CBre_09D,Term_09B,Term_09D,bins=20)
+summary_residual_compare(CBre_09C,CBre_09D,Term_09C,Term_09D,bins=20)
+
+```
+After comparing a few models, the 4 category reach seems most parsimonious and other options do not so dramatically improve terminations as to be worth using two different approaches.
 #Checking Interactions
 ### 10A: Removing interactions and office cri.
 ```{r Model10A}
@@ -3076,7 +3334,7 @@ While for terminations the AIC is slightly worse than for numeric fixed price, f
                      b_UCA+
                      
                      # c_OffCri+
-                     OffPl99+
+                     Reach+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3096,7 +3354,7 @@ While for terminations the AIC is slightly worse than for numeric fixed price, f
                    b_Term ~ Crisis +NoComp+
                      b_UCA+
                      # c_OffCri+
-                     OffPl99+
+                     Reach+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3126,7 +3384,7 @@ Checking Office Cri first. Expectation is that these offices are correlated with
                      b_UCA+
                      
 c_OffCri+
-                     OffPl99+
+                     Reach+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3145,7 +3403,7 @@ c_OffCri+
                    b_Term ~ Crisis +NoComp+
                      b_UCA+
                      c_OffCri+
-                     OffPl99+
+                     Reach+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3175,7 +3433,7 @@ Crisis:NoComp. Expecation is that competition correlates with lower estimates of
                      b_UCA+
                      
  
-                     OffPl99+
+                     Reach+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3194,7 +3452,7 @@ Crisis:NoComp. Expecation is that competition correlates with lower estimates of
                    b_Term ~ Crisis +NoComp+
                      b_UCA+
                      c_OffCri+
-                     OffPl99+
+                     Reach+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3225,7 +3483,7 @@ Crisis:NoComp. Expecation is that competition correlates with lower estimates of
                      b_UCA+
                      
 
-                     OffPl99+
+                     Reach+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3244,7 +3502,7 @@ Crisis:NoComp. Expecation is that competition correlates with lower estimates of
                    b_Term ~ Crisis +NoComp+
                      b_UCA+
                      c_OffCri+
-                     OffPl99+
+                     Reach+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3272,7 +3530,7 @@ Expectation: Indefinite vehicles allow for disaggregation of larger contracts in
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      
-                     OffPl99+
+                     Reach+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3291,7 +3549,7 @@ Expectation: Indefinite vehicles allow for disaggregation of larger contracts in
                    b_Term ~ Crisis +NoComp+
                      b_UCA+
                      c_OffCri+
-                     OffPl99+
+                     Reach+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3320,7 +3578,7 @@ Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregat
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      
-                     OffPl99+
+                     Reach+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3338,7 +3596,7 @@ Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregat
                    b_Term ~ Crisis +NoComp+
                      b_UCA+
                      c_OffCri+
-                     OffPl99+
+                     Reach+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3366,7 +3624,7 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      
-                     OffPl99+
+                     Reach+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3384,7 +3642,7 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                    b_Term ~ Crisis +NoComp+
                      b_UCA+
                      c_OffCri+
-                     OffPl99+
+                     Reach+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3399,7 +3657,7 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                    b_Term ~ Crisis +NoComp+
                      b_UCA+
                      c_OffCri+
-                     OffPl99+
+                     Reach+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3427,7 +3685,7 @@ Expectation: This is challenging, as competition for the largest contracts may e
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      
-                     OffPl99+
+                     Reach+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3460,7 +3718,7 @@ Expectation: Policy guidance often encourages regular use of competition, which 
                      b_UCA+
                      
                      
-                     OffPl99+
+                     Reach+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3479,7 +3737,7 @@ Expectation: Policy guidance often encourages regular use of competition, which 
                      b_UCA+
                      
                      
-                     OffPl99+
+                     Reach+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3501,56 +3759,71 @@ summary_residual_compare(CBre_10H,CBre_10I2,bins=50)
 ```
 #Multi-Level Model
 ### 20A: No interactions
-```{r Model16A}
+```{r Model20A}
+load("model20A.rdata")
+
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
-
-# load("model20A.rdata")  
+if(!exists("CBre_20A"))
   CBre_20A <- glmer (data=large_crisis_smp,
-                   b_CBre ~ Crisis +NoComp +
-                     b_UCA+
-                     Reach+ 
-                     cl_Ceil+
-                     capped_cl_Days+
-                     Veh+
-                     PricingBasis +
-                     # Is.Defense +
-                    # Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+capped_cl_Days:NoComp+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
-                   # NoComp:Veh+
-                     # Reach:Crisis+
-                     # Crisis:Is.Defense+
-                     # (1 | Simple) + 
-                     (1 | ServCommCons/ProdServ) + (1 | Customer/Office) + (1 | PlaceCountryISO3) + (1 | StartFY)
-               , 
-                   family=binomial(link="logit"))
-  glmer_examine(CBre_20A)
-  
+                     b_CBre ~ Crisis +NoComp +
+                       b_UCA+
+                       Reach+ 
+                       cl_Ceil+
+                       capped_cl_Days+
+                       Veh+
+                       PricingBasis +
+                       # Is.Defense +
+                       # Crisis:NoComp+
+                       # b_UCA:Crisis+
+                       # cl_Ceil:NoComp+
+                       # capped_cl_Days:NoComp+
+                       # capped_cl_Days:Veh+ 
+                       # cl_Ceil:Veh+
+                       # NoComp:Veh+
+                       # Reach:Crisis+
+                       # Crisis:Is.Defense+
+                       # (1 | Simple) + 
+                     (1 | ServCommCons/ProdServ) + 
+                       (1 | Customer/Office) + 
+                       (1 | PlaceCountryISO3) + 
+                       (1 | StartFY)
+                     , 
+                     family=binomial(link="logit"))
+glmer_examine(CBre_20A)
+
+if(!exists("Term_20A"))
   Term_20A <- glmer (data=large_crisis_smp,
-                   b_Term ~ Crisis +NoComp+
-                     b_UCA+
-                     c_OffCri+
-                     Reach+ 
-                    cl_Ceil+
-                     capped_cl_Days+
-                     Veh+
-                     PricingBasis +
-                     # Is.Defense +
-                    
-                     # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
-                     # Reach:Crisis+
-                     # Crisis:Is.Defense+
-                     # (1 | Simple) +
-                     (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)+ (1 | PlaceCountryISO3), 
-                   family=binomial(link="logit"))
-  glmer_examine(Term_20A)
+                     b_Term ~ Crisis +NoComp+
+                       b_UCA+
+                       c_OffCri+
+                       Reach+ 
+                       cl_Ceil+
+                       capped_cl_Days+
+                       Veh+
+                       PricingBasis +
+                       # Is.Defense +
+                       
+                       # b_UCA:Crisis+
+                       # capped_cl_Days:Veh+ 
+                       # cl_Ceil:Veh+
+                       # Reach:Crisis+
+                       # Crisis:Is.Defense+
+                       # (1 | Simple) +
+                       (1 | CrisisProductOrServiceArea/ProdServ) + 
+                       (1 | Customer/Office)+ 
+                       (1 | PlaceCountryISO3), 
+                     family=binomial(link="logit"))
+glmer_examine(Term_20A)
+
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_10A,CBre_10D,CBre_20A,Term_10A,Term_10D,Term_20A,type="text",
-                        digits=2)
-# summary_residual_compare(CBre_15B,CBre_20A,Term_15B,Term_20A)
+stargazer::stargazer(CBre_10A,CBre_10D,CBre_20A,
+                     Term_10A,Term_10D,Term_20A,type="text",
+                     digits=2)
+
+
+summary_residual_compare(CBre_10A,CBre_20A,Term_10A,Term_20A)
+summary_residual_compare(CBre_10D,CBre_20A,Term_10D,Term_20A)
 
 save(CBre_20A,Term_20A, file="Model20A.RData")
 ```
@@ -3562,7 +3835,9 @@ Dropping OffCri for terminations as it is no longer relevant. The changes to pri
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-# load("model20B.rdata")  
+load("model20B.rdata")
+
+if(!exists("CBre_20B"))
   CBre_20B <- glmer (data=large_crisis_smp,
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
@@ -3579,12 +3854,16 @@ Dropping OffCri for terminations as it is no longer relevant. The changes to pri
                      # Reach:Crisis+
                      # Crisis:Is.Defense+
                      # (1 | Simple) + 
-                     (1 | ServCommCons/ProdServ) + (1 | Customer/Office) + (1 | PlaceCountryISO3) + (1 | StartFY)
+                     (1 | ServCommCons/ProdServ) + 
+                     (1 | Customer/Office) + 
+                     (1 | PlaceCountryISO3) + 
+                     (1 | StartFY)
                , 
                    family=binomial(link="logit"))
   glmer_examine(CBre_20B)
   save(CBre_20B, file="Model20B.RData")
   
+if(!exists("Term_20B"))
   Term_20B <- glmer (data=large_crisis_smp,
                    b_Term ~ Crisis +NoComp+
                      b_UCA+
@@ -3602,21 +3881,103 @@ Dropping OffCri for terminations as it is no longer relevant. The changes to pri
                      # Reach:Crisis+
                      # Crisis:Is.Defense+
                      # (1 | Simple) +
-                     (1 | CrisisProductOrServiceArea/ProdServ) + (1 | Customer/Office)+ (1 | PlaceCountryISO3), 
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office)+
+                     (1 | PlaceCountryISO3), 
                    family=binomial(link="logit"),
                    verbose=1,
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_20B)
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_10A,CBre_10D,CBre_20B,Term_10A,Term_10D,Term_20B,type="text",
+stargazer::stargazer(CBre_10A,CBre_10D,CBre_20A,CBre_20B,
+                     Term_10A,Term_10D,Term_20A,Term_20B,type="text",
                         digits=2)
-# summary_residual_compare(CBre_15B,CBre_20B,Term_15B,Term_20B)
+
+summary_residual_compare(CBre_10A,CBre_20B,Term_10A,Term_20B,bins=50)
+summary_residual_compare(CBre_20A,CBre_20B,Term_20A,Term_20B,bins=50)
+summary_residual_compare(CBre_20A,CBre_20B,Term_20A,Term_20B,bins=50)
 
 save(CBre_20B,Term_20B, file="Model20B.RData")
 ```
 
 
+### 20D: No interactions
+```{r Model20D}
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
+
+# load("model20D.rdata")
+
+if(!exists("CBre_20D"))
+  CBre_20D <- glmer (data=large_crisis_smp,
+                   b_CBre ~ Crisis +NoComp +
+                     b_UCA+
+                     Reach+ 
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     # Is.Defense +
+                    Crisis:NoComp+
+                     b_UCA:Crisis+
+                     cl_Ceil:NoComp+
+                     # capped_cl_Days:NoComp+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                   # NoComp:Veh+
+                     # Reach:Crisis+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) + 
+                     (1 | ServCommCons/ProdServ) + 
+                     (1 | Customer/Office) + 
+                     (1 | PlaceCountryISO3) + 
+                     (1 | StartFY)
+               , 
+                   family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(Term_20B)
+  glmer_examine(CBre_20D)
+  save(CBre_20D, file="Model20D.RData")
+  
+if(!exists("Term_20D"))
+  Term_20D <- glmer (data=large_crisis_smp,
+                   b_Term ~ Crisis +NoComp+
+                     b_UCA+
+                     # c_OffCri+
+                     Reach+ 
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     # Is.Defense +
+                    
+                     # b_UCA:Crisis+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                     # Reach:Crisis+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) +
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office)+
+                     (1 | PlaceCountryISO3), 
+                   family=binomial(link="logit"),
+                   verbose=1,
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(Term_20D)
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10A,CBre_10D,CBre_20A,CBre_20B,
+                     Term_10A,Term_10D,Term_20A,Term_20B,type="text",
+                        digits=2)
+
+summary_residual_compare(CBre_10A,CBre_20B,Term_10A,Term_20B,bins=50)
+summary_residual_compare(CBre_20A,CBre_20B,Term_20A,Term_20B,bins=50)
+summary_residual_compare(CBre_20A,CBre_20B,Term_20A,Term_20B,bins=50)
+
+save(CBre_20B,Term_20B, file="Model20B.RData")
+```
 ### 20A: Product/Service/R&D and Platform
 
 
