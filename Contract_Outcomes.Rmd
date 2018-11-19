@@ -3937,7 +3937,7 @@ if(!exists("CBre_20D"))
                    family=binomial(link="logit"),
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
-  glmer_examine(Term_20B)
+
   glmer_examine(CBre_20D)
   save(CBre_20D, file="Model20D.RData")
   
