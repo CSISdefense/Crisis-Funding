@@ -3976,7 +3976,7 @@ summary_residual_compare(CBre_10A,CBre_20B,Term_10A,Term_20B,bins=50)
 summary_residual_compare(CBre_20A,CBre_20B,Term_20A,Term_20B,bins=50)
 summary_residual_compare(CBre_20A,CBre_20B,Term_20A,Term_20B,bins=50)
 
-save(CBre_20B,Term_20B, file="Model20B.RData")
+save(CBre_20D,Term_20D, file="Model20D.RData")
 ```
 ### 20A: Product/Service/R&D and Platform
 
