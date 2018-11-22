@@ -2471,12 +2471,12 @@ Term_08A <- glm (data=large_crisis_smp,
                  family=binomial(link="logit"))
 glmer_examine(Term_08A)
 
-stargazer::stargazer(CBre_07D,CBre_08A,Term_07C,Term_08A,type="text",
+stargazer::stargazer(CBre_07A,CBre_08A,Term_07C,Term_08A,type="text",
                      digits=2)
 
 
 
-summary_residual_compare(CBre_07D,CBre_08A,Term_07C,Term_08A,30)
+summary_residual_compare(CBre_07A,CBre_08A,Term_07C,Term_08A,30)
 
 
 ```
@@ -2795,10 +2795,14 @@ Expectation Prior CSIS research has found that fixed-price contracts estimate a 
                      capped_cl_Days+
                      Veh+
                      FxCb +
-                    cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+capped_cl_Days:NoCompOffr+
+                    cl_Ceil+
+                     Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     cl_Ceil:NoCompOffr+
+                     capped_cl_Days:NoCompOffr,
                      
                      
-                     capped_cl_Days:Veh+ 
+                     # capped_cl_Days:Veh,
                      #cl_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
@@ -2857,10 +2861,12 @@ Expectation Prior CSIS research has found that fixed-price contracts estimate a 
                      capped_cl_Days+
                      Veh+
                      Pricing +
-                    cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+capped_cl_Days:NoCompOffr+
+                    cl_Ceil+Crisis:NoCompOffr+
+                     b_UCA:Crisis+cl_Ceil:NoCompOffr+
+                     capped_cl_Days:NoCompOffr,
                      
                      
-                     capped_cl_Days:Veh+ 
+                    # capped_cl_Days:Veh, 
                      #cl_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
@@ -2896,55 +2902,6 @@ Expectations were largely upheld, with partial exception of combo/other and larg
 
 
 
-
-
-```{r Model08H}
-  summary_discrete_plot(large_crisis_smp,"Pricing",rotate_text = TRUE)
-levels(large_crisis_smp)
-
-  CBre_08H <- glm (data=large_crisis_smp,
-                   b_CBre ~ Crisis +NoCompOffr +
-                     b_UCA+
-                     OffPl99+ c_OffCri+
-                     cl_Ceil+
-                     capped_cl_Days+
-                     Veh+
-                     Pricing +
-                    cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+capped_cl_Days:NoCompOffr+
-                     
-                     
-                     capped_cl_Days:Veh+ 
-                     #cl_Ceil:Veh+
-                   #NoCompOffr:Veh, 
-                   family=binomial(link="logit"))
-  glmer_examine(CBre_08H)
-
-  Term_08H <- glm (data=large_crisis_smp,
-                   b_Term ~ Crisis +NoCompOffr+
-                     b_UCA+
-                     OffPl99+ c_OffCri+
-                    cl_Ceil+
-                     capped_cl_Days+
-                     Veh+
-                     Pricing +
-                     Crisis:NoCompOffr+
-                     b_UCA:Crisis+
-                     
-                     
-                     
-                     capped_cl_Days:Veh+ 
-                     cl_Ceil:Veh, 
-                   family=binomial(link="logit"))
-  glmer_examine(Term_08H)
-  
-
-  stargazer::stargazer(CBre_08A,CBre_08G,CBre_08H,Term_08A,Term_08G,Term_08H,type="text",
-                       digits=2)
-  
-summary_residual_compare(CBre_08A,CBre_08H,Term_08A,Term_08H,bins=50)
-summary_residual_compare(CBre_08G,CBre_08H,Term_08G,Term_08H,bins=50)
-```
-
 ### 08I: Fixed price  fee
 
 
@@ -2965,10 +2922,10 @@ summary_residual_compare(CBre_08G,CBre_08H,Term_08G,Term_08H,bins=50)
                      capped_cl_Days+
                      Veh+
                      PricingFee +
-                    cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+capped_cl_Days:NoCompOffr+
+                    cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+capped_cl_Days:NoCompOffr,
                      
                      
-                     capped_cl_Days:Veh+ 
+                     # capped_cl_Days:Veh+ 
                      #cl_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
@@ -3025,10 +2982,12 @@ large_crisis_smp$PricingBasis<-large_crisis_smp$Pricing
                      capped_cl_Days+
                      Veh+
                      PricingBasis +
-                    cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+capped_cl_Days:NoCompOffr+
+                    cl_Ceil+Crisis:NoCompOffr+
+                     b_UCA:Crisis+cl_Ceil:NoCompOffr+
+                     capped_cl_Days:NoCompOffr,
                      
                      
-                     capped_cl_Days:Veh+ 
+                     # capped_cl_Days:Veh+ 
                      #cl_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
@@ -3071,7 +3030,8 @@ Expectation: The reachback hypothesis suggests that international will postively
 ```{r Model09A}
 corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(large_crisis_smp, select=c(b_UCA,
                                                              c_OffCri,cl_Ceil,
-                                               capped_cl_Days,n_Fixed,b_Intl)),
+                                               capped_cl_Days,b_Intl)),
+                                       dummies::dummy(large_crisis_smp$PricingBasis),
                        dummies::dummy(large_crisis_smp$Crisis),
                        dummies::dummy(large_crisis_smp$NoCompOffr),
                        dummies::dummy(large_crisis_smp$OffPl99),
@@ -3089,12 +3049,12 @@ corrdisp[[1]]#[,1:9]
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
                     cl_Ceil+Crisis:NoCompOffr+
                      b_UCA:Crisis+
                      cl_Ceil:NoCompOffr+
                      capped_cl_Days:NoCompOffr+
-                     capped_cl_Days:Veh,
+                     # capped_cl_Days:Veh,
                      #cl_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
@@ -3108,7 +3068,7 @@ corrdisp[[1]]#[,1:9]
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
                     capped_cl_Days:NoCompOffr+
                      b_UCA:Crisis+
                      capped_cl_Days:Veh
@@ -3118,7 +3078,8 @@ corrdisp[[1]]#[,1:9]
   glmer_examine(Term_09A)
   
 
-  stargazer::stargazer(CBre_08A,CBre_09A,Term_08A,Term_09A,type="text",
+  stargazer::stargazer(CBre_08H,CBre_09A,
+                       Term_08H,Term_09A,type="text",
                        digits=2)
   
   
@@ -3158,10 +3119,10 @@ International and Office place have roughly similar deviances, even though inter
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
                     cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+
                      capped_cl_Days:NoCompOffr+
-                     capped_cl_Days:Veh+ 
+                      
                      #cl_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
@@ -3176,7 +3137,7 @@ International and Office place have roughly similar deviances, even though inter
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
                     capped_cl_Days:NoCompOffr+
                      b_UCA:Crisis+
                      capped_cl_Days:Veh, 
@@ -3213,10 +3174,10 @@ Expectations: Unchanged from 6 category. Reachback contracting office negatively
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
                     cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+
                      capped_cl_Days:NoCompOffr+
-                     capped_cl_Days:Veh+ 
+                      
                      #cl_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
@@ -3230,7 +3191,7 @@ Expectations: Unchanged from 6 category. Reachback contracting office negatively
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
                     capped_cl_Days:NoCompOffr+
                      b_UCA:Crisis+
                      capped_cl_Days:Veh, 
@@ -3267,10 +3228,10 @@ Expectations: Unchanged from 6 category. Reachback contracting office negatively
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
                     cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+
                      capped_cl_Days:NoCompOffr+
-                     capped_cl_Days:Veh+ 
+                      
                      #cl_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
@@ -3284,7 +3245,7 @@ Expectations: Unchanged from 6 category. Reachback contracting office negatively
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     n_Fixed +
+                     PricingBasis +
                     capped_cl_Days:NoCompOffr+
                      b_UCA:Crisis+
                      capped_cl_Days:Veh, 
