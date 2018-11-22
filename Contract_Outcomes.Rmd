@@ -2955,6 +2955,7 @@ Expectations were largely upheld, with partial exception of combo/other and larg
   
 summary_residual_compare(CBre_08A,CBre_08I,Term_08A,Term_08I,bins=50)
 summary_residual_compare(CBre_08G,CBre_08I,Term_08G,Term_08I,bins=50)
+summary_residual_compare(CBre_08H,CBre_08I,Term_08H,Term_08I,bins=50)
 
 ```
 ### 08J: Fixed price recombining fixed price fee
@@ -3049,16 +3050,37 @@ corrdisp[[1]]#[,1:9]
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis +
+                     PricingFee +
                     cl_Ceil+Crisis:NoCompOffr+
                      b_UCA:Crisis+
                      cl_Ceil:NoCompOffr+
-                     capped_cl_Days:NoCompOffr+
-                     # capped_cl_Days:Veh,
+                     capped_cl_Days:NoCompOffr,
+                     
+                     
+                     # capped_cl_Days:Veh+ 
                      #cl_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
   glmer_examine(CBre_09A)
+  
+  
+  Term_08I <- glm (data=large_crisis_smp,
+                   b_Term ~ Crisis +NoCompOffr+
+                     b_UCA+
+                     OffPl99+ c_OffCri+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh, 
+                   family=binomial(link="logit"))
+  glmer_examine(Term_08I)
   
   Term_09A <- glm (data=large_crisis_smp,
                    b_Term ~ Crisis +NoCompOffr+
@@ -3068,23 +3090,25 @@ corrdisp[[1]]#[,1:9]
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis +
-                    capped_cl_Days:NoCompOffr+
+                     PricingFee +
+                     Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     capped_cl_Days:Veh
-                     #cl_Ceil:Veh+
-                     , 
+                     
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_09A)
   
 
-  stargazer::stargazer(CBre_08H,CBre_09A,
-                       Term_08H,Term_09A,type="text",
+  stargazer::stargazer(CBre_08I,CBre_09A,
+                       Term_08I,Term_09A,type="text",
                        digits=2)
   
   
 
-summary_residual_compare(CBre_08A,CBre_09A,Term_08A,Term_09A,bins=20)
+summary_residual_compare(CBre_08I,CBre_09A,Term_08I,Term_09A,bins=20)
 
 ```
 The expectation was fulfilled for ceiling breaches but not for terminations. This had not proven true in earlier versions of the sample, though the addition of a wider range of non-crisis international contracts changed the dynamic.
@@ -3119,9 +3143,11 @@ International and Office place have roughly similar deviances, even though inter
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis +
-                    cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+
-                     capped_cl_Days:NoCompOffr+
+                     PricingFee +
+                    cl_Ceil+Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     cl_Ceil:NoCompOffr+
+                     capped_cl_Days:NoCompOffr,
                       
                      #cl_Ceil:Veh+
                    #NoCompOffr:Veh, 
@@ -3137,11 +3163,14 @@ International and Office place have roughly similar deviances, even though inter
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis +
-                    capped_cl_Days:NoCompOffr+
+                     PricingFee +
+                      Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     capped_cl_Days:Veh, 
-                     #cl_Ceil:Veh+ 
+                     
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_09B)
   
@@ -3174,10 +3203,14 @@ Expectations: Unchanged from 6 category. Reachback contracting office negatively
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis +
-                    cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+
-                     capped_cl_Days:NoCompOffr+
-                      
+                     PricingFee +
+                    cl_Ceil+Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     cl_Ceil:NoCompOffr+
+                     capped_cl_Days:NoCompOffr,
+                     
+                     
+                     # capped_cl_Days:Veh+ 
                      #cl_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
@@ -3191,11 +3224,14 @@ Expectations: Unchanged from 6 category. Reachback contracting office negatively
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis +
-                    capped_cl_Days:NoCompOffr+
+                     PricingFee +
+                        Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     capped_cl_Days:Veh, 
-                     #cl_Ceil:Veh+
+                     
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_09C)
   
@@ -3228,10 +3264,14 @@ Expectations: Unchanged from 6 category. Reachback contracting office negatively
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis +
-                    cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+
-                     capped_cl_Days:NoCompOffr+
-                      
+                     PricingFee +
+                   cl_Ceil+Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     cl_Ceil:NoCompOffr+
+                     capped_cl_Days:NoCompOffr,
+                     
+                     
+                     # capped_cl_Days:Veh+ 
                      #cl_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
@@ -3245,11 +3285,14 @@ Expectations: Unchanged from 6 category. Reachback contracting office negatively
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis +
-                    capped_cl_Days:NoCompOffr+
+                     PricingFee +
+                        Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     capped_cl_Days:Veh, 
-                     #cl_Ceil:Veh+, 
+                     
+                     
+                     
+                     capped_cl_Days:Veh+ 
+                     cl_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_09D)
   
@@ -3279,15 +3322,16 @@ After comparing a few models, the 4 category reach seems most parsimonious and o
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis +
-                    cl_Ceil,#+
-                   #   Crisis:NoCompOffr+
-                   #   b_UCA:Crisis+
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
-                   #   capped_cl_Days:Veh+ 
-                   #   cl_Ceil:Veh+
-                   # NoCompOffr:Veh,
+                     PricingFee,# +
+                     
+                     #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # cl_Ceil:NoCompOffr+
+                     # capped_cl_Days:NoCompOffr,
+                     # capped_cl_Days:Veh+ 
+                     #cl_Ceil:Veh+
+                   #NoCompOffr:Veh, 
+                   
                    family=binomial(link="logit"))
   glmer_examine(CBre_10A)
   
@@ -3299,11 +3343,12 @@ After comparing a few models, the 4 category reach seems most parsimonious and o
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis, #+
+                     PricingFee, #+
                      #      Crisis:NoCompOffr+            
                      # b_UCA:Crisis+
                      # capped_cl_Days:Veh+ 
                      # cl_Ceil:Veh,
+                   
                    family=binomial(link="logit"))
   glmer_examine(Term_10A)
 # Plot the model and Vehicle 
@@ -3320,25 +3365,25 @@ Office Cri adds little to ceiling breach and need not be added.
 Checking Office Cri first. Expectation is that these offices are correlated with a greater risk of ceiling breaches and terminations.
 ```{r Model10B}
 
-  CBre_10B <- glm (data=large_crisis_smp,
-                   b_CBre ~ Crisis +NoCompOffr +
-                     b_UCA+
-                     
-c_OffCri+
-                     Reach+
-                     cl_Ceil+
-                     capped_cl_Days+
-                     Veh+
-                     PricingBasis,# +
-                     # Crisis:NoCompOffr,
-                   #   b_UCA:Crisis+
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
-                   #   capped_cl_Days:Veh+ 
-                   #   cl_Ceil:Veh+
-                   # NoCompOffr:Veh,
-                   family=binomial(link="logit"))
-  glmer_examine(CBre_10B)
+CBre_10B <- glm (data=large_crisis_smp,
+                 b_CBre ~ Crisis +NoCompOffr +
+                   b_UCA+
+                   
+                   c_OffCri+
+                   Reach+
+                   cl_Ceil+
+                   capped_cl_Days+
+                   Veh+
+                   PricingFee,# +
+                 #Crisis:NoCompOffr+
+                 # b_UCA:Crisis+
+                 # cl_Ceil:NoCompOffr+
+                 # capped_cl_Days:NoCompOffr,
+                 # capped_cl_Days:Veh+ 
+                 #cl_Ceil:Veh+
+                 #NoCompOffr:Veh, 
+                 family=binomial(link="logit"))
+glmer_examine(CBre_10B)
   
   Term_10B <- glm (data=large_crisis_smp,
                    b_Term ~ Crisis +NoCompOffr+
@@ -3348,7 +3393,7 @@ c_OffCri+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis, #+
+                     PricingFee, #+
                      #      Crisis:NoCompOffr+            
                      # b_UCA:Crisis+
                      # capped_cl_Days:Veh+ 
@@ -3378,7 +3423,7 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                      Crisis:NoCompOffr,#+
                    #   b_UCA:Crisis+
                    #   cl_Ceil:NoCompOffr+
@@ -3386,6 +3431,7 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                    #   capped_cl_Days:Veh+ 
                    #   cl_Ceil:Veh+
                    # NoCompOffr:Veh,
+                   
                    family=binomial(link="logit"))
   glmer_examine(CBre_10C)
   
@@ -3397,7 +3443,7 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                           Crisis:NoCompOffr, #+
                      # b_UCA:Crisis+
                      # capped_cl_Days:Veh+ 
@@ -3428,7 +3474,7 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                      Crisis:NoCompOffr+
                      b_UCA:Crisis,#+
                    #   cl_Ceil:NoCompOffr+
@@ -3447,7 +3493,7 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                           Crisis:NoCompOffr+
                      b_UCA:Crisis,#+
                      # capped_cl_Days:Veh+ 
@@ -3475,7 +3521,7 @@ Expectation: Indefinite vehicles allow for disaggregation of larger contracts in
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                      Crisis:NoCompOffr+
                      b_UCA:Crisis+
                    #   cl_Ceil:NoCompOffr+
@@ -3494,7 +3540,7 @@ Expectation: Indefinite vehicles allow for disaggregation of larger contracts in
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                           Crisis:NoCompOffr+
                      b_UCA:Crisis+
                      capped_cl_Days:Veh,
@@ -3523,7 +3569,7 @@ Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregat
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                      Crisis:NoCompOffr+
                      b_UCA:Crisis+
                    #   cl_Ceil:NoCompOffr+
@@ -3541,7 +3587,7 @@ Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregat
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                           Crisis:NoCompOffr+
                      b_UCA:Crisis+
                      cl_Ceil:Veh,
@@ -3553,7 +3599,7 @@ stargazer::stargazer(CBre_10D,CBre_10F,Term_10D,Term_10F,type="text",
 summary_residual_compare(CBre_10D,CBre_10F,Term_10D,Term_10F,bins=50)
 
 ```
-Expectations were not met, AIC is improved, though residuals get a bit worth. Leaving out.
+Expectations were not met, AIC is improved, though residuals get a bit worse. Leaving out.
 
 ### 10G:  NoCompOffr:UCA
 Expectation: The literature describes competition as a way to mitigate the risk of UCas, thus the expecation is that UCAs that are competed estimate a lower risk of ceiling breaches and terminations. 
@@ -3569,7 +3615,7 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                      Crisis:NoCompOffr+
                      b_UCA:Crisis+
                      b_UCA:NoCompOffr,
@@ -3587,7 +3633,7 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                           Crisis:NoCompOffr+
                      b_UCA:Crisis+
                      b_UCA:NoCompOffr,
@@ -3602,7 +3648,7 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                           Crisis:NoCompOffr+
                      # b_UCA:Crisis+
                      b_UCA:NoCompOffr,
@@ -3630,7 +3676,7 @@ Expectation: This is challenging, as competition for the largest contracts may e
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                      Crisis:NoCompOffr+
                      b_UCA:Crisis+
                      cl_Ceil:NoCompOffr,
@@ -3663,7 +3709,7 @@ Expectation: Policy guidance often encourages regular use of competition, which 
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                      Crisis:NoCompOffr+
                      b_UCA:Crisis+
                      cl_Ceil:NoCompOffr+
@@ -3682,7 +3728,7 @@ Expectation: Policy guidance often encourages regular use of competition, which 
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                      Crisis:NoCompOffr+
                      b_UCA:Crisis+
                      # cl_Ceil:NoCompOffr+
@@ -3714,7 +3760,7 @@ Expectations: Competition seems likely to have the biggest effect for multiple-a
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                      Crisis:NoCompOffr+
                      b_UCA:Crisis+
                      cl_Ceil:NoCompOffr+
@@ -3730,7 +3776,7 @@ Expectations: Competition seems likely to have the biggest effect for multiple-a
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingBasis+
+                     PricingFee+
                      Crisis:NoCompOffr+
                      b_UCA:Crisis+
                      # cl_Ceil:NoCompOffr+
@@ -3763,7 +3809,7 @@ if(!exists("CBre_20A"))
                        cl_Ceil+
                        capped_cl_Days+
                        Veh+
-                       PricingBasis +
+                       PricingFee +
                        # Is.Defense +
                        # Crisis:NoComp+
                        # b_UCA:Crisis+
@@ -3792,7 +3838,7 @@ if(!exists("Term_20A"))
                        cl_Ceil+
                        capped_cl_Days+
                        Veh+
-                       PricingBasis +
+                       PricingFee +
                        # Is.Defense +
                        
                        # b_UCA:Crisis+
