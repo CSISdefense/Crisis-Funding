@@ -1814,7 +1814,6 @@ save(PlaceCountry_cbre,PlaceCountry_term,
       file="Output//where_empty_models.rdata"
      )
 
-
 stargazer::stargazer( PlaceCountry_cbre,
                       Place_Country_offplace_alone_cbre,
                       Place_Country_offplace_cbre,

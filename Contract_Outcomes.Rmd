@@ -3355,7 +3355,7 @@ After comparing a few models, the 4 category reach seems most parsimonious and o
                      b_UCA+
                      
                      # c_OffCri+
-                     Reach+
+                     OffPlace+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3376,7 +3376,7 @@ After comparing a few models, the 4 category reach seems most parsimonious and o
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      # c_OffCri+
-                     Reach+
+                     OffPlace+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3407,7 +3407,7 @@ CBre_10B <- glm (data=large_crisis_smp,
                    b_UCA+
                    
                    c_OffCri+
-                   Reach+
+                   OffPlace+
                    cl_Ceil+
                    capped_cl_Days+
                    Veh+
@@ -3426,7 +3426,7 @@ glmer_examine(CBre_10B)
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      c_OffCri+
-                     Reach+
+                     OffPlace+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3456,7 +3456,7 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      b_UCA+
                      
  
-                     Reach+
+                     OffPlace+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3476,7 +3476,7 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      c_OffCri+
-                     Reach+
+                     OffPlace+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3507,7 +3507,7 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      b_UCA+
                      
 
-                     Reach+
+                     OffPlace+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3526,7 +3526,7 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      c_OffCri+
-                     Reach+
+                     OffPlace+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3554,7 +3554,7 @@ Expectation: Indefinite vehicles allow for disaggregation of larger contracts in
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      
-                     Reach+
+                     OffPlace+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3573,7 +3573,7 @@ Expectation: Indefinite vehicles allow for disaggregation of larger contracts in
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      c_OffCri+
-                     Reach+
+                     OffPlace+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3602,7 +3602,7 @@ Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregat
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      
-                     Reach+
+                     OffPlace+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3620,7 +3620,7 @@ Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregat
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      c_OffCri+
-                     Reach+
+                     OffPlace+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3648,7 +3648,7 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      
-                     Reach+
+                     OffPlace+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3666,7 +3666,7 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      c_OffCri+
-                     Reach+
+                     OffPlace+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3681,7 +3681,7 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      c_OffCri+
-                     Reach+
+                     OffPlace+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3709,7 +3709,7 @@ Expectation: This is challenging, as competition for the largest contracts may e
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      
-                     Reach+
+                     OffPlace+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3742,7 +3742,7 @@ Expectation: Policy guidance often encourages regular use of competition, which 
                      b_UCA+
                      
                      
-                     Reach+
+                     OffPlace+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3761,7 +3761,7 @@ Expectation: Policy guidance often encourages regular use of competition, which 
                      b_UCA+
                      
                      
-                     Reach+
+                     OffPlace+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3793,7 +3793,7 @@ Expectations: Competition seems likely to have the biggest effect for multiple-a
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      
-                     Reach+
+                     OffPlace+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
@@ -3809,7 +3809,7 @@ Expectations: Competition seems likely to have the biggest effect for multiple-a
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      
-                     Reach+
+                     OffPlace+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
