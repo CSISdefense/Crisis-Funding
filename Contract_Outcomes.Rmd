@@ -4222,7 +4222,7 @@ save(CBre_20E,Term_20E, file="Model20E.RData")
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("model20F.rdata")
+# load("model20F.rdata")
 
 if(!exists("CBre_20F"))
   CBre_20F <- glmer (data=large_crisis_smp,
@@ -4254,7 +4254,7 @@ if(!exists("CBre_20F"))
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
   glmer_examine(CBre_20F)
-  # save(CBre_20F, file="Model20F.RData")
+  save(CBre_20F, file="Model20F.RData")
   
 if(!exists("Term_20F"))
   Term_20F <- glmer (data=large_crisis_smp,
@@ -4284,6 +4284,8 @@ if(!exists("Term_20F"))
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_20F)
+  
+save(CBre_20D,Term_20D, file="Model20D.RData")
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20F,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20F,type="text",#Term_20A,#Term_20C
