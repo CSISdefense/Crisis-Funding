@@ -1119,7 +1119,7 @@ if(!exists("Place_Country_Reach_alone_term"))
 get_icc(display=TRUE,Place_Country_Reach_alone_term)
 
 
-# if(!exists("Place_Country_Reach_cbre"))
+if(!exists("Place_Country_Reach_cbre"))
   Place_Country_Reach_cbre <- glmer(data=large_crisis_smp,
                        b_CBre ~ Reach+(1+Reach  | PlaceCountryISO3)
                        , family=binomial(link="logit"),
@@ -1130,7 +1130,7 @@ get_icc(display=TRUE,Place_Country_Reach_alone_term)
 get_icc(display=TRUE,Place_Country_Reach_cbre)
 
 
-# if(!exists("Place_Country_Reach_term"))
+if(!exists("Place_Country_Reach_term"))
   Place_Country_Reach_term <- glmer(data=large_crisis_smp,
                        b_Term ~ Reach+(1+Reach  | PlaceCountryISO3)
                        , family=binomial(link="logit"),
