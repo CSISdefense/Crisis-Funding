@@ -4210,9 +4210,9 @@ stargazer::stargazer(CBre_10A,CBre_10D,CBre_20B,CBre_20C,CBre_20D,CBre_20E,
 
 summary_residual_compare(CBre_10A,CBre_20E,bins=50)#,Term_10A,Term_20E
 summary_residual_compare(CBre_10H,CBre_20E,bins=50)#,Term_10D,Term_20E,bins=50)
-summary_residual_compare(CBre_20D,CBre_20E,bins=50)#,Term_20D,Term_20E,bins=50)
 summary_residual_compare(CBre_20C,CBre_20E,bins=50)#,Term_20C,Term_20E,bins=50)
 summary_residual_compare(CBre_20B,CBre_20E,bins=50)#,Term_20B,Term_20E,bins=50)
+summary_residual_compare(CBre_20D,CBre_20E,bins=50)#,Term_20D,Term_20E,bins=50)
 
 save(CBre_20E,Term_20E, file="Model20E.RData")
 ```
