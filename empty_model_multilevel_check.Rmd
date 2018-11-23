@@ -1077,7 +1077,7 @@ if(!exists("Place_Country_Reach_cbre"))
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
-get_icc(display=TRUE,Place_theater_Country_Reach_theater_cbre)
+
 get_icc(display=TRUE,Place_Country_Reach_cbre)
 
 
@@ -1088,6 +1088,7 @@ if(!exists("Place_Country_Reach_term"))
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
+get_icc(display=TRUE,Place_Country_Reach_term)
 
 
 
@@ -1768,9 +1769,9 @@ stargazer::stargazer( PlaceCountry_cbre,
      Place_Country_Reach_cbre,
      Place_theater_Country_cbre,
      Place_theater_Country_offplace_theater_cbre,
-     Place_Country_Reach_term,
      PlaceCountry_term,
      Place_Country_offplace_term,
+     Place_Country_Reach_term,
      Place_theater_Country_term,
      Place_theater_Country_offplace_theater_term,
                      type="text",
