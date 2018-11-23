@@ -1070,7 +1070,7 @@ get_icc(display=TRUE,Place_Country_offplace_term)
 
 
 
-# if(!exists("Place_Country_Reach_cbre"))
+if(!exists("Place_Country_Reach_cbre"))
   Place_Country_Reach_cbre <- glmer(data=large_crisis_smp,
                        b_CBre ~ Reach+(1  | PlaceCountryISO3)
                        , family=binomial(link="logit"),
@@ -1755,7 +1755,8 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_when_term)
 ```{r Empty_Compare_Who_Term}
 
 save(PlaceCountry_cbre,PlaceCountry_term,
-     Place_Country_offplace_cbre,#Place_Country_offplace_term,
+     Place_Country_offplace_cbre,Place_Country_offplace_term,
+     Place_Country_Reach_cbre,Place_Country_Reach_term,
      Place_theater_Country_cbre,Place_theater_Country_term,
      Place_theater_Country_offplace_theater_cbre,Place_theater_Country_offplace_theater_term,
       file="Output//where_empty_models.rdata"
@@ -1764,8 +1765,10 @@ save(PlaceCountry_cbre,PlaceCountry_term,
 
 stargazer::stargazer( PlaceCountry_cbre,
      Place_Country_offplace_cbre,
+     Place_Country_Reach_cbre,
      Place_theater_Country_cbre,
      Place_theater_Country_offplace_theater_cbre,
+     Place_Country_Reach_term,
      PlaceCountry_term,
      Place_Country_offplace_term,
      Place_theater_Country_term,
