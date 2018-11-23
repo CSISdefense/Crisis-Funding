@@ -1045,6 +1045,31 @@ get_icc(display=TRUE,PlaceCountry_cbre)
 
 get_icc(display=TRUE,Place_theater_Country_offplace_theater_cbre)
 get_icc(display=TRUE,PlaceCountry_term)
+```
+
+### Place + Offplace
+```{r PlaceCountry_offplace}
+
+
+
+# if(!exists("Place_Country_offplace_alone_cbre"))
+  Place_Country_offplace_alone_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ OffPl99+(1 | PlaceCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+
+get_icc(display=TRUE,Place_Country_offplace_alone_cbre)
+
+if(!exists("Place_Country_offplace_alone_term"))
+  Place_Country_offplace_alone_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ OffPl99+(1  | PlaceCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+
+get_icc(display=TRUE,Place_Country_offplace_alone_term)
+
 
 # if(!exists("Place_Country_offplace_cbre"))
   Place_Country_offplace_cbre <- glmer(data=large_crisis_smp,
@@ -1067,27 +1092,52 @@ if(!exists("Place_Country_offplace_term"))
 get_icc(display=TRUE,Place_theater_Country_offplace_theater_cbre)
 get_icc(display=TRUE,Place_Country_offplace_term)
 
+```
+
+### Place + Reach
+```{r PlaceCountry_reach}
 
 
-
-# if(!exists("Place_Country_Reach_cbre"))
-  Place_Country_Reach_cbre <- glmer(data=large_crisis_smp,
+if(!exists("Place_Country_Reach_alone_cbre"))
+  Place_Country_Reach_alone_cbre <- glmer(data=large_crisis_smp,
                        b_CBre ~ Reach+(1  | PlaceCountryISO3)
                        , family=binomial(link="logit"),
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
-get_icc(display=TRUE,Place_theater_Country_Reach_theater_cbre)
-get_icc(display=TRUE,Place_Country_Reach_cbre)
+
+get_icc(display=TRUE,Place_Country_Reach_alone_cbre)
 
 
-if(!exists("Place_Country_Reach_term"))
-  Place_Country_Reach_term <- glmer(data=large_crisis_smp,
+if(!exists("Place_Country_Reach_alone_term"))
+  Place_Country_Reach_alone_term <- glmer(data=large_crisis_smp,
                        b_Term ~ Reach+(1  | PlaceCountryISO3)
                        , family=binomial(link="logit"),
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
+get_icc(display=TRUE,Place_Country_Reach_alone_term)
+
+
+if(!exists("Place_Country_Reach_cbre"))
+  Place_Country_Reach_cbre <- glmer(data=large_crisis_smp,
+                       b_CBre ~ Reach+(1+Reach  | PlaceCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+
+
+get_icc(display=TRUE,Place_Country_Reach_cbre)
+
+
+if(!exists("Place_Country_Reach_term"))
+  Place_Country_Reach_term <- glmer(data=large_crisis_smp,
+                       b_Term ~ Reach+(1+Reach  | PlaceCountryISO3)
+                       , family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+
+get_icc(display=TRUE,Place_Country_Reach_term)
 
 
 
@@ -1755,7 +1805,10 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_when_term)
 ```{r Empty_Compare_Who_Term}
 
 save(PlaceCountry_cbre,PlaceCountry_term,
-     Place_Country_offplace_cbre,#Place_Country_offplace_term,
+     Place_Country_offplace_alone_cbre,Place_Country_offplace_alone_term,
+     Place_Country_offplace_cbre,Place_Country_offplace_term,
+     Place_Country_Reach_alone_cbre,Place_Country_Reach_alone_term,
+     Place_Country_Reach_cbre,Place_Country_Reach_term,
      Place_theater_Country_cbre,Place_theater_Country_term,
      Place_theater_Country_offplace_theater_cbre,Place_theater_Country_offplace_theater_term,
       file="Output//where_empty_models.rdata"
@@ -1763,15 +1816,26 @@ save(PlaceCountry_cbre,PlaceCountry_term,
 
 
 stargazer::stargazer( PlaceCountry_cbre,
-     Place_Country_offplace_cbre,
-     Place_theater_Country_cbre,
-     Place_theater_Country_offplace_theater_cbre,
-     PlaceCountry_term,
-     Place_Country_offplace_term,
-     Place_theater_Country_term,
-     Place_theater_Country_offplace_theater_term,
-                     type="text",
-                       digits=2)
+                      Place_Country_offplace_alone_cbre,
+                      Place_Country_offplace_cbre,
+                      Place_Country_Reach_alone_cbre,
+                      Place_Country_Reach_cbre,
+                      Place_theater_Country_cbre,
+                      
+                      Place_theater_Country_offplace_theater_cbre,
+                                            type="text",
+                      digits=2)
+
+stargazer::stargazer( PlaceCountry_term,
+                      
+                      Place_Country_offplace_alone_term,
+                      Place_Country_offplace_term,
+                      Place_Country_Reach_alone_term,
+                      Place_Country_Reach_term,
+                      Place_theater_Country_term,
+                      Place_theater_Country_offplace_theater_term,
+                      type="text",
+                      digits=2)
 
 
 get_icc(PlaceCountry_cbre)
