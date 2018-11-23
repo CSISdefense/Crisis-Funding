@@ -1063,7 +1063,7 @@ get_icc(display=TRUE,Place_Country_offplace_alone_cbre)
 
 if(!exists("Place_Country_offplace_alone_term"))
   Place_Country_offplace_alone_term <- glmer(data=large_crisis_smp,
-                       b_Term ~ OffPl99+(1 + OffPl99 | PlaceCountryISO3)
+                       b_Term ~ OffPl99+(1  | PlaceCountryISO3)
                        , family=binomial(link="logit"),
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
@@ -1121,7 +1121,7 @@ get_icc(display=TRUE,Place_Country_Reach_alone_term)
 
 if(!exists("Place_Country_Reach_cbre"))
   Place_Country_Reach_cbre <- glmer(data=large_crisis_smp,
-                       b_CBre ~ Reach+(1  | PlaceCountryISO3)
+                       b_CBre ~ Reach+(1+Reach  | PlaceCountryISO3)
                        , family=binomial(link="logit"),
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
@@ -1132,7 +1132,7 @@ get_icc(display=TRUE,Place_Country_Reach_cbre)
 
 if(!exists("Place_Country_Reach_term"))
   Place_Country_Reach_term <- glmer(data=large_crisis_smp,
-                       b_Term ~ Reach+(1  | PlaceCountryISO3)
+                       b_Term ~ Reach+(1+Reach  | PlaceCountryISO3)
                        , family=binomial(link="logit"),
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
@@ -1805,8 +1805,9 @@ get_icc(display=TRUE,cpsa_prodserv_customer_office_placevendor_when_term)
 ```{r Empty_Compare_Who_Term}
 
 save(PlaceCountry_cbre,PlaceCountry_term,
-     Place_Country_offplace_cbre,Place_Country_offplace_term,
      Place_Country_offplace_alone_cbre,Place_Country_offplace_alone_term,
+     Place_Country_offplace_cbre,Place_Country_offplace_term,
+     Place_Country_Reach_alone_cbre,Place_Country_Reach_alone_term,
      Place_Country_Reach_cbre,Place_Country_Reach_term,
      Place_theater_Country_cbre,Place_theater_Country_term,
      Place_theater_Country_offplace_theater_cbre,Place_theater_Country_offplace_theater_term,
@@ -1817,6 +1818,7 @@ save(PlaceCountry_cbre,PlaceCountry_term,
 stargazer::stargazer( PlaceCountry_cbre,
                       Place_Country_offplace_alone_cbre,
                       Place_Country_offplace_cbre,
+                      Place_Country_Reach_alone_cbre,
                       Place_Country_Reach_cbre,
                       Place_theater_Country_cbre,
                       
@@ -1828,6 +1830,7 @@ stargazer::stargazer( PlaceCountry_term,
                       
                       Place_Country_offplace_alone_term,
                       Place_Country_offplace_term,
+                      Place_Country_Reach_alone_term,
                       Place_Country_Reach_term,
                       Place_theater_Country_term,
                       Place_theater_Country_offplace_theater_term,
