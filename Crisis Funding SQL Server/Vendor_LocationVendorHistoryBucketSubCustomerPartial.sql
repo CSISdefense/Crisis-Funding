@@ -179,7 +179,7 @@ C.fiscal_year
 	, n.nationalinterestactioncode
 	, n.nationalinterestactioncodeText
 	, n.CrisisFunding as NIAcrisisFunding
-	, rf.IsArra
+	, rf.IsArra as RFisARRA
 	, coalesce(t.CrisisFunding,n.CrisisFunding) as CrisisFunding
 	,c.localareasetaside --For disasters investigate this later.
 	,c.CCRexception
