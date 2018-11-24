@@ -1,12 +1,10 @@
-USE [CSIS360]
-GO
-
-/****** Object:  View [Vendor].[LocationVendorHistoryBucketSubCustomerClassification]    Script Date: 9/26/2017 5:02:57 AM ******/
+/****** Object:  View [Vendor].[LocationVendorHistoryBucketSubCustomerClassification]    Script Date: 11/24/2018 10:18:50 AM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -56,6 +54,7 @@ SELECT  [fiscal_year]
       ,[VendorPlaceType]
       ,[VendorSize]
       ,[obligatedAmount]
+	  ,iif([obligatedAmount]>0,[obligatedAmount],NULL) as GrossObligatedAmount
       ,[numberOfActions]
       ,[TypeofContractPricingtext]
 	  ,IsUndefinitizedAction
@@ -105,7 +104,7 @@ SELECT  [fiscal_year]
 		  --or l.localareasetaside='Y' --For disasters investigate this later.
 		  ,1,0) as IsDisasterCrisisFunding
 	,iif(NIAcrisisFunding='ARRA' or  ContractCrisisFunding='ARRA'
-		or IsARRA=1,1,0) as IsARRAcrisisFunding
+		or RFisARRA=1,1,0) as IsARRAcrisisFunding
 	,case 
 	--National Intrest Action Code
 	when NIAcrisisFunding='OCO'
@@ -156,12 +155,14 @@ SELECT  [fiscal_year]
 	--Step 1A
 	when ContractCrisisFunding is not null 
 	then ContractCrisisFunding
+	when RFisARRA=1
+	then 'ARRA'
 	--Step 1b 
 	when ConHumIsOCOcrisisFunding=1
 	then 'OCO'
 	--Step 1C
 	when NIAcrisisFunding is not null and
-		(nationalinterestactioncode<>'W081' or --Excluding a majore ($26 billion mislabelling case)
+		(nationalinterestactioncode<>'W081' or --Excluding a major ($26 billion mislabelling case)
 		fiscal_year>=2008) 
 
 	then NIAcrisisFunding 
@@ -187,6 +188,8 @@ SELECT  [fiscal_year]
 	--Step 1A
 	when ContractCrisisFunding is not null 
 	then ContractCrisisFunding
+	when RFisARRA=1
+	then 'ARRA'
 	--Step 1b 
 	when ConHumIsOCOcrisisFunding=1
 	then 'OCO'

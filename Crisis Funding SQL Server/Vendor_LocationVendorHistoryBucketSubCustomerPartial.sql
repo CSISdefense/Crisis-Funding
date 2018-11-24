@@ -1,12 +1,10 @@
-USE [CSIS360]
-GO
-
-/****** Object:  View [Vendor].[LocationVendorHistoryBucketSubCustomerPartial]    Script Date: 9/26/2017 5:05:38 AM ******/
+/****** Object:  View [Vendor].[LocationVendorHistoryBucketSubCustomerPartial]    Script Date: 11/24/2018 10:21:30 AM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -179,7 +177,7 @@ C.fiscal_year
 	, n.nationalinterestactioncode
 	, n.nationalinterestactioncodeText
 	, n.CrisisFunding as NIAcrisisFunding
-	, rf.IsArra
+	, rf.IsArra as RFisARRA
 	, coalesce(t.CrisisFunding,n.CrisisFunding) as CrisisFunding
 	,c.localareasetaside --For disasters investigate this later.
 	,c.CCRexception
