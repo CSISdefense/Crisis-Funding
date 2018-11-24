@@ -35,6 +35,148 @@ note.text.size<-1.40
 ```
 
 
+# Transaction Data
+
+##Import Data
+```{r Import}
+# read in data    
+
+load(file="Data//full_data_after_step_6.Rdata")
+full_data$CrisisDisplay<-as.character(full_data$CrisisFunding)
+full_data$CrisisDisplay[full_data$CrisisDisplay  %in% c("Unlabeled","Excluded")]<-"All Other"
+
+full_data$Reachback<-cut2(full_data$OfficeOCOcrisisScore,c(2))
+
+full_data$Reachback<-factor(full_data$Reachback,levels=c( "[ 2, 3]","[-1, 2)"), 
+                                   labels=c( "Contigency-Contracting-Intensive Contracting Offices","All Other Offices"))
+full_data<-replace_nas_with_unlabeled(full_data,"Reachback")
+```
+
+## Grouping for Display
+
+
+```{r Summary}
+
+full_data$CrisisDisplay<-factor(full_data$CrisisDisplay)
+full_data$No.Competition.sum<-factor(full_data$No.Competition.sum)
+full_data$Competition.multisum<-factor(full_data$Competition.multisum)
+full_data$isUndefinitizedAction<-factor(full_data$isUndefinitizedAction)
+full_data$SupplyServiceERS<-factor(full_data$SupplyServiceERS)
+
+summary_data<-plyr::ddply(full_data,
+  .(Fiscal.Year,
+    Is.Defense,
+    CrisisDisplay,
+    International,
+    No.Competition.sum,
+    Competition.multisum,
+    Theater,
+    isUndefinitizedAction,
+    SupplyServiceERS,
+    ProductOrServiceArea,
+    Reachback,
+    UnmodifiedUltimateDurationCategory),
+  plyr::summarise,
+  Obligation.2016=sum(Obligation.2016)
+)
+
+ summary_data$DecisionTreeDisplay<-as.character( summary_data$CrisisDisplay)
+
+summary_data$DecisionTreeDisplay[
+                                      year(summary_data$Fiscal.Year)<=2011 &
+                                      summary_data$CrisisDisplay=="OCO"]<-"Not in Sample"
+summary_data$DecisionTreeDisplay[year(summary_data$Fiscal.Year)>=2012 &
+                                      year(summary_data$Fiscal.Year)<=2016 &
+                                      summary_data$CrisisDisplay=="OCO"]<-
+  "OCO ('12+)"
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="Disaster"&
+                                        year(summary_data$Fiscal.Year)>=2007]<-"Disaster ('07+)"
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="Disaster"&
+                                        year(summary_data$Fiscal.Year)<2007]<-"Not in Sample"
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="ARRA"]<-"ARRA ('09-'13)"
+
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
+                                      summary_data$International=="Domestic" &
+                                      summary_data$Is.Defense==FALSE
+                                      ]<-"Other U.S. Civilian ('07+)"
+
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
+                                      summary_data$International=="International" &
+                                      summary_data$Is.Defense==FALSE
+                                      ]<-"Other Intl. Civilian ('07+)"
+
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
+                                      summary_data$International=="Domestic" &
+                                      summary_data$Is.Defense==TRUE &
+                                        year(summary_data$Fiscal.Year)>=2012 &
+                                      year(summary_data$Fiscal.Year)<=2016
+                                      ]<-"Other U.S. Defense ('12+)"
+
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
+                                      summary_data$International=="International" &
+                                      summary_data$Is.Defense==TRUE & 
+                                      year(summary_data$Fiscal.Year)>=2012 &
+                                      year(summary_data$Fiscal.Year)<=2016 
+                                      ]<-"Other Intl. Defense ('12+)"
+
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
+                                      summary_data$Is.Defense==TRUE & 
+                                      year(summary_data$Fiscal.Year)<=2011 
+                                      ]<-"Not in Sample"
+
+summary_data$DecisionTreeDisplay[(is.na(summary_data$International)) |
+                                            is.na(summary_data$Is.Defense) &
+                                            summary_data$CrisisDisplay=="All Other" 
+                                      ]<-"Not in Sample"
+  
+summary_data$DecisionTreeDisplay<-factor(summary_data$DecisionTreeDisplay)
+
+summary(summary_data$DecisionTreeDisplay)
+complete_summary_data<-summary_data 
+summary_data<-subset(summary_data,DecisionTreeDisplay != "Not in Sample")
+save(complete_summary_data,summary_data,file="data//summary_data.Rdata")
+
+summary_data$DecisionTreeDisplay<-ordered(summary_data$DecisionTreeDisplay,
+levels=c("Disaster ('07+)",
+  "ARRA ('09-'13)",
+  "OCO ('12+)",
+"Other U.S. Civilian ('07+)",
+"Other Intl. Civilian ('07+)",
+"Other U.S. Defense ('12+)",
+"Other Intl. Defense ('12+)",
+  "Not in Sample"
+))
+
+summary_data<-ddply(summary_data,
+                .(
+                  DecisionTreeDisplay
+                  ),
+                plyr::mutate,
+                pDatasetObligation=Obligation.2016/sum(Obligation.2016)
+                )
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+# Modeling
+
+
+
+
+
 
 ##Prepare Data
 First we load the data. The dataset used is a U.S. Defense Contracting dataset derived from   FPDS.
