@@ -1,12 +1,10 @@
-USE [CSIS360]
-GO
-
-/****** Object:  View [Vendor].[LocationVendorHistoryBucketSubCustomerClassification]    Script Date: 9/26/2017 5:02:57 AM ******/
+/****** Object:  View [Vendor].[LocationVendorHistoryBucketSubCustomerClassification]    Script Date: 11/24/2018 10:18:50 AM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -56,6 +54,7 @@ SELECT  [fiscal_year]
       ,[VendorPlaceType]
       ,[VendorSize]
       ,[obligatedAmount]
+	  ,iif([obligatedAmount]>0,[obligatedAmount],NULL) as GrossObligatedAmount
       ,[numberOfActions]
       ,[TypeofContractPricingtext]
 	  ,IsUndefinitizedAction
