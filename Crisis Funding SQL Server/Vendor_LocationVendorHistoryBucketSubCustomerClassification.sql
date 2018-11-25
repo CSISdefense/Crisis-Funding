@@ -195,7 +195,7 @@ SELECT  [fiscal_year]
 	then 'OCO'
 	--Step 1C
 	when NIAcrisisFunding is not null and
-		(nationalinterestactioncode<>'W081' or --Excluding a majore ($26 billion mislabelling case)
+		(nationalinterestactioncode<>'W081' or --Excluding a major ($26 billion mislabelling case)
 		fiscal_year>=2008) 
 	then NIAcrisisFunding 
 	when PlaceCountryText in ('Afghanistan','Iraq')
