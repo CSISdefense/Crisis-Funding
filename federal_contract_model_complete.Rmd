@@ -24,10 +24,6 @@ options(warn=1)
 
 #*************************************Lookup Files*****************************************************
 
-Path<-"https://github.com/CSISdefense/R-scripts-and-data/blob/master/"
-# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
-# Path<-"~\\FPDS\\R scripts and data\\"
-# Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
 source("ContractCleanup.r")
 source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
 source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
@@ -1035,6 +1031,23 @@ fed_full<-csis360::read_and_join_experiment(data=fed_full,
   by="CSIScontractID",
   new_var_checked=FALSE
 )
+
+
+#   ARRAstep4grossObligated = col_double(),
+#   OCOstep4grossObligated = col_double(),
+#   Disasterstep4GrossObligated = col_character(),
+#   ExcludedStep4GrossObligated = col_double(),
+
+#   ARRAtransactionGrossObligated = col_double(),
+#   OCOtransactionGrossObligated = col_double(),
+#   DisastertransactionGrossObligated = col_character(),
+#   ExcludedtransactionGrossObligated = col_double(),
+
+#   pscOCOcrisisMeanPercent = col_double(),
+#   FundingAccountOCOmeanPercent = col_double(),
+#   OfficeOCOcrisisMeanPercent = col_double(),
+#   GrossObligatedAmount = col_double()
+
 fed_full$MaxOfDecisionTree<-factor(fed_full$MaxOfDecisionTree)
 fed_full$MaxOfDecisionTreeStep4 <-factor(fed_full$MaxOfDecisionTreeStep4 )
 fed_full$MinOfDecisionTree <-factor(fed_full$MinOfDecisionTree )
