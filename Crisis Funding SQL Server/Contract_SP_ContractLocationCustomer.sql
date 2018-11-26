@@ -50,6 +50,8 @@ BEGIN
       ,[AnyPlaceInternational]
       ,[PlaceIsInternational]
       ,[UnmodifiedPlaceIsInternational]
+	  	  ,MinOfIsOMBocoList
+	  ,MaxOfIsOMBocoList
       ,[VendorCountryISO3]
       ,[UnmodifiedVendorCountryISO3]
       ,[ObligatedAmountVendorIsInternational]

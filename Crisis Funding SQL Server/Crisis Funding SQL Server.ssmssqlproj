@@ -73,12 +73,6 @@
           <AssociatedConnUserName />
           <FullPath>Contract_CompetitionContractSizeHistoryBucketSubCustomerClassification.sql</FullPath>
         </FileNode>
-        <FileNode Name="Contract_ContractHistoryCrisisFundingScoreSubCustomer.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
-          <AssociatedConnUserName />
-          <FullPath>Contract_ContractHistoryCrisisFundingScoreSubCustomer.sql</FullPath>
-        </FileNode>
         <FileNode Name="Contract_ContractHistoryPBLscoreSubCustomer.sql">
           <AssociatedConnectionMoniker />
           <AssociatedConnSrvName />
@@ -146,9 +140,9 @@
           <FullPath>Contract_SP_ContractInterlinkedUnmodifiedSystemEquipment.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractLocationCustomer.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
-          <AssociatedConnUserName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:vmsqldiig.database.windows.net:False:gsanders@csis.org</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>vmsqldiig.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>gsanders@csis.org</AssociatedConnUserName>
           <FullPath>Contract_SP_ContractLocationCustomer.sql</FullPath>
         </FileNode>
         <FileNode Name="Contract_SP_ContractModificationDeltaCustomer.sql">

@@ -23,6 +23,8 @@ select M.CSIScontractID
 --Place Binaries IsInternational
 ,ObligatedAmountPlaceIsInternational
 ,MaxOfPlaceIsInternational as AnyPlaceInternational
+,MinOfIsOMBocoList
+,MaxOfIsOMBocoList
 ,iif(M.MinOfPlaceIsInternational=MaxOfPlaceIsInternational,
 	MaxOfPlaceIsInternational
 	,NULL) as PlaceIsInternational
@@ -68,6 +70,8 @@ from (SELECT
 	, max(PlaceCountryCode.isoAlpha3) as MaxOfPlaceCountryISO3
 	, min(iif(C.modnumber='0' or C.modnumber is null,PlaceCountryCode.isoAlpha3,NULL)) as MinOfUnmodifiedPlaceCountryISO3
 	, max(iif(C.modnumber='0' or C.modnumber is null,PlaceCountryCode.isoAlpha3,NULL)) as MaxOfUnmodifiedPlaceCountryISO3
+	, min(cast(PlaceCountryDetail.[IsOMBocoList] as int)) as MinOfIsOMBocoList
+	, max(cast(PlaceCountryDetail.[IsOMBocoList] as int)) as MaxOfIsOMBocoList
 	--Place Binaries IsInternational
 	,sum(iif(PlaceCountryCode.IsInternational=1,ObligatedAmount,NULL)) as ObligatedAmountPlaceIsInternational
 	, Min(convert(int,PlaceCountryCode.IsInternational)) AS MinOfPlaceIsInternational
@@ -100,6 +104,9 @@ from (SELECT
   FROM contract.FPDS as C
  	LEFT JOIN FPDSTypeTable.Country3lettercode as PlaceCountryCode
 		ON C.placeofperformancecountrycode=PlaceCountryCode.Country3LetterCode
+	LEFT JOIN location.countrycodes as PlaceCountryDetail
+		ON PlaceCountryCode.isoAlpha3= PlaceCountryDetail.[alpha-3]
+
 	LEFT JOIN FPDSTypeTable.Country3lettercode as OriginCountryCode
 		ON C.countryoforigin=OriginCountryCode.Country3LetterCode
 	LEFT JOIN FPDSTypeTable.vendorcountrycode as VendorCountryCodePartial
