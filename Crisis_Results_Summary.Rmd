@@ -928,6 +928,9 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 
 ```{r ReadInData, echo = TRUE}
 # load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
+# debug(transform_contract)
+# fed<-transform_contract(fed)
+# save(fed,file="Data/fed_transformed.Rdata")
 load(file="Data/fed_transformed.Rdata")
 
 # crisis_smp<-add_col_from_transformed(crisis_smp,fed)
@@ -935,22 +938,18 @@ load(file="Data/fed_transformed.Rdata")
 # large_crisis_smp<-add_col_from_transformed(large_crisis_smp,fed)  
 # large_crisis_with_na<-add_col_from_transformed(large_crisis_with_na,fed)  
     
-    
-#fed$Intl <- factor(fed$Intl, c("Just U.S.", "Any International"))
-#save(fed,file="Data/fed_transformed.Rdata")
-# head(fed)
-# debug(transform_contract)
-# fed<-transform_contract(fed)
-# save(fed,file="Data/fed_transformed.Rdata")
 
-    contract<-csis360::read_and_join( large_crisis_smp, #contract,
-                                      "Location_CountryCodes.txt",
+# head(fed)
+memory.limit(30000)
+colnames(fed)[colnames(fed)=="PlaceCountryISO3"]<-"alpha.3"
+fed<-csis360::read_and_join( fed, #contract,
+                                      "Location_CountryCodes.csv",
                                       path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
                                       directory="location\\",
-                                      by="PlaceCountryISO3",
+                                      by="alpha.3",
                                       add_var=c("PlaceIntlPercent","CrisisPercent"),
                                       new_var_checked=FALSE)
-
+colnames(fed)[colnames(fed)=="alpha.3"]<-"PlaceCountryISO3"
 
 
 
