@@ -28,6 +28,7 @@ rename_dataset<-function(contract){
   colnames(contract)[colnames(contract) %in% c("topProductOrServiceCode","ProductOrServiceCode")]<-"ProdServ"
   colnames(contract)[colnames(contract)=="topPrincipalNAICScode"]<-"NAICS"
   colnames(contract)[colnames(contract)=="UnmodifiedPlaceCountryISO3"]<-"Where"
+  colnames(contract)[colnames(contract)=="GrossObligatedAmount"]<-"Gross"
   
   
   contract

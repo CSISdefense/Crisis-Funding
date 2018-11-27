@@ -1227,7 +1227,7 @@ fed<-fed[,colnames(fed) %in% c(
   "OriginCountryISO3",
   # "LowCeil",
   "Ceil",
-  "Dur",
+  "qDuration",
   "Offr",
   # IsIDV,
   # Soft,
@@ -1248,10 +1248,8 @@ fed<-fed[,colnames(fed) %in% c(
   "Office",
   "ProdServ",
   "NAICS",
-  "MaxOfDecisionTree",
-  # "MaxOfDecisionTreeStep4",
-  "MinOfDecisionTree"
-  # "MinOfDecisionTreeStep4"
+  "Crisis",
+  "Gross"
 )]
 # 
 
