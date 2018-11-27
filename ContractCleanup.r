@@ -14,14 +14,14 @@ rename_dataset<-function(contract){
   colnames(contract)[colnames(contract)=="SimpleArea"]<-"PSR"
   colnames(contract)[colnames(contract)=="qLowCeiling"]<-"LowCeil"
   colnames(contract)[colnames(contract)=="qHighCeiling"]<-"Ceil"
-  colnames(contract)[colnames(contract)=="qDuration"]<-"Dur"
+  colnames(contract)[colnames(contract)=="Dur"]<-"qDuration"
   # colnames(contract)[colnames(contract)=="SingleOffer"]<-"One"
   colnames(contract)[colnames(contract)=="qOffers"]<-"Offr"
   colnames(contract)[colnames(contract)=="IsTerminated"]<-"Term"
   colnames(contract)[colnames(contract)=="SimpleVehicle"]<-"Veh"
   colnames(contract)[colnames(contract)=="LabeledMDAP"]<-"MDAP"
-  colnames(contract)[colnames(contract)=="qNChg"]<-"NChg"
-  colnames(contract)[colnames(contract)=="qCRais"]<-"CRai"
+  # colnames(contract)[colnames(contract)=="qNChg"]<-"NChg"
+  # colnames(contract)[colnames(contract)=="qCRais"]<-"CRai"
   colnames(contract)[colnames(contract) %in% c("StartFiscal_Year","StartFiscalYear")]<-"StartFY"
   colnames(contract)[colnames(contract)=="topContractingOfficeAgencyID"]<-"Agency"
   colnames(contract)[colnames(contract)=="topContractingOfficeID"]<-"Office"
@@ -54,13 +54,13 @@ trim_dataset<-function(contract){
     "Intl",
     # "LowCeil",
     "Ceil",
-    "Dur",
+    "qDuration",
     "Offr",
     # IsIDV,
     # Soft,
     "CBre",
-    "CRai",
-    "NChg",
+    "qCRais",
+    "qNChg",
     "Term",
     "UnmodifiedNumberOfOffersReceived",
     "UnmodifiedContractBaseAndAllOptionsValue",
@@ -180,25 +180,24 @@ FormatContractModel<-function(dfContract){
   }
   
   
-  if(is.null(dfContract$Dur) & 
+  if(is.null(dfContract$qDuration) & 
      "UnmodifiedDays" %in% colnames(dfContract)){
     #Break the count of days into four categories.
     dfContract$qDuration<-cut2(dfContract$UnmodifiedDays,cuts=c(61,214,366,732))
-    colnames(dfContract)[colnames(dfContract)=="qDuration"]<-"Dur"
     
   }
   
   
   
   
-  if ( "Dur" %in% colnames(dfContract) & 
-       gsub(" ","",levels(dfContract$Dur)[[2]]) =="[61,214)"&
-       gsub(" ","",levels(dfContract$Dur)[[3]]) =="[214,366)"&
-       gsub(" ","",levels(dfContract$Dur)[[4]]) =="[366,732)"
+  if ( "qDuration" %in% colnames(dfContract) & 
+       gsub(" ","",levels(dfContract$qDuration)[[2]]) =="[61,214)"&
+       gsub(" ","",levels(dfContract$qDuration)[[3]]) =="[214,366)"&
+       gsub(" ","",levels(dfContract$qDuration)[[4]]) =="[366,732)"
   ){
-    dfContract$Dur<-factor(dfContract$Dur, 
+    dfContract$qDuration<-factor(dfContract$qDuration, 
                            
-                           levels=levels(dfContract$Dur),
+                           levels=levels(dfContract$qDuration),
                            # "[    0,   61)",
                            # "[   61,  214)",
                            # "[  214,  366)",
@@ -215,14 +214,14 @@ FormatContractModel<-function(dfContract){
   
   
   
-  if(!is.null(dfContract$Dur) & all(
-    levels(dfContract$Dur) %in% c("[0 months,~2 months)",
+  if(!is.null(dfContract$qDuration) & all(
+    levels(dfContract$qDuration) %in% c("[0 months,~2 months)",
                                   "[~2 months,~7 months)",
                                   "[~7 months-~1 year]",
                                   "(~1 year,~2 years]",
                                   "(~2 years+]"
     ))){
-    dfContract$Dur<-factor(dfContract$Dur,
+    dfContract$qDuration<-factor(dfContract$qDuration,
                            levels=c("[0 months,~2 months)",
                                     "[~2 months,~7 months)",
                                     "[~7 months-~1 year]",
@@ -241,7 +240,7 @@ FormatContractModel<-function(dfContract){
   }
   
   
-  if(is.null(dfContract$CRai) & 
+  if(is.null(dfContract$qCRais) & 
      "pChangeOrderUnmodifiedBaseAndAll" %in% colnames(dfContract)){
     
     dfContract$CRais <- cut2(
@@ -253,10 +252,10 @@ FormatContractModel<-function(dfContract){
   }
   
   
-  if(is.null(dfContract$NChg)  & 
+  if(is.null(dfContract$qNChg)  & 
      "SumOfisChangeOrder" %in% colnames(dfContract)){
     
-    dfContract$NChg <- cut2(dfContract$SumOfisChangeOrder,c(1,2,3))
+    dfContract$qNChg <- cut2(dfContract$SumOfisChangeOrder,c(1,2,3))
     
   }
   
