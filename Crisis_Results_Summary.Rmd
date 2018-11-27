@@ -928,6 +928,10 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 
 ```{r ReadInData, echo = TRUE}
 # load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
+
+# debug(transform_contract)
+# fed<-transform_contract(fed)
+# save(fed,file="Data/fed_transformed.Rdata")
 load(file="Data/fed_transformed.Rdata")
 
 # crisis_smp<-add_col_from_transformed(crisis_smp,fed)
@@ -935,22 +939,29 @@ load(file="Data/fed_transformed.Rdata")
 # large_crisis_smp<-add_col_from_transformed(large_crisis_smp,fed)  
 # large_crisis_with_na<-add_col_from_transformed(large_crisis_with_na,fed)  
     
-    
-#fed$Intl <- factor(fed$Intl, c("Just U.S.", "Any International"))
+    # large_crisis_with_na<-update_sample_col_CSIScontractID(sample=large_crisis_with_na,full=fed_full,
+#                                  col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
+# crisis_with_na<-update_sample_col_CSIScontractID(sample=crisis_with_na,full=fed_full,
+#                                  col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
+
 #save(fed,file="Data/fed_transformed.Rdata")
 # head(fed)
-# debug(transform_contract)
-# fed<-transform_contract(fed)
-# save(fed,file="Data/fed_transformed.Rdata")
 
-    contract<-csis360::read_and_join( large_crisis_smp, #contract,
-                                      "Location_CountryCodes.txt",
+summary(factor(fed$PlaceCountryISO3))
+
+    fed<-csis360::read_and_join( fed, #contract,
+                                      "Location_CountryCodes.csv",
                                       path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
                                       directory="location\\",
                                       by="PlaceCountryISO3",
                                       add_var=c("PlaceIntlPercent","CrisisPercent"),
                                       new_var_checked=FALSE)
 
+
+
+fed$origin_isforeign[fed$OriginCountryISO3=="*MF"]<-1
+fed$place_isforeign[fed$PlaceCountryISO3=="*MF"]<-1
+fed$vendor_isforeign[fed$VendorCountryISO3=="*MF"]<-1
 
 
 
@@ -1339,23 +1350,6 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 ```{r Sample}
 load("Data\\crisis_smp.Rdata")
 
-crisis_smp<-add_col_from_transformed(sample=crisis_smp,
-                                     transformed=fed)
-
-
-
-crisis_with_na<-add_col_from_transformed(sample=crisis_with_na,
-                                     transformed=fed)
-
-large_crisis_smp<-add_col_from_transformed(sample=large_crisis_smp,
-                                     transformed=fed)
-
-
-large_crisis_with_na<-add_col_from_transformed(sample=large_crisis_with_na,
-                                     transformed=fed)
-
-
-
 # debug(get_complete_list)
 fed<-sample_prep(fed)
 fed_complete<-get_complete_list(fed)
@@ -1369,15 +1363,12 @@ sum(fed[!fed_complete,]$Action.Obligation,na.rm=TRUE)/
 
 
 
-undebug(get_crisis_sample_with_na)
+# undebug(get_crisis_sample_with_na)
 crisis_with_na<-get_crisis_sample_with_na(fed)
 crisis_smp<-crisis_with_na[get_complete_list(crisis_with_na),]
 
 
-large_crisis_with_na<-update_sample_col_CSIScontractID(sample=large_crisis_with_na,full=fed_full,
-                                 col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
-crisis_with_na<-update_sample_col_CSIScontractID(sample=crisis_with_na,full=fed_full,
-                                 col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
+
 
 
 #Percent of records incomplete
@@ -1415,14 +1406,6 @@ large_crisis_smp<-large_crisis_with_na[get_complete_list(large_crisis_with_na),]
   large_crisis_smp<-sample_prep(large_crisis_smp)
 save(crisis_smp,crisis_with_na,
      large_crisis_with_na,large_crisis_smp,file="Data\\crisis_smp.Rdata")
-
-summary(factor(large_crisis_smp$PlaceCountryISO3))
-large_crisis_smp$origin_isforeign[large_crisis_smp$OriginCountryISO3=="*MF"]<-1
-large_crisis_smp$place_isforeign[large_crisis_smp$PlaceCountryISO3=="*MF"]<-1
-large_crisis_smp$vendor_isforeign[large_crisis_smp$VendorCountryISO3=="*MF"]<-1
-crisis_smp$origin_isforeign[crisis_smp$OriginCountryISO3=="*MF"]<-1
-crisis_smp$place_isforeign[crisis_smp$PlaceCountryISO3=="*MF"]<-1
-crisis_smp$vendor_isforeign[crisis_smp$VendorCountryISO3=="*MF"]<-1
 
 
 
@@ -1481,7 +1464,7 @@ crisis_smp$vendor_isforeign[crisis_smp$VendorCountryISO3=="*MF"]<-1
 #          "Intl-Intl"=c("Intl-Any International"))
 # 
 # save(extra_large_crisis_smp,extra_large_crisis_with_na,file="Data\\extra_large_crisis_smp.Rdata")
-load("Data\\extra_large_crisis_smp.Rdata")
+# load("Data\\extra_large_crisis_smp.Rdata")
 
 ```
 
