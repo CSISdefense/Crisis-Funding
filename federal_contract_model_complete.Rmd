@@ -1031,92 +1031,125 @@ fed_full<-csis360::read_and_join_experiment(data=fed_full,
   by="CSIScontractID",
   new_var_checked=FALSE
 )
-fed_full$Disasterstep4GrossObligated<-as.numeric(fed_full$Disasterstep4GrossObligated)
 fed_full$DisastertransactionGrossObligated<-as.numeric(fed_full$DisastertransactionGrossObligated)
-  # fed_full$Disasterstep4GrossObligated[!is.na(fed_full$Disasterstep4GrossObligated) &
-  #                                        is.na(as.numeric(fed_full$Disasterstep4GrossObligated))]
+  # fed_full$DisastertransactionGrossObligated[!is.na(fed_full$DisastertransactionGrossObligated) &
+  #                                        is.na(as.numeric(fed_full$DisastertransactionGrossObligated))]
 
-#   ARRAstep4grossObligated = col_double(),
-#   OCOstep4grossObligated = col_double(),
-#   Disasterstep4GrossObligated = col_character(),
-#   ExcludedStep4GrossObligated = col_double(),
-
-#   ARRAtransactionGrossObligated = col_double(),
-#   OCOtransactionGrossObligated = col_double(),
-#   DisastertransactionGrossObligated = col_character(),
-#   ExcludedtransactionGrossObligated = col_double(),
-
-#   pscOCOcrisisMeanPercent = col_double(),
-#   FundingAccountOCOmeanPercent = col_double(),
-#   OfficeOCOcrisisMeanPercent = col_double(),
-#   GrossObligatedAmount = col_double()
 
 #Limit sample to those contracts/task orders with any money obligated (even if deobligated later).
 nrow(fed_full[fed_full$GrossObligatedAmount==0 | is.na(fed_full$GrossObligatedAmount),]) #266960
 fed_full<-subset(fed_full,!is.na(GrossObligatedAmount) &
                    GrossObligatedAmount>0)
+
+fed_full$OCOstep4grossObligated[is.na(fed_full$OCOstep4grossObligated)]<-0
+
+fed_full$ARRAtransactionGrossObligated[is.na(fed_full$ARRAtransactionGrossObligated)]<-0
+fed_full$OCOtransactionGrossObligated[is.na(fed_full$OCOtransactionGrossObligated)]<-0
+fed_full$DisastertransactionGrossObligated[is.na(fed_full$DisastertransactionGrossObligated)]<-0
+fed_full$ExcludedtransactionGrossObligated[is.na(fed_full$ExcludedtransactionGrossObligated)]<-0
+
 #Counting Ties
 nrow(fed_full[
-  fed_full$ARRAtransactionGrossObligated==fed_full$OCOtransactionGrossObligated &
-    fed_full$ARRAtransactionGrossObligated>0 &
-    !is.na(fed_full$OCOtransactionGrossObligated)&
-    !is.na(fed_full$ARRAtransactionGrossObligated)
+  fed_full$ARRAstep4grossObligated==fed_full$OCOstep4grossObligated &
+    fed_full$ARRAtransactionGrossObligated>0 
   ,])#0
 nrow(fed_full[
-    fed_full$OCOtransactionGrossObligated==fed_full$DisastertransactionGrossObligated  & 
-      fed_full$OCOtransactionGrossObligated>0&
-      !is.na(fed_full$OCOtransactionGrossObligated)&
-      !is.na(fed_full$DisastertransactionGrossObligated)
+    fed_full$OCOstep4grossObligated==fed_full$DisastertransactionGrossObligated  & 
+      fed_full$OCOstep4grossObligated>0
     ,])#3
 nrow(fed_full[
-    fed_full$ARRAtransactionGrossObligated==fed_full$DisastertransactionGrossObligated & 
-      fed_full$ARRAtransactionGrossObligated>0&
-      !is.na(fed_full$DisastertransactionGrossObligated)&
-      !is.na(fed_full$ARRAtransactionGrossObligated)
-      
+    fed_full$ARRAstep4grossObligated==fed_full$DisastertransactionGrossObligated & 
+      fed_full$ARRAstep4grossObligated>0
               ,])#0
+# View(fed_full[
+#     fed_full$OCOstep4grossObligated==fed_full$DisastertransactionGrossObligated  & 
+#       fed_full$OCOstep4grossObligated>0
+#     ,])
 
 #Assigning uncontroversial.
-fed_full$NewCrisis<-NA
-fed_full$NewCrisis[fed_full$ARRAtransactionGrossObligated==
-                     fed_full$GrossObligatedAmount]<-"ARRA"
-fed_full$NewCrisis[fed_full$DisastertransactionGrossObligated==
-                     fed_full$GrossObligatedAmount]<-"Disaster"
-fed_full$NewCrisis[fed_full$OCOtransactionGrossObligated==
-                     fed_full$GrossObligatedAmount]<-"OCO"
-fed_full$NewCrisis[fed_full$ExcludedtransactionGrossObligated==
+fed_full$Crisis<-NA
+fed_full$Crisis[fed_full$ARRAtransactionGrossObligated==
+                     fed_full$GrossObligatedAmount&
+                     is.na(fed_full$Crisis)
+                   ]<-"ARRA"
+fed_full$Crisis[fed_full$OCOtransactionGrossObligated==
+                     fed_full$GrossObligatedAmount&
+                     is.na(fed_full$Crisis)]<-"OCO"
+fed_full$Crisis[fed_full$DisastertransactionGrossObligated==
+                     fed_full$GrossObligatedAmount&
+                     is.na(fed_full$Crisis)]<-"Disaster"
+
+fed_full$Crisis[fed_full$ExcludedtransactionGrossObligated==
                      fed_full$GrossObligatedAmount & 
-                     is.na(fed_full$NewCrisis)]<-"Excluded"
+                     is.na(fed_full$Crisis)]<-"Excluded"
 
-summary(factor(fed_full$NewCrisis))
-summary(fed_full$MaxOfDecisionTree)
-nrow(fed_full[ (fed_full$ARRAtransactionGrossObligated>0 & !is.na(fed_full$ARRAtransactionGrossObligated)) |
-    (fed_full$DisastertransactionGrossObligated> 0 & !is.na(fed_full$DisastertransactionGrossObligated)) | 
-      (fed_full$OCOtransactionGrossObligated>0
-       & !is.na(fed_full$OCOtransactionGrossObligated)) & is.na(fed_full$NewCrisis)
-              ,])#80997
+summary(factor(fed_full$Crisis))
 
-#
-fed_full$NewCrisis[fed_full$ARRAtransactionGrossObligated>=
-                     fed_full$GrossObligatedAmount/2&
-                     fed_full$ARRAtransactionGrossObligated>
-                     ]<-"ARRA"
-fed_full$NewCrisis[fed_full$DisastertransactionGrossObligated>=
-                     fed_full$GrossObligatedAmount/2&
-                     ]<-"Disaster"
-fed_full$NewCrisis[fed_full$OCOtransactionGrossObligated>=
-                     fed_full$GrossObligatedAmount/2&
-                     ]<-"OCO"
-fed_full$NewCrisis[fed_full$ExcludedtransactionGrossObligated==
-                     fed_full$GrossObligatedAmount & 
-                     is.na(fed_full$NewCrisis)]<-"Excluded"
+nrow(fed_full[ (fed_full$ARRAtransactionGrossObligated>0  |
+    fed_full$DisastertransactionGrossObligated> 0 | 
+      fed_full$OCOtransactionGrossObligated>0) & is.na(fed_full$Crisis)
+              ,])#17138
 
+length(which(fed_full$ARRAtransactionGrossObligated>0))
+fed_full$Crisis[
+  fed_full$ARRAtransactionGrossObligated>=
+    fed_full$GrossObligatedAmount/2&
+    fed_full$ARRAtransactionGrossObligated>fed_full$OCOstep4grossObligated&
+    fed_full$ARRAtransactionGrossObligated>fed_full$DisastertransactionGrossObligated&
+    is.na(fed_full$Crisis)
+  ]<-"ARRA"
 
-fed_full$MaxOfDecisionTree<-factor(fed_full$MaxOfDecisionTree)
-fed_full$MaxOfDecisionTreeStep4 <-factor(fed_full$MaxOfDecisionTreeStep4 )
-fed_full$MinOfDecisionTree <-factor(fed_full$MinOfDecisionTree )
-fed_full$MinOfDecisionTreeStep4 <-factor(fed_full$MinOfDecisionTreeStep4 )
+length(which(fed_full$DisastertransactionGrossObligated>0))
+fed_full$Crisis[
+  fed_full$DisastertransactionGrossObligated>=
+    fed_full$GrossObligatedAmount/2&
+    fed_full$DisastertransactionGrossObligated>fed_full$OCOstep4grossObligated&
+    fed_full$DisastertransactionGrossObligated>fed_full$ARRAtransactionGrossObligated&
+    is.na(fed_full$Crisis)
+  ]<-"Disaster"
 
+length(which(fed_full$OCOtransactionGrossObligated>0))
+fed_full$Crisis[
+  fed_full$OCOtransactionGrossObligated>=
+    fed_full$GrossObligatedAmount/2&
+    fed_full$OCOtransactionGrossObligated>=fed_full$DisastertransactionGrossObligated&
+    fed_full$OCOtransactionGrossObligated>=fed_full$ARRAtransactionGrossObligated&
+    is.na(fed_full$Crisis)
+  ]<-"OCO"
+
+length(which(fed_full$ExcludedtransactionGrossObligated>0))
+fed_full$Crisis[
+  fed_full$ExcludedtransactionGrossObligated>=
+    fed_full$GrossObligatedAmount/2&
+    fed_full$ExcludedtransactionGrossObligated>fed_full$OCOtransactionGrossObligated&
+    is.na(fed_full$Crisis)
+  ]<-"Excluded"
+
+nrow(fed_full[fed_full$ARRAtransactionGrossObligated>0 & is.na(fed_full$Crisis),])
+nrow(fed_full[fed_full$DisastertransactionGrossObligated>0 & is.na(fed_full$Crisis),])
+nrow(fed_full[fed_full$OCOtransactionGrossObligated>0 & is.na(fed_full$Crisis),])
+
+fed_full<-fed_full[,!colnames(fed_full) %in% 
+    c(
+   "ARRAstep4grossObligated",#Drop
+   "OCOstep4grossObligated",
+  "Disasterstep4GrossObligated",#Drop
+  "ExcludedStep4GrossObligated",#Drop
+
+#  "ARRAtransactionGrossObligated",
+#  "OCOtransactionGrossObligated",
+# "DisastertransactionGrossObligated",
+   "ExcludedtransactionGrossObligated" ,
+
+   "pscOCOcrisisMeanPercent", #Drop
+   "FundingAccountOCOmeanPercent",#Drop
+   "OfficeOCOcrisisMeanPercent",#Drop
+  # "GrossObligatedAmount" 
+"MinOfDecisionTree",
+"MaxOfDecisionTree",
+"MinOfDecisionTreeStep4",
+"MaxOfDecisionTreeStep4"
+)]
 
 save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
