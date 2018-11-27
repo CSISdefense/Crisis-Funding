@@ -947,8 +947,8 @@ load(file="Data/fed_transformed.Rdata")
 #save(fed,file="Data/fed_transformed.Rdata")
 # head(fed)
 
-# head(fed)
-memory.limit(30000)
+summary(factor(fed$PlaceCountryISO3))
+
 colnames(fed)[colnames(fed)=="PlaceCountryISO3"]<-"alpha.3"
 fed<-csis360::read_and_join( fed, #contract,
                                       "Location_CountryCodes.csv",
@@ -958,8 +958,6 @@ fed<-csis360::read_and_join( fed, #contract,
                                       add_var=c("PlaceIntlPercent","CrisisPercent"),
                                       new_var_checked=FALSE)
 colnames(fed)[colnames(fed)=="alpha.3"]<-"PlaceCountryISO3"
-
-
 
 fed$origin_isforeign[fed$OriginCountryISO3=="*MF"]<-1
 fed$place_isforeign[fed$PlaceCountryISO3=="*MF"]<-1
