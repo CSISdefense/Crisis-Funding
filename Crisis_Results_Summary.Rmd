@@ -1352,8 +1352,9 @@ load("Data\\crisis_smp.Rdata")
 
 # debug(get_complete_list)
 fed<-sample_prep(fed)
+debug(get_complete_list)
 fed_complete<-get_complete_list(fed)
-
+any(fed_complete)
 
 #Percent of records incomplete
 nrow(fed[!fed_complete,])/nrow(fed)
