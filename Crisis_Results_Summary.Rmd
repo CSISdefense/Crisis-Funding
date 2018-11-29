@@ -934,6 +934,7 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 # save(fed,file="Data/fed_transformed.Rdata")
 load(file="Data/fed_transformed.Rdata")
 
+# fed<-add_col_from_transformed(fed,fed2)
 # crisis_smp<-add_col_from_transformed(crisis_smp,fed)
 # crisis_with_na<-add_col_from_transformed(crisis_with_na,fed)
 # large_crisis_smp<-add_col_from_transformed(large_crisis_smp,fed)  
@@ -1351,9 +1352,10 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 load("Data\\crisis_smp.Rdata")
 
 # debug(get_complete_list)
+fed_complete<-get_complete_list(fed)
 fed<-sample_prep(fed)
 debug(get_complete_list)
-fed_complete<-get_complete_list(fed)
+
 any(fed_complete)
 
 #Percent of records incomplete
