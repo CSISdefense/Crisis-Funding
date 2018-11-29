@@ -942,6 +942,26 @@ get_complete_list<-function(contract,crisis=FALSE){
     # !is.na(contract$Is.Defense)
   # !is.na(contract$cl_HHI_lag1)
 
+  length(which(is.na(contract$b_Term)))/nrow(contract)
+  length(which(is.na(contract$b_CBre)))/nrow(contract)
+  length(which(is.na(contract$b_Comp)))/nrow(contract)
+  length(which(is.na(contract$b_Urg)))/nrow(contract)
+  length(which(is.na(contract$NoCompOffr)))/nrow(contract)
+  length(which(is.na(contract$cl_Ceil)))/nrow(contract)
+  length(which(is.na(contract$cl_Days)))/nrow(contract)
+  length(which(is.na(contract$Veh)))/nrow(contract)
+  length(which(is.na(contract$n_Fixed)))/nrow(contract)
+  length(which(is.na(contract$b_Intl)))/nrow(contract)
+  length(which(is.na(contract$b_UCA)))/nrow(contract)
+  length(which(is.na(contract$ProdServ)))/nrow(contract)
+  length(which(is.na(contract$Crisis)))/nrow(contract)
+  length(which(is.na(contract$PlaceCountryISO3)))/nrow(contract)
+  length(which(is.na(contract$VendorCountryISO3)))/nrow(contract)
+  length(which(is.na(contract$OffCri)))/nrow(contract)
+  length(which(is.na(contract$OffIntl)))/nrow(contract)
+  
+  
+  
   complete
 }
 
@@ -951,15 +971,15 @@ get_crisis_sample_with_na<-function(contract,large=FALSE){
   if(large==TRUE)
     batch_size<-300000
   
-  crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Dis"),]
-  oco<-fed[fed$Crisis %in% c("OCO"),]
+  crisis_with_na<-contract[contract$Crisis %in% c("ARRA","Dis"),]
+  oco<-contract[contract$Crisis %in% c("OCO"),]
   if(large==FALSE)
     oco<-oco[sample(nrow(oco),batch_size),]
   crisis_with_na<-rbind(crisis_with_na,oco)
   rm(oco)
-  other_intl<-fed[fed$Crisis %in% c("Other")&fed$b_Intl==1,]
-  other_dom<-fed[fed$Crisis %in% c("Other")&(fed$b_Intl==0
-                                             |is.na(fed$b_Intl)),]#This used to be OffCri
+  other_intl<-contract[contract$Crisis %in% c("Other")&contract$b_Intl==1,]
+  other_dom<-contract[contract$Crisis %in% c("Other")&(contract$b_Intl==0
+                                             |is.na(contract$b_Intl)),]#This used to be OffCri
   other_dom<-other_dom[sample(nrow(other_dom),batch_size),]
   other_intl<-other_intl[sample(nrow(other_intl),batch_size),]
   crisis_with_na<-rbind(crisis_with_na,other_dom,other_intl)
