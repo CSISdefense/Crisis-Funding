@@ -1325,16 +1325,6 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 # load("Data\\crisis_smp.Rdata")
 
 
-large_crisis_smp$origin_isforeign[large_crisis_smp$OriginCountryISO3=="*MF"]<-1
-large_crisis_smp$place_isforeign[large_crisis_smp$PlaceCountryISO3=="*MF"]<-1
-large_crisis_smp$vendor_isforeign[large_crisis_smp$VendorCountryISO3=="*MF"]<-1
-crisis_smp$origin_isforeign[crisis_smp$OriginCountryISO3=="*MF"]<-1
-crisis_smp$place_isforeign[crisis_smp$PlaceCountryISO3=="*MF"]<-1
-crisis_smp$vendor_isforeign[crisis_smp$VendorCountryISO3=="*MF"]<-1
-
-
-
-
 # crisis_smp<-add_col_from_transformed(crisis_smp,fed)
 # crisis_with_na<-add_col_from_transformed(crisis_with_na,fed)
 # large_crisis_smp<-add_col_from_transformed(large_crisis_smp,fed)  
