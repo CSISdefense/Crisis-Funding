@@ -1050,7 +1050,7 @@ fed_full$ExcludedtransactionGrossObligated[is.na(fed_full$ExcludedtransactionGro
 
 #Counting Ties
 nrow(fed_full[
-  fed_full$ARRAstep4grossObligated==fed_full$OCOstep4grossObligated &
+  fed_full$ARRAtransactionGrossObligated==fed_full$OCOstep4grossObligated &
     fed_full$ARRAtransactionGrossObligated>0 
   ,])#0
 nrow(fed_full[
@@ -1058,8 +1058,8 @@ nrow(fed_full[
       fed_full$OCOstep4grossObligated>0
     ,])#3
 nrow(fed_full[
-    fed_full$ARRAstep4grossObligated==fed_full$DisastertransactionGrossObligated & 
-      fed_full$ARRAstep4grossObligated>0
+    fed_full$ARRAtransactionGrossObligated==fed_full$DisastertransactionGrossObligated & 
+      fed_full$ARRAtransactionGrossObligated>0
               ,])#0
 # View(fed_full[
 #     fed_full$OCOstep4grossObligated==fed_full$DisastertransactionGrossObligated  & 
