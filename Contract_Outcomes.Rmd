@@ -4307,8 +4307,8 @@ save(CBre_20D,Term_20D, file="Output//Model20D.RData")
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-# colnames(large_crisis_smp)[colnames(large_crisis_smp)=="OffPl99"]<-"OffPlace"
-# load("Output//Model20G.rdata")
+
+load("Output//Model20G.rdata")
 
 if(!exists("CBre_20G"))
   CBre_20G <- glmer (data=large_crisis_smp,
@@ -4339,7 +4339,7 @@ if(!exists("CBre_20G"))
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
   glmer_examine(CBre_20G)
-  save(CBre_20G, file="Output//Model20G.RData")
+  # save(CBre_20G, file="Output//Model20G.RData")
   
 if(!exists("Term_20G"))
   Term_20G <- glmer (data=large_crisis_smp,
@@ -4368,9 +4368,8 @@ if(!exists("Term_20G"))
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_20G)
+  save(Term_20G, file="Output//Model20G.RData")
 # Plot the model and Vehicle 
-  save(CBre_20G,Term_20G, file="Output//Model20G.RData")
-
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
                         digits=2)
@@ -4380,6 +4379,7 @@ summary_residual_compare(CBre_10D,CBre_20G,Term_10H,Term_20G,bins=50)
 summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
 summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
 summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
+
 
 ```
 

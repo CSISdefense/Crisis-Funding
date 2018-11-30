@@ -877,6 +877,7 @@ sample_prep<-function(contract){
   contract$Customer<-factor(contract$Customer)
   contract$DepartmentID<-factor(contract$DepartmentID)
   contract$SubCustomer<-factor(contract$SubCustomer)
+  contract$Dur.Simple<-factor(contract$Dur.Simple)
   
   
   #Where - Place, Vendor, Origin
