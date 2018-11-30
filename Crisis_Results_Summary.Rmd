@@ -933,7 +933,8 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 # fed<-transform_contract(fed)
 # save(fed,file="Data/fed_transformed.Rdata")
 load(file="Data/fed_transformed.Rdata")
-
+fed<-fed[,colnames(fed)!="Crisis"]
+fed<-add_col_from_transformed(fed,fed2)
 # crisis_smp<-add_col_from_transformed(crisis_smp,fed)
 # crisis_with_na<-add_col_from_transformed(crisis_with_na,fed)
 # large_crisis_smp<-add_col_from_transformed(large_crisis_smp,fed)  
@@ -947,7 +948,9 @@ load(file="Data/fed_transformed.Rdata")
 #save(fed,file="Data/fed_transformed.Rdata")
 # head(fed)
 
-summary(factor(fed$PlaceCountryISO3))
+
+
+
 
 colnames(fed)[colnames(fed)=="PlaceCountryISO3"]<-"alpha.3"
 fed<-csis360::read_and_join( fed, #contract,
@@ -1357,10 +1360,12 @@ fed_complete<-get_complete_list(fed)
 any(fed_complete)
 
 #Percent of records incomplete
-nrow(fed[!fed_complete,])/nrow(fed)
+nrow(fed[!fed_complete,])/nrow(fed) #0.2760521
+nrow(fed[is.na(fed$UCA),])/nrow(fed) #0.2760521
 #Percent of dollars incomplete
 sum(fed[!fed_complete,]$Action.Obligation,na.rm=TRUE)/
-  sum(fed$Action.Obligation,na.rm=TRUE)
+  sum(fed$Action.Obligation,na.rm=TRUE) #0.1217748
+> 
 
 
 
