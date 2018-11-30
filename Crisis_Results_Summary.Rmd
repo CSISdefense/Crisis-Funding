@@ -933,38 +933,9 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 # fed<-transform_contract(fed)
 # save(fed,file="Data/fed_transformed.Rdata")
 load(file="Data/fed_transformed.Rdata")
-fed<-fed[,colnames(fed)!="Crisis"]
-fed<-add_col_from_transformed(fed,fed2)
-# crisis_smp<-add_col_from_transformed(crisis_smp,fed)
-# crisis_with_na<-add_col_from_transformed(crisis_with_na,fed)
-# large_crisis_smp<-add_col_from_transformed(large_crisis_smp,fed)  
-# large_crisis_with_na<-add_col_from_transformed(large_crisis_with_na,fed)  
-    
-    # large_crisis_with_na<-update_sample_col_CSIScontractID(sample=large_crisis_with_na,full=fed_full,
-#                                  col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
-# crisis_with_na<-update_sample_col_CSIScontractID(sample=crisis_with_na,full=fed_full,
-#                                  col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
-
-#save(fed,file="Data/fed_transformed.Rdata")
-# head(fed)
 
 
 
-
-
-colnames(fed)[colnames(fed)=="PlaceCountryISO3"]<-"alpha.3"
-fed<-csis360::read_and_join( fed, #contract,
-                                      "Location_CountryCodes.csv",
-                                      path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-                                      directory="location\\",
-                                      by="alpha.3",
-                                      add_var=c("PlaceIntlPercent","CrisisPercent"),
-                                      new_var_checked=FALSE)
-colnames(fed)[colnames(fed)=="alpha.3"]<-"PlaceCountryISO3"
-
-fed$origin_isforeign[fed$OriginCountryISO3=="*MF"]<-1
-fed$place_isforeign[fed$PlaceCountryISO3=="*MF"]<-1
-fed$vendor_isforeign[fed$VendorCountryISO3=="*MF"]<-1
 
 
 
@@ -972,7 +943,7 @@ fed$vendor_isforeign[fed$VendorCountryISO3=="*MF"]<-1
 
 Contracts are classified using a mix of numerical and categorical variables. While the changes in numerical variables are easy to grasp and summarize, a contract may have one line item that is competed and another that is not. As is detailed in the exploration on R&D, we are only considering information available prior to contract start. The percentage of contract obligations that were competed is a valuable benchmark, but is highly influenced by factors that occured after contract start..
 
-### Contract Terminations
+### Contract Data Summary
 
 Contract terminations and the number of change orders can be calculated for the entire sample.  Contract termination is determined using the *Reason for Modification* field in FPDS.  A contract is considered to be terminated if it has at least one modification with the following values:
 
@@ -1351,13 +1322,38 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 
 ## Sample Creation
 ```{r Sample}
-load("Data\\crisis_smp.Rdata")
+# load("Data\\crisis_smp.Rdata")
 
-# debug(get_complete_list)
-fed<-sample_prep(fed)
-debug(get_complete_list)
+
+# crisis_smp<-add_col_from_transformed(crisis_smp,fed)
+# crisis_with_na<-add_col_from_transformed(crisis_with_na,fed)
+# large_crisis_smp<-add_col_from_transformed(large_crisis_smp,fed)  
+# large_crisis_with_na<-add_col_from_transformed(large_crisis_with_na,fed)  
+    
+    # large_crisis_with_na<-update_sample_col_CSIScontractID(sample=large_crisis_with_na,full=fed_full,
+#                                  col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
+# crisis_with_na<-update_sample_col_CSIScontractID(sample=crisis_with_na,full=fed_full,
+#                                  col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
+
+#save(fed,file="Data/fed_transformed.Rdata")
+# head(fed)
+
+
+
+
+# colnames(fed)[colnames(fed)=="PlaceCountryISO3"]<-"alpha.3"
+# fed<-csis360::read_and_join( fed, #contract,
+#                                       "Location_CountryCodes.csv",
+#                                       path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+#                                       directory="location\\",
+#                                       by="alpha.3",
+#                                       add_var=c("PlaceIntlPercent","CrisisPercent"),
+#                                       new_var_checked=FALSE)
+# colnames(fed)[colnames(fed)=="alpha.3"]<-"PlaceCountryISO3"
+
+
 fed_complete<-get_complete_list(fed)
-any(fed_complete)
+
 
 #Percent of records incomplete
 nrow(fed[!fed_complete,])/nrow(fed) #0.2760521
@@ -1390,26 +1386,14 @@ large_crisis_with_na<-get_crisis_sample_with_na(fed,large=TRUE)
 nrow(large_crisis_with_na[!get_complete_list(large_crisis_with_na),])/
   nrow(large_crisis_with_na)
 #Percent of dollars incomplete
-sum(large_crisis_with_na[!get_complete_list(large_crisis_with_na),]$Action.Obligation,na.rm=TRUE)/
-  sum(large_crisis_with_na$Action.Obligation,na.rm=TRUE)
-large_crisis_smp<-large_crisis_with_na[get_complete_list(large_crisis_with_na),]
+  sum(large_crisis_with_na[!get_complete_list(large_crisis_with_na),]$Action.Obligation,na.rm=TRUE)/
+    sum(large_crisis_with_na$Action.Obligation,na.rm=TRUE)
+  large_crisis_smp<-large_crisis_with_na[get_complete_list(large_crisis_with_na),]
 
 
 # 
-# 
-# 
-# summary(crisis_with_na$Crisis)
-# 
-# 
-# 
-# #
-# #8811392  to 8811392
-# # 
-# crisis_smp<-crisis_with_na[complete,]
-# # # 
-# # head(crisis_smp)
-  crisis_smp<-sample_prep(crisis_smp)
-  large_crisis_smp<-sample_prep(large_crisis_smp)
+  
+
 save(crisis_smp,crisis_with_na,
      large_crisis_with_na,large_crisis_smp,file="Data\\crisis_smp.Rdata")
 

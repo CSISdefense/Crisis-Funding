@@ -1,0 +1,639 @@
+---
+title: "Check NAICS ProdServ"
+author: "Xinyi Wang"
+date: "November 8, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Libraries}
+library(csis360)
+library(ggplot2)
+library(arm)
+library(R2WinBUGS)
+library(dplyr)
+library(Hmisc)
+library(reshape2)
+source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
+#source("/Users/XWang/Documents/vendor_StatisticTable/Vendor/DIIGstat.r")
+
+axis.text.size<-10
+strip.text.size<-10
+legend.text.size<-8
+# table.text.size<-5.75
+title.text.size<-12
+geom.text.size<-12
+
+main.text.size<-1
+note.text.size<-1.40
+```
+
+```{r data source}
+memory.limit(56000)
+load(file="Data/fed_transformed.Rdata")
+```
+
+```{r Generated NAICS ~ ProdServ Frequency dataframe}
+#Adding NAICS Description into fed database
+NAICS_Lookup <- read.csv(file = "https://raw.githubusercontent.com/CSISdefense/Vendor/master/Lookup/Lookup_NAICS_code.csv")
+colnames(NAICS_Lookup) <- c("NAICS", "NAICS_Description")
+fed <- left_join(fed, NAICS_Lookup, by = "NAICS")
+
+#Add detail description to unique Agency code
+ProdServ_Lookup <- read.csv("https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/ProductOrServiceCodes.csv")
+ProdServ_Lookup <- ProdServ_Lookup[, 1:4]
+colnames(ProdServ_Lookup) <- c("ProdServ", "ProdServ_Description", "ServiceCategory", "Code1L")
+fed <- left_join(fed, ProdServ_Lookup, by = "ProdServ")
+
+#Generate frequency table for NAICS and ProdServ with text descriptions
+Freq_NAICS_ProdServ <- fed[,c('NAICS', 'NAICS_Description', 'ProdServ', 'ProdServ_Description', "ServiceCategory", "Code1L")] %>% group_by(NAICS, NAICS_Description ,ProdServ, ProdServ_Description, ServiceCategory, Code1L) %>% summarise(n()) %>% `colnames<-`(c('NAICS', 'NAICS_Description', 'ProdServ', 'ProdServ_Description', "ServiceCategory", "Code1L", 'Frequency')) %>% as.data.frame() 
+```
+
+```{r build new dataframe representing number of distinct ProdServ contained by each unique NAICS code}
+Prod_in_NAICS <- data.frame(matrix(ncol = 3, nrow = 0))
+colnames(Prod_in_NAICS) <- c('NAICS_code', 'Number of ProdServ', 'Frequency')
+for (i in unique(Freq_NAICS_ProdServ$NAICS)){
+  T_Frequency <- sum(Freq_NAICS_ProdServ$Frequency[Freq_NAICS_ProdServ$NAICS == i], na.rm = TRUE)
+  #Get the Frequency of one certain NAICS code appears in fed.
+  No_ProdServ <- length(unique(Freq_NAICS_ProdServ$ProdServ[Freq_NAICS_ProdServ$NAICS == i]))
+  #Get the number of unique ProdServ of one certain NAICS code related to.
+  Prod_in_NAICS[nrow(Prod_in_NAICS)+1, ] <- c(i, No_ProdServ, T_Frequency)
+}
+Prod_in_NAICS$`Number of ProdServ`  <- as.numeric(Prod_in_NAICS$`Number of ProdServ`)
+Prod_in_NAICS <- Prod_in_NAICS[order(Prod_in_NAICS$`Number of ProdServ`, decreasing = TRUE), ]
+head(Prod_in_NAICS)
+```
+
+
+```{r categorical barplot for percent of service and number of NAICS}
+Product_list <- c("1", "2", "3", "4", "5", "6", "7", "8", "9", "NULL")
+Freq_NAICS_ProdServ$ContractType <- ifelse(Freq_NAICS_ProdServ$Code1L %in% Product_list, "Product", "Service")
+
+#Generating data frame Percent_Count consisting of 5 columns: distinct NAICS code(NA as ""), percent of service contract in each NAICS code, Percent of obligation goes to service contract in each NAICS code, Frequency for each NAICS code, Percent of frequency for each NAICS code;
+##The total interation need about 10 mins to run;
+fed$Contract_Type <- ifelse(fed$Code1L %in% Product_list, "Product", "Service")
+Percent_Count <- as.data.frame(matrix(nrow = 0, ncol = 4))
+colnames(Percent_Count) <- c("NAICS", "Service_Percent", "Obligation_Percent", "Frequency")
+Freq_NAICS_ProdServ$NAICS[is.na(Freq_NAICS_ProdServ$NAICS)] <- ""
+for (i in unique(Freq_NAICS_ProdServ$NAICS)){
+  pService <- round(sum(Freq_NAICS_ProdServ$Frequency[(Freq_NAICS_ProdServ$NAICS == i)&(Freq_NAICS_ProdServ$ContractType == "Service")], na.rm = TRUE)/sum(Freq_NAICS_ProdServ$Frequency[Freq_NAICS_ProdServ$NAICS == i], na.rm = TRUE) *100, 2)
+  Obli_Percent <- round(100 * (sum(fed$Action.Obligation[(fed$NAICS == i)&(fed$Contract_Type == "Service")], na.rm = TRUE))/sum(fed$Action.Obligation[fed$NAICS == i], na.rm = TRUE), 2)
+  frequency <- sum(fed$NAICS == i, na.rm = TRUE)
+  Percent_Count[nrow(Percent_Count)+1, ] <- c(i, pService, Obli_Percent, frequency)
+}
+Percent_Count[, c(2,3,4)] <- lapply(Percent_Count[, c(2,3,4)], function(x) as.numeric(x))
+Percent_Count_dup <- Percent_Count
+Percent_Count$percent_frequency <- as.numeric(100*Percent_Count$Frequency/(sum(Percent_Count$Frequency)))
+
+```
+
+
+```{r building barplot representing count/percent of distinct NAICS codes vesus percent of service categories}
+#divide the percent of service into categories
+# Category_Info[nrow(Category_Info)+1, ] <- c("100", sum(Percent_Count$Service_Percent == 100))
+Category_Info <- as.data.frame(matrix(nrow = 0, ncol = 3)) %>% `colnames<-`(c("Category", "Count_Frequency", "Obli_Frequency"))
+Category_Info[nrow(Category_Info)+1, ] <- c("0", sum(Percent_Count$Service_Percent == 0), sum(Percent_Count$Obligation_Percent == 0, na.rm = TRUE))
+for (i in 0:8) {
+  Count_Frequency <- sum((Percent_Count$Service_Percent > i*10)&(Percent_Count$Service_Percent <= (i+1)*10))
+  Obli_Frequency <- sum((Percent_Count$Obligation_Percent > i*10)&(Percent_Count$Obligation_Percent <= (i+1)*10), na.rm = TRUE)
+  category <- "(a, b]" %>% gsub("a", i*10, .) %>% gsub("b", (i+1)*10, .)
+  Category_Info[nrow(Category_Info) + 1, ] <- c(category, Count_Frequency, Obli_Frequency)
+}
+Category_Info[nrow(Category_Info)+1, ] <- c("(90, 100)", sum((Percent_Count$Service_Percent > 90)&(Percent_Count$Service_Percent < 100)), sum((Percent_Count$Obligation_Percent > 90)&(Percent_Count$Obligation_Percent < 100), na.rm = TRUE))
+Category_Info[nrow(Category_Info)+1, ] <- c("100", sum(Percent_Count$Service_Percent == 100), sum(Percent_Count$Obligation_Percent == 100, na.rm = TRUE))
+Category_Info$Category <- factor(Category_Info$Category, levels = unique(Category_Info$Category))
+
+#Building the barplot
+Category_Info$Count_Frequency <- as.numeric(Category_Info$Count_Frequency)
+NAICS_Service_plot <- ggplot(data = Category_Info, 
+                             aes(x = Category_Info$Category, 
+                                 y = Category_Info$Count_Frequency )) + 
+                      geom_bar(stat = "identity", 
+                               position = "dodge", 
+                               width = 0.8) +
+                      xlab("Percent of Service") +
+                      ylab("Count of NAICS records") +
+                      theme_grey() +
+                      theme(axis.text.x = element_text(angle = 60, hjust = 1, size = 8),
+                            plot.margin = margin(t=1, r=0.5, b=0.5, l=0.5, unit = "cm"))
+NAICS_Service_plot                     
+
+```
+
+
+```{r categorical barplot for action obligation and number of NAICS}
+#Build grouped barplot for percent Service and percent obligation frequency
+library(reshape2)
+Category_Info2 <- melt(data = Category_Info, id = c("Category"))
+ggplot(data = Category_Info2, 
+       aes(x = Category, 
+           y = as.numeric(value),
+           fill = factor(variable))) + 
+  geom_bar(stat = "identity", 
+           position = "dodge", 
+           width = 0.8) +
+  xlab("") + 
+  ylab("") +
+  theme_grey() +
+  scale_fill_grey() + 
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.margin = margin(t=-0.8, r=0, b=0.5, l=0, unit = "cm"),
+        legend.text = element_text(margin = margin(r=0.5, unit = "cm")),
+        plot.margin = margin(t=1 , r=0.5, b=0, l=0.5, unit = "cm"),
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 8))
+
+```
+
+
+```{r Adding service category information to above plots using: CrisisProductOrServiceArea}
+ProdServ_Lookup_Full <- read.csv("https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/ProductOrServiceCodes.csv")
+Freq_NAICS_ProdServ <- left_join(Freq_NAICS_ProdServ, ProdServ_Lookup_Full[, c(1,32)], by = c("ProdServ" = "ProductOrServiceCode"))
+Freq_NAICS_ProdServ$CrisisProductOrServiceArea[Freq_NAICS_ProdServ$CrisisProductOrServiceArea == "NULL"] <- NA
+Service_List <- unique(Freq_NAICS_ProdServ$CrisisProductOrServiceArea[Freq_NAICS_ProdServ$ContractType == "Service"]) %>% as.character()
+fed <- left_join(fed, ProdServ_Lookup_Full[, c(1,32)], by = c("ProdServ" = "ProductOrServiceCode"))
+fed$CrisisProductOrServiceArea[fed$CrisisProductOrServiceArea == "NULL"] <- NA
+
+##CrisisProductOrServiceArea for ProdServ code of "9999" is R&D, however they are product contracts, so before further calculating, we transformed this category from "R&d" to "Product_R&D" for better distinguish in iterations
+Freq_NAICS_ProdServ$CrisisProductOrServiceArea <- as.character(Freq_NAICS_ProdServ$CrisisProductOrServiceArea)
+fed$CrisisProductOrServiceArea <- as.character(fed$CrisisProductOrServiceArea)
+Freq_NAICS_ProdServ$CrisisProductOrServiceArea[Freq_NAICS_ProdServ$ProdServ == "9999"] <- "Product_R&D"
+fed$CrisisProductOrServiceArea[fed$ProdServ == "9999"] <- "Product_R&D"
+
+#Generating NAICS namelist based on percent of service category: [0,30], (30,70], (70,100]
+NAICS_list030 <- Percent_Count[which(Percent_Count$Service_Percent <= 30), ][["NAICS"]]
+NAICS_list3070 <- Percent_Count[which(Percent_Count$Service_Percent > 30 & Percent_Count$Service_Percent <= 70), ][["NAICS"]]
+NAICS_list70100 <- Percent_Count[which(Percent_Count$Service_Percent > 70), ][["NAICS"]]
+
+
+TotalService030 <- sum(Freq_NAICS_ProdServ[which(Freq_NAICS_ProdServ$ContractType == "Service" & Freq_NAICS_ProdServ$NAICS %in% NAICS_list030),][["Frequency"]])
+TotalService3070 <- sum(Freq_NAICS_ProdServ[which(Freq_NAICS_ProdServ$ContractType == "Service" & Freq_NAICS_ProdServ$NAICS %in% NAICS_list3070),][["Frequency"]])
+TotalService70100 <- sum(Freq_NAICS_ProdServ[which(Freq_NAICS_ProdServ$ContractType == "Service" & Freq_NAICS_ProdServ$NAICS %in% NAICS_list70100),][["Frequency"]])
+
+
+#calculate NA frequency independently or the loop will return 0 for NA service category, have confirmed ahead that contracts that have ProdServ Codes of "NA" are all service contracts
+Category_Count030 <- c(sum(Freq_NAICS_ProdServ[which(is.na(Freq_NAICS_ProdServ$CrisisProductOrServiceArea) & Freq_NAICS_ProdServ$NAICS %in% NAICS_list030),][["Frequency"]]))
+Category_Count3070 <- c(sum(Freq_NAICS_ProdServ[which(is.na(Freq_NAICS_ProdServ$CrisisProductOrServiceArea) & Freq_NAICS_ProdServ$NAICS %in% NAICS_list3070),][["Frequency"]]))
+Category_Count70100 <- c(sum(Freq_NAICS_ProdServ[which(is.na(Freq_NAICS_ProdServ$CrisisProductOrServiceArea) & Freq_NAICS_ProdServ$NAICS %in% NAICS_list70100),][["Frequency"]]))
+
+Category_Obl030 <- c(sum(fed[which(is.na(fed$CrisisProductOrServiceArea) & fed$NAICS %in% NAICS_list030), ][["Action.Obligation"]]))
+Category_Obl3070 <- c(sum(fed[which(is.na(fed$CrisisProductOrServiceArea) & fed$NAICS %in% NAICS_list3070), ][["Action.Obligation"]]))
+Category_Obl70100 <- c(sum(fed[which(is.na(fed$CrisisProductOrServiceArea) & fed$NAICS %in% NAICS_list70100), ][["Action.Obligation"]]))
+
+for (i in Service_List[-1]){
+  cat_count030 <- sum(Freq_NAICS_ProdServ[which(Freq_NAICS_ProdServ$CrisisProductOrServiceArea == i & Freq_NAICS_ProdServ$NAICS %in% NAICS_list030),][["Frequency"]])
+  cat_count3070 <- sum(Freq_NAICS_ProdServ[which(Freq_NAICS_ProdServ$CrisisProductOrServiceArea == i & Freq_NAICS_ProdServ$NAICS %in% NAICS_list3070),][["Frequency"]])
+  cat_count70100 <- sum(Freq_NAICS_ProdServ[which(Freq_NAICS_ProdServ$CrisisProductOrServiceArea == i & Freq_NAICS_ProdServ$NAICS %in% NAICS_list70100),][["Frequency"]])
+  
+  cat_obl030 <- sum(fed[which(fed$CrisisProductOrServiceArea == i & fed$NAICS %in% NAICS_list030), ][["Action.Obligation"]])
+  cat_obl3070 <- sum(fed[which(fed$CrisisProductOrServiceArea == i & fed$NAICS %in% NAICS_list3070), ][["Action.Obligation"]])
+  cat_obl70100 <- sum(fed[which(fed$CrisisProductOrServiceArea == i & fed$NAICS %in% NAICS_list70100), ][["Action.Obligation"]])
+  
+  Category_Count030 <- c(Category_Count030, cat_count030)
+  Category_Count3070 <- c(Category_Count3070, cat_count3070)
+  Category_Count70100 <- c(Category_Count70100, cat_count70100)
+  
+  Category_Obl030 <- c(Category_Obl030, cat_obl030)
+  Category_Obl3070 <- c(Category_Obl3070, cat_obl3070)
+  Category_Obl70100 <- c(Category_Obl70100, cat_obl70100)
+}
+
+Percent_Service <- data.frame(cbind(Service_List, Category_Count030, Category_Count3070, Category_Count70100, Category_Obl030, Category_Obl3070, Category_Obl70100)) %>% `colnames<-`(c("ServiceName", "ServiceCount030", "ServiceCount3070", "ServiceCount70100", "Obligation030", "Obligation3070", "Obligation70100"))
+Percent_Service_dup <- Percent_Service
+Percent_Service <- lapply(Percent_Service, function(x) as.character(x))
+Percent_Service_dup <- lapply(Percent_Service_dup, function(x) as.character(x))
+Percent_Service_dup[c("ServiceCount030", "ServiceCount3070", "ServiceCount70100", "Obligation030", "Obligation3070", "Obligation70100")] <- lapply(Percent_Service_dup[c("ServiceCount030", "ServiceCount3070", "ServiceCount70100", "Obligation030", "Obligation3070", "Obligation70100")], function(x) as.numeric(x))
+
+Percent_Service$ServiceCount030 <- as.numeric(Percent_Service$ServiceCount030)
+Percent_Service$ServicePercent030 <- round(100 * Percent_Service$ServiceCount030/sum(Percent_Service_dup$ServiceCount030), 2)
+Percent_Service$Obligation030 <- as.numeric(Percent_Service$Obligation030)
+Percent_Service$PercentObligation030 <- round(100 * Percent_Service$Obligation030/sum(Percent_Service_dup$Obligation030), 2)
+
+Percent_Service$ServiceCount3070 <- as.numeric(Percent_Service$ServiceCount3070)
+Percent_Service$ServicePercent3070 <- round(100 * Percent_Service$ServiceCount3070/sum(Percent_Service_dup$ServiceCount3070),2)
+Percent_Service$Obligation3070 <- as.numeric(Percent_Service$Obligation3070)
+Percent_Service$PercentObligation3070 <- round(100 * Percent_Service$Obligation3070/sum(Percent_Service_dup$Obligation3070), 2)
+
+Percent_Service$ServiceCount70100 <- as.numeric(Percent_Service$ServiceCount70100)
+Percent_Service$ServicePercent70100 <- round(100 * Percent_Service$ServiceCount70100/sum(Percent_Service_dup$ServiceCount70100),2)
+Percent_Service$Obligation70100 <- as.numeric(Percent_Service$Obligation70100)
+Percent_Service$PercentObligation70100 <- round(100 * Percent_Service$Obligation70100/sum(Percent_Service_dup$Obligation70100), 2)
+
+Percent_Service <- data.frame(Percent_Service)
+#Get top 5 Service categories in all groups
+# Top5_Service2 <- c("ERS", "PAMS", "FRS", "ICT", "R&D")
+# T5_Percent_Service2 <- Percent_Service2[which(Percent_Service2$ServiceName %in% Top5_Service2), c(1, 5:7)]
+# T5_Percent_Service2$ServiceName <- as.character(T5_Percent_Service2$ServiceName)
+# T5_Percent_Service2[6, ] <- c("All Other", 
+#                              round(100 - sum(T5_Percent_Service2$ServicePercent030), 2), 
+#                              round(100 - sum(T5_Percent_Service2$ServicePercent3070), 2),
+#                              round(100 - sum(T5_Percent_Service2$ServicePercent70100), 2))
+# T5_Percent_Service2[, c(2:4)] <- lapply(T5_Percent_Service2[, c(2:4)], function(x) as.numeric(x))
+test <- Percent_Service
+```
+
+
+*Visualization Part.1: 
+ polar graph and grouped bar plot for service category percent information
+
+```{r test plotting_polar plot: percent}
+test_polar <- test[2:8, c(1, 8, 10, 12)]
+test_polar$ServiceName <- as.character(test_polar$ServiceName)
+test_dup_polar <- melt(test_polar, id = "ServiceName")
+test_dup_polar$ServiceName <- factor(test_dup_polar$ServiceName, levels = unique(test_polar$ServiceName))
+#levels(test_dup_polar$ServiceName) <- unique(test_polar$ServiceName)
+test_dup_polar$value <- as.numeric(test_dup_polar$value)
+levels(test_dup_polar$variable) <- c("0-30% group", "30-70% group", "70-100% group")
+ggplot(data = test_dup_polar, 
+       aes(x = ServiceName, 
+           y = value)) + 
+  geom_bar(stat = "identity",
+           position = "dodge",
+           aes(fill = ServiceName),
+           width = 1) + 
+  scale_fill_manual(values = c("#8B9DC3", 
+                               "#4198AF", 
+                               "#4572A7", 
+                               "#89A54E",
+                               "#DB8403",
+                               "#AA4643", 
+                               "#FFD966")) +
+  labs(x = NULL, 
+       y = "Percent of Contract") +
+  facet_grid(. ~ variable) + 
+  coord_polar() +
+  theme(axis.text.x = element_text(size = 6.5, 
+                                   colour = "grey39", 
+                                   angle = -20),
+        legend.position = "None",
+        plot.margin = margin(t = 1, 
+                             r = 0.5, 
+                             b = 0.5, 
+                             l = 0.5, 
+                             unit = "cm"))
+```
+
+```{r test plotting_grouped bar plot}
+test_t <- t(test) %>% .[c(8, 10, 12), 2:8] %>% `colnames<-`(test$ServiceName[-1]) %>% data.frame(., row.names = NULL)
+test_t$Group <- colnames(test)[c(8, 10, 12)]
+Coloration <- read.csv(file = "https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/style/Lookup_Coloration.csv")
+test_dup_t <- melt(data = test_t, id = "Group")
+test_dup_t$value <- as.numeric(test_dup_t$value)
+# levels(test2_dup_t$variable) <- unique(test2_dup_t$variable)
+ggplot(data = test_dup_t, 
+       aes(x = Group, 
+           y = value,
+           fill = variable)) +
+  geom_bar(stat = "identity",
+           position = "dodge",
+           width = 0.8) + 
+  geom_text(aes(label = value),
+            position = position_dodge(width = 0.8),
+            vjust = -1,
+            size = 2.5,
+            col = "grey38") + 
+  ylim(0, 45) + 
+  scale_fill_manual(values = c("#8B9DC3", 
+                               "#4198AF", 
+                               "#4572A7", 
+                               "#89A54E", 
+                               "#DB8403",
+                               "#AA4643", 
+                               "#FFD966")) +
+  theme_grey() + 
+  xlab("") + 
+  scale_x_discrete(labels = c("ServicePercent030" = "0-30% group", 
+                              "ServicePercent3070" = "30-70% group",
+                              "ServicePercent70100" = "70-100% group")) +
+  ylab("Percent of Contract") + 
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.spacing.x = unit(0.2, "cm"),
+        legend.key.size = unit(10, "pt"),
+        legend.text = element_text(size = 8),
+        legend.margin = margin(0,0,0,0,unit = "cm"), 
+        legend.box.margin = margin(-10,-10,-10,-10, unit = "pt"), 
+        plot.margin = margin(t = 0.8, 
+                             r = 0.5, 
+                             b = 0.8, 
+                             l = 0.5, 
+                             unit = "cm"))
+```
+
+
+*Visualization Part.2: 
+ grouped bar plot for service category frequency information
+
+```{r test plotting_grouped bar plot: Absolute Count}
+test_t_AC <- t(test) %>% .[2:4, 2:8] %>% `colnames<-`(test$ServiceName[-1]) %>% data.frame(., row.names = NULL)
+test_t_AC$Group <- colnames(test)[2:4]
+Coloration <- read.csv(file = "https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/style/Lookup_Coloration.csv")
+test_dup_t_AC <- melt(data = test_t_AC, id = "Group")
+test_dup_t_AC$value <- as.numeric(test_dup_t_AC$value)
+# levels(test2_dup_t$variable) <- unique(test2_dup_t$variable)
+ggplot(data = test_dup_t_AC, 
+       aes(x = Group, 
+           y = value,
+           fill = variable)) +
+  geom_bar(stat = "identity",
+           position = "dodge",
+           width = 0.8) + 
+  geom_text(aes(label = value),
+            position = position_dodge(width = 0.8),
+            vjust = -1,
+            size = 2,
+            col = "grey38") + 
+  scale_fill_manual(values = c("#8B9DC3", 
+                               "#4198AF", 
+                               "#4572A7", 
+                               "#89A54E", 
+                               "#DB8403",
+                               "#AA4643", 
+                               "#FFD966")) +
+  theme_grey() + 
+  xlab("") + 
+  scale_x_discrete(labels = c("ServiceCount030" = "0-30% group", 
+                              "ServiceCount3070" = "30-70% group",
+                              "ServiceCount70100" = "70-100% group")) +
+  ylab("Absolute Count of Contract") + 
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.spacing.x = unit(0.2, "cm"),
+        legend.key.size = unit(10, "pt"),
+        legend.text = element_text(size = 8),
+        legend.margin = margin(0,0,0,0,unit = "cm"), 
+        legend.box.margin = margin(-10,-10,-10,-10, unit = "pt"), 
+        plot.margin = margin(t = 0.8, 
+                             r = 0.5, 
+                             b = 0.8, 
+                             l = 0.5, 
+                             unit = "cm"))
+```
+
+
+*Visualization Part.3: 
+ polar graph and grouped bar plot for service category obligation information
+
+```{r test plotting_polar plot: percent obligation}
+test_polar_Ob <- test[2:8, c(1, 9, 11, 13)]
+test_polar_Ob$ServiceName <- as.character(test_polar_Ob$ServiceName)
+test_dup_polar_Ob <- melt(test_polar_Ob, id = "ServiceName")
+test_dup_polar_Ob$ServiceName <- factor(test_dup_polar_Ob$ServiceName, levels = unique(test_polar_Ob$ServiceName))
+#levels(test_dup_polar$ServiceName) <- unique(test_polar$ServiceName)
+test_dup_polar_Ob$value <- as.numeric(test_dup_polar_Ob$value)
+levels(test_dup_polar_Ob$variable) <- c("0-30% group", "30-70% group", "70-100% group")
+ggplot(data = test_dup_polar_Ob, 
+       aes(x = ServiceName, 
+           y = value)) + 
+  geom_bar(stat = "identity",
+           position = "dodge",
+           aes(fill = ServiceName),
+           width = 1) + 
+  scale_fill_manual(values = c("#8B9DC3", 
+                               "#4198AF", 
+                               "#4572A7", 
+                               "#89A54E",
+                               "#DB8403",
+                               "#AA4643", 
+                               "#FFD966")) +
+  labs(x = NULL, 
+       y = "Percent of Obligation") +
+  facet_grid(. ~ variable) + 
+  coord_polar() +
+  theme(axis.text.x = element_text(size = 6.5, 
+                                   colour = "grey39", 
+                                   angle = -20),
+        legend.position = "None",
+        plot.margin = margin(t = 1, 
+                             r = 0.5, 
+                             b = 0.5, 
+                             l = 0.5, 
+                             unit = "cm"))
+```
+
+
+```{r test plotting_grouped bar plot: Percent Obligation}
+test_t_Ob <- t(test) %>% .[c(9, 11, 13), 2:8] %>% `colnames<-`(test$ServiceName[-1]) %>% data.frame(., row.names = NULL)
+test_t_Ob$Group <- colnames(test)[2:4]
+Coloration <- read.csv(file = "https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/style/Lookup_Coloration.csv")
+test_dup_t_Ob <- melt(data = test_t_Ob, id = "Group")
+test_dup_t_Ob$value <- as.numeric(test_dup_t_Ob$value)
+# levels(test2_dup_t$variable) <- unique(test2_dup_t$variable)
+ggplot(data = test_dup_t_Ob, 
+       aes(x = Group, 
+           y = value,
+           fill = variable)) +
+  geom_bar(stat = "identity",
+           position = "dodge",
+           width = 0.8) + 
+  geom_text(aes(label = value),
+            position = position_dodge(width = 0.8),
+            vjust = -1,
+            size = 2,
+            col = "grey38") + 
+  scale_fill_manual(values = c("#8B9DC3", 
+                               "#4198AF", 
+                               "#4572A7", 
+                               "#89A54E", 
+                               "#DB8403",
+                               "#AA4643", 
+                               "#FFD966")) +
+  theme_grey() + 
+  xlab("") + 
+  scale_x_discrete(labels = c("ServiceCount030" = "0-30% group", 
+                              "ServiceCount3070" = "30-70% group",
+                              "ServiceCount70100" = "70-100% group")) +
+  ylab("Percent of Obligation") + 
+  ylim(0, 40) +
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.spacing.x = unit(0.2, "cm"),
+        legend.key.size = unit(10, "pt"),
+        legend.text = element_text(size = 8),
+        legend.margin = margin(0,0,0,0,unit = "cm"), 
+        legend.box.margin = margin(-10,-10,-10,-10, unit = "pt"), 
+        plot.margin = margin(t = 0.8, 
+                             r = 0.5, 
+                             b = 0.8, 
+                             l = 0.5, 
+                             unit = "cm"))
+```
+
+
+
+
+
+
+```{r Adding service category information to above plots}
+# Freq_NAICS_ProdServ <- left_join(Freq_NAICS_ProdServ, Percent_Count[, c(1,2)], by = "NAICS")
+# ProdServ_Lookup_Full <- read.csv("https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/ProductOrServiceCodes.csv")
+# Freq_NAICS_ProdServ <- left_join(Freq_NAICS_ProdServ, ProdServ_Lookup_Full[, c(1,25)], by = c("ProdServ" = "ProductOrServiceCode"))
+# Freq_NAICS_ProdServ$ProductServiceOrRnDarea[Freq_NAICS_ProdServ$ProductServiceOrRnDarea == "NULL"] <- NA
+# Service_List <- unique(Freq_NAICS_ProdServ$ProductServiceOrRnDarea[Freq_NAICS_ProdServ$ContractType == "Service"]) %>% as.character()
+# 
+# #Generating NAICS namelist based on percent of service category: [0,30], (30,70], (70,100]
+# ## *Need to check the reason why Tablename$NAICS[condition1 & condition2] doesn't right
+# NAICS_list030 <- Percent_Count[which(Percent_Count$Service_Percent <= 30), ][["NAICS"]]
+# NAICS_list3070 <- Percent_Count[which(Percent_Count$Service_Percent > 30 & Percent_Count$Service_Percent <= 70), ][["NAICS"]]
+# NAICS_list70100 <- Percent_Count[which(Percent_Count$Service_Percent > 70), ][["NAICS"]]
+# 
+# 
+# TotalService030 <- sum(Freq_NAICS_ProdServ[which(Freq_NAICS_ProdServ$ContractType == "Service" & Freq_NAICS_ProdServ$NAICS %in% NAICS_list030),][["Frequency"]])
+# TotalService3070 <- sum(Freq_NAICS_ProdServ[which(Freq_NAICS_ProdServ$ContractType == "Service" & Freq_NAICS_ProdServ$NAICS %in% NAICS_list3070),][["Frequency"]])
+# TotalService70100 <- sum(Freq_NAICS_ProdServ[which(Freq_NAICS_ProdServ$ContractType == "Service" & Freq_NAICS_ProdServ$NAICS %in% NAICS_list70100),][["Frequency"]])
+# 
+# #calculate NA frequency independently or the loop will return 0 for NA service category
+# Category_Count030 <- c(sum(Freq_NAICS_ProdServ[which(is.na(Freq_NAICS_ProdServ$ProductServiceOrRnDarea) & Freq_NAICS_ProdServ$NAICS %in% NAICS_list030),][["Frequency"]]))
+# Category_Count3070 <- c(sum(Freq_NAICS_ProdServ[which(is.na(Freq_NAICS_ProdServ$ProductServiceOrRnDarea) & Freq_NAICS_ProdServ$NAICS %in% NAICS_list3070),][["Frequency"]]))
+# Category_Count70100 <- c(sum(Freq_NAICS_ProdServ[which(is.na(Freq_NAICS_ProdServ$ProductServiceOrRnDarea) & Freq_NAICS_ProdServ$NAICS %in% NAICS_list70100),][["Frequency"]]))
+# for (i in Service_List[-1]){
+#   cat_count030 <- sum(Freq_NAICS_ProdServ[which(Freq_NAICS_ProdServ$ProductServiceOrRnDarea == i & Freq_NAICS_ProdServ$NAICS %in% NAICS_list030),][["Frequency"]])
+#   cat_count3070 <- sum(Freq_NAICS_ProdServ[which(Freq_NAICS_ProdServ$ProductServiceOrRnDarea == i & Freq_NAICS_ProdServ$NAICS %in% NAICS_list3070),][["Frequency"]])
+#   cat_count70100 <- sum(Freq_NAICS_ProdServ[which(Freq_NAICS_ProdServ$ProductServiceOrRnDarea == i & Freq_NAICS_ProdServ$NAICS %in% NAICS_list70100),][["Frequency"]])
+#   Category_Count030 <- c(Category_Count030, cat_count030)
+#   Category_Count3070 <- c(Category_Count3070, cat_count3070)
+#   Category_Count70100 <- c(Category_Count70100, cat_count70100)
+# }
+# 
+# Percent_Service <- data.frame(cbind(Service_List, Category_Count030, Category_Count3070, Category_Count70100)) %>% `colnames<-`(c("ServiceName", "ServiceCount030", "ServiceCount3070", "ServiceCount70100"))
+# Percent_Service <- lapply(Percent_Service, function(x) as.character(x))
+# Percent_Service$ServiceCount030 <- as.numeric(Percent_Service$ServiceCount030)
+# Percent_Service$ServicePercent030 <- round(100 * Percent_Service$ServiceCount030/TotalService030,2)
+# Percent_Service$ServiceCount3070 <- as.numeric(Percent_Service$ServiceCount3070)
+# Percent_Service$ServicePercent3070 <- round(100 * Percent_Service$ServiceCount3070/TotalService3070,2)
+# Percent_Service$ServiceCount70100 <- as.numeric(Percent_Service$ServiceCount70100)
+# Percent_Service$ServicePercent70100 <- round(100 * Percent_Service$ServiceCount70100/TotalService70100,2)
+# 
+# #Get top 5 Service categories in all groups
+# Top5_Service <- c("ERS", "PAMS", "FRS&C", "ICT", "MED")
+# Percent_Service <- data.frame(Percent_Service)
+# T5_Percent_Service <- Percent_Service[which(Percent_Service$ServiceName %in% Top5_Service), c(1, 5:7)]
+# T5_Percent_Service$ServiceName <- as.character(T5_Percent_Service$ServiceName)
+# T5_Percent_Service[6, ] <- c("All Other", 
+#                              round(100 - sum(T5_Percent_Service$ServicePercent030), 2), 
+#                              round(100 - sum(T5_Percent_Service$ServicePercent3070), 2),
+#                              round(100 - sum(T5_Percent_Service$ServicePercent70100), 2))
+# T5_Percent_Service[, c(2:4)] <- lapply(T5_Percent_Service[, c(2:4)], function(x) as.numeric(x))
+# test <- T5_Percent_Service
+```
+
+
+
+```{r test plotting_polar plot}
+# test_dup_polar <- melt(test, id = "ServiceName")
+# test_dup_polar$value <- as.numeric(test_dup_polar$value)
+# levels(test_dup_polar$variable) <- c("0-30% group", "30-70% group", "70-100% group")
+# levels(test_dup_polar$ServiceName) <- unique(test_dup_polar$ServiceName)
+# ggplot(data = test_dup_polar, 
+#        aes(x = ServiceName, 
+#            y = value)) + 
+#   geom_bar(stat = "identity",
+#            position = "dodge",
+#            aes(fill = as.factor(ServiceName)),
+#            width = 1) + 
+#   scale_fill_manual(values = rev(c("#4198AF", 
+#                                    "#4572A7", 
+#                                    "#89A54E", 
+#                                    "#DB8403", 
+#                                    "#AA4643", 
+#                                    "grey"))) +
+#   labs(x = NULL, 
+#        y = "Percent of Contract") +
+#   facet_grid(. ~ variable) + 
+#   coord_polar() +
+#   theme(axis.text.x = element_text(size = 6.5, 
+#                                    colour = "grey39", 
+#                                    angle = -20),
+#         legend.position = "None",
+#         plot.margin = margin(t = 1, 
+#                              r = 0.5, 
+#                              b = 0.5, 
+#                              l = 0.5, 
+#                              unit = "cm"))
+```
+
+
+```{r test plotting_line plot}
+# test_dup_line <- test
+# test_dup_line$ServiceName <- factor(test_dup_line$ServiceName, test_dup_line$ServiceName)
+# test_dup_line <- reshape2::melt(data = test_dup_line, id.var = 'ServiceName')
+# test_dup_line$value <- as.numeric(test_dup_line$value)
+# ggplot(data = test_dup_line, aes(x = ServiceName, y = value, col = variable)) + 
+#   geom_line(aes(group = variable), size = 1) +
+#   geom_point(size = 1.5, color = "black") + 
+#   scale_color_manual(values = c("mediumpurple4", "skyblue3", "sienna3")) + 
+#   ylim(0, 50) +
+#   xlab("Service Category Name") + 
+#   ylab("Percent of Contract") + 
+#   theme(legend.position = "bottom",
+#         legend.title = element_blank(),
+#         legend.spacing = unit(0.5, "cm"),
+#         plot.margin = margin(t=0.6, r = 0.3, b = 0.3, l = 0.3, unit = "cm"))
+
+```
+
+```{r test plotting_bar plot}
+# test_dup_bar <- test
+# test_dup_bar$ServiceName <- factor(test_dup_bar$ServiceName, test_dup_bar$ServiceName)
+# test_dup_bar <- reshape2::melt(data = test_dup_bar, id.var = "ServiceName")
+# test_dup_bar$value <- as.numeric(test_dup_bar$value)
+# ggplot(data = test_dup_bar, aes(x = ServiceName, y = value)) +
+#   geom_bar(aes(fill = variable),
+#            stat = "identity",
+#            position = "dodge",
+#            width = 0.8) + 
+#   ylim(0, 45) + 
+#   scale_fill_grey() +
+#   theme_grey() + 
+#   xlab("Service Category Name") + 
+#   ylab("Percent of Contract") + 
+#   theme(legend.title = element_blank(),
+#         legend.position = "bottom",
+#         legend.spacing.x = unit(0.2, "cm"))
+```
+
+
+```{r rearrange the plot dimension}
+# test_dup_t <- t(test) %>% .[2:4, 1:6] %>% `colnames<-`(test$ServiceName) %>% data.frame(., row.names = NULL)
+# test_dup_t$Group <- colnames(test)[2:4]
+# Coloration <- read.csv(file = "https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/style/Lookup_Coloration.csv")
+# test_dup_t <- melt(data = test_dup_t, id = "Group")
+# test_dup_t$value <- as.numeric(test_dup_t$value)
+# ggplot(data = test_dup_t, 
+#        aes(x = Group, 
+#            y = value,
+#            fill = variable)) +
+#   geom_bar(stat = "identity",
+#            position = "dodge",
+#            width = 0.8) + 
+#   geom_text(aes(label = value),
+#             position = position_dodge(width = 0.8),
+#             vjust = -1,
+#             size = 2.5,
+#             col = "grey38") + 
+#   ylim(0, 45) + 
+#   scale_fill_manual(values = c("#4198AF", "#4572A7", "#89A54E", "#DB8403", "#AA4643", "grey")) +
+#   theme_grey() + 
+#   xlab("") + 
+#   scale_x_discrete(labels = c("ServicePercent030" = "0-30% group", 
+#                          "ServicePercent3070" = "30-70% group",
+#                          "ServicePercent70100" = "70-100% group")) +
+#   ylab("Percent of Contract") + 
+#   theme(legend.title = element_blank(),
+#         legend.position = "bottom",
+#         legend.spacing.x = unit(0.2, "cm"),
+#         legend.key.size = unit(10, "pt"),
+#         legend.text = element_text(size = 8),
+#         legend.margin = margin(0,0,0,0,unit = "cm"), 
+#         legend.box.margin = margin(-10,-10,-10,-10, unit = "pt"), 
+#         plot.margin = margin(t = 0.8, 
+#                              r = 0.5, 
+#                              b = 0.8, 
+#                              l = 0.5, 
+#                              unit = "cm"))
+
+```
+
