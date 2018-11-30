@@ -160,24 +160,6 @@ get_icc(display=TRUE,ServCommCons_term)
 ```
 
 
-### Crisis Product Or Service Area
-```{r CrisisProductOrServiceArea}
-large_crisis_smp$CrisisProductOrServiceArea
-if(!exists("cpsa_cbre"))
-cpsa_cbre <- glmer(data=large_crisis_smp,
-                 b_CBre ~ (1 | CrisisProductOrServiceArea)
-                  , family=binomial(link="logit"))
-get_icc(display=TRUE,cpsa_cbre)
-
-if(!exists("cpsa_term"))
-cpsa_term <- glmer(data=large_crisis_smp,
-                 b_Term ~ (1 | CrisisProductOrServiceArea)
-                  , family=binomial(link="logit"))
-get_icc(display=TRUE,cpsa_term)
-
-
-```
-23% for Ceiling Breaches and 18% for Terminations. In particular for terminations, these high level categories seem to capture much of the differences without needing as much detail.
 
 ### Product Or Service Code two digit
 ```{r PSC2}
