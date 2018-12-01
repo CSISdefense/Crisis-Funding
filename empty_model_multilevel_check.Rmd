@@ -311,6 +311,12 @@ get_icc(psc_all3_term)
 get_icc(cpsa_psc_term)
 get_icc(ssc_psc_term)
 get_icc(psc24_term)
+
+      stargazer::stargazer(psc_term,psc2_term,cpsa_term,ServCommCons_term,
+                           psc_all3_term,cpsa_psc_term,ssc_psc_term,psc24_term,type="text",
+                     digits=2)
+
+
 ```
 CrisisProductOrSericeArea doesn't add much value versus ProdServ alone but ServCommCons adds none.
 
