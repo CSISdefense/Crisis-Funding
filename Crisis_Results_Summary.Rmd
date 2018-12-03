@@ -1325,7 +1325,6 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 ```{r Sample}
 load("Data\\crisis_smp.Rdata")
 
-
 # crisis_smp<-add_col_from_transformed(crisis_smp,fed)
 # crisis_with_na<-add_col_from_transformed(crisis_with_na,fed)
 # large_crisis_smp<-add_col_from_transformed(large_crisis_smp,fed)  
