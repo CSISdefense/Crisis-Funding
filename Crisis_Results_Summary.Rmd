@@ -1460,13 +1460,11 @@ nrow(large_crisis_with_na[!get_complete_list(large_crisis_with_na),])/
 
 ## Output: Ceiling Breach
 
-### Consolidation and Ceiling Breaches
+### Crisis Interactions
 
 ```{r Model20G_cbre}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
-
-
 
 load("Output//Model20G.rdata")
 
@@ -1501,17 +1499,11 @@ if(!exists("CBre_20G"))
   glmer_examine(CBre_20G)
   # save(CBre_20G, file="Output//Model20G.RData")
   
-stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
+stargazer::stargazer(CBre_20G,#CBre_20A,
                         digits=2)
 
-summary_residual_compare(CBre_10A,CBre_20G,bins=50)
-summary_residual_compare(CBre_10D,CBre_20G,bins=50)
-summary_residual_compare(CBre_20A,CBre_20G,bins=50)
-summary_residual_compare(CBre_20C,CBre_20G,bins=50)
-summary_residual_compare(CBre_20B,CBre_20G,bins=50)
+summary_residual_compare(CBre_20G,bins=50)
 
-
-  
 ```
 
 ## Output: Terminations
@@ -1551,13 +1543,10 @@ if(!exists("Term_20G"))
 
   glmer_examine(Term_20G)
 # Plot the model and Vehicle 
-stargazer::stargazer(Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(Term_20G,type="text",#Term_20A,#Term_20C
                         digits=2)
 
-summary_residual_compare(Term_10A,Term_20G,bins=50)
-summary_residual_compare(Term_10H,Term_20G,bins=50)
-summary_residual_compare(Term_20A,Term_20G,bins=50)
-summary_residual_compare(Term_20B,Term_20G,bins=50)
+summary_residual_compare(Term_20G,bins=50)
 
 
 ```
@@ -1640,7 +1629,7 @@ odds_ratio(CBre_Cons_13B.restart,"CBre_Cons_13B")
 
 
 # Tables for Paper
-## Competition Model
+
 ```{r Output-CBre}
 
 # texreg::htmlreg(list(Term_Cons_08A3,
