@@ -1352,8 +1352,10 @@ load("Data\\crisis_smp.Rdata")
 # colnames(fed)[colnames(fed)=="alpha.3"]<-"PlaceCountryISO3"
 
 
-fed_complete<-get_complete_list(fed)
-
+fed_complete<-fed[get_complete_list(fed),]
+fed_1m<-fed_complete[sample(nrow(fed_complete),1000000),]
+fed_250k<-fed_complete[sample(nrow(fed_complete),250000),]
+save(fed_1m,fed_250k,file="output//fed_sample.rdata")
 
 #Percent of records incomplete
 nrow(fed[!fed_complete,])/nrow(fed) #0.2760521
