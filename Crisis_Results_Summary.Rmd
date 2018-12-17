@@ -1457,6 +1457,7 @@ nrow(large_crisis_with_na[!get_complete_list(large_crisis_with_na),])/
 # 
 # save(extra_large_crisis_smp,extra_large_crisis_with_na,file="Data\\extra_large_crisis_smp.Rdata")
 # load("Data\\extra_large_crisis_smp.Rdata")
+  load("Data\\fed_sample.Rdata")
 
 ```
 
