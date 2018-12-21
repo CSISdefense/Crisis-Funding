@@ -3832,6 +3832,7 @@ summary_residual_compare(CBre_10I,CBre_10J2,bins=50)
 The results are interesting and not out of line with expectations, but do aggrevate the pattern in the residuals and remove significance to the base variables. Leaving it out.
 
 #Multi-Level Model
+##Federal Wide
 ### 20A: No interactions
 ```{r Model20A}
 load("Output//Model20A.rdata")
@@ -4383,6 +4384,93 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 
 
 ```
+
+
+
+
+## Disaster
+### 21A: Back to OffPlace
+```{r Model21A}
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
+
+
+
+load("Output//Model21A.rdata")
+
+if(!exists("CBre_21A"))
+  CBre_21A <- glmer (data=disaster,
+                   b_CBre ~ Crisis +NoCompOffr +
+                     b_UCA+
+                     OffPlace+ 
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     # Is.Defense +
+                    Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     cl_Ceil:NoCompOffr+
+                     # capped_cl_Days:NoCompOffr+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                   # NoCompOffr:Veh+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) + 
+                     (1 | ServCommCons/ProdServ) + 
+                     (1 | Customer/Office) + 
+                     (1 + OffPlace | PlaceCountryISO3) + 
+                     (1 | StartFY)
+               , 
+                   family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+
+  glmer_examine(CBre_21A)
+  # save(CBre_21A, file="Output//Model21A.RData")
+  
+if(!exists("Term_21A"))
+  Term_21A <- glmer (data=disaster,
+                   b_Term ~ Crisis +NoCompOffr+
+                     b_UCA+
+                     # c_OffCri+
+                     OffPlace+ 
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     # Is.Defense +
+                                        Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     # cl_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
+                     # b_UCA:Crisis+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) +
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office)+
+                     (1 + OffPlace| PlaceCountryISO3), 
+                   family=binomial(link="logit"),
+                   verbose=1,
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(Term_21A)
+  save(CBre_21A,Term_21A, file="Output//Model21A.RData")
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
+                     Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+summary_residual_compare(CBre_10A,CBre_20G,Term_10A,Term_20G,bins=50)
+summary_residual_compare(CBre_10D,CBre_20G,Term_10H,Term_20G,bins=50)
+summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
+summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
+summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
+
+
+```
+
 
 
 ### 16B: Interactions
