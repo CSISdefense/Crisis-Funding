@@ -4482,7 +4482,7 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 load("Output//Model21A.rdata")
 
 if(!exists("CBre_21A"))
-  CBre_21A <- glmer (data=disaster,
+  CBre_21A <- glmer (data=crisis_all,
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPlace+ 
@@ -4513,7 +4513,7 @@ if(!exists("CBre_21A"))
   save(CBre_21A, file="Output//Model21A.RData")
   
 if(!exists("Term_21A"))
-  Term_21A <- glmer (data=disaster,
+  Term_21A <- glmer (data=crisis_all,
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      # c_OffCri+
