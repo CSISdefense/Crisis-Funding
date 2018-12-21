@@ -4391,6 +4391,97 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 
 
 
+### 20I: Back to OffPlace
+```{r Model20I}
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
+fed_1m$OffPlace<-Hmisc::cut2(fed_1m$OffIntl,c(0.01,0.50))
+    levels(fed_1m$OffPlace) <-
+      list("US99"=c("[0.00,0.01)"),
+           "Mixed"=c("[0.01,0.50)"),
+           "Intl"=c("[0.50,1.00]"))
+  fed_1m$Agency
+  colnames(fed_1m)[colnames(fed_1m)=="Agency"]<-"AgencyID"
+fed_1m<-csis360::read_and_join( fed_1m,
+                                      "Agency_AgencyID.csv",                                    path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                                      directory="",
+                                      by="AgencyID",
+                                      add_var=c("Customer"),
+                                      new_var_checked=FALSE)    
+    
+load("Output//Model20I.rdata")
+if(!exists("CBre_20I"))
+  CBre_20I <- glmer (data=fed_1m,
+                   b_CBre ~ Crisis +NoCompOffr +
+                     b_UCA+
+                     OffPlace+ 
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     # Is.Defense +
+                    # Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     cl_Ceil:NoCompOffr+
+                     # capped_cl_Days:NoCompOffr+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                   # NoCompOffr:Veh+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) + 
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office) + 
+                     (1 + OffPlace | PlaceCountryISO3) + 
+                     (1 | StartFY)
+               , 
+                   family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(CBre_20I)
+  save(CBre_20I, file="Output//Model20I.RData")
+  
+if(!exists("Term_20I"))
+  Term_20I <- glmer (data=fed_1m,
+                   b_Term ~ Crisis +NoCompOffr+
+                     b_UCA+
+                     # c_OffCri+
+                     OffPlace+ 
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     # Is.Defense +
+                                        # Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # cl_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
+                     # b_UCA:Crisis+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) +
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office)+
+                     (1 + OffPlace| PlaceCountryISO3), 
+                   family=binomial(link="logit"),
+                   verbose=1,
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(Term_20I)
+  save(CBre_20I,Term_20I, file="Output//Model20I.RData")
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20I,#CBre_20A,
+                     Term_10A,Term_10D,Term_20B,Term_20I,type="text",#Term_20A,#Term_20C
+                        digits=2)
+stargazer::stargazer(CBre_20G,CBre_20H,
+                     Term_20G,Term_20H,type="text",#Term_20A,#Term_20C
+                        digits=2)
+summary_residual_compare(CBre_10A,CBre_20G,Term_10A,Term_20G,bins=50)
+summary_residual_compare(CBre_10D,CBre_20G,Term_10H,Term_20G,bins=50)
+summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
+summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
+summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
+```
+
 ## Disaster
 ### 21A: Back to OffPlace
 ```{r Model21A}
