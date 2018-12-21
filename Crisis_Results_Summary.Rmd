@@ -1351,7 +1351,19 @@ load("Data\\crisis_smp.Rdata")
 #                                       new_var_checked=FALSE)
 # colnames(fed)[colnames(fed)=="alpha.3"]<-"PlaceCountryISO3"
 
+fed$ProdServ[fed$ProdServ==""]<-NA
 
+
+summary
+
+summary(factor(fed_1m$AgencyID[is.na(fed_1m$Customer)]))
+summary(factor(fed_1m$ProdServ[is.na(fed_1m$CrisisProductOrServiceArea)]))
+summary(factor(fed_1m$ProdServ[is.na(fed_1m$CrisisProductOrServiceArea)]))
+fed_1m$ProdServ[fed_1m$ProdServ==""]<-NA
+fed_1m<-fed_1m[get_complete_list(fed_1m),]
+
+fed_1m$Customer<-factor(fed_1m$Customer)
+fed_1m$CrisisProductOrServiceArea<-factor(fed_1m$CrisisProductOrServiceArea)
 fed_complete<-fed[get_complete_list(fed),]
 fed_1m<-fed_complete[sample(nrow(fed_complete),1000000),]
 fed_250k<-fed_complete[sample(nrow(fed_complete),250000),]

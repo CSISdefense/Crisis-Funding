@@ -43,6 +43,7 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 
 
 ```{r ReadInData, echo = TRUE}
+load("Data\\fed_sample.Rdata")
 load("Data\\crisis_smp.Rdata")
 load("Data\\extra_large_crisis_smp.Rdata")
 
@@ -4399,21 +4400,23 @@ summary_residual_compare(CBre_20B,CBre_20I,Term_20B,Term_20I,bins=50)
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-fed_1m$OffPlace<-Hmisc::cut2(fed_1m$OffIntl,c(0.01,0.50))
-    levels(fed_1m$OffPlace) <-
+fed$OffPlace<-Hmisc::cut2(fed$OffIntl,c(0.01,0.50))
+    levels(fed$OffPlace) <-
       list("US99"=c("[0.00,0.01)"),
            "Mixed"=c("[0.01,0.50)"),
            "Intl"=c("[0.50,1.00]"))
 
-  fed_1m$Agency
-  colnames(fed_1m)[colnames(fed_1m)=="Agency"]<-"AgencyID"
-fed_1m<-csis360::read_and_join( fed_1m,
+  colnames(fed)[colnames(fed)=="Agency"]<-"AgencyID"
+fed<-csis360::read_and_join( fed,
                                       "Agency_AgencyID.csv",                                    path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
                                       directory="",
                                       by="AgencyID",
                                       add_var=c("Customer"),
                                       new_var_checked=FALSE)    
-    
+  
+colnames(fed_1m)[colnames(fed_1m)=="AgencyID"]<-"Agency"
+colnames(fed)[colnames(fed)=="AgencyID"]<-"Agency"
+  
 load("Output//Model20I.rdata")
 
 
@@ -4481,7 +4484,8 @@ stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20I,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20I,type="text",#Term_20A,#Term_20C
                         digits=2)
 
-
+stargazer::stargazer(CBre_20I,type="text",#Term_20A,#Term_20C
+                        digits=2)
 stargazer::stargazer(CBre_20G,CBre_20H,
                      Term_20G,Term_20H,type="text",#Term_20A,#Term_20C
                         digits=2)
@@ -4490,7 +4494,7 @@ stargazer::stargazer(CBre_20G,CBre_20H,
 summary_residual_compare(CBre_10A,CBre_20G,Term_10A,Term_20G,bins=50)
 summary_residual_compare(CBre_10D,CBre_20G,Term_10H,Term_20G,bins=50)
 summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
-summary_residual_compare(C Bre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
+summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
 summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 
 
