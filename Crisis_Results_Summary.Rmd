@@ -1321,6 +1321,7 @@ part_barplot
 
 Next, we eliminate missing data entries and then draw a sample. The final computation uses all of the data, but as a computation shortcut, only a subset of the data is needed to allow for processing of models in minutes rather than hours.
 
+
 ## Sample Creation
 ```{r Sample}
 load("Data\\crisis_smp.Rdata")
@@ -1339,7 +1340,10 @@ load("Data\\crisis_smp.Rdata")
 # head(fed)
 
 
-
+# crisis_all<-rbind(oco,recovery,disaster)
+# crisis_all_with_na<-rbind(oco_with_na,recovery,disaster)
+summary(crisis_all$Crisis)
+crisis_all$Crisis<-factor(crisis_all$Crisis,c("Other","OCO" ,"ARRA",  "Dis"     ))
 
 # colnames(fed)[colnames(fed)=="PlaceCountryISO3"]<-"alpha.3"
 # fed<-csis360::read_and_join( fed, #contract,
@@ -1375,7 +1379,7 @@ nrow(fed[is.na(fed$UCA),])/nrow(fed) #0.2760521
 #Percent of dollars incomplete
 sum(fed[!fed_complete,]$Action.Obligation,na.rm=TRUE)/
   sum(fed$Action.Obligation,na.rm=TRUE) #0.1217748
-> 
+
 
 
 
@@ -1385,7 +1389,7 @@ crisis_smp<-crisis_with_na[get_complete_list(crisis_with_na),]
 
 
 
-
+summary(crisis_all$Crisis)
 
 #Percent of records incomplete
 nrow(crisis_with_na[!get_complete_list(crisis_with_na),])/
@@ -1408,8 +1412,9 @@ nrow(large_crisis_with_na[!get_complete_list(large_crisis_with_na),])/
 # # 
 #   
 # 
-# save(crisis_smp,crisis_with_na,
-#      large_crisis_with_na,large_crisis_smp,file="Data\\crisis_smp.Rdata")
+save(crisis_smp,crisis_with_na,
+     large_crisis_with_na,large_crisis_smp,
+     crisis_all,crisis_all_with_na,file="Data\\crisis_smp.Rdata")
 
 
 
