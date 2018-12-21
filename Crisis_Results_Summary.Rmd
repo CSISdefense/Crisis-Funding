@@ -1351,9 +1351,23 @@ load("Data\\crisis_smp.Rdata")
 #                                       new_var_checked=FALSE)
 # colnames(fed)[colnames(fed)=="alpha.3"]<-"PlaceCountryISO3"
 
+fed$ProdServ[fed$ProdServ==""]<-NA
 
-fed_complete<-get_complete_list(fed)
 
+summary
+
+summary(factor(fed_1m$AgencyID[is.na(fed_1m$Customer)]))
+summary(factor(fed_1m$ProdServ[is.na(fed_1m$CrisisProductOrServiceArea)]))
+summary(factor(fed_1m$ProdServ[is.na(fed_1m$CrisisProductOrServiceArea)]))
+fed_1m$ProdServ[fed_1m$ProdServ==""]<-NA
+fed_1m<-fed_1m[get_complete_list(fed_1m),]
+
+fed_1m$Customer<-factor(fed_1m$Customer)
+fed_1m$CrisisProductOrServiceArea<-factor(fed_1m$CrisisProductOrServiceArea)
+fed_complete<-fed[get_complete_list(fed),]
+fed_1m<-fed_complete[sample(nrow(fed_complete),1000000),]
+fed_250k<-fed_complete[sample(nrow(fed_complete),250000),]
+save(fed_1m,fed_250k,file="output//fed_sample.rdata")
 
 #Percent of records incomplete
 nrow(fed[!fed_complete,])/nrow(fed) #0.2760521
@@ -1455,6 +1469,7 @@ nrow(large_crisis_with_na[!get_complete_list(large_crisis_with_na),])/
 # 
 # save(extra_large_crisis_smp,extra_large_crisis_with_na,file="Data\\extra_large_crisis_smp.Rdata")
 # load("Data\\extra_large_crisis_smp.Rdata")
+  load("Data\\fed_sample.Rdata")
 
 ```
 
