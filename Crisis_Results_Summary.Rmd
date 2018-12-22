@@ -1354,13 +1354,15 @@ load("Data\\crisis_smp.Rdata")
 fed$ProdServ[fed$ProdServ==""]<-NA
 
 
-summary
+# fed<-fed[get_complete_list(fed),]
+# fed<-fed[!fed$CSIScontractID %in% fed_1m$CSIScontractID,]
+# count<-1000000-997374
 
-summary(factor(fed_1m$AgencyID[is.na(fed_1m$Customer)]))
-summary(factor(fed_1m$ProdServ[is.na(fed_1m$CrisisProductOrServiceArea)]))
-summary(factor(fed_1m$ProdServ[is.na(fed_1m$CrisisProductOrServiceArea)]))
-fed_1m$ProdServ[fed_1m$ProdServ==""]<-NA
-fed_1m<-fed_1m[get_complete_list(fed_1m),]
+# summary(factor(fed_1m$AgencyID[is.na(fed_1m$Customer)]))
+# summary(factor(fed_1m$ProdServ[is.na(fed_1m$CrisisProductOrServiceArea)]))
+# summary(factor(fed_1m$ProdServ[is.na(fed_1m$CrisisProductOrServiceArea)]))
+# fed_1m$ProdServ[fed_1m$ProdServ==""]<-NA
+# fed_1m<-fed_1m[get_complete_list(fed_1m),]
 
 fed_1m$Customer<-factor(fed_1m$Customer)
 fed_1m$CrisisProductOrServiceArea<-factor(fed_1m$CrisisProductOrServiceArea)
