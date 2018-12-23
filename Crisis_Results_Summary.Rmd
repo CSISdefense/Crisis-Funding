@@ -1488,10 +1488,10 @@ save(crisis_smp,crisis_with_na,
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model20G.rdata")
+load("Output//Model21A.rdata")
 
-if(!exists("CBre_20G"))
-  CBre_20G <- glmer (data=large_crisis_smp,
+if(!exists("CBre_21A"))
+  CBre_21A <- glmer (data=large_crisis_smp,
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPlace+ 
@@ -1518,13 +1518,13 @@ if(!exists("CBre_20G"))
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
-  glmer_examine(CBre_20G)
-  # save(CBre_20G, file="Output//Model20G.RData")
+  glmer_examine(CBre_21A)
+  # save(CBre_21A, file="Output//Model21A.RData")
   
-stargazer::stargazer(CBre_20G,#CBre_20A,
+stargazer::stargazer(CBre_21A,#CBre_20A,
                         digits=2)
 
-summary_residual_compare(CBre_20G,bins=50)
+# summary_residual_compare(CBre_21A,bins=50)
 
 ```
 
@@ -1664,134 +1664,10 @@ odds_ratio(CBre_Cons_13B.restart,"CBre_Cons_13B")
 
 
 
-texreg::htmlreg(list(Comp_Cons_15D),file="Output//Offr_Model.html",
-                single.row = TRUE,
-                custom.model.name=c("Concentration"),
-                        stars=c(0.1,0.05,0.01,0.001),
-                groups = list("Study Variables" = 2:3,
-                              "NAICS Characteristics" =4:7,
-                              "Contract Characteristics"=8:19,
-"Interactions" = 20:24),
-                custom.coef.map=list("(Intercept)"="(Intercept)",
-                "cl_def3_HHI_lag1"="Log(Subsector HHI)",
-"cl_def6_HHI_lag1"="Log(Det. Ind. HHI)",
-"CompOffr1 offer"="Comp=1 offer",
-"CompOffr2 offers"="Comp=2 offers",
-"CompOffr3-4 offers"="Comp=3-4 offers",
-"CompOffr5+ offers"="Comp=5+ offers",
-"cl_def3_ratio_lag1"="Log(Subsector Ratio)",
-"cl_def6_obl_lag1"="Log(Det. Ind. DoD Obl.)",
-"cl_def6_ratio_lag1"="Log(Det. Ind. Ratio)",
-"cl_US6_avg_sal_lag1"="Log(Det. Ind. U.S. Avg. Salary)",
-"cl_Ceil"="Log(Init. Ceiling)",
-"cl_Days"="Log(Init. Days)",
-"VehS-IDC"="Vehicle=S-IDC",
-"VehM-IDC"="Vehicle=M-IDC",
-"VehFSS/GWAC"="Vehicle=FSS/GWAC",
-"VehBPA/BOA"="Vehicle=BPA/BOA",
-"PricingFeeOther FP"="Pricing=Other FP",
-"PricingFeeIncentive"="Pricing=Incentive Fee",
-"PricingFeeCombination or Other"="Pricing=Combination or Other",
-"PricingFeeOther CB"="Pricing=Other CB",
-"PricingFeeT&M/LH/FPLOE"="Pricing=T&M/LH/FP:LoE",
-"b_UCA"="UCA",
-"b_Intl"="Performed Abroad",
-# # "cl_def6_HHI_lag1:cl_Days"="Log(Det. Ind. HHI):Log(Init. Days)",
-# "cl_def6_HHI_lag1:cl_def6_obl_lag1"="Log(Det. Ind. HHI):Log(Det. Ind. DoD Obl.)",
-# # "cl_def3_HHI_lag1:cl_def3_ratio_lag1"="Log(Subsector HHI):Log(Subsector Ratio)"),
-"cl_def6_HHI_lag1:b_UCA"="Log(Det. Ind. HHI):UCA",
-# "cl_Ceil:b_UCA"="Log(Init. Ceiling):UCA",
-# "CompOffr1 offer:b_UCA"="Comp=1 offer:UCA",
-# "CompOffr2 offers:b_UCA"="Comp=2 offers:UCA",
-# "CompOffr3-4 offers:b_UCA"="Comp=3-4 offers:UCA",
-# "CompOffr5+ offers:b_UCA"="Comp=5+ offers:UCA"
-"VehS-IDC:b_Intl"="Vehicle=S-IDC:Performed Abroad",
-"VehM-IDC:b_Intl"="Vehicle=M-IDC:Performed Abroad",
-"VehFSS/GWAC:b_Intl"="Vehicle=FSS/GWAC:Performed Abroad",
-"VehBPA/BOA:b_Intl"="Vehicle=BPA/BOA:Performed Abroad",
-"cl_US6_avg_sal_lag1:PricingFeeOther FP"="Pricing=Other FP:Log(Det. Ind. U.S. Avg. Salary)",
-"cl_US6_avg_sal_lag1:PricingFeeIncentive"="Pricing=Incentive Fee:Log(Det. Ind. U.S. Avg. Salary)",
-"cl_US6_avg_sal_lag1:PricingFeeCombination or Other"="Pricing=Comb./or Other:Log(Det. Ind. U.S. Avg. Salary)",
-"cl_US6_avg_sal_lag1:PricingFeeOther CB"="Pricing=Other CB:Log(Det. Ind. U.S. Avg. Salary)",
-"cl_US6_avg_sal_lag1:PricingFeeT&M/LH/FPLOE"="Pricing=T&M/LH/FP:LoE:Log(Det. Ind. U.S. Avg. Salary)"
-
-),
-                bold=0.05,
-custom.note="%stars. Logged inputs are rescaled. For this model, sole source contracts and task orders are treated as having 1 offer.",
-caption="Table 1: Regression Model of Log(Number of Offfers)",
-caption.above=TRUE)
 
 
-texreg::htmlreg(list(Comp_Cons_15D_1m),file="Output//Offr_Model_1m.html",
-                single.row = TRUE,
-                custom.model.name=c("Concentration"),
-                        stars=c(0.1,0.05,0.01,0.001),
-                groups = list("Study Variables" = 2:3,
-                              "NAICS Characteristics" =4:7,
-                              "Contract Characteristics"=8:20,
-"Interactions" = 21:25),
-                custom.coef.map=list("(Intercept)"="(Intercept)",
-                "cl_def3_HHI_lag1"="Log(Subsector HHI)",
-"cl_def6_HHI_lag1"="Log(Det. Ind. HHI)",
-"CompOffr1 offer"="Comp=1 offer",
-"CompOffr2 offers"="Comp=2 offers",
-"CompOffr3-4 offers"="Comp=3-4 offers",
-"CompOffr5+ offers"="Comp=5+ offers",
-"cl_def3_ratio_lag1"="Log(Subsector Ratio)",
-"cl_def6_obl_lag1"="Log(Det. Ind. DoD Obl.)",
-"cl_def6_ratio_lag1"="Log(Det. Ind. Ratio)",
-"cl_US6_avg_sal_lag1"="Log(Det. Ind. U.S. Avg. Salary)",
-"cl_Ceil"="Log(Init. Ceiling)",
-"cl_Days"="Log(Init. Days)",
-"VehS-IDC"="Vehicle=S-IDC",
-"VehM-IDC"="Vehicle=M-IDC",
-"VehFSS/GWAC"="Vehicle=FSS/GWAC",
-"VehBPA/BOA"="Vehicle=BPA/BOA",
-"PricingFeeOther FP"="Pricing=Other FP",
-"PricingFeeIncentive"="Pricing=Incentive Fee",
-"PricingFeeCombination or Other"="Pricing=Combination or Other",
-"PricingFeeOther CB"="Pricing=Other CB",
-"PricingFeeT&M/LH/FPLOE"="Pricing=T&M/LH/FP:LoE",
-"b_UCA"="UCA",
-"UCAUCA"="UCA",
-"b_Intl"="Performed Abroad",
-# # "cl_def6_HHI_lag1:cl_Days"="Log(Det. Ind. HHI):Log(Init. Days)",
-# "cl_def6_HHI_lag1:cl_def6_obl_lag1"="Log(Det. Ind. HHI):Log(Det. Ind. DoD Obl.)",
-# # "cl_def3_HHI_lag1:cl_def3_ratio_lag1"="Log(Subsector HHI):Log(Subsector Ratio)"),
-"cl_def6_HHI_lag1:b_UCA"="Log(Det. Ind. HHI):UCA",
-# "cl_Ceil:b_UCA"="Log(Init. Ceiling):UCA",
-# "CompOffr1 offer:b_UCA"="Comp=1 offer:UCA",
-# "CompOffr2 offers:b_UCA"="Comp=2 offers:UCA",
-# "CompOffr3-4 offers:b_UCA"="Comp=3-4 offers:UCA",
-# "CompOffr5+ offers:b_UCA"="Comp=5+ offers:UCA"
-"VehS-IDC:b_Intl"="Vehicle=S-IDC:Performed Abroad",
-"VehM-IDC:b_Intl"="Vehicle=M-IDC:Performed Abroad",
-"VehFSS/GWAC:b_Intl"="Vehicle=FSS/GWAC:Performed Abroad",
-"VehBPA/BOA:b_Intl"="Vehicle=BPA/BOA:Performed Abroad",
-"cl_US6_avg_sal_lag1:PricingFeeOther FP"="Pricing=Other FP:Log(Det. Ind. U.S. Avg. Salary)",
-"cl_US6_avg_sal_lag1:PricingFeeIncentive"="Pricing=Incentive Fee:Log(Det. Ind. U.S. Avg. Salary)",
-"cl_US6_avg_sal_lag1:PricingFeeCombination or Other"="Pricing=Comb./or Other:Log(Det. Ind. U.S. Avg. Salary)",
-"cl_US6_avg_sal_lag1:PricingFeeOther CB"="Pricing=Other CB:Log(Det. Ind. U.S. Avg. Salary)",
-"cl_US6_avg_sal_lag1:PricingFeeT&M/LH/FPLOE"="Pricing=T&M/LH/FP:LoE:Log(Det. Ind. U.S. Avg. Salary)"
+Comp_Cons_15D
 
-),
-                bold=0.05,
-custom.note="%stars. Logged inputs are rescaled. For this model, sole source contracts and task orders are treated as having 1 offer.",
-caption="Table 1: Regression Model of Log(Number of Offfers)",
-caption.above=TRUE)
-
-get_icc(Comp_Cons_15D_1m)
-
-
-  # OR_m1SD <- exp(fixef(FM_m1SD))
-  # CI_m1SD <- exp(confint(FM_m1SD,parm="beta_")) 
-  # 
-  # OR_p1SD <- exp(fixef(FM_p1SD))
-  # CI_p1SD <- exp(confint(FM_p1SD,parm="beta_")) 
-  # 
-  # OR.CI<-rbind(cbind(OR,CI), cbind(OR_m1SD,CI_m1SD)[3,], cbind(OR_p1SD,CI_p1SD)[3,])
-  # rownames(OR.CI)<-c(rownames(cbind(OR,CI)), "teacher_fan_c_m1SD", "teacher_fan_c_p1SD")
-  # OR.CI
 
 
 gridExtra::grid.arrange(dotplot(ranef(Comp_Cons_15D, condVar = T), strip = T, scales=list(relation='free'))$Agency,
