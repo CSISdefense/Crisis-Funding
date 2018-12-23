@@ -4391,12 +4391,12 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 
 ## Federal-Wide
 
-### 21A: Back to OffPlace
+##Federal-Wide
+### 21A: Ninimal Interaction
 ```{r Model21A}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
     
-colnames(recovery_with_na)[colnames(recovery_with_na)=="AgencyID"]<-"Agency"
 
 load("Output//Model21A.rdata")
 if(!exists("CBre_21A"))
@@ -4427,7 +4427,6 @@ if(!exists("CBre_21A"))
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(CBre_21A)
-  save(CBre_21A, file="Output//Model21A.RData")
   
 if(!exists("Term_21A"))
   Term_21A <- glmer (data=fed_1m,
@@ -4473,6 +4472,8 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 
 ## Crisis-Only
 ### 22A: Minimal Interactions
+```{r Model22A}
+### 22A: Ninimal Interaction
 ```{r Model22A}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
