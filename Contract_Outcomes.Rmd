@@ -3833,7 +3833,7 @@ summary_residual_compare(CBre_10I,CBre_10J2,bins=50)
 The results are interesting and not out of line with expectations, but do aggrevate the pattern in the residuals and remove significance to the base variables. Leaving it out.
 
 #Multi-Level Model
-##Federal Wide
+##Weighted Sample
 ### 20A: No interactions
 ```{r Model20A}
 load("Output//Model20A.rdata")
@@ -4389,6 +4389,7 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 ```
 
 
+## Federal-Wide
 
 ##Federal-Wide
 ### 21A: Ninimal Interaction
@@ -4470,6 +4471,8 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 ```
 
 ## Crisis-Only
+### 22A: Minimal Interactions
+```{r Model22A}
 ### 22A: Ninimal Interaction
 ```{r Model22A}
 # summary(large_crisis_smp$ServCommCons)
