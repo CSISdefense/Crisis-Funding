@@ -4456,6 +4456,8 @@ if(!exists("Term_21A"))
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_21A)
   save(CBre_21A,Term_21A, file="Output//Model21A.RData")
+  
+  
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_21A,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_21A,type="text",#Term_20A,#Term_20C
