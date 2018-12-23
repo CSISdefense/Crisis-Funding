@@ -4396,7 +4396,6 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
     
-colnames(recovery_with_na)[colnames(recovery_with_na)=="AgencyID"]<-"Agency"
 
 load("Output//Model20I.rdata")
 if(!exists("CBre_20I"))
@@ -4427,7 +4426,6 @@ if(!exists("CBre_20I"))
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(CBre_20I)
-  save(CBre_20I, file="Output//Model20I.RData")
   
 if(!exists("Term_20I"))
   Term_20I <- glmer (data=fed_1m,
@@ -4510,7 +4508,7 @@ if(!exists("CBre_21A"))
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
   glmer_examine(CBre_21A)
-  save(CBre_21A, file="Output//Model21A.RData")
+  # save(CBre_22A, file="Output//Model22A.RData")
   
 if(!exists("Term_21A"))
   Term_21A <- glmer (data=crisis_all,
