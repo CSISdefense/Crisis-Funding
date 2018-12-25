@@ -4392,7 +4392,7 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 ## Federal-Wide
 
 ##Federal-Wide
-### 21A: Ninimal Interaction
+### 21A: Minimal Interaction
 ```{r Model21A}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
@@ -4475,8 +4475,6 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 ## Crisis-Only
 ### 22A: Minimal Interactions
 ```{r Model22A}
-### 22A: Ninimal Interaction
-```{r Model22A}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
@@ -4513,7 +4511,6 @@ if(!exists("CBre_22A"))
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
   glmer_examine(CBre_22A)
-  save(CBre_22A, file="Output//Model22A.RData")
   
 if(!exists("Term_22A"))
   Term_22A <- glmer (data=crisis_all,
@@ -4558,5 +4555,86 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 ```
 
 
+### 22B: Minimal Interactions
+```{r Model22B}
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
+
+
+
+load("Output//Model22B.rdata")
+
+if(!exists("CBre_22B"))
+  CBre_22B <- glmer (data=crisis_all,
+                   b_CBre ~ Crisis +NoCompOffr +
+                     b_UCA+
+                     OffPlace+ 
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     # Is.Defense +
+                    Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     cl_Ceil:NoCompOffr+
+                     # capped_cl_Days:NoCompOffr+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                   # NoCompOffr:Veh+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) + 
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office) + 
+                     (1 + OffPlace | PlaceCountryISO3) + 
+                     (1 | StartFY)
+               , 
+                   family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+
+  glmer_examine(CBre_22B)
+  save(CBre_22B, file="Output//Model22B.RData")
+  
+if(!exists("Term_22B"))
+  Term_22B <- glmer (data=crisis_all,
+                   b_Term ~ Crisis +NoCompOffr+
+                     b_UCA+
+                     # c_OffCri+
+                     OffPlace+ 
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     # Is.Defense +
+                                        Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     # cl_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
+                     # b_UCA:Crisis+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) +
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office)+
+                     (1 + OffPlace| PlaceCountryISO3), 
+                   family=binomial(link="logit"),
+                   verbose=1,
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(Term_22B)
+  save(CBre_22B,Term_22B, file="Output//Model22B.RData")
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
+                     Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+summary_residual_compare(CBre_10A,CBre_20G,Term_10A,Term_20G,bins=50)
+summary_residual_compare(CBre_10D,CBre_20G,Term_10H,Term_20G,bins=50)
+summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
+summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
+summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
+
+
+```
 
 
