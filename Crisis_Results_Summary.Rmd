@@ -1718,16 +1718,20 @@ odds_ratio(CBre_Cons_13B.restart,"CBre_Cons_13B")
 # Tables for Paper
 ## Ceiling Breach Model
 ```{r Output-CBre}
-stargazer::stargazer(CBre_21A,CBre_22A,Term_21A,type="text",
+
+summary(crisis_all[crisis_all$Crisis=="ARRA",])
+#OffPlace is missing!!
+
+stargazer::stargazer(CBre_21A,CBre_22A,Term_21A,Term_22A,type="text",
                        digits=2)
 
 
-texreg::htmlreg(list(CBre_21A,CBre_22A,Term_21A),file="Output//CBre_Model.html",#CBre_Comp_13C,CBre_Cons_Comp_15A
+texreg::htmlreg(list(CBre_21A,CBre_22A,Term_21A,Term_22A),file="Output//Both_Model.html",
                 single.row = TRUE,
                 custom.model.name=c("Federal-Wide\nCeiling Breach",
                                     "Crisis-Only\nCeiling Breach",
                                     "Federal-Wide\nTermination",
-                                    # "Both"
+                                    "Crisis-Only\nTermination"
                                     ),
                         stars=c(0.1,0.05,0.01,0.001),
                 groups = list("Study Variables" = 2:8,
