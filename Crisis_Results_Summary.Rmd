@@ -1339,7 +1339,7 @@ load("Data\\crisis_smp.Rdata")
 #save(fed,file="Data/fed_transformed.Rdata")
 # head(fed)
 
-
+    
 # crisis_all<-rbind(oco,recovery,disaster)
 # crisis_all_with_na<-rbind(oco_with_na,recovery,disaster)
 summary(crisis_all$Crisis)
