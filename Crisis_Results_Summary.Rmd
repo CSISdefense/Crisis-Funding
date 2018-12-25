@@ -1480,11 +1480,11 @@ save(crisis_smp,crisis_with_na,
 
 ```
 
-## Output: Ceiling Breach
+## Output: Models
 
-### Crisis Interactions
+### Federal-Wide 21A
 
-```{r Model20G_cbre}
+```{r Model21A_cbre}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
@@ -1521,22 +1521,9 @@ if(!exists("CBre_21A"))
   glmer_examine(CBre_21A)
   # save(CBre_21A, file="Output//Model21A.RData")
   
-stargazer::stargazer(CBre_21A,#CBre_20A,
-                        digits=2)
-
-# summary_residual_compare(CBre_21A,bins=50)
-
-```
-
-## Output: Terminations
-
-### Consolidation and Ceiling Breaches
-
-
-```{r Model20G_term}
-
-if(!exists("Term_20G"))
-  Term_20G <- glmer (data=large_crisis_smp,
+  
+if(!exists("Term_21A"))
+  Term_21A <- glmer (data=fed_1m,
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      # c_OffCri+
@@ -1546,8 +1533,8 @@ if(!exists("Term_20G"))
                      Veh+
                      PricingFee +
                      # Is.Defense +
-                                        Crisis:NoCompOffr+
-                     b_UCA:Crisis+
+                                        # Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
                      # cl_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
                      # b_UCA:Crisis+
                      # capped_cl_Days:Veh+ 
@@ -1561,17 +1548,20 @@ if(!exists("Term_20G"))
                    verbose=1,
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(Term_21A)
+  
+stargazer::stargazer(CBre_21A,#CBre_20A,
+                        digits=2)
 
-
-  glmer_examine(Term_20G)
-# Plot the model and Vehicle 
+# summary_residual_compare(CBre_21A,bins=50)
 stargazer::stargazer(Term_20G,type="text",#Term_20A,#Term_20C
                         digits=2)
 
 summary_residual_compare(Term_20G,bins=50)
-
-
 ```
+
+
+### Consolidation and Ceiling Breaches
 
 
 
@@ -1651,26 +1641,90 @@ odds_ratio(CBre_Cons_13B.restart,"CBre_Cons_13B")
 
 
 # Tables for Paper
-
+## Ceiling Breach Model
 ```{r Output-CBre}
-
-# texreg::htmlreg(list(Term_Cons_08A3,
-#                   CBre_Cons_08C),#CBre_Cons_08B2
-#                 file="Output//ConsModel.html",single.row = TRUE,
-#                 custom.model.name=c("Termination",
-#                                     "Ceiling Breach"),
-#                         stars=c(0.05))
+stargazer::stargazer(CBre_21A,Term_21A,type="text",
+                       digits=2)
 
 
+texreg::htmlreg(list(CBre_21A),file="Output//CBre_Model.html",#CBre_Comp_13C,CBre_Cons_Comp_15A
+                single.row = TRUE,
+                custom.model.name=c("Federal-Wide"
+                                    # "Competition",
+                                    # "Both"
+                                    ),
+                        stars=c(0.1,0.05,0.01,0.001),
+                groups = list("Study Variables" = 2:8,
+                              "Crisis Category" = 9:11,
+                              "Contract Characteristics"=12:22,
+"Interactions" = 23:25),
+                custom.coef.map=list("(Intercept)"="(Intercept)",
+                                     "NoCompOffrUrgency"="Urgency Waiver",
+"NoCompOffr1 offer"="Comp=1 offer",
+"NoCompOffr2-4 offers"="Comp=2-4 offers",
+"NoCompOffr5+ offers"="Comp=5+ offers",
+"b_UCA"="UCA",
+"OffPlaceMixed"="Cont. Office 50-99% Intl.",
+"OffPlaceIntl"="Cont. Office 99%+ Intl.",
+"CrisisOCO"="Crisis=OCO",
+"CrisisARRA"="Crisis=Recovery Act",
+"CrisisDis"="Crisis=Disaster Relief",
+# "cl_def3_ratio_lag1"="Log(Subsector Ratio)",
+# "cl_def6_obl_lag1"="Log(Det. Ind. DoD Obl.)",
+# "cl_def6_ratio_lag1"="Log(Det. Ind. Ratio)",
+# "cl_US6_avg_sal_lag1"="Log(Det. Ind. U.S. Avg. Salary)",
+"cl_Ceil"="Log(Init. Ceiling)",
+"capped_cl_Days"="Log(Init. Days)",
+"VehS-IDC"="Vehicle=S-IDC",
+"VehM-IDC"="Vehicle=M-IDC",
+"VehFSS/GWAC"="Vehicle=FSS/GWAC",
+"VehBPA/BOA"="Vehicle=BPA/BOA",
+"PricingFeeOther FP"="Pricing=Other FP",
+"PricingFeeIncentive"="Pricing=Incentive Fee",
+"PricingFeeCombination or Other"="Pricing=Combination or Other",
+"PricingFeeOther CB"="Pricing=Other CB",
+"PricingFeeT&M/LH/FPLOE"="Pricing=T&M/LH/FP:LoE",
+# "cl_def6_HHI_lag1:cl_Days"="Log(Det. Ind. HHI):Log(Init. Days)",
+# "cl_def6_HHI_lag1:cl_def6_obl_lag1"="Log(Det. Ind. HHI):Log(Det. Ind. DoD Obl.)",
+# "cl_def3_HHI_lag1:cl_def3_ratio_lag1"="Log(Subsector HHI):Log(Subsector Ratio)"),
+# "cl_def6_HHI_lag1:b_UCA"="Log(Det. Ind. HHI):UCA",
+# "cl_Ceil:b_UCA"="Log(Init. Ceiling):UCA",
+"NoCompOffrUrgency:cl_Ceil"="Urgency Waiver:Log(Init. Ceiling)",
+"NoCompOffr1 offer:cl_Ceil"="Comp=1 offer:Log(Init. Ceiling)",
+"NoCompOffr2-4 offers:cl_Ceil"="Comp=2-4 offers:Log(Init. Ceiling)",
+"NoCompOffr5+ offers:cl_Ceil"="Comp=5+ offers:Log(Init. Ceiling)",
+"NoCompOffrUrgency:b_UCA"="Urgency Waiver:UCA",
+"NoCompOffr1 offer:b_UCA"="Comp=1 offer:UCA",
+"NoCompOffr1 offer:b_UCA"="Comp=1 offer:UCA",
+"NoCompOffr2-4 offers:b_UCA"="Comp=2-4 offers:UCA",
+"NoCompOffr5+ offers:b_UCA"="Comp=5+ offers:UCA"
+),
+                bold=0.05,
+custom.note="%stars. Logged inputs are rescaled.",
+caption="Table 2: Logit Model Results for Ceiling Breaches",
+caption.above=TRUE)
 
 
 
 
-Comp_Cons_15D
 
 
+or1<-odds_ratio(CBre_Cons_13B.restart,"CBre_Cons_13B","Concentration","Ceiling Breaches")
+or2<-odds_ratio(CBre_Comp_13C,"CBre_Comp_13C","Competition","Ceiling Breaches")
+or3<-odds_ratio(CBre_Cons_Comp_15A,"CBre_Cons_Comp_15A","Both","Ceiling Breaches")
+comp.or<-rbind(or1,or2,or3)
 
-gridExtra::grid.arrange(dotplot(ranef(Comp_Cons_15D, condVar = T), strip = T, scales=list(relation='free'))$Agency,
+write.csv(get_study_variables_odds_ratio(comp.or),file="Output//ceiling_breach_study_odds_ratio.csv",row.names=FALSE)
+
+
+write.csv(get_study_variables_odds_ratio(comp.or),file="Output//ceiling_breach_study_odds_ratio_1m.csv",row.names=FALSE)
+get_icc(CBre_Cons_Comp_15A_1m)
+
+#https://www.lcampanelli.org/mixed-effects-modeling-lme4/
+gridExtra::grid.arrange(dotplot(ranef(CBre_Cons_13B.restart, condVar = T), strip = T, scales=list(relation='free'))$Agency,
+             dotplot(ranef(CBre_Comp_13C, condVar = T), strip = T, scales=list(relation='free'))$Agency,
+             dotplot(ranef(CBre_Cons_Comp_15A, condVar = T), strip = T, scales=list(relation='free'))$Agency,
              nrow=1)
+
 
 ```
