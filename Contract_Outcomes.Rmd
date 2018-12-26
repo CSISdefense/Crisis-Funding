@@ -4461,7 +4461,7 @@ if(!exists("Term_21A"))
   CBre_21A <- update(CBre_21A, 
                                      verbose=1)
   save(CBre_21A,Term_21A, file="Output//Model21A.RData")
-  Term
+  
   save(CBre_21A,Term_21A, file="Output//Model21A.RData")
   
 # Plot the model and Vehicle 
