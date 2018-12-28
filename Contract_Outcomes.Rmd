@@ -47,7 +47,7 @@ load("Data\\fed_sample.Rdata")
 load("Data\\crisis_smp.Rdata")
 load("Data\\extra_large_crisis_smp.Rdata")
 
-large_crisis_smp$Reach6<-factor(paste(large_crisis_smp$OffPl99,large_crisis_smp$Intl,sep="-"))
+large_crisis_smp$Reach6<-factor(paste(large_crsis_smp$OffPl99,large_crisis_smp$Intl,sep="-"))
 summary(large_crisis_smp$Reach)
 
 large_crisis_smp$Reach<-large_crisis_smp$Reach6
@@ -3348,10 +3348,11 @@ summary_residual_compare(CBre_09C,CBre_09D,Term_09C,Term_09D,bins=20)
 ```
 After comparing a few models, the 4 category reach seems most parsimonious and other options do not so dramatically improve terminations as to be worth using two different approaches.
 #Checking Interactions
+##Crisis_All
 ### 10A: Removing interactions and office cri.
 ```{r Model10A}
 
-  CBre_10A <- glm (data=large_crisis_smp,
+  CBre_10A <- glm (data=crisis_all,
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      
@@ -3373,7 +3374,7 @@ After comparing a few models, the 4 category reach seems most parsimonious and o
                    family=binomial(link="logit"))
   glmer_examine(CBre_10A)
   
-  Term_10A <- glm (data=large_crisis_smp,
+  Term_10A <- glm (data=crisis_all,
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      # c_OffCri+
@@ -3403,7 +3404,7 @@ Office Cri adds little to ceiling breach and need not be added.
 Checking Office Cri first. Expectation is that these offices are correlated with a greater risk of ceiling breaches and terminations.
 ```{r Model10B}
 
-CBre_10B <- glm (data=large_crisis_smp,
+CBre_10B <- glm (data=crisis_all,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    
@@ -3423,7 +3424,7 @@ CBre_10B <- glm (data=large_crisis_smp,
                  family=binomial(link="logit"))
 glmer_examine(CBre_10B)
   
-  Term_10B <- glm (data=large_crisis_smp,
+  Term_10B <- glm (data=crisis_all,
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      c_OffCri+
@@ -3451,8 +3452,11 @@ OffCri doesn't add anything on the ceiling breaches but does for terminations.
 Crisis:NoCompOffr. Expecation is that competition correlates with lower estimates of terminations and ceiling breaches for crisis subsets. Urgency is expected to estimate an even higher risk for crisis subsets.
 
 ```{r Model10C}
+crisis_all$NoCompOffr2<-factor(crisis_all$NoCompOffr,levels=c(  "2-4 offers" ,"Other No",   "Urgency" ,   "1 offer"  ,"5+ offers" ))
+fed_1m$NoCompOffr2<-factor(fed_1m$NoCompOffr,levels=c(  "2-4 offers" ,"Other No",   "Urgency" ,   "1 offer"  ,"5+ offers" ))
 
-  CBre_10C <- glm (data=large_crisis_smp,
+
+  CBre_10C <- glm (data=crisis_all,
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      
@@ -3473,7 +3477,70 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                    family=binomial(link="logit"))
   glmer_examine(CBre_10C)
   
-  Term_10C <- glm (data=large_crisis_smp,
+   CBre_10C2 <- glm (data=crisis_all,
+                   b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     
+ 
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                      Crisis:NoCompOffr2,
+                   #   b_UCA:Crisis+
+                   #   cl_Ceil:NoCompOffr+
+                   #   capped_cl_Days:NoCompOffr+
+                   #   capped_cl_Days:Veh+ 
+                   #   cl_Ceil:Veh+
+                   # NoCompOffr:Veh,
+                   
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_10C2)
+  
+    CBre_10C3 <- glm (data=fed_1m,
+                   b_CBre ~ Crisis +NoCompOffr +
+                     b_UCA+
+                     
+ 
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                      Crisis:NoCompOffr,
+                   #   b_UCA:Crisis+
+                   #   cl_Ceil:NoCompOffr+
+                   #   capped_cl_Days:NoCompOffr+
+                   #   capped_cl_Days:Veh+ 
+                   #   cl_Ceil:Veh+
+                   # NoCompOffr:Veh,
+                   
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_10C3)
+ 
+  CBre_10C4 <- glm (data=fed_1m,
+                   b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     
+ 
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                      Crisis:NoCompOffr2,
+                   #   b_UCA:Crisis+
+                   #   cl_Ceil:NoCompOffr+
+                   #   capped_cl_Days:NoCompOffr+
+                   #   capped_cl_Days:Veh+ 
+                   #   cl_Ceil:Veh+
+                   # NoCompOffr:Veh,
+                   
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_10C4)
+  
+  Term_10C <- glm (data=crisis_all,
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      c_OffCri+
@@ -3488,22 +3555,71 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      # cl_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_10C)
+  
+  Term_10C2 <- glm (data=crisis_all,
+                   b_Term ~ Crisis +NoCompOffr2+
+                     b_UCA+
+                     c_OffCri+
+                     OffPlace+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                          Crisis:NoCompOffr2, #+
+                     # b_UCA:Crisis+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(Term_10C2)
+  
+  Term_10C3 <- glm (data=fed_1m,
+                   b_Term ~ Crisis +NoCompOffr+
+                     b_UCA+
+                     c_OffCri+
+                     OffPlace+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                          Crisis:NoCompOffr, #+
+                     # b_UCA:Crisis+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(Term_10C3)
+  
+  Term_10C4 <- glm (data=fed_1m,
+                   b_Term ~ Crisis +NoCompOffr2+
+                     b_UCA+
+                     c_OffCri+
+                     OffPlace+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                          Crisis:NoCompOffr2, #+
+                     # b_UCA:Crisis+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(Term_10C4)
+  
+  
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10C,Term_10B,Term_10C,type="text",
                         digits=2)
 summary_residual_compare(CBre_10A,CBre_10C,Term_10B,Term_10C)
 
 ```
-Expectations are only partially upheld, but the results are consistently significant. 
 
-AIC is reduced and residuals are constrained. Leaving it in is an easy call because it is key to the study, though it does prevent the consideration of numbers of offers.
+Violates VIF, leaving out. Could be included for fed_1m, but only if reoriented so that comp 2-4 is the baseline. That doesn't help with crisis_all. Leaving out.
 
 ### 10D: Adding Crisis:UCA
 Crisis:NoCompOffr. Expecation is that competition correlates with lower estimates of terminations and ceiling breaches for crisis subsets. Urgency is expected to estimate an even higher risk for crisis subsets. 
 
 ```{r Model10D}
 
-  CBre_10D <- glm (data=large_crisis_smp,
+  CBre_10D <- glm (data=crisis_all,
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      
@@ -3513,7 +3629,7 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      capped_cl_Days+
                      Veh+
                      PricingFee+
-                     Crisis:NoCompOffr+
+                     # Crisis:NoCompOffr+
                      b_UCA:Crisis,#+
                    #   cl_Ceil:NoCompOffr+
                    #   capped_cl_Days:NoCompOffr+
@@ -3523,7 +3639,7 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                    family=binomial(link="logit"))
   glmer_examine(CBre_10D)
   
-  Term_10D <- glm (data=large_crisis_smp,
+  Term_10D <- glm (data=crisis_all,
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      c_OffCri+
@@ -3532,14 +3648,14 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      capped_cl_Days+
                      Veh+
                      PricingFee+
-                          Crisis:NoCompOffr+
+                          # Crisis:NoCompOffr+
                      b_UCA:Crisis,#+
                      # capped_cl_Days:Veh+ 
                      # cl_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_10D)
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_10C,CBre_10D,Term_10C,Term_10D,type="text",
+stargazer::stargazer(CBre_10A,CBre_10D,Term_10B,Term_10D,type="text",
                         digits=2)
 summary_residual_compare(CBre_10C,CBre_10D,Term_10C,Term_10D)
 
@@ -3551,7 +3667,7 @@ The results are largely contrary to expectations, with the exception of UCAs for
 Expectation: Indefinite vehicles allow for disaggregation of larger contracts into smaller task orders. As a result, when the duration on these contracts they may act more like definitive contracts. The interaction of duration and initial contract duration may have the opposite coefficient as the base vehicle coefficients.
 ```{r Model10E}
 
-  CBre_10E <- glm (data=large_crisis_smp,
+  CBre_10E <- glm (data=crisis_all,
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      
@@ -3560,7 +3676,7 @@ Expectation: Indefinite vehicles allow for disaggregation of larger contracts in
                      capped_cl_Days+
                      Veh+
                      PricingFee+
-                     Crisis:NoCompOffr+
+                     # Crisis:NoCompOffr+
                      b_UCA:Crisis+
                    #   cl_Ceil:NoCompOffr+
                    #   capped_cl_Days:NoCompOffr+
@@ -3570,7 +3686,7 @@ Expectation: Indefinite vehicles allow for disaggregation of larger contracts in
                    family=binomial(link="logit"))
   glmer_examine(CBre_10E)
   
-  Term_10E <- glm (data=large_crisis_smp,
+  Term_10E <- glm (data=crisis_all,
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      c_OffCri+
@@ -3579,19 +3695,19 @@ Expectation: Indefinite vehicles allow for disaggregation of larger contracts in
                      capped_cl_Days+
                      Veh+
                      PricingFee+
-                          Crisis:NoCompOffr+
+                          # Crisis:NoCompOffr+
                      b_UCA:Crisis+
                      capped_cl_Days:Veh,
                      # cl_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_10E)
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_10D,CBre_10E,Term_10D,Term_10E,type="text",
-                        digits=2)
+  stargazer::stargazer(CBre_10D,CBre_10E,Term_10D,Term_10E,type="text",
+                          digits=2)
 summary_residual_compare(CBre_10D,CBre_10E,Term_10D,Term_10E,bins=50)
 
 ```
-The results do not particularly align with expectations. The AIC reductions are dramatic. However, there are clear patterns introduced to the residuals for ceiling breach and the outliers are more pronounced for terminations and a larger curve seems to emerge. Removing this.
+The results do not particularly align with expectations for terminations. The AIC reductions are dramatic. 
 
 ### 10F:  ceiling:Veh
 Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregation of larger contracts into smaller task orders. As a result, when the ceiling on these contracts they may act more like definitive contracts. The interaction of duration and initial ceiling may have the opposite coefficient as the base vehicle coefficients.
@@ -3599,7 +3715,7 @@ Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregat
 
 ```{r Model10F}
 
-  CBre_10F <- glm (data=large_crisis_smp,
+  CBre_10F <- glm (data=crisis_all,
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      
@@ -3608,7 +3724,7 @@ Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregat
                      capped_cl_Days+
                      Veh+
                      PricingFee+
-                     Crisis:NoCompOffr+
+                     #Crisis:NoCompOffr+
                      b_UCA:Crisis+
                    #   cl_Ceil:NoCompOffr+
                    #   capped_cl_Days:NoCompOffr+
@@ -3617,7 +3733,7 @@ Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregat
                    family=binomial(link="logit"))
   glmer_examine(CBre_10F)
   
-  Term_10F <- glm (data=large_crisis_smp,
+  Term_10F <- glm (data=crisis_all,
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      c_OffCri+
@@ -3626,18 +3742,19 @@ Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregat
                      capped_cl_Days+
                      Veh+
                      PricingFee+
-                          Crisis:NoCompOffr+
+                          #Crisis:NoCompOffr+
                      b_UCA:Crisis+
                      cl_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_10F)
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_10D,CBre_10F,Term_10D,Term_10F,type="text",
+stargazer::stargazer(CBre_10D,CBre_10E,CBre_10F,Term_10D,Term_10E,Term_10F,type="text",
                         digits=2)
 summary_residual_compare(CBre_10D,CBre_10F,Term_10D,Term_10F,bins=50)
+summary_residual_compare(CBre_10E,CBre_10F,Term_10E,Term_10F,bins=50)
 
 ```
-Expectations were not met, AIC is improved, though residuals get a bit worse. Leaving out.
+Expectations were partially met for ceiling breach, AIC is improved for both, though residuals get a bit worse for terminations. Leaving out of terminations.
 
 ### 10G:  NoCompOffr:UCA
 Expectation: The literature describes competition as a way to mitigate the risk of UCas, thus the expecation is that UCAs that are competed estimate a lower risk of ceiling breaches and terminations. 
@@ -3645,7 +3762,7 @@ Expectation: The literature describes competition as a way to mitigate the risk 
 
 ```{r Model10G}
 
-  CBre_10G <- glm (data=large_crisis_smp,
+  CBre_10G <- glm (data=crisis_all,
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      
@@ -3654,16 +3771,56 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                      capped_cl_Days+
                      Veh+
                      PricingFee+
-                     Crisis:NoCompOffr+
+                     #Crisis:NoCompOffr+
                      b_UCA:Crisis+
+                     Veh:cl_Ceil+
                      b_UCA:NoCompOffr,
                    #   cl_Ceil:NoCompOffr+
                    #   capped_cl_Days:NoCompOffr+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10G)
-  
-  Term_10G <- glm (data=large_crisis_smp,
+
+    CBre_10G2 <- glm (data=crisis_all,
+                   b_CBre ~ Crisis +NoCompOffr +
+                     b_UCA+
+                     
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     Veh:cl_Ceil+
+                     b_UCA:NoCompOffr,
+                   #   cl_Ceil:NoCompOffr+
+                   #   capped_cl_Days:NoCompOffr+
+                   # NoCompOffr:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_10G2)
+
+  CBre_10G3 <- glm (data=crisis_all,
+                   b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2,
+                   #   cl_Ceil:NoCompOffr+
+                   #   capped_cl_Days:NoCompOffr+
+                   # NoCompOffr:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_10G3)
+
+    
+  Term_10G <- glm (data=crisis_all,
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      c_OffCri+
@@ -3672,14 +3829,15 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                      capped_cl_Days+
                      Veh+
                      PricingFee+
-                          Crisis:NoCompOffr+
+                          #Crisis:NoCompOffr+
                      b_UCA:Crisis+
                      b_UCA:NoCompOffr,
                    family=binomial(link="logit"))
   glmer_examine(Term_10G)
   
-  Term_10G2 <- glm (data=large_crisis_smp,
-                   b_Term ~ Crisis +NoCompOffr+
+     
+  Term_10G2<- glm (data=crisis_all,
+                   b_Term ~ Crisis +NoCompOffr2+
                      b_UCA+
                      c_OffCri+
                      OffPlace+
@@ -3687,18 +3845,20 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                      capped_cl_Days+
                      Veh+
                      PricingFee+
-                          Crisis:NoCompOffr+
-                     # b_UCA:Crisis+
-                     b_UCA:NoCompOffr,
+                          #Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     b_UCA:NoCompOffr2,
                    family=binomial(link="logit"))
   glmer_examine(Term_10G2)
+  
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_10D,CBre_10G,type="text",#Term_10D,Term_10G,
+stargazer::stargazer(CBre_10F,CBre_10G,CBre_10G2,Term_10D,Term_10G,type="text",#
                         digits=2)
-summary_residual_compare(CBre_10D,CBre_10G,bins=50)#Term_10D,Term_10G,
+summary_residual_compare(CBre_10F,CBre_10G,Term_10D,Term_10G,bins=50)#
+summary_residual_compare(CBre_10G,CBre_10G2,bins=50)#,Term_10D,Term_10G
 
 ```
-Does aid the model some, but runs contrary to expectation for ceiling breach and violates VIF for terminations. Leaving this out.
+Does aid the model some and in line with exceptions aside from urgency. Does bring VIF dangerously high for ceiling breach but still below 2.
 
 ### 10H:  cl_Ceil:NoCompOffr
 Expectation: This is challenging, as competition for the largest contracts may encourage bidding to win rather than realistic pricing. The primary expectation is that competition will positively estimate a the probability of ceiling breaches and terminations.
@@ -3706,7 +3866,7 @@ Expectation: This is challenging, as competition for the largest contracts may e
 
 ```{r Model10H}
 
-  CBre_10H <- glm (data=large_crisis_smp,
+  CBre_10H <- glm (data=crisis_all,
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      
@@ -3715,74 +3875,118 @@ Expectation: This is challenging, as competition for the largest contracts may e
                      capped_cl_Days+
                      Veh+
                      PricingFee+
-                     Crisis:NoCompOffr+
+                     #Crisis:NoCompOffr+
                      b_UCA:Crisis+
+                     Veh:cl_Ceil+
+                     b_UCA:NoCompOffr+
                      cl_Ceil:NoCompOffr,
                    #   capped_cl_Days:NoCompOffr+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10H)
+
+    CBre_10H2 <- glm (data=crisis_all,
+                   b_CBre ~ Crisis +NoCompOffr +
+                     b_UCA+
+                     
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     # Veh:cl_Ceil+
+                     b_UCA:NoCompOffr+
+                     cl_Ceil:NoCompOffr,
+                   #   capped_cl_Days:NoCompOffr+
+                   # NoCompOffr:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_10H2)
   
-# Plot the model and Vehicle 
-stargazer::stargazer(CBre_10D,CBre_10H,type="text",
+  CBre_10H3 <- glm (data=crisis_all,
+                   b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     # Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2+
+                     cl_Ceil:NoCompOffr2,
+                   #   capped_cl_Days:NoCompOffr+
+                   # NoCompOffr:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_10H3)
+  
+   CBre_10H4 <- glm (data=crisis_all,
+                   b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2+
+                     cl_Ceil:NoCompOffr2,
+                   #   capped_cl_Days:NoCompOffr+
+                   # NoCompOffr:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_10H4)
+  
+  stargazer::stargazer(CBre_10G3,CBre_10H3,type="text",#Term_10D,Term_10G
                         digits=2)
-summary_residual_compare(CBre_10D,CBre_10H,bins=50)
+summary_residual_compare(CBre_10G3,CBre_10H3,bins=50)#,Term_10D,Term_10G
 
+
+  
 ```
-Results do run in line with expectation, though the urgency result is surprising and suggests that urgency might be a larger concern for smaller contracts than for large. Comp VIF is creeping up. That said, still only 1.76. The AIC does reduce by a hundred or so, but no real improvement in residuals. Still, seems worth keeping.
+
+Results do run in line with expectation, though the urgency result is surprising and suggests that urgency might be a larger concern for smaller contracts than for large. Comp VIF is creeping up. That said, still only 1.76. The AIC does reduce by a hundred or so, but no real improvement in residuals. On the balance, ceil:veh seems like it is still the better addition.
 
 
-### 10I:  capped_cl_Days:NoCompOffr
+
+### 10I:  capped_cl_Days:NoCompOffr2
 
 Expectation: Policy guidance often encourages regular use of competition, which suggests a believe that the results wear off over time. This is disputed by others in the field. Nonetheless, the expectation is that the interaction of the absence of competition and duration negatively estimates a greater probability of terminations and ceiling breaches.
 
 ```{r Model10I}
 
-  CBre_10I <- glm (data=large_crisis_smp,
-                   b_CBre ~ Crisis +NoCompOffr +
+CBre_10I <- glm (data=crisis_all,
+                   b_CBre ~ Crisis +NoCompOffr2 +
                      b_UCA+
-                     
                      
                      OffPlace+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
                      PricingFee+
-                     Crisis:NoCompOffr+
+                     #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr+
-                     capped_cl_Days:NoCompOffr,
+                     Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2+
+                     # cl_Ceil:NoCompOffr2+
+                     capped_cl_Days:NoCompOffr2,
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10I)
   
-  
-    CBre_10I2 <- glm (data=large_crisis_smp,
-                   b_CBre ~ Crisis +NoCompOffr +
-                     b_UCA+
-                     
-                     
-                     OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
-                     Veh+
-                     PricingFee+
-                     Crisis:NoCompOffr+
-                     b_UCA:Crisis+
-                     # cl_Ceil:NoCompOffr+
-                     capped_cl_Days:NoCompOffr,
-                   # NoCompOffr:Veh,
-                   family=binomial(link="logit"))
-  glmer_examine(CBre_10I2)
-  
+
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_10H,CBre_10I,CBre_10I2,type="text",
+stargazer::stargazer(CBre_10G3,CBre_10I,type="text",
                         digits=2)
-summary_residual_compare(CBre_10H,CBre_10I,bins=50)
-summary_residual_compare(CBre_10H,CBre_10I2,bins=50)
+summary_residual_compare(CBre_10G3,CBre_10I,bins=50)
 
 ```
-The results are strong but contrary to the expectation.
+The results are strong but not particularly in line with expectation, leaving it out.
 
 ### 10J:  Veh:NoCompOffr
 Expectations: Competition seems likely to have the biggest effect for multiple-award IDCs and FSS/GWAC contracts as that covers task order competition and not just the overall initial competition of Single-award IDCs and some form of BPA/BOAs. Writ large, we would expect that no competition would positively estimate the probability of ceiling breach and termination.
@@ -3790,8 +3994,9 @@ Expectations: Competition seems likely to have the biggest effect for multiple-a
 
 ```{r Model10J}
 
-  CBre_10J <- glm (data=large_crisis_smp,
-                   b_CBre ~ Crisis +NoCompOffr +
+
+CBre_10J <- glm (data=crisis_all,
+                   b_CBre ~ Crisis +NoCompOffr2 +
                      b_UCA+
                      
                      OffPlace+
@@ -3799,15 +4004,20 @@ Expectations: Competition seems likely to have the biggest effect for multiple-a
                      capped_cl_Days+
                      Veh+
                      PricingFee+
-                     Crisis:NoCompOffr+
+                     #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr+
-                   NoCompOffr:Veh,
+                     Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2+
+                     # cl_Ceil:NoCompOffr2+
+                     # capped_cl_Days:NoCompOffr2,
+                   NoCompOffr2:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10J)
   
-  CBre_10J2 <- glm (data=large_crisis_smp,
-                   b_CBre ~ Crisis +NoCompOffr +
+
+
+CBre_10J2 <- glm (data=crisis_all,
+                   b_CBre ~ Crisis +NoCompOffr2 +
                      b_UCA+
                      
                      OffPlace+
@@ -3815,23 +4025,301 @@ Expectations: Competition seems likely to have the biggest effect for multiple-a
                      capped_cl_Days+
                      Veh+
                      PricingFee+
-                     Crisis:NoCompOffr+
+                     #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     # cl_Ceil:NoCompOffr+
-                   NoCompOffr:Veh,
+                     # Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2+
+                     # cl_Ceil:NoCompOffr2+
+                     # capped_cl_Days:NoCompOffr2,
+                   NoCompOffr2:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10J2)
   
-
+  
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_10H,CBre_10I,CBre_10J2,type="text",
+stargazer::stargazer(CBre_10G3,CBre_10J2,type="text",
                         digits=2)
-summary_residual_compare(CBre_10H,CBre_10J2,bins=50)
-summary_residual_compare(CBre_10I,CBre_10J2,bins=50)
+summary_residual_compare(CBre_10G3,CBre_10J2,bins=50)
+
 
 ```
 The results are interesting and not out of line with expectations, but do aggrevate the pattern in the residuals and remove significance to the base variables. Leaving it out.
 
+
+###10K Partially Syncing with federal
+
+```{r Model10K}
+
+
+
+  Term_10K<- glm (data=crisis_all,
+                   b_Term ~ Crisis +NoCompOffr2+
+                     b_UCA+
+                     # c_OffCri+
+                     OffPlace+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                          #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     b_UCA:NoCompOffr2,
+                   family=binomial(link="logit"))
+  glmer_examine(Term_10K)
+  
+  
+  
+# Plot the model and Vehicle 
+stargazer::stargazer(Term_10G2,Term_10K,type="text",
+                        digits=2)
+summary_residual_compare(Term_10G2,Term_10K,bins=50)
+
+
+```
+### 10L: Office Cri again
+```{r Model10L}
+
+  CBre_10L <- glm (data=crisis_all,
+                   b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     
+                     OffPlace+
+                     OffCri+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2,
+                   #   cl_Ceil:NoCompOffr+
+                   #   capped_cl_Days:NoCompOffr+
+                   # NoCompOffr:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_10L)
+
+
+  Term_10L<- glm (data=crisis_all,
+                   b_Term ~ Crisis +NoCompOffr2+
+                     b_UCA+
+                     c_OffCri+
+                     OffPlace+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                          #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     b_UCA:NoCompOffr2,
+                   family=binomial(link="logit"))
+  glmer_examine(Term_10L)
+  
+  
+  
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10G3,CBre_10L,Term_10K,Term_10L,type="text",
+                        digits=2)
+summary_residual_compare(CBre_10G3,CBre_10L,Term_10K,Term_10L,bins=50)
+
+
+```
+
+##Federal 1m
+### 11A: Starting with minimal
+
+```{r Mode11A}
+
+if(!exists("CBre_11A"))
+  CBre_11A <- glm (data=fed_1m,
+                   b_CBre ~ Crisis +NoCompOffr +
+                     b_UCA+
+                     OffPlace+ 
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     # Is.Defense +
+                    # Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     cl_Ceil:NoCompOffr,
+                     # capped_cl_Days:NoCompOffr+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                   # NoCompOffr:Veh+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) +                , 
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_11A)
+  
+if(!exists("Term_11A"))
+  Term_11A <- glm (data=fed_1m,
+                   b_Term ~ Crisis +NoCompOffr+
+                     b_UCA+
+                     # c_OffCri+
+                     OffPlace+ 
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee ,
+                     # Is.Defense +
+                                        # Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # cl_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
+                     # b_UCA:Crisis+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) +
+                   family=binomial(link="logit"))
+  glmer_examine(Term_11A)
+
+
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10G3,CBre_11A,
+                     Term_10G2,Term_11A,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+summary_residual_compare(CBre_10G3,CBre_11A,Term_10G2,Term_11A,bins=50)
+```
+### 11B: NoCompOffr2
+```{r Mode11B}
+
+if(!exists("CBre_11B"))
+  CBre_11B <- glm (data=fed_1m,
+                   b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     OffPlace+ 
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     # Is.Defense +
+                    # Crisis:NoCompOffr2+
+                     # b_UCA:Crisis+
+                     cl_Ceil:NoCompOffr2,
+                     # capped_cl_Days:NoCompOffr2+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                   # NoCompOffr2:Veh+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) +                , 
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_11B)
+  
+if(!exists("Term_11B"))
+  Term_11B <- glm (data=fed_1m,
+                   b_Term ~ Crisis +NoCompOffr2+
+                     b_UCA+
+                     # c_OffCri+
+                     OffPlace+ 
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee ,
+                     # Is.Defense +
+                                        # Crisis:NoCompOffr2+
+                     # b_UCA:Crisis+
+                     # cl_Ceil:NoCompOffr2+ Don't believe this is compaible with Crisis:NoCompOffr2
+                     # b_UCA:Crisis+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) +
+                   family=binomial(link="logit"))
+  glmer_examine(Term_11B)
+
+
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10G3,CBre_11A,CBre_11B,
+                     Term_10G2,Term_11A,Term_11B,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+summary_residual_compare(CBre_10G3,CBre_11B,Term_10G2,Term_11B,bins=50)
+summary_residual_compare(CBre_11A,CBre_11B,Term_11A,Term_11B,bins=50)
+```
+### 11C: Crisis_all model
+
+```{r Model11C}
+
+  
+  CBre_11C <- glm (data=fed_1m,
+                   b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2,
+                   #   cl_Ceil:NoCompOffr+
+                   #   capped_cl_Days:NoCompOffr+
+                   # NoCompOffr:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_11C)
+
+    
+
+    
+  Term_11C <- glm (data=fed_1m,
+                   b_Term ~ Crisis +NoCompOffr2+
+                     b_UCA+
+                     c_OffCri+
+                     OffPlace+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                          #Crisis:NoCompOffr+
+                     b_UCA:Crisis+
+                     b_UCA:NoCompOffr2,
+                   family=binomial(link="logit"))
+  glmer_examine(Term_11C)
+  
+ Term_11C2 <- glm (data=fed_1m,
+                   b_Term ~ Crisis +NoCompOffr2+
+                     b_UCA+
+                     c_OffCri+
+                     OffPlace+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                          #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     b_UCA:NoCompOffr2,
+                   family=binomial(link="logit"))
+  glmer_examine(Term_11C2)
+  
+   
+ Term_11C3 <- glm (data=fed_1m,
+                   b_Term ~ Crisis +NoCompOffr2+
+                     b_UCA+
+                     c_OffCri+
+                     OffPlace+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee,
+                          #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # b_UCA:NoCompOffr2,
+                   family=binomial(link="logit"))
+  glmer_examine(Term_11C3)
+  
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10G3,CBre_11B,CBre_11C,
+                     Term_10G2,Term_11B,Term_11C3,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+summary_residual_compare(CBre_10G3,CBre_11C,Term_10G2,Term_11C3,bins=50)
+summary_residual_compare(CBre_11B,CBre_11C,Term_11B,Term_11C3,bins=50)
+```
+Federal doesn't 
 #Multi-Level Model
 ##Weighted Sample
 ### 20A: No interactions
@@ -4478,6 +4966,94 @@ summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
 summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 ```
 
+
+### 21A: NoComOffr2 and OffCri for terminations
+```{r Model21A}
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
+    
+
+load("Output//Model21A.rdata")
+if(!exists("CBre_21A"))
+  CBre_21A <- glmer (data=fed_1m,
+                   b_CBre ~ Crisis +NoCompOffr +
+                     b_UCA+
+                     OffPlace+ 
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     # Is.Defense +
+                    # Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     cl_Ceil:NoCompOffr+
+                     # capped_cl_Days:NoCompOffr+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                   # NoCompOffr:Veh+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) + 
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office) + 
+                     (1 + OffPlace | PlaceCountryISO3) + 
+                     (1 | StartFY)
+               , 
+                   family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(CBre_21A)
+  
+if(!exists("Term_21A"))
+  Term_21A <- glmer (data=fed_1m,
+                   b_Term ~ Crisis +NoCompOffr+
+                     b_UCA+
+                     # c_OffCri+
+                     OffPlace+ 
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee +
+                     # Is.Defense +
+                                        # Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # cl_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
+                     # b_UCA:Crisis+
+                     # capped_cl_Days:Veh+ 
+                     # cl_Ceil:Veh+
+                     # Crisis:Is.Defense+
+                     # (1 | Simple) +
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office)+
+                     (1 + OffPlace| PlaceCountryISO3), 
+                   family=binomial(link="logit"),
+                   verbose=1,
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(Term_21A)
+  
+  
+  summary(crisis_all$OfficePlace)
+  CBre_21A <- update(CBre_21A, 
+                                     verbose=1)
+  save(CBre_21A,Term_21A, file="Output//Model21A.RData")
+  
+  save(CBre_21A,Term_21A, file="Output//Model21A.RData")
+  
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_21A,#CBre_20A,
+                     Term_10A,Term_10D,Term_20B,Term_21A,type="text",#Term_20A,#Term_20C
+                        digits=2)
+stargazer::stargazer(CBre_20G,CBre_20H,
+                     Term_20G,Term_20H,type="text",#Term_20A,#Term_20C
+                        digits=2)
+summary_residual_compare(CBre_10A,CBre_20G,Term_10A,Term_20G,bins=50)
+summary_residual_compare(CBre_10D,CBre_20G,Term_10H,Term_20G,bins=50)
+summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
+summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
+summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
+```
+
+
 ## Crisis-Only
 ### 22A: Minimal Interactions
 ```{r Model22A}
@@ -4551,6 +5127,12 @@ stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
                         digits=2)
 
+
+stargazer::stargazer(CBre_21A,CBre_22A,
+                     Term_21A,Term_22A,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+
 summary_residual_compare(CBre_10A,CBre_20G,Term_10A,Term_20G,bins=50)
 summary_residual_compare(CBre_10D,CBre_20G,Term_10H,Term_20G,bins=50)
 summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
@@ -4561,7 +5143,7 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 ```
 
 
-### 22B: Minimal Interactions
+### 22B: Adding Crisis Interactions
 ```{r Model22B}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
@@ -4644,3 +5226,74 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 ```
 
 
+### 22C: Minimal Interactions
+```{r Model22C}
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
+
+load("Output//Model22C.rdata")
+
+if(!exists("CBre_22C"))
+  CBre_22C <- glmer (data=crisis_all,
+                     b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2+
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office) + 
+                     (1 + OffPlace | PlaceCountryISO3) + 
+                     (1 | StartFY)
+               , 
+                   family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+
+  glmer_examine(CBre_22C)
+  
+if(!exists("Term_22C"))
+  Term_22C <- glmer (data=crisis_all,
+                   b_Term ~ Crisis +NoCompOffr2+
+                     b_UCA+
+                     c_OffCri+
+                     OffPlace+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                          #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     b_UCA:NoCompOffr2+
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office)+
+                     (1 + OffPlace| PlaceCountryISO3), 
+                   family=binomial(link="logit"),
+                     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(Term_22C)
+  save(Term_22C, file="Output//Model22C_term.RData")#CBre_22C,
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
+                     Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+
+stargazer::stargazer(CBre_21A,CBre_22C,
+                     Term_21A,Term_22C,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+
+summary_residual_compare(CBre_10A,CBre_20G,Term_10A,Term_20G,bins=50)
+summary_residual_compare(CBre_10D,CBre_20G,Term_10H,Term_20G,bins=50)
+summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
+summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
+summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
+
+
+```
