@@ -4879,7 +4879,6 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 
 ## Federal-Wide
 
-##Federal-Wide
 ### 21A: Minimal Interaction
 ```{r Model21A}
 # summary(large_crisis_smp$ServCommCons)
@@ -4962,32 +4961,32 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 ```
 
 
-### 21A: NoComOffr2 and OffCri for terminations
-```{r Model21A}
+### 21B: NoComOffr2 and OffCri for terminations
+```{r Model21B}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
     
 
-load("Output//Model21A.rdata")
-if(!exists("CBre_21A"))
-  CBre_21A <- glmer (data=fed_1m,
-                   b_CBre ~ Crisis +NoCompOffr +
+load("Output//Model21B.rdata")
+if(!exists("CBre_21B"))
+  CBre_21B <- glmer (data=fed_1m,
+                   b_CBre ~ Crisis +NoCompOffr2 +
                      b_UCA+
-                     OffPlace+ 
+                     
+                     OffPlace+
                      cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingFee +
-                     # Is.Defense +
-                    # Crisis:NoCompOffr+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr+
-                     # capped_cl_Days:NoCompOffr+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
-                   # NoCompOffr:Veh+
-                     # Crisis:Is.Defense+
-                     # (1 | Simple) + 
+                     Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2+
+                   #   cl_Ceil:NoCompOffr+
+                   #   capped_cl_Days:NoCompOffr+
+                   # NoCompOffr:Veh,
+    
+
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office) + 
                      (1 + OffPlace | PlaceCountryISO3) + 
@@ -4996,27 +4995,22 @@ if(!exists("CBre_21A"))
                    family=binomial(link="logit"),
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
-  glmer_examine(CBre_21A)
-  
-if(!exists("Term_21A"))
-  Term_21A <- glmer (data=fed_1m,
-                   b_Term ~ Crisis +NoCompOffr+
+  glmer_examine(CBre_21B)
+   save(CBre_21B, file="Output//Model21B.RData")
+if(!exists("Term_21B"))
+  Term_21B <- glmer (data=fed_1m,
+                   b_Term ~ Crisis +NoCompOffr2+
                      b_UCA+
-                     # c_OffCri+
-                     OffPlace+ 
+                     c_OffCri+
+                     OffPlace+
                     cl_Ceil+
                      capped_cl_Days+
                      Veh+
-                     PricingFee +
-                     # Is.Defense +
-                                        # Crisis:NoCompOffr+
+                     PricingFee+
+                          #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     # cl_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
-                     # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
-                     # Crisis:Is.Defense+
-                     # (1 | Simple) +
+                     # b_UCA:NoCompOffr2,
+  
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office)+
                      (1 + OffPlace| PlaceCountryISO3), 
@@ -5024,19 +5018,13 @@ if(!exists("Term_21A"))
                    verbose=1,
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
-  glmer_examine(Term_21A)
+  glmer_examine(Term_21B)
   
-  
-  summary(crisis_all$OfficePlace)
-  CBre_21A <- update(CBre_21A, 
-                                     verbose=1)
-  save(CBre_21A,Term_21A, file="Output//Model21A.RData")
-  
-  save(CBre_21A,Term_21A, file="Output//Model21A.RData")
+  save(CBre_21B,Term_21B, file="Output//Model21B.RData")
   
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_21A,#CBre_20A,
-                     Term_10A,Term_10D,Term_20B,Term_21A,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_21B,#CBre_20A,
+                     Term_10A,Term_10D,Term_20B,Term_21B,type="text",#Term_20A,#Term_20C
                         digits=2)
 stargazer::stargazer(CBre_20G,CBre_20H,
                      Term_20G,Term_20H,type="text",#Term_20A,#Term_20C
@@ -5129,8 +5117,8 @@ stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                         digits=2)
 
 
-stargazer::stargazer(CBre_21A,CBre_22A,
-                     Term_21A,Term_22A,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(CBre_21B,CBre_22A,
+                     Term_21B,Term_22A,type="text",#Term_20A,#Term_20C
                         digits=2)
 
 
@@ -5139,7 +5127,7 @@ summary_residual_compare(CBre_10D,CBre_20G,Term_10H,Term_20G,bins=50)
 summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
 summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
 summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
-summary_residual_compare(CBre_21A,CBre_22A,Term_21A,Term_22A,bins=50)
+summary_residual_compare(CBre_21B,CBre_22A,Term_21B,Term_22A,bins=50)
 
 ```
 
@@ -5236,28 +5224,6 @@ summary_residual_compare(CBre_22A,CBre_22B,Term_22A,Term_22B,bins=50)
 
 load("Output//Model22C.rdata")
 
-<<<<<<< HEAD
-### 22C: Minimal Interactions
-```{r Model22C}
-# summary(large_crisis_smp$ServCommCons)
-# summary(large_crisis_smp$CPSA)
-
-load("Output//Model22C.rdata")
-
-if(!exists("CBre_22C"))
-  CBre_22C <- glmer (data=crisis_all,
-                     b_CBre ~ Crisis +NoCompOffr2 +
-                     b_UCA+
-                     OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
-                     Veh+
-                     PricingFee+
-                     #Crisis:NoCompOffr+
-                     # b_UCA:Crisis+
-                     Veh:cl_Ceil+
-                     b_UCA:NoCompOffr2+
-=======
 if(!exists("CBre_22C"))
   CBre_22C <- glmer (data=crisis_all,
                    b_CBre ~ Crisis +NoCompOffr +
@@ -5277,7 +5243,6 @@ if(!exists("CBre_22C"))
                    # NoCompOffr:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) + 
->>>>>>> master
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office) + 
                      (1 + OffPlace | PlaceCountryISO3) + 
@@ -5288,22 +5253,6 @@ if(!exists("CBre_22C"))
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
   glmer_examine(CBre_22C)
-<<<<<<< HEAD
-  
-if(!exists("Term_22C"))
-  Term_22C <- glmer (data=crisis_all,
-                   b_Term ~ Crisis +NoCompOffr2+
-                     b_UCA+
-                     c_OffCri+
-                     OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
-                     Veh+
-                     PricingFee+
-                          #Crisis:NoCompOffr+
-                     # b_UCA:Crisis+
-                     b_UCA:NoCompOffr2+
-=======
 save(CBre_22C, file="Output//Model22C.RData")
 if(!exists("Term_22C"))
   Term_22C <- glmer (data=crisis_all,
@@ -5324,44 +5273,20 @@ if(!exists("Term_22C"))
                      # cl_Ceil:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) +
->>>>>>> master
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office)+
                      (1 + OffPlace| PlaceCountryISO3), 
                    family=binomial(link="logit"),
-<<<<<<< HEAD
-                     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
-     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
-  glmer_examine(Term_22C)
-  save(Term_22C, file="Output//Model22C_term.RData")#CBre_22C,
-=======
                    verbose=1,
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_22C)
   save(CBre_22C,Term_22C, file="Output//Model22C.RData")
->>>>>>> master
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
                         digits=2)
 
-<<<<<<< HEAD
-
-stargazer::stargazer(CBre_21A,CBre_22C,
-                     Term_21A,Term_22C,type="text",#Term_20A,#Term_20C
-                        digits=2)
-
-
-summary_residual_compare(CBre_10A,CBre_20G,Term_10A,Term_20G,bins=50)
-summary_residual_compare(CBre_10D,CBre_20G,Term_10H,Term_20G,bins=50)
-summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
-summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
-summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
-
-
-```
-=======
 stargazer::stargazer(CBre_21A,CBre_22A,CBre_22C,
                     Term_21A,Term_22A,Term_22C,type="text",
                         digits=2)
