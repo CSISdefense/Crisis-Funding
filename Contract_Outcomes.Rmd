@@ -5352,7 +5352,7 @@ stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                         digits=2)
 
 
-stargazer::stargazer(CBre_21A,CBre_10G3,CBre_22A,CBre_22D,
+stargazer::stargazer(CBre_21A,CBre_10G3,CBre_10H3,CBre_22A,CBre_22D,
                      Term_21A,Term_10K,Term_22A,Term_22D,type="text",#Term_20A,#Term_20C
                         digits=2)
 
@@ -5385,7 +5385,8 @@ if(!exists("CBre_22E"))
                      PricingFee+
                      #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     Veh:cl_Ceil+
+                     # Veh:cl_Ceil+
+                       NoCompOffr2:cl_Ceil+
                      b_UCA:NoCompOffr2+
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office) + 
@@ -5418,7 +5419,7 @@ if(!exists("Term_22E"))
                      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_22E)
-  save(CBre_22E,Term_22E, file="Output//Model22E_term.RData")
+  save(Term_22E, file="Output//Model22E_term.RData")#CBre_22E,
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
@@ -5426,7 +5427,7 @@ stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
 
 
 stargazer::stargazer(#CBre_21A,CBre_22E,
-                     Term_21A,Term_22A,Term_22E,type="text",#Term_20A,#Term_20C
+                     Term_21A,Term_22A,Term_22D,Term_22E,type="text",#Term_20A,#Term_20C
                         digits=2)
 
 
