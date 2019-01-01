@@ -5460,6 +5460,7 @@ summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
 summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
 summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 summary_residual_compare(CBre_22A,CBre_22E,Term_21A,Term_22E,bins=50)
-summary_residual_compare(Term_22D,Term_22E,bins=50)
+summary_residual_compare(CBre_22D,CBre_22E,Term_22D,Term_22E,bins=50)
+
 summary_residual_compare(Term_22C,Term_22E,bins=50)
 ```
