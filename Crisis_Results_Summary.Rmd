@@ -1713,7 +1713,76 @@ odds_ratio(CBre_Cons_13B.restart,"CBre_Cons_13B")
 ```
 
 
+### Crisis-Only 22E
+```{r Model22E}
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
 
+load("Output//Model22E.rdata")
+
+if(!exists("CBre_22E"))
+  CBre_22E <- glmer (data=crisis_all,
+                     b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     OffPlace+
+                       c_OffCri+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # Veh:cl_Ceil+
+                       NoCompOffr2:cl_Ceil+
+                     b_UCA:NoCompOffr2+
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office) + 
+                     (1 + OffPlace | PlaceCountryISO3) + 
+                     (1 | StartFY)
+               , 
+                   family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+
+  glmer_examine(CBre_22E)
+  
+if(!exists("Term_22E"))
+  Term_22E <- glmer (data=crisis_all,
+                   b_Term ~ Crisis +NoCompOffr2+
+                     b_UCA+
+                     c_OffCri+
+                     OffPlace+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                          #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # b_UCA:NoCompOffr2+
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office)+
+                     (1 + OffPlace| PlaceCountryISO3), 
+                   family=binomial(link="logit"),
+                     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(Term_22E)
+  # Plot the model and Vehicle 
+stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
+                     Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+stargazer::stargazer(#CBre_21A,CBre_22E,
+                     CBre_21A,CBre_22A,CBre_22E,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+stargazer::stargazer(#CBre_21A,CBre_22E,
+                     Term_21A,Term_22A,Term_22E,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+summary_residual_compare(CBre_22A,CBre_22E,Term_22A,Term_22E,bins=50)
+summary_residual_compare(CBre_21A,CBre_22E,Term_21A,Term_22E,bins=50)
+
+```
 
 # Tables for Paper
 ## Ceiling Breach Model
