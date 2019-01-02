@@ -1854,8 +1854,6 @@ summary_residual_compare(CBre_21A,CBre_22E,Term_21A,Term_22E,bins=50)
 ## Moel Results Directly
 ```{r Output-Direct}
 
-summary(crisis_all[crisis_all$Crisis=="ARRA",])
-#OffPlace is missing!!
 
 stargazer::stargazer(CBre_21A,CBre_21B,CBre_22D,Term_21B,Term_22E,type="text",
                        digits=2)
@@ -1870,10 +1868,10 @@ texreg::htmlreg(list(CBre_21A,CBre_21B,CBre_22E,Term_21B,Term_22E),file="Output/
                                     "Crisis-Only\nTermination"
                                     ),
                         stars=c(0.1,0.05,0.01,0.001),
-                groups = list("Study Variables" = 2:8,
-                              "Crisis Category" = 9:11,
-                              "Contract Characteristics"=12:22,
-"Interactions" = 23:29),
+                groups = list("Study Variables" = 2:10,
+                              "Crisis Category" = 11:13,
+                              "Contract Characteristics"=14:24,
+"Interactions" = 25:33),
                 custom.coef.map=list("(Intercept)"="(Intercept)",
                                      "NoCompOffrUrgency"="No Comp, Urgency",
                                      "NoCompOffr2Urgency"="No Comp, Urgency",
@@ -1885,6 +1883,7 @@ texreg::htmlreg(list(CBre_21A,CBre_21B,CBre_22E,Term_21B,Term_22E),file="Output/
 "NoCompOffr21 offer"="Comp=1 offer",
 "NoCompOffr25+ offers"="Comp=5+ offers",
 "b_UCA"="UCA",
+"c_OffCri"="Cont. Office Crisis %",
 "OffPlaceMixed"="Cont. Office 50-99% Intl.",
 "OffPlaceIntl"="Cont. Office 99%+ Intl.",
 "CrisisOCO"="Crisis=OCO",
@@ -1925,13 +1924,17 @@ texreg::htmlreg(list(CBre_21A,CBre_21B,CBre_22E,Term_21B,Term_22E),file="Output/
 "NoCompOffr21 offer:b_UCA"="Comp=1 offer:UCA",
 "NoCompOffr2-4 offers:b_UCA"="Comp=2-4 offers:UCA",
 "NoCompOffr5+ offers:b_UCA"="Comp=5+ offers:UCA",
-"NoCompOffr25+ offers:b_UCA"="Comp=5+ offers:UCA"
+"NoCompOffr25+ offers:b_UCA"="Comp=5+ offers:UCA",
+"cl_Ceil:VehS-IDC"="Vehicle=S-IDC:Log(Init. Ceiling)",
+"cl_Ceil:VehM-IDC"="Vehicle=M-IDC:Log(Init. Ceiling)",
+"cl_Ceil:VehFSS/GWAC"="Vehicle=FSS/GWAC:Log(Init. Ceiling)",
+"cl_Ceil:VehBPA/BOA"="Vehicle=BPA/BOA:Log(Init. Ceiling)"
 
 
 ),
                 bold=0.05,
 custom.note="%stars. Logged inputs are rescaled.",
-caption="Table 2: Logit Model Results for Ceiling Breaches",
+caption="Table 2: Logit Model Results for Performance Models",
 caption.above=TRUE)
 
 
