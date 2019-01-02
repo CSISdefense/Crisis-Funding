@@ -1559,7 +1559,7 @@ stargazer::stargazer(Term_20G,type="text",#Term_20A,#Term_20C
 
 summary_residual_compare(Term_20G,bins=50)
 ```
-### 21B: NoComOffr2 and OffCri for terminations
+###Federal-Wide 21B
 ```{r Model21B}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
@@ -1851,19 +1851,20 @@ summary_residual_compare(CBre_21A,CBre_22E,Term_21A,Term_22E,bins=50)
 ```
 
 # Tables for Paper
-## Ceiling Breach Model
-```{r Output-CBre}
+## Moel Results Directly
+```{r Output-Direct}
 
 summary(crisis_all[crisis_all$Crisis=="ARRA",])
 #OffPlace is missing!!
 
-stargazer::stargazer(CBre_21A,CBre_22A,Term_21A,Term_22A,type="text",
+stargazer::stargazer(CBre_21A,CBre_21B,CBre_22D,Term_21B,Term_22E,type="text",
                        digits=2)
 
 
-texreg::htmlreg(list(CBre_21A,CBre_22A,CBre_22D,Term_21B,Term_22E),file="Output//Both_Model.html",
+texreg::htmlreg(list(CBre_21A,CBre_21B,CBre_22E,Term_21B,Term_22E),file="Output//Both_Model.html",
                 single.row = TRUE,
-                custom.model.name=c("Federal-Wide\nCeiling Breach",
+                custom.model.name=c("Federal-Wide\nCeiling Breach 1",
+                                    "Federal-Wide\nCeiling Breach 2",
                                     "Crisis-Only\nCeiling Breach",
                                     "Federal-Wide\nTermination",
                                     "Crisis-Only\nTermination"
@@ -1872,12 +1873,17 @@ texreg::htmlreg(list(CBre_21A,CBre_22A,CBre_22D,Term_21B,Term_22E),file="Output/
                 groups = list("Study Variables" = 2:8,
                               "Crisis Category" = 9:11,
                               "Contract Characteristics"=12:22,
-"Interactions" = 23:26),
+"Interactions" = 23:29),
                 custom.coef.map=list("(Intercept)"="(Intercept)",
-                                     "NoCompOffrUrgency"="Urgency Waiver",
+                                     "NoCompOffrUrgency"="No Comp, Urgency",
+                                     "NoCompOffr2Urgency"="No Comp, Urgency",
+"NoCompOffr2Other No"="No Comp, Other",
+
 "NoCompOffr1 offer"="Comp=1 offer",
 "NoCompOffr2-4 offers"="Comp=2-4 offers",
 "NoCompOffr5+ offers"="Comp=5+ offers",
+"NoCompOffr21 offer"="Comp=1 offer",
+"NoCompOffr25+ offers"="Comp=5+ offers",
 "b_UCA"="UCA",
 "OffPlaceMixed"="Cont. Office 50-99% Intl.",
 "OffPlaceIntl"="Cont. Office 99%+ Intl.",
@@ -1904,15 +1910,24 @@ texreg::htmlreg(list(CBre_21A,CBre_22A,CBre_22D,Term_21B,Term_22E),file="Output/
 # "cl_def3_HHI_lag1:cl_def3_ratio_lag1"="Log(Subsector HHI):Log(Subsector Ratio)"),
 # "cl_def6_HHI_lag1:b_UCA"="Log(Det. Ind. HHI):UCA",
 # "cl_Ceil:b_UCA"="Log(Init. Ceiling):UCA",
-"NoCompOffrUrgency:cl_Ceil"="Urgency Waiver:Log(Init. Ceiling)",
+"NoCompOffrUrgency:cl_Ceil"="No Comp, Urgency:Log(Init. Ceiling)",
+"NoCompOffr2Urgency:cl_Ceil"="No Comp, Urgency:Log(Init. Ceiling)",
+"NoCompOffr2Other No:cl_Ceil"="No Comp, Other:Log(Init. Ceiling)",
 "NoCompOffr1 offer:cl_Ceil"="Comp=1 offer:Log(Init. Ceiling)",
+"NoCompOffr21 offer:cl_Ceil"="Comp=1 offer:Log(Init. Ceiling)",
 "NoCompOffr2-4 offers:cl_Ceil"="Comp=2-4 offers:Log(Init. Ceiling)",
 "NoCompOffr5+ offers:cl_Ceil"="Comp=5+ offers:Log(Init. Ceiling)",
-"NoCompOffrUrgency:b_UCA"="Urgency Waiver:UCA",
+"NoCompOffr25+ offers:cl_Ceil"="Comp=5+ offers:Log(Init. Ceiling)",
+"NoCompOffrUrgency:b_UCA"="No Comp, Urgency:UCA",
+"NoCompOffr2Urgency:b_UCA"="No Comp, Urgency:UCA",
+"NoCompOffr2Other No:b_UCA"="No Comp, Other:UCA",
 "NoCompOffr1 offer:b_UCA"="Comp=1 offer:UCA",
-"NoCompOffr1 offer:b_UCA"="Comp=1 offer:UCA",
+"NoCompOffr21 offer:b_UCA"="Comp=1 offer:UCA",
 "NoCompOffr2-4 offers:b_UCA"="Comp=2-4 offers:UCA",
-"NoCompOffr5+ offers:b_UCA"="Comp=5+ offers:UCA"
+"NoCompOffr5+ offers:b_UCA"="Comp=5+ offers:UCA",
+"NoCompOffr25+ offers:b_UCA"="Comp=5+ offers:UCA"
+
+
 ),
                 bold=0.05,
 custom.note="%stars. Logged inputs are rescaled.",
@@ -1920,10 +1935,10 @@ caption="Table 2: Logit Model Results for Ceiling Breaches",
 caption.above=TRUE)
 
 
+```
 
-
-
-
+## Model Odds Ratio
+```{r Output-Odds Ratio}
 or1<-odds_ratio(CBre_Cons_13B.restart,"CBre_Cons_13B","Concentration","Ceiling Breaches")
 or2<-odds_ratio(CBre_Comp_13C,"CBre_Comp_13C","Competition","Ceiling Breaches")
 or3<-odds_ratio(CBre_Cons_Comp_15A,"CBre_Cons_Comp_15A","Both","Ceiling Breaches")
