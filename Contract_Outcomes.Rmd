@@ -4258,7 +4258,10 @@ stargazer::stargazer(CBre_10G3,CBre_11A,CBre_11B,
 summary_residual_compare(CBre_10G3,CBre_11B,Term_10G2,Term_11B,bins=50)
 summary_residual_compare(CBre_11A,CBre_11B,Term_11A,Term_11B,bins=50)
 ```
-### 11C: Crisis_all model
+
+
+
+### 11C: CBre NoCompOffr2:Ceil, UCA
 
 ```{r Model11C}
 
@@ -4340,6 +4343,42 @@ summary_residual_compare(CBre_10G3,CBre_11C,Term_10G2,Term_11C3,bins=50)
 summary_residual_compare(CBre_11B,CBre_11C,Term_11B,Term_11C3,bins=50)
 ```
 Federal doesn't 
+
+### 11D: Crisis_all model
+
+```{r Model11D}
+
+  
+  CBre_11D <- glm (data=fed_1m,
+                   b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2+
+                     cl_Ceil:NoCompOffr2,
+                   #   capped_cl_Days:NoCompOffr+
+                   # NoCompOffr:Veh,
+                   family=binomial(link="logit"))
+  glmer_examine(CBre_11D)
+
+    
+
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_11A,CBre_11B,CBre_11C,CBre_11D,type="text",
+                        digits=2)
+
+summary_residual_compare(CBre_11A,CBre_11D,bins=50)
+```
+
+
+
 #Multi-Level Model
 ##Weighted Sample
 ### 20A: No interactions
@@ -5043,20 +5082,58 @@ if(!exists("Term_21B"))
   save(CBre_21B,Term_21B, file="Output//Model21B.RData")
   
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_21B,#CBre_20A,
-                     Term_10A,Term_10D,Term_20B,Term_21B,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(CBre_21A,CBre_21B,Term_21A,Term_21B,type="text",#Term_20A,#Term_20C
                         digits=2)
-stargazer::stargazer(CBre_20G,CBre_20H,
-                     Term_20G,Term_20H,type="text",#Term_20A,#Term_20C
-                        digits=2)
-summary_residual_compare(CBre_10A,CBre_20G,Term_10A,Term_20G,bins=50)
-summary_residual_compare(CBre_10D,CBre_20G,Term_10H,Term_20G,bins=50)
-summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
-summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
-summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
+
+summary_residual_compare(CBre_21A,CBre_21B,Term_21A,Term_21B,bins=50)
 ```
 
 
+
+### 21C: NoComOffr2:Ceil and NoCompOffr:UCA
+```{r Model21C}
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
+    
+
+# load("Output//Model21C_CBre.rdata")
+if(!exists("CBre_21C"))
+  CBre_21C <- glmer (data=fed_1m,
+                   b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2+
+                     cl_Ceil:NoCompOffr2+
+                   #   capped_cl_Days:NoCompOffr+
+                   # NoCompOffr:Veh,
+    
+
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office) + 
+                     (1 + OffPlace | PlaceCountryISO3) + 
+                     (1 | StartFY)
+               , 
+                   family=binomial(link="logit"),
+                verbose=1)
+  glmer_examine(CBre_21C)
+
+  
+  save(CBre_21C, file="Output//Model21C_CBre.RData")
+  
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_21A,CBre_21C,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+summary_residual_compare(CBre_21A,CBre_21C,Term_21A,Term_21C,bins=50)
+```
 ## Crisis-Only
 ### 22A: Minimal Interactions
 ```{r Model22A}
@@ -5460,7 +5537,6 @@ summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
 summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
 summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 summary_residual_compare(CBre_22A,CBre_22E,Term_21A,Term_22E,bins=50)
-summary_residual_compare(CBre_22D,CBre_22E,Term_22D,Term_22E,bins=50)
-
+summary_residual_compare(Term_22D,Term_22E,bins=50)
 summary_residual_compare(Term_22C,Term_22E,bins=50)
 ```
