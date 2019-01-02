@@ -1559,6 +1559,72 @@ stargazer::stargazer(Term_20G,type="text",#Term_20A,#Term_20C
 
 summary_residual_compare(Term_20G,bins=50)
 ```
+### 21B: NoComOffr2 and OffCri for terminations
+```{r Model21B}
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
+    
+
+load("Output//Model21B.rdata")
+if(!exists("CBre_21B"))
+  CBre_21B <- glmer (data=fed_1m,
+                   b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2+
+                   #   cl_Ceil:NoCompOffr+
+                   #   capped_cl_Days:NoCompOffr+
+                   # NoCompOffr:Veh,
+    
+
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office) + 
+                     (1 + OffPlace | PlaceCountryISO3) + 
+                     (1 | StartFY)
+               , 
+                   family=binomial(link="logit"),
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(CBre_21B)
+if(!exists("Term_21B"))
+  Term_21B <- glmer (data=fed_1m,
+                   b_Term ~ Crisis +NoCompOffr2+
+                     b_UCA+
+                     c_OffCri+
+                     OffPlace+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                          #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # b_UCA:NoCompOffr2,
+  
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office)+
+                     (1 + OffPlace| PlaceCountryISO3), 
+                   family=binomial(link="logit"),
+                   verbose=1,
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(Term_21B)
+  
+
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_21A,CBre_21B,
+                     Term_21A,Term_21B,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+summary_residual_compare(CBre_21A,CBre_21B,Term_21A,Term_21B,bins=50)
+```
 
 
 ### Crisis-Only 22A
@@ -1795,7 +1861,7 @@ stargazer::stargazer(CBre_21A,CBre_22A,Term_21A,Term_22A,type="text",
                        digits=2)
 
 
-texreg::htmlreg(list(CBre_21A,CBre_22A,Term_21A,Term_22A),file="Output//Both_Model.html",
+texreg::htmlreg(list(CBre_21A,CBre_22A,CBre_22D,Term_21B,Term_22E),file="Output//Both_Model.html",
                 single.row = TRUE,
                 custom.model.name=c("Federal-Wide\nCeiling Breach",
                                     "Crisis-Only\nCeiling Breach",
