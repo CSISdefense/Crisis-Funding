@@ -54,11 +54,14 @@ load(file="Data//full_data_after_step_6.Rdata")
 full_data$CrisisDisplay<-as.character(full_data$CrisisFunding)
 full_data$CrisisDisplay[full_data$CrisisDisplay  %in% c("Unlabeled","Excluded")]<-"All Other"
 
-full_data$Reachback<-cut2(full_data$OfficeOCOcrisisScore,c(2))
+full_data<-full_data[,!colnames(full_data) %in% c("SubCustomer")]
+debug(prepare_labels_and_colors)
+labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
 
-full_data$Reachback<-factor(full_data$Reachback,levels=c( "[ 2, 3]","[-1, 2)"), 
-                                   labels=c( "Contigency-Contracting-Intensive Contracting Offices","All Other Offices"))
-full_data<-replace_nas_with_unlabeled(full_data,"Reachback")
+
+column_key<-csis360::get_column_key(full_data)
+
+
 ```
 
 ### Grouping for Display
@@ -89,7 +92,7 @@ full_data$SupplyServiceERS<-factor(full_data$SupplyServiceERS)
    
 
 summary_data<-full_data%>%
-  group_by(Fiscal.Year,
+  dplyr::group_by(Fiscal.Year,
     Is.Defense,
     CrisisDisplay,
     International,
@@ -102,7 +105,7 @@ summary_data<-full_data%>%
     Reachback,
     UnmodifiedUltimateDurationCategory,
     PlaceCountryText)%>%
-  summarise( Obligation.2016=sum(Obligation.2016))
+  dplyr::summarise( Obligation.2016=sum(Obligation.2016))
 
  summary_data$DecisionTreeDisplay<-as.character( summary_data$CrisisDisplay)
 
@@ -187,23 +190,31 @@ summary_data<-ddply(summary_data,
 
 ### Toplevel
 ```{r Toplevel}
+
+chapter4topline<-build_plot(
+  data=subset(summary_data,!is.na(International)),
+  chart_geom = "Line Chart",
+  share = FALSE,
+  x_var="Fiscal.Year",
+  y_var="Obligation.2016",
+  color_var="Is.Defense",
+  facet_var="CrisisDisplay",        # name of facet variable, as string
+  legend=TRUE, #Include a legend
+  caption=TRUE, #Include a source caption
+  labels_and_colors=Coloration,
+  column_key=NULL
+)
+
 chapter4topline<-LatticePlotWrapper(
   VAR.color.legend.label="Crisis Category",
   VAR.main.label="",
-  VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2016 $ Billions)",
-  VAR.Coloration=Coloration,
-  VAR.long.DF=subset(summary_data,!is.na(International)),
-  # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="Is.Defense", #VAR.y.series
   VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
   VAR.facet.secondary="International" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  # ,DataLabels=NA
-  #                       ,VAR.override.coloration=NA
+
+  
 )+  facet_grid(primary ~ secondary
               , scales="free_y" #The scales actually do stay fixed
               , space="fixed")+theme(legend.position="bottom")
@@ -1559,7 +1570,7 @@ stargazer::stargazer(Term_20G,type="text",#Term_20A,#Term_20C
 
 summary_residual_compare(Term_20G,bins=50)
 ```
-### 21B: NoComOffr2 and OffCri for terminations
+### Federal-Wide 21B: NoComOffr2 and OffCri for terminations
 ```{r Model21B}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
