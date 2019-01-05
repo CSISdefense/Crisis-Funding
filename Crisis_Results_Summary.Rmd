@@ -303,7 +303,7 @@ CompetitionSupplyServiceERS<-ddply(CompetitionSupplyServiceERS,
 
 geom.text.size<-2.5
 # debug(LatticePlotWrapper) 
-CompOverall<-  LatticePlotWrapper(
+CompOverall<-  LatticePlotWrapper_csis360(
   VAR.color.legend.label="Dataset",
   VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
