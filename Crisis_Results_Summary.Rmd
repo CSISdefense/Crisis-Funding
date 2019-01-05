@@ -33,7 +33,7 @@ strip.text.size<-10
 legend.text.size<-8
 # table.text.size<-5.75
 title.text.size<-12
-geom.text.size<-12
+geom.text.size<-2
 
 main.text.size<-1
 note.text.size<-1.40
@@ -54,12 +54,16 @@ load(file="Data//full_data_after_step_6.Rdata")
 full_data$CrisisDisplay<-as.character(full_data$CrisisFunding)
 full_data$CrisisDisplay[full_data$CrisisDisplay  %in% c("Unlabeled","Excluded")]<-"All Other"
 
-full_data<-full_data[,!colnames(full_data) %in% c("SubCustomer")]
-debug(prepare_labels_and_colors)
-labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
+full_data$SAMcrisisFunding[full_data$SAMcrisisFunding==""]<-NA
+full_data<-full_data[,!colnames(full_data) %in% c("SubCustomer","SubCustomer.detail")]
+#There's 53 some subcustomers to add at some point.
+full_data$CrisisDisplay<-factor(full_data$CrisisDisplay)
+full_data$No.Competition.sum<-factor(full_data$No.Competition.sum)
+full_data$Competition.multisum<-factor(full_data$Competition.multisum)
+full_data$isUndefinitizedAction<-factor(full_data$isUndefinitizedAction)
+full_data$SupplyServiceERS<-factor(full_data$SupplyServiceERS)
 
 
-column_key<-csis360::get_column_key(full_data)
 
 
 ```
@@ -69,27 +73,6 @@ column_key<-csis360::get_column_key(full_data)
 
 
 ```{r Summary}
-
-full_data$CrisisDisplay<-factor(full_data$CrisisDisplay)
-full_data$No.Competition.sum<-factor(full_data$No.Competition.sum)
-full_data$Competition.multisum<-factor(full_data$Competition.multisum)
-full_data$isUndefinitizedAction<-factor(full_data$isUndefinitizedAction)
-full_data$SupplyServiceERS<-factor(full_data$SupplyServiceERS)
-
-
-
-# PlaceCountryText
-#     contract<-csis360::read_and_join( summary_data, #contract,
-#                                       "Location_CountryCodes.txt",
-#                                       path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-#                                       directory="location\\",
-#                                       by="PlaceCountryISO3",
-#                                       add_var=c("PlaceIntlPercent","CrisisPercent"),
-#                                       new_var_checked=FALSE)
-# 
-# full_data$PlaceCountryText
-#     
-   
 
 summary_data<-full_data%>%
   dplyr::group_by(Fiscal.Year,
@@ -102,78 +85,61 @@ summary_data<-full_data%>%
     isUndefinitizedAction,
     SupplyServiceERS,
     ProductOrServiceArea,
-    Reachback,
+    # Reachback,
     UnmodifiedUltimateDurationCategory,
     PlaceCountryText)%>%
   dplyr::summarise( Obligation.2016=sum(Obligation.2016))
 
- summary_data$DecisionTreeDisplay<-as.character( summary_data$CrisisDisplay)
 
-summary_data$DecisionTreeDisplay[
-                                      year(summary_data$Fiscal.Year)<=2011 &
-                                      summary_data$CrisisDisplay=="OCO"]<-"Not in Sample"
-summary_data$DecisionTreeDisplay[year(summary_data$Fiscal.Year)>=2012 &
-                                      year(summary_data$Fiscal.Year)<=2016 &
-                                      summary_data$CrisisDisplay=="OCO"]<-
-  "OCO ('12+)"
-summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="Disaster"&
-                                        year(summary_data$Fiscal.Year)>=2007]<-"Disaster ('07+)"
-summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="Disaster"&
-                                        year(summary_data$Fiscal.Year)<2007]<-"Not in Sample"
-summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="ARRA"]<-"ARRA ('09-'13)"
+summary_data$DecisionTreeDisplay<-as.character( summary_data$CrisisDisplay)
+
 
 summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
                                       summary_data$International=="Domestic" &
-                                      summary_data$Is.Defense==FALSE
-                                      ]<-"Other U.S. Civilian ('07+)"
+                                      summary_data$Is.Defense==FALSE & 
+                                   year(summary_data$Fiscal.Year)>=2007
+                                      ]<-"Other U.S. Civilian"
+
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
+                                      summary_data$International=="Domestic" &
+                                      summary_data$Is.Defense==TRUE & 
+                                   year(summary_data$Fiscal.Year)>=2007
+                                      ]<-"Other U.S. Defense"
 
 summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
                                       summary_data$International=="International" &
-                                      summary_data$Is.Defense==FALSE
-                                      ]<-"Other Intl. Civilian ('07+)"
-
-summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
-                                      summary_data$International=="Domestic" &
-                                      summary_data$Is.Defense==TRUE &
-                                        year(summary_data$Fiscal.Year)>=2012 &
-                                      year(summary_data$Fiscal.Year)<=2016
-                                      ]<-"Other U.S. Defense ('12+)"
+                                      summary_data$Is.Defense==FALSE & 
+                                   year(summary_data$Fiscal.Year)>=2007
+                                      ]<-"Other Intl. Civilian"
 
 summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
                                       summary_data$International=="International" &
                                       summary_data$Is.Defense==TRUE & 
-                                      year(summary_data$Fiscal.Year)>=2012 &
-                                      year(summary_data$Fiscal.Year)<=2016 
-                                      ]<-"Other Intl. Defense ('12+)"
+                                   year(summary_data$Fiscal.Year)>=2007
+                                      ]<-"Other Intl. Defense"
 
-summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
-                                      summary_data$Is.Defense==TRUE & 
-                                      year(summary_data$Fiscal.Year)<=2011 
-                                      ]<-"Not in Sample"
+summary_data$DecisionTreeDisplay[year(summary_data$Fiscal.Year)<2007]<-  "Not in Sample"
+
 
 summary_data$DecisionTreeDisplay[(is.na(summary_data$International)) |
                                             is.na(summary_data$Is.Defense) &
                                             summary_data$CrisisDisplay=="All Other" 
                                       ]<-"Not in Sample"
-  
-summary_data$DecisionTreeDisplay<-factor(summary_data$DecisionTreeDisplay)
-
-summary(summary_data$DecisionTreeDisplay)
-complete_summary_data<-summary_data 
-summary_data<-subset(summary_data,DecisionTreeDisplay != "Not in Sample")
-save(complete_summary_data,summary_data,file="data//summary_data.Rdata")
 
 summary_data$DecisionTreeDisplay<-ordered(summary_data$DecisionTreeDisplay,
-levels=c("Disaster ('07+)",
-  "ARRA ('09-'13)",
-  "OCO ('12+)",
-"Other U.S. Civilian ('07+)",
-"Other Intl. Civilian ('07+)",
-"Other U.S. Defense ('12+)",
-"Other Intl. Defense ('12+)",
+levels=c("Disaster",
+  "ARRA",
+  "OCO",
+"Other U.S. Civilian",
+"Other Intl. Civilian",
+"Other U.S. Defense",
+"Other Intl. Defense",
   "Not in Sample"
 ))
+  
 
+
+summary(summary_data$DecisionTreeDisplay)
 summary_data<-ddply(summary_data,
                 .(
                   DecisionTreeDisplay
@@ -182,49 +148,55 @@ summary_data<-ddply(summary_data,
                 pDatasetObligation=Obligation.2016/sum(Obligation.2016)
                 )
 
+labels_and_colors<-prepare_labels_and_colors(summary_data,na_replaced=TRUE)
+column_key<-csis360::get_column_key(summary_data)
+
+complete_summary_data<-summary_data 
+summary_data<-subset(summary_data,DecisionTreeDisplay != "Not in Sample")
+
+
+
+save(complete_summary_data,summary_data,labels_and_colors,column_key,file="output//crisis_transaction_summary.Rdata")
 
 
 ```
 
 ## Transaction Data Display
 
-### Toplevel
+### Top level history
 ```{r Toplevel}
 
-chapter4topline<-build_plot(
-  data=subset(summary_data,!is.na(International)),
-  chart_geom = "Line Chart",
-  share = FALSE,
-  x_var="Fiscal.Year",
-  y_var="Obligation.2016",
-  color_var="Is.Defense",
-  facet_var="CrisisDisplay",        # name of facet variable, as string
-  legend=TRUE, #Include a legend
-  caption=TRUE, #Include a source caption
-  labels_and_colors=Coloration,
-  column_key=NULL
-)
 
-chapter4topline<-LatticePlotWrapper(
-  VAR.color.legend.label="Crisis Category",
-  VAR.main.label="",
+debug(get_plot_theme)
+chapter4topline<-LatticePlotWrapper_csis360(
+  VAR.color.legend.label="Customer",
+  VAR.main.label=NULL,
+  VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2016 $ Billions)",
+  VAR.Coloration=labels_and_colors,
+  VAR.long.DF=subset(complete_summary_data,!is.na(International)),
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
   VAR.y.variable="Obligation.2016", #VAR.y.variable
   VAR.y.series="Is.Defense", #VAR.y.series
   VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
-  VAR.facet.secondary="International" # VAR.facet.secondary=NA
-
-  
+  VAR.facet.secondary="International", # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+  DataLabels=FALSE
 )+  facet_grid(primary ~ secondary
-              , scales="free_y" #The scales actually do stay fixed
-              , space="fixed")+theme(legend.position="bottom")
-chapter4topline
-ggsave("Output//chapter4topline.png", chapter4topline, width=6.5, height= 4, units="in",dpi=300)
+              , scales="free_y" 
+              , space="fixed")+theme(legend.position = 'right')
+chapter4topline+geom_vline(xintercept=as.Date("2007-01-01"))+get_caption()
+summary(chapter4topline$data$x.variable)
+ggsave("Output//chapter4topline.png", chapter4topline, width=6.5, height= 4, units="in",dpi=600)
 
 ```
 
 
-##Country
+### Country
 ```{r Country}
 
 
@@ -330,12 +302,13 @@ CompetitionSupplyServiceERS<-ddply(CompetitionSupplyServiceERS,
 
 
 geom.text.size<-2.5
+# debug(LatticePlotWrapper) 
 CompOverall<-  LatticePlotWrapper(
   VAR.color.legend.label="Dataset",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=labels_and_colors,
   VAR.long.DF=subset(summary_data,
                      DecisionTreeDisplay!="Not in Sample"),
   # NA, #VAR.ncol
@@ -362,7 +335,7 @@ ggsave("Output//CompOverall.png", CompOverall, width=4.5, height= 8, units="in",
 
   LatticePercentLineWrapper(
   VAR.color.legend.label="Competition",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligation.2016",
   VAR.Coloration=Coloration,
@@ -454,7 +427,7 @@ LatticePlotWrapper(
 
   LatticePercentLineWrapper(
   VAR.color.legend.label="Competition",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligation.2016",
   VAR.Coloration=Coloration,
@@ -500,7 +473,7 @@ LatticePlotWrapper(
 
   LatticePercentLineWrapper(
   VAR.color.legend.label="Competition",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligation.2016",
   VAR.Coloration=Coloration,
@@ -569,7 +542,7 @@ UCASupplyServiceERS<-ddply(UCASupplyServiceERS,
 geom.text.size<-3
 UCAoverall<-  LatticePlotWrapper(
   VAR.color.legend.label="Dataset",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
   VAR.Coloration=Coloration,
@@ -711,7 +684,7 @@ summary_data<-ddply(summary_data,
 geom.text.size<-2.5
 ReachbackComp<-  LatticePlotWrapper(
   VAR.color.legend.label="Dataset",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
   VAR.Coloration=Coloration,
@@ -746,7 +719,7 @@ ggsave("Output//ReachbackComp.png", ReachbackComp, width=4.5, height= 8, units="
 geom.text.size<-3
 ReachbackUCA<-  LatticePlotWrapper(
   VAR.color.legend.label="Dataset",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
   VAR.Coloration=Coloration,
@@ -782,7 +755,7 @@ summary(summary_data$Reachback)
 geom.text.size<-3
 UCAoverall<-  LatticePlotWrapper(
   VAR.color.legend.label="Dataset",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
   VAR.Coloration=Coloration,
