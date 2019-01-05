@@ -1843,6 +1843,21 @@ if(!exists("Term_22E"))
                      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_22E)
+  
+  
+  source(system.file("utils", "allFit.R", package="lme4"))
+  debug(allFit)
+  Term_22E <- allFit(Term_22E,data=crisis_all)
+  
+   
+
+    structure(res, class = "allfit", fit = m, sessionInfo =  sessionInfo(),
+              data = data # is dropped if NULL
+              )
+  
+  
+  
+  
   # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
