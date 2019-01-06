@@ -1582,8 +1582,6 @@ if(!exists("Term_22E"))
   source(system.file("utils", "allFit.R", package="lme4"))
   
   
-  Term_22E <- allFit(Term_22E)
-  undebug(allFit_save)
   Term_22E.all<-allFit_save(Term_22E,filename="output/Term_22E_allfit.rdata")
   Term_22E_ss_cons <- summary(Term_22E.all) 
 
@@ -1646,6 +1644,9 @@ stargazer::stargazer(CBre_22F,type="text",#Term_20A,#Term_20C
 
 summary_residual_compare(CBre_22F,bins=50)
 
+  
+  source(system.file("utils", "allFit.R", package="lme4"))
+  CBre_22F.all<-allFit_save(CBre_22F,filename="output/CBre_22F_allfit.rdata")
 ```
 
 # Tables for Paper
