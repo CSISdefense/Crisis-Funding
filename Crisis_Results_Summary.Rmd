@@ -1746,8 +1746,7 @@ save(CBre_Cons_13B,
      file="Output//CBre_Cons_13B.rdata")
 
 source(system.file("utils", "allFit.R", package="lme4"))
-CBre_Cons_13B.all <- allFit(CBre_Cons_13B)
-CBre_Cons_13B_ss_cons <- summary(CBre_Cons_13B.all)
+
 
 
 
@@ -1819,10 +1818,12 @@ if(!exists("Term_22E"))
   
   
   source(system.file("utils", "allFit.R", package="lme4"))
-  debug(allFit)
-  Term_22E <- allFit(Term_22E,data=crisis_all)
   
-   
+  
+  Term_22E <- allFit(Term_22E)
+  undebug(allFit_save)
+  Term_22E.all<-allFit_save(Term_22E,filename="output/Term_22E_allfit.rdata")
+  Term_22E_ss_cons <- summary(Term_22E.all) 
 
     structure(res, class = "allfit", fit = m, sessionInfo =  sessionInfo(),
               data = data # is dropped if NULL
