@@ -5540,3 +5540,61 @@ summary_residual_compare(CBre_22A,CBre_22E,Term_21A,Term_22E,bins=50)
 summary_residual_compare(Term_22D,Term_22E,bins=50)
 summary_residual_compare(Term_22C,Term_22E,bins=50)
 ```
+
+### 22F: Variants -OffCri for CBre
+```{r Model22F}
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
+
+load("Output//Model22F_CBre.RData")
+
+if(!exists("CBre_22F"))
+  CBre_22F <- glmer (data=crisis_all,
+                     b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # Veh:cl_Ceil+
+                       NoCompOffr2:cl_Ceil+
+                     b_UCA:NoCompOffr2+
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office) + 
+                     (1 + OffPlace | PlaceCountryISO3) + 
+                     (1 | StartFY)
+               , 
+                   family=binomial(link="logit")
+     # control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     # optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE))
+     )
+
+  glmer_examine(CBre_22F)
+  
+  save(CBre_22F, file="Output//Model22F_CBre.RData")
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
+                     Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+stargazer::stargazer(#CBre_21A,CBre_22F,
+                     CBre_21A,CBre_22A,CBre_22D,CBre_22F,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+stargazer::stargazer(#CBre_21A,CBre_22F,
+                     Term_21A,Term_22A,Term_22D,Term_22F,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+
+summary_residual_compare(CBre_10A,CBre_20G,Term_10A,Term_20G,bins=50)
+summary_residual_compare(CBre_10D,CBre_20G,Term_10H,Term_20G,bins=50)
+summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
+summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
+summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
+summary_residual_compare(CBre_22A,CBre_22F,Term_21A,Term_22F,bins=50)
+summary_residual_compare(Term_22D,Term_22F,bins=50)
+summary_residual_compare(Term_22C,Term_22F,bins=50)
+```
