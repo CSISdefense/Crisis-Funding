@@ -5632,7 +5632,7 @@ if(!exists("CBre_22G"))
      )
 
   glmer_examine(CBre_22G)
-  
+  save(CBre_22G, file="Output//Model22G_actual_CBre.RData")
   if(!exists("Term_22G"))
   Term_22G <- glmer (data=crisis_all,
                    b_Term ~ Crisis +NoCompOffr2+
@@ -5655,7 +5655,7 @@ if(!exists("CBre_22G"))
   glmer_examine(Term_22G)
 
   
-  save(Term_22G, file="Output//Model22G_CBre.RData")
+  save(CBre_22G,Term_22G, file="Output//Model22G_CBre.RData")
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C

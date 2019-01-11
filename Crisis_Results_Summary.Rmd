@@ -1636,11 +1636,16 @@ if(!exists("CBre_22F"))
      )
 
   glmer_examine(CBre_22F)
-  
+  load("Output//CBre_22F_allfit.rdata")
 
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_22F,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(CBre_22F,res[1],res[2],res[3],#res[4],
+                     res[5],#res[6],res[7],
+                     type="text",#Term_20A,#Term_20C
                         digits=2)
+
+length(res[[6]])
+res[[5]]
 
 summary_residual_compare(CBre_22F,bins=50)
 
