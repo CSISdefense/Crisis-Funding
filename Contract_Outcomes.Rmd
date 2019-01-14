@@ -45,7 +45,7 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 ```{r ReadInData, echo = TRUE}
 load("Data\\fed_sample.Rdata")
 load("Data\\crisis_smp.Rdata")
-load("Data\\extra_large_crisis_smp.Rdata")
+# load("Data\\extra_large_crisis_smp.Rdata")
 # 
 # large_crisis_smp$Reach6<-factor(paste(large_crsis_smp$OffPl99,large_crisis_smp$Intl,sep="-"))
 # summary(large_crisis_smp$Reach)
@@ -5657,26 +5657,12 @@ if(!exists("CBre_22G"))
   
   save(CBre_22G,Term_22G, file="Output//Model22G_CBre.RData")
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
-                     Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
-                        digits=2)
 
-stargazer::stargazer(#CBre_21A,CBre_22G,
-                     CBre_21A,CBre_22A,CBre_22D,CBre_22G,type="text",#Term_20A,#Term_20C
-                        digits=2)
-
-stargazer::stargazer(#CBre_21A,CBre_22G,
-                     Term_21A,Term_22A,Term_22D,Term_22G,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(CBre_22F,CBre_22G,Term_22E,Term_22G,type="text",#Term_20A,#Term_20C
                         digits=2)
 
 
-summary_residual_compare(CBre_10A,CBre_20G,Term_10A,Term_20G,bins=50)
-summary_residual_compare(CBre_10D,CBre_20G,Term_10H,Term_20G,bins=50)
-summary_residual_compare(CBre_20A,CBre_20G,Term_20A,Term_20G,bins=50)
-summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
-summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
-summary_residual_compare(CBre_22A,CBre_22G,Term_21A,Term_22G,bins=50)
-summary_residual_compare(Term_22D,Term_22G,bins=50)
-summary_residual_compare(Term_22C,Term_22G,bins=50)
+summary_residual_compare(CBre_22F,CBre_22G,Term_22E,Term_22G,bins=50)
+
 ```
 
