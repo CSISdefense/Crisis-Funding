@@ -43,3 +43,5 @@ Data/Contract_SP_ContractModificationDeltaCustomer\.txt
 Data/Contract\.SP_ContractBudgetDecisionTree\.txt
 
 Data/Contract\.SP_ContractFundingAccount\.txt
+
+Data/Budget\.SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail\.txt

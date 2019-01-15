@@ -42,7 +42,6 @@ SELECT [fiscal_year]
 	  --New Decision tree options
 	  ,IsMultipleYearProcRnD
 	  ,isforeign
-	  ,IsOMBocoList
 	  ,[ContractCrisisFunding]
       ,[nationalinterestactioncode]
       ,[NIAcrisisFunding]
@@ -100,7 +99,6 @@ SELECT [fiscal_year]
 	  ,ContingencyHumanitarianPeacekeepingOperation
 	  ,ConHumIsOCOcrisisFunding
 	  ,CCRexception
-	  ,localareasetaside
 	  
 GO
 
