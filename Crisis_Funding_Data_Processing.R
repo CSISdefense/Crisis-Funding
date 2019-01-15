@@ -147,11 +147,13 @@ full_data<-read_and_join(
 full_data$DecisionTree<-factor(full_data$DecisionTree)
 full_data$DecisionTreeStep4<-factor(full_data$DecisionTreeStep4)
 
+full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
+full_data<-replace_nas_with_unlabeled(full_data,"Is.Defense")
+
 
 
 save(full_data,
   file="Data//budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
 
-# load(file="budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
 
 

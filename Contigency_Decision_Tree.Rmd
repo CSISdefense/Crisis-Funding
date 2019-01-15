@@ -52,16 +52,12 @@ note.text.size<-1.40
 load(
      file="Data//budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
 
-load(
-     file="Data//defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
 ```
 
 #Decision Tree
 #Step 1: Direct Crisis Labels 
 ##Step 1A: Is this an ARRA labled contract (or a CSIS labeled one)
 ```{r Step1A}
-full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
-full_data<-replace_nas_with_unlabeled(full_data,"Is.Defense")
 
 
 full_data$CrisisFunding<-"Unlabeled"
@@ -71,7 +67,7 @@ full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled"]<-
 
 
 
-Tree1A<-LatticePlotWrapper(
+Tree1A<-LatticePlotWrapper_csis360_csis360(
   VAR.color.legend.label="ARRA/CSIS Labeled Contract",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
@@ -140,7 +136,7 @@ Tree1B<-LatticePercentLineWrapper(
 #               , scales="free_y" #The scales actually do stay fixed
 #               , space="fixed")
 
-Contradictions1B<-LatticePlotWrapper(
+Contradictions1B<-LatticePlotWrapper_csis360_csis360(
   VAR.color.legend.label="Classification",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
@@ -198,7 +194,7 @@ labels.x.DF<-prepare_labels_and_colors(full_data,"nationalinterestactioncodeText
         ordered=TRUE)
   
         
-Tree1CdetailIsDefense<-LatticePlotWrapper(
+Tree1CdetailIsDefense<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="National Interest Action",
   VAR.main.label="",
   VAR.X.label="", #"Fiscal Year",
@@ -269,7 +265,7 @@ unique(subset(full_data,NIAcontradictions!="Unlabeled"
               & Fiscal.Year<=as.Date("2008-01-01"))$nationalinterestactioncodeText)
 
 
-Tree1CisDefense<-LatticePlotWrapper(
+Tree1CisDefense<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification Through Step 1B",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
@@ -292,7 +288,7 @@ Tree1CisDefense<-LatticePlotWrapper(
   
 
 
-Tree1Coco<-LatticePlotWrapper(
+Tree1Coco<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="National Interest Action",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
@@ -344,7 +340,7 @@ save(full_data,
 ```{r Step1D}
 # CCRexception 
 
-Tree1DisDefense<-LatticePlotWrapper(
+Tree1DisDefense<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification Through Step 1C",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
@@ -387,7 +383,7 @@ sum(full_data$Obligation.2016[full_data$CCRexception %in% c(3,4)])
 # load(file="Data//full_data_after_step_1C.Rdata")
 
 
-Tree2isDefense<-LatticePlotWrapper(
+Tree2isDefense<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification Through Step 1C",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
@@ -432,7 +428,7 @@ full_data<-replace_nas_with_unlabeled(full_data,"UnmodifiedUltimateDurationCateg
 
 
 
-Tree3<-LatticePlotWrapper(
+Tree3<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification After Step 2",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
@@ -479,7 +475,7 @@ full_data$IsExcludedPSC[full_data$PSCOCOcrisisScore==-1]<-1
 
 
 
-Tree4a<-LatticePlotWrapper(
+Tree4a<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification After Step 3",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
@@ -530,7 +526,7 @@ full_data$IsExcludedCO<-0
 full_data$IsExcludedCO[full_data$OfficeOCOcrisisScore==-1]<-1
 
 
-Tree4b<-LatticePlotWrapper(
+Tree4b<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification After Step 4A",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
@@ -609,7 +605,7 @@ defense_data$PercentFundingAccountOCO<-as.numeric(defense_data$PercentFundingAcc
 defense_data<-replace_nas_with_unlabeled(defense_data,"CrisisFunding")
 defense_data$PercentFundingAccountOCORound1<-round(defense_data$PercentFundingAccountOCO,2)
 summary(defense_data$CrisisFunding)
-Tree5A<-LatticePlotWrapper(
+Tree5A<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification After Step 4B",
   VAR.main.label="",
   VAR.X.label="Percent Funded by OCO",
@@ -668,7 +664,7 @@ sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="Unlabeled"&
 defense_data$pscOCOcrisisPercentRound1<-round(sqrt(defense_data$pscOCOcrisisPercentSqrt),2)
 
 
-Tree5B<-LatticePlotWrapper(
+Tree5B<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification After Step 4B",
   VAR.main.label="",
   VAR.X.label="Square Root of the Share of Product or Service Code Going to Official Contingency Contracts",
@@ -730,7 +726,7 @@ defense_data$OfficeOCOcrisisPercentRound1[
   defense_data$OfficeOCOcrisisPercentRound1<0]<-0
 defense_data$OfficeOCOcrisisPercentRound1<-round(sqrt(defense_data$OfficeOCOcrisisPercentSqrt),2)
 
-Tree5C<-LatticePlotWrapper(
+Tree5C<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification After Step 4C",
   VAR.main.label="",
   VAR.X.label="Square Root of the Share of Office Obligations Going to Official Contingency Contracts",
@@ -828,7 +824,7 @@ Tree6percent<-LatticePercentLineWrapper(
 #               , scales="free_y" #The scales actually do stay fixed
 #               , space="fixed")
 
-Tree6final<-LatticePlotWrapper(
+Tree6final<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Final Classification",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
