@@ -1030,8 +1030,8 @@ NA_stats(fed,"l_Days")'
 ```{r statistical summary table for variable cl_Days}
 #The original variable for cl_Days is UnmodifiedDays
 
-fed$UnmodifiedDays[fed$UnmodifiedDays > 3650] <- NA
-statsummary_continuous(("UnmodifiedDays"), fed)
+fed$capped_UnmodifiedDays[fed$UnmodifiedDays > 3650] <- NA
+statsummary_continuous(("capped_UnmodifiedDays"), fed)
 
 ```
 
@@ -1100,6 +1100,12 @@ grouped_barplot("Intl", fed)
 
 ```
 
+```{r c_OffCri}
+#The original variable for c_OffCri is OffCri
+debug(statsummary_continuous)
+statsummary_continuous("OffCri", fed,log=FALSE)
+
+```
 
 
 In addition, l_Ceil and l_Days are rescaled to have an average value of 0 and a standard deviation of one. This standardizes interpretation and prevents a "very large eigen value" error later when l_Ceil:lDay is introduced.
@@ -1636,11 +1642,16 @@ if(!exists("CBre_22F"))
      )
 
   glmer_examine(CBre_22F)
-  
+  load("Output//CBre_22F_allfit.rdata")
 
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_22F,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(CBre_22F,res[1],res[2],res[3],#res[4],
+                     res[5],#res[6],res[7],
+                     type="text",#Term_20A,#Term_20C
                         digits=2)
+
+length(res[[6]])
+res[[5]]
 
 summary_residual_compare(CBre_22F,bins=50)
 

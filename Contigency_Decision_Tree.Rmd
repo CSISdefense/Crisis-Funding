@@ -18,11 +18,8 @@ library(Hmisc)
 library(csis360)
 library(scales)
 
-Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
-# Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
-# Path<-"C:\\Users\\gsand_000.ALPHONSE\\Documents\\Development\\R-scripts-and-data\\"
-source(paste(Path,"lookups.r",sep=""))
-source(paste(Path,"helper.r",sep="")) 
+source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
+source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
 
 # diigtheme1:::diiggraph()
 
@@ -53,8 +50,10 @@ note.text.size<-1.40
 
 
 load(
-     file="Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
+     file="Data//budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
 
+load(
+     file="Data//defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
 ```
 
 #Decision Tree
@@ -65,19 +64,11 @@ full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
 full_data<-replace_nas_with_unlabeled(full_data,"Is.Defense")
 
 
-defense_data<-replace_nas_with_unlabeled(defense_data,"ContractCrisisFunding")
-defense_data<-replace_nas_with_unlabeled(defense_data,"Is.Defense")
-defense_data$CrisisFunding[is.na(defense_data$CrisisFunding)]<-"Unlabeled"
-
 full_data$CrisisFunding<-"Unlabeled"
 full_data$CrisisFunding<-ordered(full_data$CrisisFunding,levels=c("OCO","Disaster","ARRA","Unlabeled"))
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled"]<-
   full_data$ContractCrisisFunding[full_data$CrisisFunding=="Unlabeled"]
 
-defense_data$CrisisFunding<-"Unlabeled"
-defense_data$CrisisFunding<-ordered(defense_data$CrisisFunding,levels=c("OCO","Disaster","ARRA","Unlabeled"))
-defense_data$CrisisFunding[defense_data$CrisisFunding=="Unlabeled"]<-
-  defense_data$ContractCrisisFunding[defense_data$CrisisFunding=="Unlabeled"]
 
 
 Tree1A<-LatticePlotWrapper(
@@ -106,11 +97,10 @@ Tree1A
 summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
 summary(full_data$CrisisFunding)
-summary(defense_data$CrisisFunding)
 
 
 ggsave("Output//Tree1A.png", Tree1A, width=6.5, height= 3, units="in",dpi=300)
-save(full_data,defense_data,file="LargeDataSets//full_data_after_step_1A.Rdata")
+save(full_data,file="Data//full_data_after_step_1A.Rdata")
 ```
 
 ##Step 1B: Contingency or Humanitarian Peacekeeping Operation
@@ -120,12 +110,6 @@ full_data<-replace_nas_with_unlabeled(full_data,"Theater")
 full_data<-replace_nas_with_unlabeled(full_data,"contingencyhumanitarianpeacekeepingoperationText")
 full_data$contingencyhumanitarianpeacekeepingoperationText[
   full_data$contingencyhumanitarianpeacekeepingoperationText=="Not Applicable"]<-"Unlabeled"
-
-defense_data<-replace_nas_with_unlabeled(defense_data,"ContractCrisisFunding")
-defense_data<-replace_nas_with_unlabeled(defense_data,"Theater")
-defense_data<-replace_nas_with_unlabeled(defense_data,"contingencyhumanitarianpeacekeepingoperationText")
-defense_data$contingencyhumanitarianpeacekeepingoperationText[
-  defense_data$contingencyhumanitarianpeacekeepingoperationText=="Not Applicable"]<-"Unlabeled"
 
 # ConHumIsOCOcrisisFunding=1
 # ,[ContingencyHumanitarianPeacekeepingOperation]
@@ -186,17 +170,14 @@ ggsave("Output//Tree1B.png", Tree1B, width=6.5, height= 3, units="in",dpi=300)
 ggsave("Output//Tree1Bcontradictions.png", Contradictions1B, width=6.5, height= 4.5, units="in",dpi=300)
 
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$ConHumIsOCOcrisisFunding==1]<-"OCO"
-defense_data$CrisisFunding[defense_data$CrisisFunding=="Unlabeled" & defense_data$ConHumIsOCOcrisisFunding==1]<-"OCO"
-
 
 summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
 summary(full_data$CrisisFunding)
-summary(defense_data$CrisisFunding)
 
 
-save(full_data,defense_data,
-  file="LargeDataSets//full_data_after_step_1B.Rdata")
+save(full_data,
+  file="Data//full_data_after_step_1B.Rdata")
 
 ```
 
@@ -205,8 +186,7 @@ save(full_data,defense_data,
 ##Step 1C: National Action Interest Code
 ```{r Step1C}
 full_data<-replace_nas_with_unlabeled(full_data,"NIAcrisisFunding")
-defense_data<-replace_nas_with_unlabeled(defense_data,"NIAcrisisFunding")
-# load("LargeDataSets//full_data_after_step_1B.Rdata")
+# load("Data//full_data_after_step_1B.Rdata")
 
 #       ,[nationalinterestactioncode]
 #Flipping so first element is on top
@@ -247,10 +227,6 @@ write.csv(subset(full_data, nationalinterestactioncodeText=="California Wildfire
 full_data$NIAcrisisFunding[
   full_data$nationalinterestactioncodeText=="California Wildfires 2008" &
     full_data$Fiscal.Year<as.Date("2008-01-01")
-]<-"Unlabeled"
-defense_data$NIAcrisisFunding[
-  defense_data$nationalinterestactioncodeText=="California Wildfires 2008" &
-    defense_data$Fiscal.Year<as.Date("2008-01-01")
 ]<-"Unlabeled"
 
 
@@ -353,16 +329,13 @@ ggsave("Output//Tree1Coco.png", Tree1Coco, width=6.5, height= 3, units="in",dpi=
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$NIAcrisisFunding=="OCO"]<-"OCO"
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$NIAcrisisFunding=="Disaster"]<-"Disaster"
 
-defense_data$CrisisFunding[defense_data$CrisisFunding=="Unlabeled" & defense_data$NIAcrisisFunding=="OCO"]<-"OCO"
-defense_data$CrisisFunding[defense_data$CrisisFunding=="Unlabeled" & defense_data$NIAcrisisFunding=="Disaster"]<-"Disaster"
-
 
 summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
 summary(full_data$CrisisFunding)
-summary(defense_data$CrisisFunding)
+
 save(full_data,
-  defense_data,file="LargeDataSets//full_data_after_step_1C.Rdata")
+  file="Data//full_data_after_step_1C.Rdata")
 
 ```
 
@@ -411,7 +384,7 @@ sum(full_data$Obligation.2016[full_data$CCRexception %in% c(3,4)])
 ```{r Step2}
 
 
-# load(file="LargeDataSets//full_data_after_step_1C.Rdata")
+# load(file="Data//full_data_after_step_1C.Rdata")
 
 
 Tree2isDefense<-LatticePlotWrapper(
@@ -442,21 +415,19 @@ ggsave("Output//Tree2.png", Tree2isDefense, width=6.5, height= 3, units="in",dpi
 
 
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$Theater=="Afghanistan and Iraq"]<-"OCO"
-defense_data$CrisisFunding[defense_data$CrisisFunding=="Unlabeled" & defense_data$Theater=="Afghanistan and Iraq"]<-"OCO"
 
 
 summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
 summary(full_data$CrisisFunding)
-summary(defense_data$CrisisFunding)
 
 save(full_data,
-  defense_data,file="LargeDataSets//full_data_after_step_2.Rdata")
+  file="Data//full_data_after_step_2.Rdata")
 ```
 
 #Step 3 Multiyear procurement and R&D
 ```{r Step3}
-# load(file="LargeDataSets//full_data_after_step_2.Rdata")
+# load(file="Data//full_data_after_step_2.Rdata")
 full_data<-replace_nas_with_unlabeled(full_data,"UnmodifiedUltimateDurationCategory")
 
 
@@ -490,30 +461,21 @@ full_data$CrisisFunding<-factor(full_data$CrisisFunding,
   levels=c("OCO","Disaster","ARRA","Excluded","Unlabeled"))
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$IsMultipleYearProcRnD==1]<-"Excluded"
 
-defense_data$CrisisFunding<-factor(defense_data$CrisisFunding,
-  levels=c("OCO","Disaster","ARRA","Excluded","Unlabeled"))
-defense_data$CrisisFunding[defense_data$CrisisFunding=="Unlabeled" & defense_data$IsMultipleYearProcRnD==1]<-"Excluded"
-
-
 summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
 summary(full_data$CrisisFunding)
-summary(defense_data$CrisisFunding)
-
 
 save(full_data,
-  defense_data,file="LargeDataSets//full_data_after_step_3.Rdata")
+  file="Data//full_data_after_step_3.Rdata")
 ```
 # Step 4: Does the transaction’s product or service code or transaction’s contracting office have no history of contingency contracting
 ##Step 4A: Does the transaction’s product or service code have no history of contingency contracting?
 ```{r Step4a}
-# load(file="LargeDataSets//full_data_after_step_3.Rdata")
+# load(file="Data//full_data_after_step_3.Rdata")
 full_data<-replace_nas_with_unlabeled(full_data,"UnmodifiedUltimateDurationCategory")
 
 full_data$IsExcludedPSC<-0
 full_data$IsExcludedPSC[full_data$PSCOCOcrisisScore==-1]<-1
-defense_data$IsExcludedPSC<-0
-defense_data$IsExcludedPSC[defense_data$pscOCOcrisisPercent==0]<-1
 
 
 
@@ -550,26 +512,22 @@ ggsave("Output//Tree4a.png", Tree4a, width=6, height= 3.5, units="in",dpi=300)
 
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$IsExcludedPSC==1]<-"Excluded"
 
-defense_data$CrisisFunding[defense_data$CrisisFunding=="Unlabeled" & defense_data$IsExcludedPSC==1]<-"Excluded"
 
 
 summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
 summary(full_data$CrisisFunding)
-summary(defense_data$CrisisFunding)
 
 
 save(full_data,
-  defense_data,file="LargeDataSets//full_data_after_step_4a.Rdata")
+     file="Data//full_data_after_step_4a.Rdata")
 ```
 ##Step 4B Does the transaction’s contracting office have no history of contingency contracting?
 ```{r Step4b}
-# load(file="LargeDataSets//full_data_after_step_4a.Rdata")
+# load(file="Data//full_data_after_step_4a.Rdata")
 
 full_data$IsExcludedCO<-0
 full_data$IsExcludedCO[full_data$OfficeOCOcrisisScore==-1]<-1
-defense_data$IsExcludedCO<-0
-defense_data$IsExcludedCO[defense_data$OfficeOCOcrisisScore==-1]<-1
 
 
 Tree4b<-LatticePlotWrapper(
@@ -601,16 +559,12 @@ ggsave("Output//Tree4b.png", Tree4b, width=6, height= 3.5, units="in",dpi=300)
 
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$IsExcludedCO==1]<-"Excluded"
 
-defense_data$CrisisFunding[defense_data$CrisisFunding=="Unlabeled" & defense_data$IsExcludedCO==1]<-"Excluded"
-
 
 summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
 summary(full_data$CrisisFunding)
-summary(defense_data$CrisisFunding)
 
-
-save(full_data,defense_data,file="LargeDataSets//full_data_after_step_4b.Rdata")
+save(full_data,file="Data//full_data_after_step_4b.Rdata")
 
 
 
@@ -649,8 +603,8 @@ Tree5<-LatticePercentLineWrapper(
 #Step 5: Calculate the contracts contingency likelihood score.
 ##Step 5A Calculate the Funding Source Score
 ```{r Step5A}
-# load(file="LargeDataSets//full_data_after_step_4b.Rdata")
-
+# load(file="Data//full_data_after_step_4b.Rdata")
+defense_data<-subset(full_data,ContractingCustomer=="Defense")
 defense_data$PercentFundingAccountOCO<-as.numeric(defense_data$PercentFundingAccountOCO)
 defense_data<-replace_nas_with_unlabeled(defense_data,"CrisisFunding")
 defense_data$PercentFundingAccountOCORound1<-round(defense_data$PercentFundingAccountOCO,2)
@@ -909,7 +863,7 @@ ggsave("Output//Tree6percent.png", Tree6percent, width=6.5, height= 3.5, units="
 ggsave("Output//Tree6final.png", Tree6final, width=4, height= 7.5, units="in",dpi=300)
 
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$DecisionTree=="OCO"]<-"OCO"
-save(full_data,file="LargeDataSets//full_data_after_step_6.Rdata")
+save(full_data,file="Data//full_data_after_step_6.Rdata")
 
 #Examining the data
 ```
