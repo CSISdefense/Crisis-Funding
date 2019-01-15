@@ -51,6 +51,11 @@ SELECT [fiscal_year]
 	  ,ConHumIsOCOcrisisFunding
 	  ,CCRexception
 	  ,IsOCOcrisisFunding  
+	  	  ,DecisionTree
+	  ,DecisionTreeStep4
+	,pscOCOcrisisPoint
+	,FundingAccountOCOpoint
+	,OfficeOCOcrisisPoint
 	  ,round(PercentFundingAccountOCO,2 ) as PercentFundingAccountOCO
 	  	  ,round(sqrt(iif(OfficeOCOcrisisPercent<0,0,OfficeOCOcrisisPercent)),2) as OfficeOCOcrisisPercentSqrt
 	  ,round(sqrt(iif(pscOCOcrisisPercent<0,0,pscOCOcrisisPercent)),2) as pscOCOcrisisPercentSqrt
@@ -91,6 +96,8 @@ SELECT [fiscal_year]
 			--New Decision tree options
 			,IsMultipleYearProcRnD
 			  ,isforeign
+			  	  	  ,DecisionTree
+	  ,DecisionTreeStep4
 	  ,round(PercentFundingAccountOCO,2 ) 
 	 	  ,round(sqrt(iif(OfficeOCOcrisisPercent<0,0,OfficeOCOcrisisPercent)),2) 
 	  ,round(sqrt(iif(pscOCOcrisisPercent<0,0,pscOCOcrisisPercent)),2) 
@@ -99,7 +106,9 @@ SELECT [fiscal_year]
 	  ,ContingencyHumanitarianPeacekeepingOperation
 	  ,ConHumIsOCOcrisisFunding
 	  ,CCRexception
-	  
+	,pscOCOcrisisPoint
+	,FundingAccountOCOpoint
+	,OfficeOCOcrisisPoint
 GO
 
 

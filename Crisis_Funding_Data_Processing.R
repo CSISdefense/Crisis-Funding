@@ -35,7 +35,7 @@ source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/
 #              "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.txt")
 #Need to manually unzip ecause unz doesn't work above 2 gigs
 full_data <- readr::read_delim(file.path("Data",
-                                         "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.txt"),
+                                         "Budget.SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.txt"),
                                delim="\t",
                                na=c("NULL","NA"))
 
@@ -52,14 +52,18 @@ full_data<-full_data[,!colnames(full_data) %in%
                              )]
 
 full_data$ContractingCustomer<-factor(full_data$ContractingCustomer)
-full_data<-subset(full_data, year(Fiscal.Year)>=2000)
+
+
 full_data<-apply_lookups(Path,full_data)
+full_data<-subset(full_data, year(Fiscal.Year)>=2000)
 
 #Create new  variables
 full_data$CrisisFundingLegacy<-full_data$CrisisFunding
 
 full_data$Theater<-as.character(full_data$CrisisFundingTheater)
 full_data$Theater[full_data$Theater %in% c("Afghanistan","Iraq")]<-"Afghanistan and Iraq"
+
+
 full_data$International<-full_data$Theater
 full_data$International[full_data$Theater %in% c("Afghanistan and Iraq",
                                                  "Regional Support",
@@ -68,6 +72,9 @@ full_data$International<-ordered(full_data$International,
                                  levels=c("International",
                                           "Domestic"))
 
+full_data$Theater<-factor(full_data$Theater)
+summary(full_data$Theater)
+summary(full_data$International)
 
 
 
@@ -76,7 +83,7 @@ full_data$International<-ordered(full_data$International,
 
 
 
-full_data<-csis360::read_and_join(
+full_data<-read_and_join(
   full_data,
   "Lookup_ContingencyHumanitarianPeacekeepingOperation.csv",
   by="ContingencyHumanitarianPeacekeepingOperation",
@@ -88,7 +95,7 @@ full_data<-csis360::read_and_join(
   )
 
 colnames(full_data)[colnames(full_data)=="ContractingCustomer"]<-"Customer"
-full_data<-csis360::read_and_join(
+full_data<-read_and_join(
   full_data,
   "LOOKUP_Customer.csv",
   by="Customer",
@@ -99,7 +106,7 @@ full_data<-csis360::read_and_join(
   # skip_check_var=NULL
 )
 
-full_data<-csis360::read_and_join(
+full_data<-read_and_join(
   full_data,
   "Lookup_nationalinterestactioncode.csv",
   by="nationalinterestactioncode",
@@ -111,7 +118,7 @@ full_data<-csis360::read_and_join(
 )
 
 full_data$SubCustomer<-full_data$ContractingSubCustomer
-full_data<-csis360::read_and_join(
+full_data<-read_and_join(
   full_data,
   "Lookup_SubCustomer.csv",
   by=c("Customer","SubCustomer"),
@@ -121,8 +128,9 @@ full_data<-csis360::read_and_join(
   # new_var_checked=TRUE,
   # skip_check_var=c("NIAcrisisFunding","IsHurricane")
 )
+
 full_data$CCRexception[full_data$CCRexception==""]<-NA
-full_data<-csis360::read_and_join(
+full_data<-read_and_join(
   full_data,
   "Lookup_CCRexception.csv",
   by="CCRexception",
@@ -132,6 +140,9 @@ full_data<-csis360::read_and_join(
   # new_var_checked=TRUE,
   skip_check_var=c("SAMcrisisFunding")
 )
+
+
+
 
 full_data$DecisionTree<-factor(full_data$DecisionTree)
 full_data$DecisionTreeStep4<-factor(full_data$DecisionTreeStep4)
