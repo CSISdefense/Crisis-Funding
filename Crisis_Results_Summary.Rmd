@@ -1030,8 +1030,8 @@ NA_stats(fed,"l_Days")'
 ```{r statistical summary table for variable cl_Days}
 #The original variable for cl_Days is UnmodifiedDays
 
-fed$UnmodifiedDays[fed$UnmodifiedDays > 3650] <- NA
-statsummary_continuous(("UnmodifiedDays"), fed)
+fed$capped_UnmodifiedDays[fed$UnmodifiedDays > 3650] <- NA
+statsummary_continuous(("capped_UnmodifiedDays"), fed)
 
 ```
 
@@ -1100,6 +1100,12 @@ grouped_barplot("Intl", fed)
 
 ```
 
+```{r c_OffCri}
+#The original variable for c_OffCri is OffCri
+debug(statsummary_continuous)
+statsummary_continuous("OffCri", fed,log=FALSE)
+
+```
 
 
 In addition, l_Ceil and l_Days are rescaled to have an average value of 0 and a standard deviation of one. This standardizes interpretation and prevents a "very large eigen value" error later when l_Ceil:lDay is introduced.
