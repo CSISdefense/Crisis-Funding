@@ -1509,6 +1509,7 @@ stargazer::stargazer(Term_21B,type="text",#Term_20A,#Term_20C
 
 summary_residual_compare(Term_21B,bins=50)
 
+  CBre_22F.all<-allFit_save(CBre_22F,filename="output/CBre_22F_allfit.rdata")
 ```
 
 
@@ -1552,6 +1553,8 @@ stargazer::stargazer(CBre_21C,type="text",#Term_20A,#Term_20C
 
 summary_residual_compare(CBre_21C,bins=50)
 
+
+  CBre_21C.all<-allFit_save(CBre_21C,filename="output/CBre_21C_allfit.rdata")
 ```
 
 
