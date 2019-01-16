@@ -150,9 +150,10 @@ full_data$DecisionTreeStep4<-factor(full_data$DecisionTreeStep4)
 full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
 full_data<-replace_nas_with_unlabeled(full_data,"Is.Defense")
 
-
-
-save(full_data,
+full_data$SAMcrisisFunding[full_data$SAMcrisisFunding==""]<-NA
+full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
+full_column_key<-get_column_key(full_data)
+save(full_data,full_labels_and_colors,full_column_key,
   file="Data//budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
 
 

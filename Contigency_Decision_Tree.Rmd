@@ -62,17 +62,23 @@ load(
 
 full_data$CrisisFunding<-"Unlabeled"
 full_data$CrisisFunding<-ordered(full_data$CrisisFunding,levels=c("OCO","Disaster","ARRA","Unlabeled"))
-full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled"]<-
-  full_data$ContractCrisisFunding[full_data$CrisisFunding=="Unlabeled"]
+full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & !is.na(full_data$ContractCrisisFunding)]<-
+  full_data$ContractCrisisFunding[full_data$CrisisFunding=="Unlabeled" & !is.na(full_data$ContractCrisisFunding)]
+
+annual_summary<- full_data %>% group_by(Fiscal.Year) %>%
+  dplyr::summarise(Obligation.2016=sum(Obligation.2016))
+
+crisis_summary<- full_data %>% group_by(CrisisFunding) %>%
+  dplyr::summarise(Obligation.2016=sum(Obligation.2016))
 
 
 
-Tree1A<-LatticePlotWrapper_csis360_csis360(
+Tree1A<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="ARRA/CSIS Labeled Contract",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=full_data,
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -115,7 +121,7 @@ Tree1B<-LatticePercentLineWrapper(
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,Theater!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -141,7 +147,7 @@ Contradictions1B<-LatticePlotWrapper_csis360_csis360(
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,Theater!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -199,7 +205,7 @@ Tree1CdetailIsDefense<-LatticePlotWrapper_csis360(
   VAR.main.label="",
   VAR.X.label="", #"Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,NIAcrisisFunding !="Unlabeled"
                      | nationalinterestactioncodeText=="Inauguration 2009"),
   # NA, #VAR.ncol
@@ -231,7 +237,7 @@ Tree1Ctheater<-LatticePercentLineWrapper(
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,Theater!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -270,7 +276,7 @@ Tree1CisDefense<-LatticePlotWrapper_csis360(
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,NIAcontradictions!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -293,7 +299,7 @@ Tree1Coco<-LatticePlotWrapper_csis360(
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,NIAcrisisFunding=="OCO" | (CrisisFunding=="OCO" & nationalinterestactioncodeText=="None")),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -345,7 +351,7 @@ Tree1DisDefense<-LatticePlotWrapper_csis360(
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,SAMexception.sum!="No Exception"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -388,7 +394,7 @@ Tree2isDefense<-LatticePlotWrapper_csis360(
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,Theater=="Afghanistan and Iraq"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -433,7 +439,7 @@ Tree3<-LatticePlotWrapper_csis360(
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,Customer=="Defense" &
       Fiscal.Year>=as.Date("2011-01-01")),
   # NA, #VAR.ncol
@@ -480,7 +486,7 @@ Tree4a<-LatticePlotWrapper_csis360(
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,Customer=="Defense" &
       ProductServiceOrRnDarea.sum!="Unlabeled"),
   # NA, #VAR.ncol
@@ -531,7 +537,7 @@ Tree4b<-LatticePlotWrapper_csis360(
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,Customer=="Defense"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -571,7 +577,7 @@ Tree5<-LatticePercentLineWrapper(
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,Theater!="Unlabeled" & full_data$IsOMBocoList==1),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -610,7 +616,7 @@ Tree5A<-LatticePlotWrapper_csis360(
   VAR.main.label="",
   VAR.X.label="Percent Funded by OCO",
   VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(defense_data,Customer=="Defense" &
       CrisisFunding %in% c("OCO","Unlabeled","Excluded" ) & 
       Fiscal.Year >=2012),
@@ -669,7 +675,7 @@ Tree5B<-LatticePlotWrapper_csis360(
   VAR.main.label="",
   VAR.X.label="Square Root of the Share of Product or Service Code Going to Official Contingency Contracts",
   VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(defense_data,Customer=="Defense" &
       CrisisFunding %in% c("OCO","Unlabeled","Excluded")),
   # NA, #VAR.ncol
@@ -731,7 +737,7 @@ Tree5C<-LatticePlotWrapper_csis360(
   VAR.main.label="",
   VAR.X.label="Square Root of the Share of Office Obligations Going to Official Contingency Contracts",
   VAR.Y.label="Constant ($ Billions)",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(defense_data,Customer=="Defense" &
       CrisisFunding %in% c("OCO","Unlabeled","Excluded")),
   # NA, #VAR.ncol
@@ -804,7 +810,7 @@ Tree6percent<-LatticePercentLineWrapper(
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,!Theater %in% c("Unlabeled")),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
@@ -829,7 +835,7 @@ Tree6final<-LatticePlotWrapper_csis360(
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
-  VAR.Coloration=Coloration,
+  VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,!Theater %in% c("Unlabeled") &
       CrisisPoints %in% c("OCO","1 point", "2 points", "3 points")),
   # NA, #VAR.ncol
