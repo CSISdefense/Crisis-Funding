@@ -151,8 +151,135 @@ full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
 full_data<-replace_nas_with_unlabeled(full_data,"Is.Defense")
 
 full_data$SAMcrisisFunding[full_data$SAMcrisisFunding==""]<-NA
+
+full_data<-full_data[,!colnames(full_data) %in% c(
+  # "Fiscal.Year"                                     
+  "SimpleArea",
+  # "ProductOrServiceArea"                            
+  # "Customer"                                        
+  # "ContractingSubCustomer"                          
+  # "PlaceCountryText"                                
+  # "CrisisFundingTheater"                            
+  # "VendorPlaceType"                                 
+  # "Vendor.Size"                                     
+  # "UnmodifiedUltimateDurationCategory"              
+  # "OMBagencyName"                                   
+  # "OMBbureauName"                                   
+  # "treasuryagencycode"                              
+  # "mainaccountcode"                                 
+  # "isUndefinitizedAction"                           
+  # "OCOcrisisScore"                                  
+  # "CompetitionClassification"                       
+  # "ClassifyNumberOfOffers"                          
+  # "IsOMBocoList"                                    
+  # "PSCOCOcrisisScore"                               
+  # "OfficeOCOcrisisScore"                            
+  # "MajorCommandID"                                  
+  # "IsMultipleYearProcRnD"                           
+  # "isforeign"                                       
+  # "ContractCrisisFunding"                           
+  # "nationalinterestactioncode"                      
+  # "CrisisFunding"                                   
+  # "localareasetaside"                               
+  # "ContingencyHumanitarianPeacekeepingOperation"    
+  # "ConHumIsOCOcrisisFunding"                        
+  # "CCRexception"                                    
+  # "IsOCOcrisisFunding"                              
+  # "DecisionTree"                                    
+  # "DecisionTreeStep4"                               
+  # "pscOCOcrisisPoint"                               
+  # "FundingAccountOCOpoint"                          
+  # "OfficeOCOcrisisPoint"                            
+  # "PercentFundingAccountOCO"                        
+  # "OfficeOCOcrisisPercentSqrt"                      
+  # "pscOCOcrisisPercentSqrt"                         
+  # "Action.Obligation"                               
+  # "numberOfActions"                                 
+  # "MajorCommandCode"                                
+  # "ContractingOfficeCode"                           
+  # "Contracting.Agency.ID"                           
+  # "MajorCommandName"                                
+  # "MCC_StartFiscal_Year"                            
+  # "MCC_EndFiscal_Year"                              
+  # "ContractingOfficeName"                           
+  # "Competition.detail"                              
+  # "Competition.sum"                                 
+  # "Competition.effective.only"                      
+  # "Competition.multisum"                            
+  # "No.Competition.sum"                              
+  # "ProductServiceOrRnDarea"                         
+  "ServicesCategory.detail",
+  "ServicesCategory.sum",
+  "ProductsCategory.detail",
+  "ProductOrServiceArea.DLA",
+  "ProductOrServicesCategory.Graph",
+  "ProductServiceOrRnDarea.sum",
+  # "SupplyServiceFRC"                                
+  # "SupplyServiceERS"                                
+  "RnDCategory.detail",
+  # "Vendor.Size.detail"                              
+  # "Vendor.Size.sum"                                 
+  # "Shiny.VendorSize"                                
+  "Deflator.2005",
+  "Deflator.2011",
+  "Deflator.2012",
+  "Deflator.2013",
+  "Deflator.2014",
+  "Deflator.2015",
+  "Deflator.2016",
+  # "Deflator.2017"                                   
+  # "Unknown.2017"                                    
+  # "OMB.2019"                                        
+  "Obligation.2013",
+  "Obligation.2014",
+  "Obligation.2015",
+  # "Obligation.2016"                                 
+  # "LogOfAction.Obligation"                          
+  # "Fiscal.Year.End"                                 
+  # "Fiscal.Year.Start"                               
+  # "Graph"                                           
+  # "CrisisFundingLegacy"                             
+  # "Theater"                                         
+  # "International"                                   
+  # "contingencyhumanitarianpeacekeepingoperationText"
+  # "CHPKisCrisisFunding"                             
+  # "Is.Defense"                                      
+  # "nationalinterestactioncodeText"                  
+  # "IsHurricane"                                     
+  # "NIAcrisisFunding"                                
+  # "SubCustomer"                                     
+  "SubCustomer.detail"
+  # "SAMexceptionText"                                
+  # "SAMexception.sum"                                
+  # "SAMcrisisFunding"  
+)]
+
+colnames()
+
+
+full_data$CrisisFundingLegacy<-factor(full_data$CrisisFundingLegacy)
+full_data$nationalinterestactioncodeText<-factor(full_data$nationalinterestactioncodeText)
+full_data$NIAcrisisFunding<-factor(full_data$NIAcrisisFunding)
+full_data$SubCustomer<-factor(full_data$SubCustomer)
+full_data$SubCustomer<-factor(full_data$SAMexceptionText)
+
+
+typeof(full_data[])
+
+full_data<-deflate(full_data,
+                   money_var = "Action.Obligation",
+                   deflator_var="Deflator.2017"
+)
+
+for(i in 1:ncol(full_data))
+  if (typeof(full_data[,i])=="character")
+    full_data[,i]<-factor(full_data[,i])
+
 full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
 full_column_key<-get_column_key(full_data)
+
+
+
 save(full_data,full_labels_and_colors,full_column_key,
   file="Data//budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
 
