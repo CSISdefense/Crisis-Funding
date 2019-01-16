@@ -124,6 +124,7 @@ C.fiscal_year
 ,notcompeted.isfollowontocompetedaction as ReasonNotIsfollowontocompetedaction
 			,notcompeted.is6_302_1exception
 			,NotCompeted.reasonnotcompetedText
+					,notcompeted.IsUrgency
 			,competed.IsFullAndOpen as ExtentIsFullAndOpen
 			,competed.IsSomeCompetition as ExtentIsSomeCompetition
 			,competed.isonlyonesource as ExtentIsonlyonesource
@@ -132,6 +133,7 @@ C.fiscal_year
 			,Fairopp.isonlyonesource as FairIsonlyonesource
 			,Fairopp.IsSomeCompetition as FairIsSomeCompetition
 			,FairOpp.statutoryexceptiontofairopportunityText
+							,Fairopp.IsUrgency as FairIsUrgency
 			,setaside.typeofsetaside2category
 			
 ,C.NumberOfOffersReceived
