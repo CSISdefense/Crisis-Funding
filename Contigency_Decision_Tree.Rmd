@@ -48,7 +48,10 @@ load(
 
 full_data$CrisisFunding<-"Unlabeled"
 full_data$CrisisFunding<-ordered(full_data$CrisisFunding,levels=c("OCO","Disaster","ARRA","Unlabeled"))
-full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & !is.na(full_data$ContractCrisisFunding)]<-
+full_data$CrisisFunding[
+                          
+                          
+                          CrisisFunding=="Unlabeled" & !is.na(full_data$ContractCrisisFunding)]<-
   full_data$ContractCrisisFunding[full_data$CrisisFunding=="Unlabeled" & !is.na(full_data$ContractCrisisFunding)]
 
 annual_summary<- full_data %>% group_by(Fiscal.Year) %>%
@@ -57,7 +60,7 @@ annual_summary<- full_data %>% group_by(Fiscal.Year) %>%
 crisis_summary<- full_data %>% group_by(CrisisFunding) %>%
   dplyr::summarise(Obligation.2016=sum(Obligation.2016))
 
-
+library(showtext)
 
 Tree1A<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="ARRA/CSIS Labeled Contract",
@@ -80,12 +83,16 @@ Tree1A<-LatticePlotWrapper_csis360(
               , scales="free_y" #The scales actually do stay fixed
               , space="fixed")
   
-Tree1A
+Tree1A+get_plot_theme()
+font_add_google("Open Sans")
+
 
 summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
 summary(full_data$CrisisFunding)
 
+
+windowsFonts()
 
 ggsave("Output//Tree1A.png", Tree1A, width=6.5, height= 3, units="in",dpi=300)
 save(full_data,file="Data//full_data_after_step_1A.Rdata")
@@ -93,9 +100,6 @@ save(full_data,file="Data//full_data_after_step_1A.Rdata")
 
 ##Step 1B: Contingency or Humanitarian Peacekeeping Operation
 ```{r Step1B}
-full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
-full_data<-replace_nas_with_unlabeled(full_data,"Theater")
-full_data<-replace_nas_with_unlabeled(full_data,"contingencyhumanitarianpeacekeepingoperationText")
 full_data$contingencyhumanitarianpeacekeepingoperationText[
   full_data$contingencyhumanitarianpeacekeepingoperationText=="Not Applicable"]<-"Unlabeled"
 
@@ -128,7 +132,7 @@ Tree1B<-LatticePercentLineWrapper(
 #               , scales="free_y" #The scales actually do stay fixed
 #               , space="fixed")
 
-Contradictions1B<-LatticePlotWrapper_csis360_csis360(
+Contradictions1B<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",

@@ -55,8 +55,8 @@ full_data$ContractingCustomer<-factor(full_data$ContractingCustomer)
 
 
 full_data<-apply_lookups(Path,full_data)
-full_data<-subset(full_data, year(Fiscal.Year)>=2000)
-
+full_data<-subset(full_data, year(Fiscal.Year)>=2000 & year(Fiscal.Year)<=2017)
+ 
 #Create new  variables
 full_data$CrisisFundingLegacy<-full_data$CrisisFunding
 
@@ -149,6 +149,9 @@ full_data$DecisionTreeStep4<-factor(full_data$DecisionTreeStep4)
 
 full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
 full_data<-replace_nas_with_unlabeled(full_data,"Is.Defense")
+full_data<-replace_nas_with_unlabeled(full_data,"Theater")
+full_data<-replace_nas_with_unlabeled(full_data,"contingencyhumanitarianpeacekeepingoperationText")
+
 
 full_data$SAMcrisisFunding[full_data$SAMcrisisFunding==""]<-NA
 
