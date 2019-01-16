@@ -34,6 +34,7 @@ SELECT [fiscal_year]
 	  , isUndefinitizedAction
 	  ,OCOcrisisScore
 	  ,CompetitionClassification
+	  ,IsUrgency
 	  ,ClassifyNumberOfOffers
 	  ,IsOMBocoList
 	  ,PSCOCOcrisisScore
@@ -88,6 +89,7 @@ SELECT [fiscal_year]
 	  , isUndefinitizedAction
 	  ,OCOcrisisScore
 	  ,CompetitionClassification
+	  ,IsUrgency
 	  ,ClassifyNumberOfOffers
 	  ,IsOMBocoList
 	,PSCOCOcrisisScore

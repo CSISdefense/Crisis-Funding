@@ -88,6 +88,10 @@ SELECT  [fiscal_year]
 		,l.ExtentIsSomeCompetition	--,@extentissomecompetition as bit
 		,l.FairIsSomeCompetition	--,@fairissomecompetition as bit
 		)) as ClassifyNumberOfOffers
+		,iif(UseFairOpportunity=1
+		,coalesce(FairIsUrgency,IsUrgency)
+		,coalesce(IsUrgency,FairIsUrgency)
+	) as IsUrgency
       ,[ContractCrisisFunding]
       ,[nationalinterestactioncode]
 	  ,[nationalinterestactioncodetext]
