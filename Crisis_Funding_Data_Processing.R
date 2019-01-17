@@ -254,10 +254,45 @@ full_data<-full_data[,!colnames(full_data) %in% c(
   # "SAMcrisisFunding"  
 )]
 
+
 full_data<-deflate(full_data,
                    money_var = "Action.Obligation",
                    deflator_var="Deflator.2017"
 )
+
+
+
+
+full_data$NoCompOffr<-as.character(full_data$No.Competition.sum)
+full_data$NoCompOffr<-as.character(full_data$NoCompOffr)
+full_data$NoCompOffr[full_data$ClassifyNumberOfOffers %in% c("5-9 Offers","10-24 Offers","25-99 Offers","100+ Offers")
+                     &  full_data$NoCompOffr == "2+ Offers"] <-"5+ Offers"
+full_data$NoCompOffr[full_data$ClassifyNumberOfOffers %in% c("Two Offers","3-4 Offers")
+                     &  full_data$NoCompOffr == "2+ Offers"] <-"2-4 Offers"
+
+full_data$NoCompOffr[full_data$IsUrgency==1]<-"Urgency"
+full_data$NoCompOffr<-factor(full_data$NoCompOffr)
+
+summary(full_data$NoCompOffr)
+
+levels(full_data$NoCompOffr)<-list(
+  "1 Offer"="1 Offer",              
+  "2-4 Offers"="2-4 Offers",   
+  "5+ Offers"="5+ Offers",   
+  "Urgency"="Urgency",
+  "Other No"=c("No Comp. (Other)","No Comp. (Only 1 Source)","Follow on to Competed Action"),
+  "Unlabeled"=c("No Comp. (Unlabeled)","Unlabeled")  )
+
+full_data$NoCompOffr<-factor(full_data$NoCompOffr,c(
+  "Other No",
+    "Urgency",
+    "1 Offer",
+    "2-4 Offers",
+    "5+ Offers",
+  "Unlabeled"
+  ))
+full_data %>% group_by(NoCompOffr) %>% dplyr::summarise(obligation.2016=sum(Obligation.2016,na.rm=TRUE))
+
 
 for(i in 1:ncol(full_data))
   if (typeof(full_data[,i])=="character")
