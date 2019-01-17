@@ -52,6 +52,7 @@ SELECT [fiscal_year]
 	  ,ConHumIsOCOcrisisFunding
 	  ,CCRexception
 	  ,IsOCOcrisisFunding  
+	  ,IsARRAcrisisFunding
 	  	  ,DecisionTree
 	  ,DecisionTreeStep4
 	,pscOCOcrisisPoint
@@ -76,6 +77,7 @@ SELECT [fiscal_year]
       ,[nationalinterestactioncode]
       ,[NIAcrisisFunding]
 	  ,IsOCOcrisisFunding
+	  ,IsARRAcrisisFunding
       ,[CrisisFunding]
 	  ,[CrisisFundingTheater]
       ,[PlaceCountryText]
