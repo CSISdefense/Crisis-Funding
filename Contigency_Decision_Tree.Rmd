@@ -55,10 +55,10 @@ full_data$CrisisFunding[
   full_data$ContractCrisisFunding[full_data$CrisisFunding=="Unlabeled" & !is.na(full_data$ContractCrisisFunding)]
 
 annual_summary<- full_data %>% group_by(Fiscal.Year) %>%
-  dplyr::summarise(Obligation.2016=sum(Obligation.2016))
+  dplyr::summarise(Obligation.2017=sum(Obligation.2017))
 
 crisis_summary<- full_data %>% group_by(CrisisFunding) %>%
-  dplyr::summarise(Obligation.2016=sum(Obligation.2016))
+  dplyr::summarise(Obligation.2017=sum(Obligation.2017))
 
 library(showtext)
 
@@ -71,7 +71,7 @@ Tree1A<-LatticePlotWrapper_csis360(
   VAR.long.DF=full_data,
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary= "ContractCrisisFunding", #VAR.facet.primary
   VAR.facet.secondary="Is.Defense", # VAR.facet.secondary=NA
@@ -106,6 +106,18 @@ full_data$contingencyhumanitarianpeacekeepingoperationText[
 # ConHumIsOCOcrisisFunding=1
 # ,[ContingencyHumanitarianPeacekeepingOperation]
 
+
+  share_data <- csis360::format_data_for_plot(data=subset(full_data,Theater!="Unlabeled"),
+                                              share=TRUE,
+                                              fy_var=full_data,
+                                              # start_fy=start_fy,
+                                              # end_fy=end_fy,
+                                              y_var="Obligation.2017",
+                                              color_var="contingencyhumanitarianpeacekeepingoperationText",
+                                              facet_var="Theater",
+                                              labels_and_colors=labels_and_colors)
+
+
 Tree1B<-LatticePercentLineWrapper(
   VAR.color.legend.label="Operation Type",
   VAR.main.label="",
@@ -115,7 +127,7 @@ Tree1B<-LatticePercentLineWrapper(
   VAR.long.DF=subset(full_data,Theater!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="contingencyhumanitarianpeacekeepingoperationText", #VAR.y.series
   VAR.facet.primary= "Theater", #VAR.facet.primary
   # VAR.facet.secondary="contingencyhumanitarianpeacekeepingoperationText", # VAR.facet.secondary=NA
@@ -141,7 +153,7 @@ Contradictions1B<-LatticePlotWrapper_csis360(
   VAR.long.DF=subset(full_data,Theater!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary="contingencyhumanitarianpeacekeepingoperationText", #VAR.facet.primary
   VAR.facet.secondary= "Theater", # VAR.facet.secondary=NA
@@ -200,7 +212,7 @@ Tree1CdetailIsDefense<-LatticePlotWrapper_csis360(
                      | nationalinterestactioncodeText=="Inauguration 2009"),
   # NA, #VAR.ncol
   VAR.x.variable="NIAlist", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="Is.Defense" #VAR.y.series
   # VAR.facet.primary=NA , #"NIAcrisisFunding", #VAR.facet.primary
   # VAR.facet.secondary=NA,  # VAR.facet.secondary=NA
@@ -231,7 +243,7 @@ Tree1Ctheater<-LatticePercentLineWrapper(
   VAR.long.DF=subset(full_data,Theater!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="NIAcrisisFunding", #VAR.y.series
   VAR.facet.primary= "Theater", #VAR.facet.primary
   # VAR.facet.secondary="contingencyhumanitarianpeacekeepingoperationText", # VAR.facet.secondary=NA
@@ -270,7 +282,7 @@ Tree1CisDefense<-LatticePlotWrapper_csis360(
   VAR.long.DF=subset(full_data,NIAcontradictions!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary= "NIAcontradictions", #VAR.facet.primary
   VAR.facet.secondary="Is.Defense", # VAR.facet.secondary=NA
@@ -293,7 +305,7 @@ Tree1Coco<-LatticePlotWrapper_csis360(
   VAR.long.DF=subset(full_data,NIAcrisisFunding=="OCO" | (CrisisFunding=="OCO" & nationalinterestactioncodeText=="None")),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary= "nationalinterestactioncodeText", #VAR.facet.primary
   # VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
@@ -345,7 +357,7 @@ Tree1DisDefense<-LatticePlotWrapper_csis360(
   VAR.long.DF=subset(full_data,SAMexception.sum!="No Exception"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary= "SAMexception.sum", #VAR.facet.primary
   VAR.facet.secondary="Is.Defense", # VAR.facet.secondary=NA
@@ -364,10 +376,10 @@ summary(full_data$CCRexception)
 plyr::ddply(full_data,
        plyr::.(CCRexception),
        plyr::summarise,
-           Obligation.2016=sum(Obligation.2016)
+           Obligation.2017=sum(Obligation.2017)
        )
 
-sum(full_data$Obligation.2016[full_data$CCRexception %in% c(3,4)])
+sum(full_data$Obligation.2017[full_data$CCRexception %in% c(3,4)])
 ```
 
 #Step 2: Iraq and Afghanistan
@@ -388,7 +400,7 @@ Tree2isDefense<-LatticePlotWrapper_csis360(
   VAR.long.DF=subset(full_data,Theater=="Afghanistan and Iraq"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary= "Is.Defense", #VAR.facet.primary
   VAR.facet.secondary="CrisisFundingTheater", # VAR.facet.secondary=NA
@@ -434,7 +446,7 @@ Tree3<-LatticePlotWrapper_csis360(
       Fiscal.Year>=as.Date("2011-01-01")),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary= "UnmodifiedUltimateDurationCategory", #VAR.facet.primary
   VAR.facet.secondary="IsMultipleYearProcRnD", # VAR.facet.secondary=NA
@@ -481,7 +493,7 @@ Tree4a<-LatticePlotWrapper_csis360(
       ProductServiceOrRnDarea.sum!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary= "IsExcludedPSC", #VAR.facet.primary
   VAR.facet.secondary="ProductServiceOrRnDarea.sum", # VAR.facet.secondary=NA
@@ -531,7 +543,7 @@ Tree4b<-LatticePlotWrapper_csis360(
   VAR.long.DF=subset(full_data,Customer=="Defense"),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary= "IsExcludedCO", #VAR.facet.primary
   VAR.facet.secondary="SubCustomer.detail", # VAR.facet.secondary=NA
@@ -571,7 +583,7 @@ Tree5<-LatticePercentLineWrapper(
   VAR.long.DF=subset(full_data,Theater!="Unlabeled" & full_data$IsOMBocoList==1),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary= "Theater", #VAR.facet.primary
   # VAR.facet.secondary="contingencyhumanitarianpeacekeepingoperationText", # VAR.facet.secondary=NA
@@ -612,7 +624,7 @@ Tree5A<-LatticePlotWrapper_csis360(
       Fiscal.Year >=2012),
   # NA, #VAR.ncol
   VAR.x.variable="PercentFundingAccountOCORound1", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary= "CrisisFunding", #VAR.facet.primary
   # VAR.facet.secondary="SubCustomer.detail", # VAR.facet.secondary=NA
@@ -626,25 +638,25 @@ Tree5A<-LatticePlotWrapper_csis360(
   scale_x_continuous(labels = percent_format())+geom_vline(aes(xintercept=0.25))  
 Tree5A
 ggsave("Output//Tree5A.png", Tree5A, width=6.5, height= 3, units="in",dpi=300)
-sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="OCO"&
+sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="OCO"&
       defense_data$Customer=="Defense"& 
       defense_data$Fiscal.Year >=2012&
     defense_data$PercentFundingAccountOCORound1>=0.25],na.rm=TRUE)/
-  sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="OCO"&
+  sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="OCO"&
       defense_data$Customer=="Defense"& 
       defense_data$Fiscal.Year >=2012],na.rm=TRUE)
-sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="Excluded"&
+sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="Excluded"&
       defense_data$Customer=="Defense"& 
       defense_data$Fiscal.Year >=2012&
     defense_data$PercentFundingAccountOCORound1>=0.25],na.rm=TRUE)/
-  sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="Excluded"&
+  sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="Excluded"&
       defense_data$Customer=="Defense"& 
       defense_data$Fiscal.Year >=2012],na.rm=TRUE)
-sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="Unlabeled"&
+sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="Unlabeled"&
       defense_data$Customer=="Defense"& 
       defense_data$Fiscal.Year >=2012&
     defense_data$PercentFundingAccountOCORound1>=0.25],na.rm=TRUE)/
-  sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="Unlabeled"&
+  sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="Unlabeled"&
       defense_data$Customer=="Defense"& 
       defense_data$Fiscal.Year >=2012],na.rm=TRUE)
 
@@ -670,7 +682,7 @@ Tree5B<-LatticePlotWrapper_csis360(
       CrisisFunding %in% c("OCO","Unlabeled","Excluded")),
   # NA, #VAR.ncol
   VAR.x.variable="pscOCOcrisisPercentRound1", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary= "CrisisFunding", #VAR.facet.primary
   # VAR.facet.secondary="SubCustomer.detail", # VAR.facet.secondary=NA
@@ -683,26 +695,26 @@ Tree5B<-LatticePlotWrapper_csis360(
               , space="fixed")+
   scale_x_continuous(labels = percent_format())+geom_vline(aes(xintercept=0.16))  
 Tree5B
-sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="OCO"&
+sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="OCO"&
       defense_data$Customer=="Defense"&
     defense_data$pscOCOcrisisPercentRound1>=0.16])/
-  sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="OCO"&
+  sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="OCO"&
       defense_data$Customer=="Defense"])
-sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="Excluded"&
+sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="Excluded"&
       defense_data$Customer=="Defense"&
     defense_data$pscOCOcrisisPercentRound1>=0.16])/
-  sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="Excluded"&
+  sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="Excluded"&
       defense_data$Customer=="Defense"])
-sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="Unlabeled"&
+sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="Unlabeled"&
       defense_data$Customer=="Defense"&
     defense_data$pscOCOcrisisPercentRound1>=0.16],na.rm=TRUE)/
-  sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="Unlabeled"&
+  sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="Unlabeled"&
       defense_data$Customer=="Defense"],na.rm=TRUE)
 
-sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="OCO"&
+sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="OCO"&
       defense_data$Customer=="Defense"&
     defense_data$pscOCOcrisisPercentRound1>=0.25])/
-  sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="OCO"&
+  sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="OCO"&
       defense_data$Customer=="Defense"])
 
 
@@ -732,7 +744,7 @@ Tree5C<-LatticePlotWrapper_csis360(
       CrisisFunding %in% c("OCO","Unlabeled","Excluded")),
   # NA, #VAR.ncol
   VAR.x.variable="OfficeOCOcrisisPercentRound1", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary= "CrisisFunding", #VAR.facet.primary
   # VAR.facet.secondary="SubCustomer.detail", # VAR.facet.secondary=NA
@@ -746,20 +758,20 @@ Tree5C<-LatticePlotWrapper_csis360(
   scale_x_continuous(labels = percent_format())+geom_vline(aes(xintercept=0.25))  
 Tree5C
 ggsave("Output//Tree5C.png", Tree5C, width=6.5, height= 3, units="in",dpi=300)
-sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="OCO"&
+sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="OCO"&
       defense_data$Customer=="Defense"& 
     defense_data$OfficeOCOcrisisPercentRound1>=0.25],na.rm=TRUE)/
-  sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="OCO"&
+  sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="OCO"&
       defense_data$Customer=="Defense"],na.rm=TRUE)
-sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="Excluded"&
+sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="Excluded"&
       defense_data$Customer=="Defense"&
     defense_data$OfficeOCOcrisisPercentRound1>=0.25],na.rm=TRUE)/
-  sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="Excluded"&
+  sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="Excluded"&
       defense_data$Customer=="Defense"],na.rm=TRUE)
-sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="Unlabeled"&
+sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="Unlabeled"&
       defense_data$Customer=="Defense"&
     defense_data$OfficeOCOcrisisPercentRound1>=0.25],na.rm=TRUE)/
-  sum(defense_data$Obligation.2016[defense_data$CrisisFunding=="Unlabeled"&
+  sum(defense_data$Obligation.2017[defense_data$CrisisFunding=="Unlabeled"&
       defense_data$Customer=="Defense"],na.rm=TRUE)
 
 ```
@@ -804,7 +816,7 @@ Tree6percent<-LatticePercentLineWrapper(
   VAR.long.DF=subset(full_data,!Theater %in% c("Unlabeled")),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisPoints", #VAR.y.series
   VAR.facet.primary= "OMBtheater", #VAR.facet.primary
   # VAR.facet.secondary="contingencyhumanitarianpeacekeepingoperationText", # VAR.facet.secondary=NA
@@ -830,7 +842,7 @@ Tree6final<-LatticePlotWrapper_csis360(
       CrisisPoints %in% c("OCO","1 point", "2 points", "3 points")),
   # NA, #VAR.ncol
   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2016", #VAR.y.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisPoints", #VAR.y.series
   VAR.facet.primary= "OMBtheater", #VAR.facet.primary
   VAR.facet.secondary="DecisionTree", # VAR.facet.secondary=NA
