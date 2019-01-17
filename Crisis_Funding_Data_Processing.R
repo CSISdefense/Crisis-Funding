@@ -51,7 +51,6 @@ full_data<-full_data[,!colnames(full_data) %in%
                                "IsOMBocoList_1"
                              )]
 
-full_data$ContractingCustomer<-factor(full_data$ContractingCustomer)
 
 
 full_data<-apply_lookups(Path,full_data)
@@ -257,18 +256,6 @@ full_data<-full_data[,!colnames(full_data) %in% c(
   # "SAMcrisisFunding"  
 )]
 
-colnames()
-
-
-full_data$CrisisFundingLegacy<-factor(full_data$CrisisFundingLegacy)
-full_data$nationalinterestactioncodeText<-factor(full_data$nationalinterestactioncodeText)
-full_data$NIAcrisisFunding<-factor(full_data$NIAcrisisFunding)
-full_data$SubCustomer<-factor(full_data$SubCustomer)
-full_data$SubCustomer<-factor(full_data$SAMexceptionText)
-
-
-typeof(full_data[])
-
 full_data<-deflate(full_data,
                    money_var = "Action.Obligation",
                    deflator_var="Deflator.2017"
@@ -280,8 +267,6 @@ for(i in 1:ncol(full_data))
 
 full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
 full_column_key<-get_column_key(full_data)
-
-
 
 save(full_data,full_labels_and_colors,full_column_key,
   file="Data//budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
