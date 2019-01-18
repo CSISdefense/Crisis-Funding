@@ -45,12 +45,9 @@ load(
 ##Step 1A: Is this an ARRA labled contract (or a CSIS labeled one)
 ```{r Step1A}
 
-
 full_data$CrisisFunding<-"Unlabeled"
 full_data$CrisisFunding<-ordered(full_data$CrisisFunding,levels=c("OCO","Disaster","ARRA","Unlabeled"))
 full_data$CrisisFunding[
-                          
-                          
                           CrisisFunding=="Unlabeled" & !is.na(full_data$ContractCrisisFunding)]<-
   full_data$ContractCrisisFunding[full_data$CrisisFunding=="Unlabeled" & !is.na(full_data$ContractCrisisFunding)]
 
