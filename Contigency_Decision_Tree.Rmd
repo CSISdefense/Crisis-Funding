@@ -106,7 +106,7 @@ full_data$contingencyhumanitarianpeacekeepingoperationText[
 
   share_data <- csis360::format_data_for_plot(data=subset(full_data,Theater!="Unlabeled"),
                                               share=TRUE,
-                                              fy_var=full_data,
+                                              fy_var="Fiscal.Year",
                                               # start_fy=start_fy,
                                               # end_fy=end_fy,
                                               y_var="Obligation.2017",
