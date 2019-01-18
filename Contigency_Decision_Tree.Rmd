@@ -47,8 +47,7 @@ load(
 
 full_data$CrisisFunding<-"Unlabeled"
 full_data$CrisisFunding<-ordered(full_data$CrisisFunding,levels=c("OCO","Disaster","ARRA","Unlabeled"))
-full_data$CrisisFunding[
-                          CrisisFunding=="Unlabeled" & !is.na(full_data$ContractCrisisFunding)]<-
+full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & !is.na(full_data$ContractCrisisFunding)]<-
   full_data$ContractCrisisFunding[full_data$CrisisFunding=="Unlabeled" & !is.na(full_data$ContractCrisisFunding)]
 
 annual_summary<- full_data %>% group_by(Fiscal.Year) %>%
@@ -115,6 +114,22 @@ full_data$contingencyhumanitarianpeacekeepingoperationText[
                                               labels_and_colors=labels_and_colors)
 
 
+Tree1B<-build_plot(
+  data=subset(full_data,Theater!="Unlabeled"),
+  chart_geom = "Line Chart",
+  share = TRUE,
+  x_var="Fiscal.Year",
+  y_var="Obligation.2017",
+  color_var="contingencyhumanitarianpeacekeepingoperationText",
+  facet_var="Theater",
+  legend=TRUE, #Include a legend
+  caption=TRUE, #Include a source caption
+  labels_and_colors=full_labels_and_colors,
+  column_key=full_column_key
+)+labs(x="Fiscal Year",
+       y="Percent of Obligations",
+       legend.title="Operation Type")
+  
 Tree1B<-LatticePercentLineWrapper(
   VAR.color.legend.label="Operation Type",
   VAR.main.label="",
