@@ -18,8 +18,6 @@ library(Hmisc)
 library(csis360)
 library(scales)
 
-source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
-source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
 
 # diigtheme1:::diiggraph()
 
@@ -91,7 +89,6 @@ summary(full_data$CrisisFunding)
 windowsFonts()
 
 ggsave("Output//Tree1A.png", Tree1A, width=6.5, height= 3, units="in",dpi=300)
-save(full_data,file="Data//full_data_after_step_1A.Rdata")
 ```
 
 ##Step 1B: Contingency or Humanitarian Peacekeeping Operation
@@ -102,23 +99,22 @@ full_data$contingencyhumanitarianpeacekeepingoperationText[
 # ConHumIsOCOcrisisFunding=1
 # ,[ContingencyHumanitarianPeacekeepingOperation]
 
-
-  share_data <- csis360::format_data_for_plot(data=subset(full_data,Theater!="Unlabeled"),
+  share_data <- format_data_for_plot(data=subset(full_data,Theater!="Unlabeled"),
                                               share=TRUE,
-                                              fy_var="Fiscal.Year",
+                                              fy_var="dFYear",
                                               # start_fy=start_fy,
                                               # end_fy=end_fy,
                                               y_var="Obligation.2017",
                                               color_var="contingencyhumanitarianpeacekeepingoperationText",
                                               facet_var="Theater",
-                                              labels_and_colors=labels_and_colors)
+                                              labels_and_colors=full_labels_and_colors)
 
 
 Tree1B<-build_plot(
-  data=subset(full_data,Theater!="Unlabeled"),
+  data=share_data,
   chart_geom = "Line Chart",
   share = TRUE,
-  x_var="Fiscal.Year",
+  x_var="dFYear",
   y_var="Obligation.2017",
   color_var="contingencyhumanitarianpeacekeepingoperationText",
   facet_var="Theater",
@@ -128,29 +124,13 @@ Tree1B<-build_plot(
   column_key=full_column_key
 )+labs(x="Fiscal Year",
        y="Percent of Obligations",
-       legend.title="Operation Type")
-  
-Tree1B<-LatticePercentLineWrapper(
-  VAR.color.legend.label="Operation Type",
-  VAR.main.label="",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
-  VAR.Coloration=full_labels_and_colors,
-  VAR.long.DF=subset(full_data,Theater!="Unlabeled"),
-  # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="contingencyhumanitarianpeacekeepingoperationText", #VAR.y.series
-  VAR.facet.primary= "Theater", #VAR.facet.primary
-  # VAR.facet.secondary="contingencyhumanitarianpeacekeepingoperationText", # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  DataLabels=FALSE
-  #                       ,VAR.override.coloration=NA
-)+theme(legend.position="bottom")+
+       legend.title="Operation Type")+
   scale_x_date(
             # breaks=date_breaks("5 years"),
-            labels=date_format("'%y"))
+            labels=date_format("'%y"))+
+facet_wrap(~Theater,nrow=1)
+  
+# )+theme(legend.position="bottom")
   
 # +facet_grid(primary ~ secondary
 #               , scales="free_y" #The scales actually do stay fixed
@@ -164,7 +144,7 @@ Contradictions1B<-LatticePlotWrapper_csis360(
   VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,Theater!="Unlabeled"),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary="contingencyhumanitarianpeacekeepingoperationText", #VAR.facet.primary
@@ -192,8 +172,6 @@ summary(full_data$DecisionTreeStep4)
 summary(full_data$CrisisFunding)
 
 
-save(full_data,
-  file="Data//full_data_after_step_1B.Rdata")
 
 ```
 
@@ -207,23 +185,46 @@ full_data<-replace_nas_with_unlabeled(full_data,"NIAcrisisFunding")
 #       ,[nationalinterestactioncode]
 #Flipping so first element is on top
 
-labels.x.DF<-prepare_labels_and_colors(full_data,"nationalinterestactioncodeText")
-      full_data$NIAlist<-factor(full_data$nationalinterestactioncodeText,
-        levels=c(rev(labels.x.DF$variable)),
-        labels=c(rev(labels.x.DF$Label)),
-        ordered=TRUE)
-  
-        
+
+debug(LatticePlotWrapper_csis360)        
+
+  data_1C <- format_data_for_plot(data=subset(full_data,Theater!="Unlabeled"),
+                                              share=FALSE,
+                                              fy_var="nationalinterestactioncodeText",
+                                              # start_fy=start_fy,
+                                              # end_fy=end_fy,
+                                              y_var="Obligation.2017",
+                                              color_var="Is.Defense",
+                                              # facet_var="None",
+                                              labels_and_colors=full_labels_and_colors)
+Tree1CdetailIsDefense<-build_plot(
+  data=data_1C,
+  chart_geom = "Bar Chart",
+  share = FALSE,
+  x_var="nationalinterestactioncodeText",
+  y_var="Obligation.2017",
+  color_var="Is.Defense",
+  # facet_var="None",
+  legend=TRUE, #Include a legend
+  caption=TRUE, #Include a source caption
+  labels_and_colors=full_labels_and_colors,
+  column_key=full_column_key
+)+labs(x=NULL,
+       y="Constant ($ Billions)",
+       legend.title="National Interest Action")
+
+
+
 Tree1CdetailIsDefense<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="National Interest Action",
   VAR.main.label="",
   VAR.X.label="", #"Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=full_labels_and_colors,
-  VAR.long.DF=subset(full_data,NIAcrisisFunding !="Unlabeled"
+  VAR.long.DF=subset(full_data,nationalinterestactioncodeText !="Unlabeled"
                      | nationalinterestactioncodeText=="Inauguration 2009"),
   # NA, #VAR.ncol
-  VAR.x.variable="NIAlist", #VAR.x.variable
+  VAR.x.variable="nationalinterestactioncodeText", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="Is.Defense" #VAR.y.series
   # VAR.facet.primary=NA , #"NIAcrisisFunding", #VAR.facet.primary
@@ -350,8 +351,6 @@ summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
 summary(full_data$CrisisFunding)
 
-save(full_data,
-  file="Data//full_data_after_step_1C.Rdata")
 
 ```
 
@@ -437,8 +436,7 @@ summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
 summary(full_data$CrisisFunding)
 
-save(full_data,
-  file="Data//full_data_after_step_2.Rdata")
+
 ```
 
 #Step 3 Multiyear procurement and R&D
@@ -481,9 +479,8 @@ summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
 summary(full_data$CrisisFunding)
 
-save(full_data,
-  file="Data//full_data_after_step_3.Rdata")
 ```
+
 # Step 4: Does the transaction’s product or service code or transaction’s contracting office have no history of contingency contracting
 ##Step 4A: Does the transaction’s product or service code have no history of contingency contracting?
 ```{r Step4a}
@@ -535,8 +532,6 @@ summary(full_data$DecisionTreeStep4)
 summary(full_data$CrisisFunding)
 
 
-save(full_data,
-     file="Data//full_data_after_step_4a.Rdata")
 ```
 ##Step 4B Does the transaction’s contracting office have no history of contingency contracting?
 ```{r Step4b}

@@ -16,11 +16,6 @@ library(reshape2)
 library(Hmisc)
 library(csis360)
 
-
-source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
-source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
-
-
 ##Import Data
 # read in detailed defense dataset    
 # ZipFile<-unz(file.path("Data","Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.zip"),
@@ -138,7 +133,7 @@ full_data<-read_and_join(
   # new_var_checked=TRUE,
   skip_check_var=c("SAMcrisisFunding")
 )
-
+full_data<-replace_nas_with_unlabeled(full_data,"ClassifyNumberOfOffers")
 full_data<-read_and_join(full_data,
                       "Lookup_SQL_CompetitionClassification.csv",
                       by=c("CompetitionClassification",
@@ -161,19 +156,12 @@ full_data<-deflate(full_data,
 )
 
 
-summary(factor(full_data$CompetitionClassification))
 
-full_data$NoCompOffr<-as.character(full_data$No.Competition.sum)
-full_data$NoCompOffr<-as.character(full_data$NoCompOffr)
-full_data$NoCompOffr[full_data$ClassifyNumberOfOffers %in% c("5-9 Offers","10-24 Offers","25-99 Offers","100+ Offers")
-                     &  full_data$NoCompOffr == "2+ Offers"] <-"5+ Offers"
-full_data$NoCompOffr[full_data$ClassifyNumberOfOffers %in% c("Two Offers","3-4 Offers")
-                     &  full_data$NoCompOffr == "2+ Offers"] <-"2-4 Offers"
+full_data$NoCompOffr<-as.character(full_data$No.Competition.Offer)
+summary(factor(full_data$NoCompOffr))
 
 full_data$NoCompOffr[full_data$IsUrgency==1]<-"Urgency"
 full_data$NoCompOffr<-factor(full_data$NoCompOffr)
-
-summary(full_data$NoCompOffr)
 
 levels(full_data$NoCompOffr)<-list(
   "1 Offer"="1 Offer",              
@@ -191,15 +179,28 @@ full_data$NoCompOffr<-factor(full_data$NoCompOffr,c(
     "5+ Offers",
   "Unlabeled"
   ))
-full_data %>% group_by(NoCompOffr) %>% dplyr::summarise(obligation.2016=sum(Obligation.2016,na.rm=TRUE))
+
+colnames(full_data)[colnames(full_data)=="Action.Obligation.2017"]<-"Obligation.2017"
+full_data %>% group_by(NoCompOffr) %>% dplyr::summarise(Obligation.2017=sum(Obligation.2017,na.rm=TRUE))
 
 
 for(i in 1:ncol(full_data))
   if (typeof(full_data[,i])=="character")
     full_data[,i]<-factor(full_data[,i])
 
+full_data$dFYear <-as.Date(paste("1/1/",as.character(full_data$Fiscal.Year),sep=""),"%m/%d/%Y")
+
+
+labels.x.DF<-prepare_labels_and_colors(full_data,"nationalinterestactioncodeText")
+full_data$NIAlist<-factor(full_data$nationalinterestactioncodeText,
+                          levels=c(rev(labels.x.DF$variable)),
+                          labels=c(rev(labels.x.DF$Label)),
+                          ordered=TRUE)
+
+
 full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
 full_column_key<-get_column_key(full_data)
+
 
 save(full_data,full_labels_and_colors,full_column_key,
   file="Data//budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
