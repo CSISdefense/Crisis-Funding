@@ -1613,6 +1613,49 @@ stargazer::stargazer(Term_22E,type="text",#Term_20A,#Term_20C
 summary_residual_compare(Term_22E,bins=50)
 ```
 
+```{r Xinyi: Plot Countries with top20 frequencies and their multilevel intercept}
+load("Output//Model22E.rdata")
+coef(Term_22E)$PlaceCountryISO3[1]
+Country_Intercept <- as.data.frame(coef(Term_22E)$PlaceCountryISO3[1])
+Country_Intercept$Countries <- row.names(Country_Intercept)
+row.names(Country_Intercept) <- NULL
+colnames(Country_Intercept) <- c("Intercept", "Countries")
+
+library(dplyr)
+#Get the Top 20 countries in crisis_all with highest frequency
+Top20_Countries <- as.data.frame(table(crisis_all$PlaceCountryISO3)) %>% `colnames<-`(c("Countries", "Freq"))
+Top20_Countries <- Top20_Countries[order(-Top20_Countries$Freq),]
+Top20_Countries <- Top20_Countries[1:20,] %>% `row.names<-`(NULL)
+Top20_Countries$Countries <- as.character(Top20_Countries$Countries)
+#Extract Top 20 frequent countries from Country_Intercept
+Country_Intercept20 <- Country_Intercept[which(Country_Intercept$Countries %in% Top20_Countries$Countries),] %>% `row.names<-`(NULL)
+Country_Intercept20 <- Country_Intercept20[order(Country_Intercept20$Intercept),] %>% `row.names<-`(NULL)
+Country_Intercept20$Countries <- as.character(Country_Intercept20$Countries)
+Country_Intercept20$Countries <- factor(Country_Intercept20$Countries, 
+                                        levels = unique(Country_Intercept20$Countries))
+
+#build the intercept-T20 countries barplot
+library(ggplot2)
+ggplot(data = Country_Intercept20,
+       aes(x = Country_Intercept20$Countries,
+           y = Country_Intercept20$Intercept)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.5) +
+  xlab("") +
+  ylab("") +
+  ggtitle("Multi-level logit intercept") + 
+  theme_grey() +
+  scale_fill_grey() +
+  theme(plot.margin = margin(t=1,
+                             r=0.5,
+                             b=1,
+                             l=0.5,
+                             unit = "cm"),
+        plot.title = element_text(hjust = 0.5))
+```
+
+
+
+
 ### Crisis-Only 22F CBre
 ```{r Model22F}
 # summary(large_crisis_smp$ServCommCons)

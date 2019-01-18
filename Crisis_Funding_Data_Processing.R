@@ -51,7 +51,6 @@ full_data<-full_data[,!colnames(full_data) %in%
                                "IsOMBocoList_1"
                              )]
 
-full_data$ContractingCustomer<-factor(full_data$ContractingCustomer)
 
 
 full_data<-apply_lookups(Path,full_data)
@@ -144,8 +143,6 @@ full_data<-read_and_join(
 
 
 
-full_data$DecisionTree<-factor(full_data$DecisionTree)
-full_data$DecisionTreeStep4<-factor(full_data$DecisionTreeStep4)
 
 full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
 full_data<-replace_nas_with_unlabeled(full_data,"Is.Defense")
@@ -257,22 +254,45 @@ full_data<-full_data[,!colnames(full_data) %in% c(
   # "SAMcrisisFunding"  
 )]
 
-colnames()
-
-
-full_data$CrisisFundingLegacy<-factor(full_data$CrisisFundingLegacy)
-full_data$nationalinterestactioncodeText<-factor(full_data$nationalinterestactioncodeText)
-full_data$NIAcrisisFunding<-factor(full_data$NIAcrisisFunding)
-full_data$SubCustomer<-factor(full_data$SubCustomer)
-full_data$SubCustomer<-factor(full_data$SAMexceptionText)
-
-
-typeof(full_data[])
 
 full_data<-deflate(full_data,
                    money_var = "Action.Obligation",
                    deflator_var="Deflator.2017"
 )
+
+
+
+
+full_data$NoCompOffr<-as.character(full_data$No.Competition.sum)
+full_data$NoCompOffr<-as.character(full_data$NoCompOffr)
+full_data$NoCompOffr[full_data$ClassifyNumberOfOffers %in% c("5-9 Offers","10-24 Offers","25-99 Offers","100+ Offers")
+                     &  full_data$NoCompOffr == "2+ Offers"] <-"5+ Offers"
+full_data$NoCompOffr[full_data$ClassifyNumberOfOffers %in% c("Two Offers","3-4 Offers")
+                     &  full_data$NoCompOffr == "2+ Offers"] <-"2-4 Offers"
+
+full_data$NoCompOffr[full_data$IsUrgency==1]<-"Urgency"
+full_data$NoCompOffr<-factor(full_data$NoCompOffr)
+
+summary(full_data$NoCompOffr)
+
+levels(full_data$NoCompOffr)<-list(
+  "1 Offer"="1 Offer",              
+  "2-4 Offers"="2-4 Offers",   
+  "5+ Offers"="5+ Offers",   
+  "Urgency"="Urgency",
+  "Other No"=c("No Comp. (Other)","No Comp. (Only 1 Source)","Follow on to Competed Action"),
+  "Unlabeled"=c("No Comp. (Unlabeled)","Unlabeled")  )
+
+full_data$NoCompOffr<-factor(full_data$NoCompOffr,c(
+  "Other No",
+    "Urgency",
+    "1 Offer",
+    "2-4 Offers",
+    "5+ Offers",
+  "Unlabeled"
+  ))
+full_data %>% group_by(NoCompOffr) %>% dplyr::summarise(obligation.2016=sum(Obligation.2016,na.rm=TRUE))
+
 
 for(i in 1:ncol(full_data))
   if (typeof(full_data[,i])=="character")
@@ -280,8 +300,6 @@ for(i in 1:ncol(full_data))
 
 full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
 full_column_key<-get_column_key(full_data)
-
-
 
 save(full_data,full_labels_and_colors,full_column_key,
   file="Data//budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
