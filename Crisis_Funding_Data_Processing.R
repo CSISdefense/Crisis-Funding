@@ -10,7 +10,6 @@
   
   #Setup
 
-library(plyr)
 library(dplyr)
 library(reshape2)
 library(Hmisc)
@@ -35,17 +34,6 @@ full_data <- readr::read_delim(file.path("Data",
                                na=c("NULL","NA"))
 
 full_data<-standardize_variable_names(full_data)
-
-full_data<-full_data[,!colnames(full_data) %in%
-                             c(
-                               "ContractCrisisFunding.1"             ,
-                               "localareasetaside.1",
-                               "IsOMBocoList.1",
-                               "ContractCrisisFunding_1"             ,
-                               "localareasetaside_1",
-                               "IsOMBocoList_1"
-                             )]
-
 
 
 full_data<-subset(full_data, Fiscal.Year>=2000 & Fiscal.Year<=2017)
@@ -200,7 +188,6 @@ full_data$NIAlist<-factor(full_data$nationalinterestactioncodeText,
 
 full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
 full_column_key<-get_column_key(full_data)
-
 
 save(full_data,full_labels_and_colors,full_column_key,
   file="Data//budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
