@@ -142,7 +142,7 @@ facet_wrap(~Theater,nrow=1)
 
 Contradictions1B<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=full_labels_and_colors,
@@ -298,7 +298,7 @@ Tree1CisDefense<-LatticePlotWrapper_csis360(
 
 Tree1Coco<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="National Interest Action",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2017 $)",
   VAR.Coloration=full_labels_and_colors,
@@ -360,7 +360,7 @@ summary(full_data$CrisisFunding)
 
 Tree1DisDefense<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification Through Step 1C",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=full_labels_and_colors,
@@ -381,7 +381,6 @@ Tree1DisDefense<-LatticePlotWrapper_csis360(
 
 Tree1DisDefense
 summary(full_data$CCRexception)
-summary(full_data$CCRexception)
 
 full_data %>%
        group_by(CCRexception) %>%
@@ -391,6 +390,8 @@ full_data %>%
 
 sum(full_data$Obligation.2017[full_data$CCRexception %in% c(3,4)])
 ```
+
+Only relevant to a few million in contract obligations, skipping.
 
 #Step 2: Iraq and Afghanistan
 
@@ -403,7 +404,7 @@ sum(full_data$Obligation.2017[full_data$CCRexception %in% c(3,4)])
 
 Tree2isDefense<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification Through Step 1C",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=full_labels_and_colors,
@@ -447,7 +448,7 @@ full_data<-replace_nas_with_unlabeled(full_data,"UnmodifiedUltimateDurationCateg
 
 Tree3<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification After Step 2",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=full_labels_and_colors,
@@ -493,7 +494,7 @@ full_data$IsExcludedPSC[full_data$PSCOCOcrisisScore==-1]<-1
 
 Tree4a<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification After Step 3",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=full_labels_and_colors,
@@ -542,7 +543,7 @@ full_data$IsExcludedCO[full_data$OfficeOCOcrisisScore==-1]<-1
 
 Tree4b<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification After Step 4A",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=full_labels_and_colors,
@@ -582,7 +583,7 @@ save(full_data,file="Data//full_data_after_step_4b.Rdata")
 
 Tree5<-LatticePercentLineWrapper(
   VAR.color.legend.label="Classification After Step 4B",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
   VAR.Coloration=full_labels_and_colors,
@@ -621,7 +622,7 @@ defense_data$PercentFundingAccountOCORound1<-round(defense_data$PercentFundingAc
 summary(defense_data$CrisisFunding)
 Tree5A<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification After Step 4B",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Percent Funded by OCO",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=full_labels_and_colors,
@@ -680,7 +681,7 @@ defense_data$pscOCOcrisisPercentRound1<-round(sqrt(defense_data$pscOCOcrisisPerc
 
 Tree5B<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification After Step 4B",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Square Root of the Share of Product or Service Code Going to Official Contingency Contracts",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=full_labels_and_colors,
@@ -742,7 +743,7 @@ defense_data$OfficeOCOcrisisPercentRound1<-round(sqrt(defense_data$OfficeOCOcris
 
 Tree5C<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification After Step 4C",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Square Root of the Share of Office Obligations Going to Official Contingency Contracts",
   VAR.Y.label="Constant ($ Billions)",
   VAR.Coloration=full_labels_and_colors,
@@ -815,7 +816,7 @@ full_data$OMBtheater<-factor(full_data$OMBtheater)
 
 Tree6percent<-LatticePercentLineWrapper(
   VAR.color.legend.label="Classification As of Step 5",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
   VAR.Coloration=full_labels_and_colors,
@@ -840,7 +841,7 @@ Tree6percent<-LatticePercentLineWrapper(
 
 Tree6final<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Final Classification",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
   VAR.Coloration=full_labels_and_colors,
