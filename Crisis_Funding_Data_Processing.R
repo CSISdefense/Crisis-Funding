@@ -10,6 +10,7 @@
   
   #Setup
 
+library(plyr)
 library(dplyr)
 library(reshape2)
 library(Hmisc)
@@ -34,6 +35,17 @@ full_data <- readr::read_delim(file.path("Data",
                                na=c("NULL","NA"))
 
 full_data<-standardize_variable_names(full_data)
+
+full_data<-full_data[,!colnames(full_data) %in%
+                             c(
+                               "ContractCrisisFunding.1"             ,
+                               "localareasetaside.1",
+                               "IsOMBocoList.1",
+                               "ContractCrisisFunding_1"             ,
+                               "localareasetaside_1",
+                               "IsOMBocoList_1"
+                             )]
+
 
 
 full_data<-subset(full_data, Fiscal.Year>=2000 & Fiscal.Year<=2017)
@@ -178,16 +190,18 @@ for(i in 1:ncol(full_data))
 
 full_data$dFYear <-as.Date(paste("1/1/",as.character(full_data$Fiscal.Year),sep=""),"%m/%d/%Y")
 
-
-labels.x.DF<-prepare_labels_and_colors(full_data,"nationalinterestactioncodeText")
-full_data$NIAlist<-factor(full_data$nationalinterestactioncodeText,
-                          levels=c(rev(labels.x.DF$variable)),
-                          labels=c(rev(labels.x.DF$Label)),
-                          ordered=TRUE)
+full_data$NIAlist<-full_data$nationalinterestactioncodeText
+# labels.x.DF<-prepare_labels_and_colors(full_data,"nationalinterestactioncodeText")
+# full_data$NIAlist<-factor(full_data$nationalinterestactioncodeText,
+#                           levels=c(rev(labels.x.DF$variable)),
+#                           labels=c(rev(labels.x.DF$Label)),
+#                           ordered=TRUE)
+full_data<-replace_nas_with_unlabeled(full_data,"NIAcrisisFunding")
 
 
 full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
 full_column_key<-get_column_key(full_data)
+
 
 save(full_data,full_labels_and_colors,full_column_key,
   file="Data//budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
