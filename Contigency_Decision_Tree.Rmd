@@ -91,8 +91,8 @@ summary(full_data$CrisisFunding)
 windowsFonts()
 
 Tree1A
-ggsave("Output//Tree1A.png", Tree1A, width=6.5, height= 3, units="in",dpi=600)
-ggsave("Output//Tree1A.eps", Tree1A, width=6.5, height= 3, units="in")
+ggsave("Output//Figure1_Tree1A.png", Tree1A, width=6.5, height= 3, units="in",dpi=600)
+ggsave("Output//Figure1_Tree1A.eps", Tree1A, width=6.5, height= 3, units="in")
 ```
 
 ##Step 1B: Contingency or Humanitarian Peacekeeping Operation
@@ -166,8 +166,8 @@ Contradictions1B<-LatticePlotWrapper_csis360(
 Tree1B
 Contradictions1B
 
-ggsave("Output//Tree1B.png", Tree1B, width=6.5, height= 3, units="in",dpi=600)
-ggsave("Output//Tree1B.eps", Tree1B, width=6.5, height= 3, units="in")
+ggsave("Output//Figure2_Tree1B.png", Tree1B, width=6.5, height= 3, units="in",dpi=600)
+ggsave("Output//Figure2_Tree1B.eps", Tree1B, width=6.5, height= 3, units="in")
 ggsave("Output//Tree1Bcontradictions.png", Contradictions1B, width=6.5, height= 4.5, units="in",dpi=600)
 
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$ConHumIsOCOcrisisFunding==1]<-"OCO"
@@ -269,24 +269,30 @@ unique(subset(full_data,NIAcontradictions!="Unlabeled"
 
 Tree1CisDefense<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification Through Step 1B",
-  VAR.main.label="",
+  VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Constant ($ Billions)",
+  VAR.Y.label="Obligations (2017 $)",
   VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,NIAcontradictions!="Unlabeled"),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding", #VAR.y.series
   VAR.facet.primary= "NIAcontradictions", #VAR.facet.primary
   VAR.facet.secondary="Is.Defense", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
-  DataLabels=FALSE
+  DataLabels=FALSE,
+  caption=TRUE
+  
   #                       ,VAR.override.coloration=NA
 )+facet_grid(primary ~ secondary
               , scales="fixed" #The scales actually do stay fixed
-              , space="fixed")+theme(legend.position="bottom")
+              , space="fixed")+theme(legend.position="right")+
+  scale_y_continuous(label = unit_format(unit = "B", scale = 1e-9)) +
+  scale_x_date(
+            # breaks=date_breaks("5 years"),
+            labels=date_format("'%y"))
   
 
 
@@ -294,7 +300,7 @@ Tree1Coco<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="National Interest Action",
   VAR.main.label="",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Constant ($ Billions)",
+  VAR.Y.label="Obligations (2017 $)",
   VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,NIAcrisisFunding=="OCO" | (CrisisFunding=="OCO" & nationalinterestactioncodeText %in% c("None","Unlabeled"))),
   # NA, #VAR.ncol
@@ -307,7 +313,8 @@ Tree1Coco<-LatticePlotWrapper_csis360(
   # ,MovingSides=1
   DataLabels=FALSE
   #                       ,VAR.override.coloration=NA
-)+facet_wrap(~primary,ncol=3)
+)+facet_wrap(~primary,ncol=3)+
+  scale_y_continuous(label = unit_format(unit = "B", scale = 1e-9))
 # +facet_grid(primary ~ secondary
 #               , scales="free_y" #The scales actually do stay fixed
 #               , space="fixed")
@@ -318,10 +325,20 @@ Tree1Ctheater
 Tree1Coco
 Tree1CdetailIsDefense
 Tree1CisDefense
-ggsave("Output//Tree1CisDefense.png", Tree1CisDefense, width=6.5, height= 3, units="in",dpi=600)
-ggsave("Output//Tree1CdetailIsDefense.png", Tree1CdetailIsDefense+
+
+ggsave("Output//Figure3_Tree1CdetailIsDefense.png", Tree1CdetailIsDefense+
         theme(text=element_text(size=60),
               plot.caption = element_text(size=40)), width=4, height= 6, units="in",dpi=600)
+
+ggsave("Output//Figure3_Tree1CdetailIsDefense.eps", Tree1CdetailIsDefense, width=4, height= 6, units="in")
+
+ggsave("Output//Figure4_Tree1CisDefense.png", Tree1CisDefense+
+        theme(text=element_text(size=60),
+              plot.caption = element_text(size=40)), width=6.5, height= 3, units="in",dpi=600)
+
+ggsave("Output//Figure4_Tree1CisDefense.eps", Tree1CisDefense, width=6.5, height= 3, units="in")
+
+
 ggsave("Output//Tree1Coco.png", Tree1Coco, width=6.5, height= 3, units="in",dpi=600)
 
 #Apply decisions
@@ -366,9 +383,9 @@ Tree1DisDefense
 summary(full_data$CCRexception)
 summary(full_data$CCRexception)
 
-plyr::ddply(full_data,
-       plyr::.(CCRexception),
-       plyr::summarise,
+full_data %>%
+       group_by(CCRexception) %>%
+       dplyr::summarise(
            Obligation.2017=sum(Obligation.2017)
        )
 
