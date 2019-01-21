@@ -498,8 +498,14 @@ summary(full_data$CrisisFunding3)
 ##Step 4A: Does the transaction’s product or service code have no history of contingency contracting?
 ```{r Step4a}
 
-full_data$IsExcludedPSC<-0
-full_data$IsExcludedPSC[full_data$PSCOCOcrisisScore==-1]<-1
+full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
+full_column_key<-get_column_key(full_data)
+
+
+
+full_data$IsExcludedPSC<-"Remaining"
+full_data$IsExcludedPSC[full_data$PSCOCOcrisisScore==-1]<-"Excluded"
+full_data$IsExcludedPSC<-factor(full_data$IsExcludedPSC,c("Excluded","Remaining"))
 
 
 
@@ -550,8 +556,9 @@ summary(full_data$CrisisFunding4A)
 ```{r Step4b}
 # load(file="Data//full_data_after_step_4a.Rdata")
 
-full_data$IsExcludedCO<-0
-full_data$IsExcludedCO[full_data$OfficeOCOcrisisScore==-1]<-1
+full_data$IsExcludedCO<-"Remaining"
+full_data$IsExcludedCO[full_data$OfficeOCOcrisisScore==-1]<-"Excluded"
+
 
 
 Tree4b<-LatticePlotWrapper_csis360(
