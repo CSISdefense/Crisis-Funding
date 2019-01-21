@@ -198,9 +198,31 @@ full_data$NIAlist<-full_data$nationalinterestactioncodeText
 #                           ordered=TRUE)
 full_data<-replace_nas_with_unlabeled(full_data,"NIAcrisisFunding")
 
+#Priming all the labels_and_colors with the legend values we need.
+full_data$CrisisFunding1A<-full_data$CrisisFunding
+full_data$CrisisFunding1B<-full_data$CrisisFunding
+full_data$CrisisFunding1C<-full_data$CrisisFunding
+full_data$CrisisFunding2<-full_data$CrisisFunding
+
+full_data$CrisisFunding3<-full_data$CrisisFunding
+full_data$CrisisFunding3<-factor(full_data$CrisisFunding3,
+                                 levels=c("OCO","Disaster","ARRA","Excluded","Unlabeled"))
+full_data$CrisisFunding3[1]<-"Excluded"
+full_data$CrisisFunding4A<-full_data$CrisisFunding3
+full_data$CrisisFunding4B<-full_data$CrisisFunding3
 
 full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
 full_column_key<-get_column_key(full_data)
+
+full_data$CrisisFunding1A<-NA
+full_data$CrisisFunding1B<-NA
+full_data$CrisisFunding1C<-NA
+full_data$CrisisFunding2<-NA
+
+full_data$CrisisFunding3<-NA
+full_data$CrisisFunding4A<-NA
+full_data$CrisisFunding4B<-NA
+
 
 
 save(full_data,full_labels_and_colors,full_column_key,
