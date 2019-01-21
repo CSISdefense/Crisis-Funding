@@ -217,7 +217,7 @@ write.csv(subset(full_data, nationalinterestactioncodeText=="California Wildfire
 #Remove the premature Californnia Wildfire 
 full_data$NIAcrisisFunding[
   full_data$nationalinterestactioncodeText=="California Wildfires 2008" &
-    full_data$Fiscal.Year<as.Date("2008-01-01")
+    full_data$dFYear<as.Date("2008-01-01")
 ]<-"Unlabeled"
 
 
@@ -264,7 +264,7 @@ full_column_key<-get_column_key(full_data)
 summary(full_data$NIAcontradictions)
 
 unique(subset(full_data,NIAcontradictions!="Unlabeled"
-              & Fiscal.Year<=as.Date("2008-01-01"))$nationalinterestactioncodeText)
+              & dFYear<=as.Date("2008-01-01"))$nationalinterestactioncodeText)
 
 
 Tree1CisDefense<-LatticePlotWrapper_csis360(
@@ -303,7 +303,7 @@ Tree1Coco<-LatticePlotWrapper_csis360(
   VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,NIAcrisisFunding=="OCO" | (CrisisFunding1B=="OCO" & nationalinterestactioncodeText %in% c("None","Unlabeled"))),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding1B", #VAR.y.series
   VAR.facet.primary= "nationalinterestactioncodeText", #VAR.facet.primary
@@ -364,7 +364,7 @@ Tree1DisDefense<-LatticePlotWrapper_csis360(
   VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,SAMexception.sum!="No Exception"),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding1C", #VAR.y.series
   VAR.facet.primary= "SAMexception.sum", #VAR.facet.primary
@@ -415,7 +415,7 @@ Tree2isDefense<-LatticePlotWrapper_csis360(
   VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,Theater=="Afghanistan and Iraq"),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding1C", #VAR.y.series
   VAR.facet.primary= "Is.Defense", #VAR.facet.primary
@@ -443,8 +443,6 @@ full_data$CrisisFunding2[full_data$CrisisFunding2=="Unlabeled" & full_data$Theat
 
 summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
-summary(full_data$CrisisFunding1A)
-summary(full_data$CrisisFunding1B)
 summary(full_data$CrisisFunding1C)
 summary(full_data$CrisisFunding2)
 
@@ -454,8 +452,6 @@ summary(full_data$CrisisFunding2)
 #Step 3 Multiyear procurement and R&D
 ```{r Step3}
 # load(file="Data//full_data_after_step_2.Rdata")
-full_data<-replace_nas_with_unlabeled(full_data,"UnmodifiedUltimateDurationCategory")
-
 
 Tree3<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification\nAfter Step 2",
@@ -464,25 +460,27 @@ Tree3<-LatticePlotWrapper_csis360(
   VAR.Y.label="Defense Obligations (2017 $)",
   VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,Customer=="Defense" &
-      dFYear>=as.Date("2011-01-01")),
+      dFYear>=as.Date("2011-01-01") & Dur.Simple!="Unlabeled"),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding2", #VAR.y.series
-  VAR.facet.primary= "UnmodifiedUltimateDurationCategory", #VAR.facet.primary
-  VAR.facet.secondary="IsMultipleYearProcRnD", # VAR.facet.secondary=NA
+  VAR.facet.primary= "Dur.Simple", #VAR.facet.primary
+  VAR.facet.secondary="MultipleYearProcRnD", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
-  DataLabels=FALSE
+  DataLabels=FALSE,
+  caption=TRUE
   #                       ,VAR.override.coloration=NA
-)+theme(legend.position="bottom")
+)+theme(legend.position="bottom")+labs(caption="Source: FPDS; CSIS Analysis.\n$36 B in contracts with unlabeled duration not shown.")
 # +facet_grid(primary 
 #               , scales="free_y" #The scales actually do stay fixed
 #               , space="fixed")+theme(legend.position="bottom")
 # 
-Tree3
-ggsave600dpi("Output//Figure6_Tree3.png", Tree3, width=4, height= 6, units="in")
-full_data$CrisisFunding3<-full_data$CrisisFunding2
+ggsave600dpi("Output//Figure6_Tree3.png", Tree3, width=4, height= 4, units="in")
+sum(full_data$Obligation.2017[full_data$Customer=="Defense" &
+      full_data$dFYear>=as.Date("2011-01-01") & full_data$Dur.Simple=="Unlabeled"])
+
 
 full_data$CrisisFunding3<-factor(full_data$CrisisFunding3,
   levels=c("OCO","Disaster","ARRA","Excluded","Unlabeled"))
@@ -490,9 +488,8 @@ full_data$CrisisFunding3[full_data$CrisisFunding3=="Unlabeled" & full_data$IsMul
 
 summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
+summary(full_data$CrisisFunding2)
 summary(full_data$CrisisFunding3)
-save(
-     file="Output//full_data_after_step_3.Rdata")
 
 
 ```
@@ -500,8 +497,6 @@ save(
 # Step 4: Does the transaction’s product or service code or transaction’s contracting office have no history of contingency contracting
 ##Step 4A: Does the transaction’s product or service code have no history of contingency contracting?
 ```{r Step4a}
-# load(file="Data//full_data_after_step_3.Rdata")
-full_data<-replace_nas_with_unlabeled(full_data,"UnmodifiedUltimateDurationCategory")
 
 full_data$IsExcludedPSC<-0
 full_data$IsExcludedPSC[full_data$PSCOCOcrisisScore==-1]<-1
@@ -517,7 +512,7 @@ Tree4a<-LatticePlotWrapper_csis360(
   VAR.long.DF=subset(full_data,Customer=="Defense" &
       ProductServiceOrRnDarea.sum!="Unlabeled"),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding3", #VAR.y.series
   VAR.facet.primary= "IsExcludedPSC", #VAR.facet.primary
@@ -532,11 +527,12 @@ Tree4a<-LatticePlotWrapper_csis360(
               , space="fixed")+theme(legend.position="bottom")+
     scale_x_date(
             breaks=date_breaks("5 years"),
-            labels=date_format("'%y"))
+            labels=date_format("'%y"))+
+  labs(caption="Source: FPDS; CSIS Analysis.\nUnlabeled Product or Service Codes are not shown.")
 # 
 
   Tree4a
-ggsave600dpi("Output//Tree4a.png", Tree4a, width=6, height= 3.5, units="in")
+ggsave600dpi("Output//Figure7_Tree4a.png", Tree4a, width=6, height= 3.5, units="in")
 
 full_data$CrisisFunding4A<-full_data$CrisisFunding3
 full_data$CrisisFunding4A[full_data$CrisisFunding4A=="Unlabeled" & full_data$IsExcludedPSC==1]<-"Excluded"
@@ -545,6 +541,7 @@ full_data$CrisisFunding4A[full_data$CrisisFunding4A=="Unlabeled" & full_data$IsE
 
 summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
+summary(full_data$CrisisFunding3)
 summary(full_data$CrisisFunding4A)
 
 
@@ -565,7 +562,7 @@ Tree4b<-LatticePlotWrapper_csis360(
   VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,Customer=="Defense"),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding4A", #VAR.y.series
   VAR.facet.primary= "IsExcludedCO", #VAR.facet.primary
@@ -589,6 +586,7 @@ full_data$CrisisFunding4B[full_data$CrisisFunding4B=="Unlabeled" & full_data$IsE
 
 summary(full_data$DecisionTree)
 summary(full_data$DecisionTreeStep4)
+summary(full_data$CrisisFunding4A)
 summary(full_data$CrisisFunding4B)
 
 save(full_data,file="Data//full_data_after_step_4b.Rdata")
@@ -627,7 +625,7 @@ facet_wrap(~Theater,nrow=1)+labs(
   # VAR.Coloration=full_labels_and_colors,
   # VAR.long.DF=subset(full_data,Theater!="Unlabeled" & full_data$IsOMBocoList==1),
   # NA, #VAR.ncol
-  # VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  # VAR.x.variable="dFYear", #VAR.x.variable
   # VAR.y.variable="Obligation.2017", #VAR.y.variable
   # VAR.y.series="CrisisFunding4B", #VAR.y.series
   # VAR.facet.primary= "Theater", #VAR.facet.primary
@@ -860,7 +858,7 @@ Tree6percent<-LatticePercentLineWrapper(
   VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,!Theater %in% c("Unlabeled")),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisPoints", #VAR.y.series
   VAR.facet.primary= "OMBtheater", #VAR.facet.primary
@@ -886,7 +884,7 @@ Tree6final<-LatticePlotWrapper_csis360(
   VAR.long.DF=subset(full_data,!Theater %in% c("Unlabeled") &
       CrisisPoints %in% c("OCO","1 point", "2 points", "3 points")),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisPoints", #VAR.y.series
   VAR.facet.primary= "OMBtheater", #VAR.facet.primary

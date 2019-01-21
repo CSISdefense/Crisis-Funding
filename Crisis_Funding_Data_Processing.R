@@ -87,6 +87,15 @@ full_data<-read_and_join(
   skip_check_var="CHPKisCrisisFunding"
   )
 
+
+
+full_data<-read_and_join(full_data,
+                      "LOOKUP_Buckets.csv",
+                      by="ProductOrServiceArea",
+                      add_var="ProductServiceOrRnDarea.sum")
+
+
+
 colnames(full_data)[colnames(full_data)=="ContractingCustomer"]<-"Customer"
 full_data<-read_and_join(
   full_data,
@@ -141,12 +150,20 @@ full_data<-read_and_join(full_data,
                       add_var="No.Competition.Offer")
 
 
+full_data$Dur.Simple<-full_data$UnmodifiedUltimateDurationCategory
+levels(full_data$Dur.Simple)<- list(
+  "<~1 year"=c("<=2 Months",">2-7 Months",">7-12 Months"),
+  "(~1 year,~2 years]"=">1-2 Years",
+  "(~2 years+]"=c(">2-4 Years",">4 years"),
+  "Unlabeled"="Unlabeled"
+  )
 
 
 full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
 full_data<-replace_nas_with_unlabeled(full_data,"Is.Defense")
 full_data<-replace_nas_with_unlabeled(full_data,"Theater")
 full_data<-replace_nas_with_unlabeled(full_data,"contingencyhumanitarianpeacekeepingoperationText")
+full_data<-replace_nas_with_unlabeled(full_data,"Dur.Simple")
 full_data$SAMcrisisFunding[full_data$SAMcrisisFunding==""]<-NA
 
 
@@ -211,6 +228,13 @@ full_data$CrisisFunding3[1]<-"Excluded"
 full_data$CrisisFunding4A<-full_data$CrisisFunding3
 full_data$CrisisFunding4B<-full_data$CrisisFunding3
 
+full_data$MultipleYearProcRnD<-factor(full_data$IsMultipleYearProcRnD)
+levels(full_data$MultipleYearProcRnD)<-list(
+  "Excluded"="1",
+  "Remaining"="0"
+)
+
+
 full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
 full_column_key<-get_column_key(full_data)
 
@@ -222,7 +246,6 @@ full_data$CrisisFunding2<-NA
 full_data$CrisisFunding3<-NA
 full_data$CrisisFunding4A<-NA
 full_data$CrisisFunding4B<-NA
-
 
 
 save(full_data,full_labels_and_colors,full_column_key,
