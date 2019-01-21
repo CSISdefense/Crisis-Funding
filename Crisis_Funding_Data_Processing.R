@@ -88,12 +88,12 @@ full_data<-read_and_join(
   )
 
 
-
+colnames(full_data)[colnames(full_data)=="ProductOrServiceArea"]<-"ProductServiceOrRnDarea"
 full_data<-read_and_join(full_data,
                       "LOOKUP_Buckets.csv",
-                      by="ProductOrServiceArea",
+                      by="ProductServiceOrRnDarea",
                       add_var="ProductServiceOrRnDarea.sum")
-
+colnames(full_data)[colnames(full_data)=="ProductServiceOrRnDarea"]<-"ProductOrServiceArea"
 
 
 colnames(full_data)[colnames(full_data)=="ContractingCustomer"]<-"Customer"
@@ -142,6 +142,13 @@ full_data<-read_and_join(
   # new_var_checked=TRUE,
   skip_check_var=c("SAMcrisisFunding")
 )
+full_data<-read_and_join(full_data,
+                      "Lookup_SubCustomer.csv",
+                      by=c("Customer","SubCustomer"),
+                      add_var="SubCustomer.detail"
+)
+
+
 full_data<-replace_nas_with_unlabeled(full_data,"ClassifyNumberOfOffers")
 full_data<-read_and_join(full_data,
                       "Lookup_SQL_CompetitionClassification.csv",
@@ -150,14 +157,13 @@ full_data<-read_and_join(full_data,
                       add_var="No.Competition.Offer")
 
 
-full_data$Dur.Simple<-full_data$UnmodifiedUltimateDurationCategory
+full_data$Dur.Simple<-factor(full_data$UnmodifiedUltimateDurationCategory)
 levels(full_data$Dur.Simple)<- list(
   "<~1 year"=c("<=2 Months",">2-7 Months",">7-12 Months"),
   "(~1 year,~2 years]"=">1-2 Years",
   "(~2 years+]"=c(">2-4 Years",">4 years"),
   "Unlabeled"="Unlabeled"
   )
-
 
 full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
 full_data<-replace_nas_with_unlabeled(full_data,"Is.Defense")
@@ -231,7 +237,7 @@ full_data$CrisisFunding4B<-full_data$CrisisFunding3
 full_data$MultipleYearProcRnD<-factor(full_data$IsMultipleYearProcRnD)
 levels(full_data$MultipleYearProcRnD)<-list(
   "Excluded"="1",
-  "Remaining"="0"
+  "Remainder"="0"
 )
 
 

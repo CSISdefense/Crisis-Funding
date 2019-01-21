@@ -42,7 +42,6 @@ load(
 #Step 1: Direct Crisis Labels 
 ##Step 1A: Is this an ARRA labled contract (or a CSIS labeled one)
 ```{r Step1A}
-
 full_data$CrisisFunding1A<-"Unlabeled"
 #Labeled contracts
 full_data$CrisisFunding1A<-ordered(full_data$CrisisFunding1A,levels=c("OCO","Disaster","ARRA","Unlabeled"))
@@ -51,6 +50,8 @@ full_data$CrisisFunding1A[full_data$CrisisFunding1A=="Unlabeled" & !is.na(full_d
   full_data$ContractCrisisFunding[full_data$CrisisFunding1A=="Unlabeled" & !is.na(full_data$ContractCrisisFunding)]
 full_data$CrisisFunding1A[full_data$CrisisFunding1A=="Unlabeled" & full_data$IsARRAcrisisFunding==1]<-
   "ARRA"
+full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
+full_column_key<-get_column_key(full_data)
 
 
 library(showtext)
@@ -387,8 +388,6 @@ full_data %>%
        )
 
 sum(full_data$Obligation.2017[full_data$CCRexception %in% c(3,4)])
-save(
-     file="Output//full_data_after_step_1.Rdata")
 
 
 ```
@@ -477,12 +476,13 @@ Tree3<-LatticePlotWrapper_csis360(
 #               , scales="free_y" #The scales actually do stay fixed
 #               , space="fixed")+theme(legend.position="bottom")
 # 
-ggsave600dpi("Output//Figure6_Tree3.png", Tree3, width=4, height= 4, units="in")
+ggsave600dpi("Output//Figure6_Tree3.png", Tree3, width=4, height= 4.25, units="in")
+ggsave("Output//Figure6_Tree3.eps", Tree3, width=4, height= 4, units="in")
 sum(full_data$Obligation.2017[full_data$Customer=="Defense" &
       full_data$dFYear>=as.Date("2011-01-01") & full_data$Dur.Simple=="Unlabeled"])
 
 
-full_data$CrisisFunding3<-factor(full_data$CrisisFunding3,
+full_data$CrisisFunding3<-factor(full_data$CrisisFunding2,
   levels=c("OCO","Disaster","ARRA","Excluded","Unlabeled"))
 full_data$CrisisFunding3[full_data$CrisisFunding3=="Unlabeled" & full_data$IsMultipleYearProcRnD==1]<-"Excluded"
 
@@ -498,16 +498,12 @@ summary(full_data$CrisisFunding3)
 ##Step 4A: Does the transaction’s product or service code have no history of contingency contracting?
 ```{r Step4a}
 
+
+full_data$IsExcludedPSC<-"Remainder"
+full_data$IsExcludedPSC[full_data$PSCOCOcrisisScore==-1]<-"Excluded"
+full_data$IsExcludedPSC<-factor(full_data$IsExcludedPSC,c("Excluded","Remainder"))
 full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
 full_column_key<-get_column_key(full_data)
-
-
-
-full_data$IsExcludedPSC<-"Remaining"
-full_data$IsExcludedPSC[full_data$PSCOCOcrisisScore==-1]<-"Excluded"
-full_data$IsExcludedPSC<-factor(full_data$IsExcludedPSC,c("Excluded","Remaining"))
-
-
 
 Tree4a<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification\nAfter Step 3",
@@ -515,8 +511,7 @@ Tree4a<-LatticePlotWrapper_csis360(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2017 $)",
   VAR.Coloration=full_labels_and_colors,
-  VAR.long.DF=subset(full_data,Customer=="Defense" &
-      ProductServiceOrRnDarea.sum!="Unlabeled"),
+  VAR.long.DF=subset(full_data,      ProductServiceOrRnDarea.sum!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
@@ -539,9 +534,10 @@ Tree4a<-LatticePlotWrapper_csis360(
 
   Tree4a
 ggsave600dpi("Output//Figure7_Tree4a.png", Tree4a, width=6, height= 3.5, units="in")
+ggsave("Output//Figure7_Tree4a.eps", Tree4a, width=6, height= 3.5, units="in")
 
 full_data$CrisisFunding4A<-full_data$CrisisFunding3
-full_data$CrisisFunding4A[full_data$CrisisFunding4A=="Unlabeled" & full_data$IsExcludedPSC==1]<-"Excluded"
+full_data$CrisisFunding4A[full_data$CrisisFunding4A=="Unlabeled" & full_data$IsExcludedPSC=="Excluded"]<-"Excluded"
 
 
 
@@ -554,12 +550,14 @@ summary(full_data$CrisisFunding4A)
 ```
 ##Step 4B Does the transaction’s contracting office have no history of contingency contracting?
 ```{r Step4b}
-# load(file="Data//full_data_after_step_4a.Rdata")
 
-full_data$IsExcludedCO<-"Remaining"
+full_data$IsExcludedCO<-"Remainder"
 full_data$IsExcludedCO[full_data$OfficeOCOcrisisScore==-1]<-"Excluded"
+full_data$IsExcludedCO<-factor(full_data$IsExcludedCO,c("Excluded","Remainder"))
 
 
+full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
+full_column_key<-get_column_key(full_data)
 
 Tree4b<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification\nAfter Step 4A",
@@ -567,7 +565,8 @@ Tree4b<-LatticePlotWrapper_csis360(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2017 $)",
   VAR.Coloration=full_labels_and_colors,
-  VAR.long.DF=subset(full_data,Customer=="Defense"),
+  VAR.long.DF=subset(full_data,Customer=="Defense" & 
+      dFYear>=as.Date("2011-01-01")),
   # NA, #VAR.ncol
   VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
@@ -576,16 +575,18 @@ Tree4b<-LatticePlotWrapper_csis360(
   VAR.facet.secondary="SubCustomer.detail", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
-  DataLabels=FALSE
+  DataLabels=FALSE,
+  caption=TRUE
   #                       ,VAR.override.coloration=NA
-)+theme(legend.position="bottom")
+)+theme(legend.position="right")
 #   facet_grid(primary ~ secondary
 #               , scales="free_y" #The scales actually do stay fixed
 #               , space="fixed")+theme(legend.position="bottom")
 # # 
 
 Tree4b
-ggsave600dpi("Output//Tree4b.png", Tree4b, width=6, height= 3.5, units="in")
+ggsave600dpi("Output//Figure8_Tree4b.png", Tree4b, width=6.5, height= 4, units="in")
+ggsave("Output//Figure8_Tree4b.eps", Tree4b, width=6.5, height= 4, units="in")
 
 full_data$CrisisFunding4B<-full_data$CrisisFunding4A
 full_data$CrisisFunding4B[full_data$CrisisFunding4B=="Unlabeled" & full_data$IsExcludedCO==1]<-"Excluded"
@@ -596,7 +597,10 @@ summary(full_data$DecisionTreeStep4)
 summary(full_data$CrisisFunding4A)
 summary(full_data$CrisisFunding4B)
 
-save(full_data,file="Data//full_data_after_step_4b.Rdata")
+
+full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
+full_column_key<-get_column_key(full_data)
+
 
 
 Tree5<-build_plot(
@@ -622,7 +626,7 @@ facet_wrap(~Theater,nrow=1)+labs(
   y="Percent of Obligations",
   line="Classification\nAfter Step 4B"
 )+theme(legend.position="bottom")
-
+Tree5
 #Switch to build_plot
 # Tree5<-LatticePercentLineWrapper(
   # VAR.color.legend.label="Classification\nAfter Step 4B",
@@ -658,18 +662,18 @@ facet_wrap(~Theater,nrow=1)+labs(
 ##Step 5A Calculate the Funding Source Score
 ```{r Step5A}
 # load(file="Data//full_data_after_step_4b.Rdata")
-defense_data<-subset(full_data,ContractingCustomer=="Defense")
-defense_data$PercentFundingAccountOCO<-as.numeric(defense_data$PercentFundingAccountOCO)
-defense_data<-replace_nas_with_unlabeled(defense_data,"CrisisFunding4B")
-defense_data$PercentFundingAccountOCORound1<-round(defense_data$PercentFundingAccountOCO,2)
-summary(defense_data$CrisisFunding4B)
+
+full_data$PercentFundingAccountOCO<-as.numeric(full_data$PercentFundingAccountOCO)
+full_data<-replace_nas_with_unlabeled(full_data,"CrisisFunding4B")
+full_data$PercentFundingAccountOCORound1<-round(full_data$PercentFundingAccountOCO,2)
+summary(full_data$CrisisFunding4B)
 Tree5A<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification\nAfter Step 4B",
   VAR.main.label=NULL,
   VAR.X.label="Percent Funded by OCO",
   VAR.Y.label="Obligations (2017 $)",
   VAR.Coloration=full_labels_and_colors,
-  VAR.long.DF=subset(defense_data,Customer=="Defense" &
+  VAR.long.DF=subset(full_data,Customer=="Defense" &
       CrisisFunding4B %in% c("OCO","Unlabeled","Excluded" ) & 
       Fiscal.Year >=2012),
   # NA, #VAR.ncol
@@ -688,27 +692,27 @@ Tree5A<-LatticePlotWrapper_csis360(
   scale_x_continuous(labels = percent_format())+geom_vline(aes(xintercept=0.25))  
 Tree5A
 ggsave600dpi("Output//Tree5A.png", Tree5A, width=6.5, height= 3, units="in")
-sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="OCO"&
-      defense_data$Customer=="Defense"& 
-      defense_data$Fiscal.Year >=2012&
-    defense_data$PercentFundingAccountOCORound1>=0.25],na.rm=TRUE)/
-  sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="OCO"&
-      defense_data$Customer=="Defense"& 
-      defense_data$Fiscal.Year >=2012],na.rm=TRUE)
-sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="Excluded"&
-      defense_data$Customer=="Defense"& 
-      defense_data$Fiscal.Year >=2012&
-    defense_data$PercentFundingAccountOCORound1>=0.25],na.rm=TRUE)/
-  sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="Excluded"&
-      defense_data$Customer=="Defense"& 
-      defense_data$Fiscal.Year >=2012],na.rm=TRUE)
-sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="Unlabeled"&
-      defense_data$Customer=="Defense"& 
-      defense_data$Fiscal.Year >=2012&
-    defense_data$PercentFundingAccountOCORound1>=0.25],na.rm=TRUE)/
-  sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="Unlabeled"&
-      defense_data$Customer=="Defense"& 
-      defense_data$Fiscal.Year >=2012],na.rm=TRUE)
+sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
+      full_data$Customer=="Defense"& 
+      full_data$Fiscal.Year >=2012&
+    full_data$PercentFundingAccountOCORound1>=0.25],na.rm=TRUE)/
+  sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
+      full_data$Customer=="Defense"& 
+      full_data$Fiscal.Year >=2012],na.rm=TRUE)
+sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Excluded"&
+      full_data$Customer=="Defense"& 
+      full_data$Fiscal.Year >=2012&
+    full_data$PercentFundingAccountOCORound1>=0.25],na.rm=TRUE)/
+  sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Excluded"&
+      full_data$Customer=="Defense"& 
+      full_data$Fiscal.Year >=2012],na.rm=TRUE)
+sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Unlabeled"&
+      full_data$Customer=="Defense"& 
+      full_data$Fiscal.Year >=2012&
+    full_data$PercentFundingAccountOCORound1>=0.25],na.rm=TRUE)/
+  sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Unlabeled"&
+      full_data$Customer=="Defense"& 
+      full_data$Fiscal.Year >=2012],na.rm=TRUE)
 
 
 ```
@@ -719,7 +723,7 @@ sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="Unlabeled"&
 
 
 
-defense_data$pscOCOcrisisPercentRound1<-round(sqrt(defense_data$pscOCOcrisisPercentSqrt),2)
+full_data$pscOCOcrisisPercentRound1<-round(sqrt(full_data$pscOCOcrisisPercentSqrt),2)
 
 
 Tree5B<-LatticePlotWrapper_csis360(
@@ -728,7 +732,7 @@ Tree5B<-LatticePlotWrapper_csis360(
   VAR.X.label="Square Root of the Share of Product or Service Code Going to Official Contingency Contracts",
   VAR.Y.label="Obligations (2017 $)",
   VAR.Coloration=full_labels_and_colors,
-  VAR.long.DF=subset(defense_data,Customer=="Defense" &
+  VAR.long.DF=subset(full_data,Customer=="Defense" &
       CrisisFunding4B %in% c("OCO","Unlabeled","Excluded")),
   # NA, #VAR.ncol
   VAR.x.variable="pscOCOcrisisPercentRound1", #VAR.x.variable
@@ -745,30 +749,30 @@ Tree5B<-LatticePlotWrapper_csis360(
               , space="fixed")+
   scale_x_continuous(labels = percent_format())+geom_vline(aes(xintercept=0.16))  
 Tree5B
-sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="OCO"&
-      defense_data$Customer=="Defense"&
-    defense_data$pscOCOcrisisPercentRound1>=0.16])/
-  sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="OCO"&
-      defense_data$Customer=="Defense"])
-sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="Excluded"&
-      defense_data$Customer=="Defense"&
-    defense_data$pscOCOcrisisPercentRound1>=0.16])/
-  sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="Excluded"&
-      defense_data$Customer=="Defense"])
-sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="Unlabeled"&
-      defense_data$Customer=="Defense"&
-    defense_data$pscOCOcrisisPercentRound1>=0.16],na.rm=TRUE)/
-  sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="Unlabeled"&
-      defense_data$Customer=="Defense"],na.rm=TRUE)
+sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
+      full_data$Customer=="Defense"&
+    full_data$pscOCOcrisisPercentRound1>=0.16])/
+  sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
+      full_data$Customer=="Defense"])
+sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Excluded"&
+      full_data$Customer=="Defense"&
+    full_data$pscOCOcrisisPercentRound1>=0.16])/
+  sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Excluded"&
+      full_data$Customer=="Defense"])
+sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Unlabeled"&
+      full_data$Customer=="Defense"&
+    full_data$pscOCOcrisisPercentRound1>=0.16],na.rm=TRUE)/
+  sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Unlabeled"&
+      full_data$Customer=="Defense"],na.rm=TRUE)
 
-sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="OCO"&
-      defense_data$Customer=="Defense"&
-    defense_data$pscOCOcrisisPercentRound1>=0.25])/
-  sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="OCO"&
-      defense_data$Customer=="Defense"])
+sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
+      full_data$Customer=="Defense"&
+    full_data$pscOCOcrisisPercentRound1>=0.25])/
+  sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
+      full_data$Customer=="Defense"])
 
 
-ggsave600dpi("Output//Tree5B.png", Tree5B, width=6.5, height= 3, units="in",dpi=600)
+ggsave600dpi("Output//Tree5B.png", Tree5B, width=6.5, height= 3, units="in")
 
 
 ```
@@ -777,12 +781,12 @@ ggsave600dpi("Output//Tree5B.png", Tree5B, width=6.5, height= 3, units="in",dpi=
 
 ##Step 5C Calculate the Customer Score
 ```{r Step5C}
-defense_data$OfficeOCOcrisisPercent<-as.numeric(defense_data$OfficeOCOcrisisPercent)
+full_data$OfficeOCOcrisisPercent<-as.numeric(full_data$OfficeOCOcrisisPercent)
 
-defense_data$OfficeOCOcrisisPercentRound1<-defense_data$OfficeOCOcrisisPercent
-defense_data$OfficeOCOcrisisPercentRound1[
-  defense_data$OfficeOCOcrisisPercentRound1<0]<-0
-defense_data$OfficeOCOcrisisPercentRound1<-round(sqrt(defense_data$OfficeOCOcrisisPercentSqrt),2)
+full_data$OfficeOCOcrisisPercentRound1<-full_data$OfficeOCOcrisisPercent
+full_data$OfficeOCOcrisisPercentRound1[
+  full_data$OfficeOCOcrisisPercentRound1<0]<-0
+full_data$OfficeOCOcrisisPercentRound1<-round(sqrt(full_data$OfficeOCOcrisisPercentSqrt),2)
 
 Tree5C<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification\nAfter Step 4C",
@@ -790,7 +794,7 @@ Tree5C<-LatticePlotWrapper_csis360(
   VAR.X.label="Square Root of the Share of Office Obligations Going to Official Contingency Contracts",
   VAR.Y.label="Obligations (2017 $)",
   VAR.Coloration=full_labels_and_colors,
-  VAR.long.DF=subset(defense_data,Customer=="Defense" &
+  VAR.long.DF=subset(full_data,Customer=="Defense" &
       CrisisFunding4B %in% c("OCO","Unlabeled","Excluded")),
   # NA, #VAR.ncol
   VAR.x.variable="OfficeOCOcrisisPercentRound1", #VAR.x.variable
@@ -808,21 +812,21 @@ Tree5C<-LatticePlotWrapper_csis360(
   scale_x_continuous(labels = percent_format())+geom_vline(aes(xintercept=0.25))  
 Tree5C
 ggsave("Output//Tree5C.png", Tree5C, width=6.5, height= 3, units="in",dpi=600)
-sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="OCO"&
-      defense_data$Customer=="Defense"& 
-    defense_data$OfficeOCOcrisisPercentRound1>=0.25],na.rm=TRUE)/
-  sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="OCO"&
-      defense_data$Customer=="Defense"],na.rm=TRUE)
-sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="Excluded"&
-      defense_data$Customer=="Defense"&
-    defense_data$OfficeOCOcrisisPercentRound1>=0.25],na.rm=TRUE)/
-  sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="Excluded"&
-      defense_data$Customer=="Defense"],na.rm=TRUE)
-sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="Unlabeled"&
-      defense_data$Customer=="Defense"&
-    defense_data$OfficeOCOcrisisPercentRound1>=0.25],na.rm=TRUE)/
-  sum(defense_data$Obligation.2017[defense_data$CrisisFunding4B=="Unlabeled"&
-      defense_data$Customer=="Defense"],na.rm=TRUE)
+sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
+      full_data$Customer=="Defense"& 
+    full_data$OfficeOCOcrisisPercentRound1>=0.25],na.rm=TRUE)/
+  sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
+      full_data$Customer=="Defense"],na.rm=TRUE)
+sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Excluded"&
+      full_data$Customer=="Defense"&
+    full_data$OfficeOCOcrisisPercentRound1>=0.25],na.rm=TRUE)/
+  sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Excluded"&
+      full_data$Customer=="Defense"],na.rm=TRUE)
+sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Unlabeled"&
+      full_data$Customer=="Defense"&
+    full_data$OfficeOCOcrisisPercentRound1>=0.25],na.rm=TRUE)/
+  sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Unlabeled"&
+      full_data$Customer=="Defense"],na.rm=TRUE)
 
 ```
 
