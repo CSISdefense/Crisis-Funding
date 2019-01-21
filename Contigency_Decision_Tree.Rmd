@@ -725,13 +725,13 @@ sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Unlabeled"&
 
 
 
-full_data$pscOCOcrisisPercentRound1<-round(sqrt(full_data$pscOCOcrisisPercentSqrt),2)
+full_data$pscOCOcrisisPercentRound1<-round(full_data$pscOCOcrisisPercentSqrt,2)
 
 
 Tree5B<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification\nAfter Step 4B",
   VAR.main.label=NULL,
-  VAR.X.label="Square Root of the Share of Product or Service Code Going to Official Contingency Contracts",
+  VAR.X.label="Square Root of the Share of Product or Service Code\nGoing to Official Contingency Contracts",
   VAR.Y.label="Obligations (2017 $)",
   VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,Customer=="Defense" &
@@ -744,7 +744,8 @@ Tree5B<-LatticePlotWrapper_csis360(
   # VAR.facet.secondary="SubCustomer.detail", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
-  DataLabels=FALSE
+  DataLabels=FALSE,
+  caption = TRUE
   #                       ,VAR.override.coloration=NA
 )+facet_grid(primary ~ .
               , scales="free_y" #The scales actually do stay fixed
@@ -774,8 +775,8 @@ sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
       full_data$Customer=="Defense"])
 
 
-ggsave600dpi("Output//Figure10_Tree5B.png", Tree5B, width=6.5, height= 3, units="in")
-ggsave("Output//Figure10_Tree5B.eps", Tree5B, width=6.5, height= 3, units="in")
+ggsave600dpi("Output//Figure10_Tree5B.png", Tree5B, width=6.5, height= 2.75, units="in")
+ggsave("Output//Figure10_Tree5B.eps", Tree5B, width=6.5, height= 2.75, units="in")
 
 
 ```
@@ -789,7 +790,7 @@ full_data$OfficeOCOcrisisPercent<-as.numeric(full_data$OfficeOCOcrisisPercent)
 full_data$OfficeOCOcrisisPercentRound1<-full_data$OfficeOCOcrisisPercent
 full_data$OfficeOCOcrisisPercentRound1[
   full_data$OfficeOCOcrisisPercentRound1<0]<-0
-full_data$OfficeOCOcrisisPercentRound1<-round(sqrt(full_data$OfficeOCOcrisisPercentSqrt),2)
+full_data$OfficeOCOcrisisPercentRound1<-round(full_data$OfficeOCOcrisisPercentSqrt,2)
 
 Tree5C<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification\nAfter Step 4C",
@@ -807,7 +808,8 @@ Tree5C<-LatticePlotWrapper_csis360(
   # VAR.facet.secondary="SubCustomer.detail", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
-  DataLabels=FALSE
+  DataLabels=FALSE,
+  caption = TRUE
   #                       ,VAR.override.coloration=NA
 )+facet_grid(primary ~ .
               , scales="free_y" #The scales actually do stay fixed
