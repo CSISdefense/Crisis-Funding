@@ -91,8 +91,8 @@ summary(full_data$CrisisFunding1A)
 windowsFonts()
 
 Tree1A
-ggsave600dpi("Output//Figure1_Tree1A.png", Tree1A, width=6.5, height= 3, units="in")
-ggsave("Output//Figure1_Tree1A.eps", Tree1A, width=6.5, height= 3, units="in")
+ggsave600dpi("Output//Figure01_Tree1A.png", Tree1A, width=6.5, height= 3, units="in")
+ggsave("Output//Figure01_Tree1A.eps", Tree1A, width=6.5, height= 3, units="in")
 ```
 
 ##Step 1B: Contingency or Humanitarian Peaclaekeeping Operation
@@ -166,8 +166,8 @@ Contradictions1B<-LatticePlotWrapper_csis360(
 Tree1B
 Contradictions1B
 
-ggsave600dpi("Output//Figure2_Tree1B.png", Tree1B, width=6.5, height= 3, units="in")
-ggsave("Output//Figure2_Tree1B.eps", Tree1B, width=6.5, height= 3, units="in")
+ggsave600dpi("Output//Figure02_Tree1B.png", Tree1B, width=6.5, height= 3, units="in")
+ggsave("Output//Figure02_Tree1B.eps", Tree1B, width=6.5, height= 3, units="in")
 ggsave600dpi("Output//Tree1Bcontradictions.png", Contradictions1B, width=6.5, height= 4.5, units="in")
 
 full_data$CrisisFunding1B<-full_data$CrisisFunding1A
@@ -325,13 +325,13 @@ Tree1Coco
 Tree1CdetailIsDefense
 Tree1CisDefense
 
-ggsave600dpi("Output//Figure3_Tree1CdetailIsDefense.png", Tree1CdetailIsDefense, width=4, height= 6, units="in")
+ggsave600dpi("Output//Figure03_Tree1CdetailIsDefense.png", Tree1CdetailIsDefense, width=4, height= 6, units="in")
 
-ggsave("Output//Figure3_Tree1CdetailIsDefense.eps", Tree1CdetailIsDefense, width=4, height= 6, units="in")
+ggsave("Output//Figure03_Tree1CdetailIsDefense.eps", Tree1CdetailIsDefense, width=4, height= 6, units="in")
 
-ggsave600dpi("Output//Figure4_Tree1CisDefense.png", Tree1CisDefense, width=6.5, height= 3, units="in")
+ggsave600dpi("Output//Figure04_Tree1CisDefense.png", Tree1CisDefense, width=6.5, height= 3, units="in")
 
-ggsave("Output//Figure4_Tree1CisDefense.eps", Tree1CisDefense, width=6.5, height= 3, units="in")
+ggsave("Output//Figure04_Tree1CisDefense.eps", Tree1CisDefense, width=6.5, height= 3, units="in")
 
 
 ggsave600dpi("Output//Tree1Coco.png", Tree1Coco, width=6.5, height= 3, units="in")
@@ -433,8 +433,8 @@ Tree2isDefense<-LatticePlotWrapper_csis360(
 # 
 
 
-ggsave600dpi("Output//Figure5_Tree2.png", Tree2isDefense, width=6.5, height= 3, units="in")
-ggsave("Output//Figure5_Tree2.eps", Tree2isDefense, width=6.5, height= 3, units="in")
+ggsave600dpi("Output//Figure05_Tree2.png", Tree2isDefense, width=6.5, height= 3, units="in")
+ggsave("Output//Figure05_Tree2.eps", Tree2isDefense, width=6.5, height= 3, units="in")
 
 full_data$CrisisFunding2<-full_data$CrisisFunding1C
 full_data$CrisisFunding2[full_data$CrisisFunding2=="Unlabeled" & full_data$Theater=="Afghanistan and Iraq"]<-"OCO"
@@ -476,8 +476,8 @@ Tree3<-LatticePlotWrapper_csis360(
 #               , scales="free_y" #The scales actually do stay fixed
 #               , space="fixed")+theme(legend.position="bottom")
 # 
-ggsave600dpi("Output//Figure6_Tree3.png", Tree3, width=4, height= 4.25, units="in")
-ggsave("Output//Figure6_Tree3.eps", Tree3, width=4, height= 4, units="in")
+ggsave600dpi("Output//Figure06_Tree3.png", Tree3, width=4, height= 4.25, units="in")
+ggsave("Output//Figure06_Tree3.eps", Tree3, width=4, height= 4, units="in")
 sum(full_data$Obligation.2017[full_data$Customer=="Defense" &
       full_data$dFYear>=as.Date("2011-01-01") & full_data$Dur.Simple=="Unlabeled"])
 
@@ -533,8 +533,8 @@ Tree4a<-LatticePlotWrapper_csis360(
 # 
 
   Tree4a
-ggsave600dpi("Output//Figure7_Tree4a.png", Tree4a, width=6, height= 3.5, units="in")
-ggsave("Output//Figure7_Tree4a.eps", Tree4a, width=6, height= 3.5, units="in")
+ggsave600dpi("Output//Figure07_Tree4a.png", Tree4a, width=6, height= 3.5, units="in")
+ggsave("Output//Figure07_Tree4a.eps", Tree4a, width=6, height= 3.5, units="in")
 
 full_data$CrisisFunding4A<-full_data$CrisisFunding3
 full_data$CrisisFunding4A[full_data$CrisisFunding4A=="Unlabeled" & full_data$IsExcludedPSC=="Excluded"]<-"Excluded"
@@ -585,8 +585,8 @@ Tree4b<-LatticePlotWrapper_csis360(
 # # 
 
 Tree4b
-ggsave600dpi("Output//Figure8_Tree4b.png", Tree4b, width=6.5, height= 4, units="in")
-ggsave("Output//Figure8_Tree4b.eps", Tree4b, width=6.5, height= 4, units="in")
+ggsave600dpi("Output//Figure08_Tree4b.png", Tree4b, width=6.5, height= 4, units="in")
+ggsave("Output//Figure08_Tree4b.eps", Tree4b, width=6.5, height= 4, units="in")
 
 full_data$CrisisFunding4B<-full_data$CrisisFunding4A
 full_data$CrisisFunding4B[full_data$CrisisFunding4B=="Unlabeled" & full_data$IsExcludedCO==1]<-"Excluded"
@@ -684,14 +684,16 @@ Tree5A<-LatticePlotWrapper_csis360(
   # VAR.facet.secondary="SubCustomer.detail", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
-  DataLabels=FALSE
+  DataLabels=FALSE,
+  caption = TRUE
   #                       ,VAR.override.coloration=NA
 )+facet_grid(primary ~ .
               , scales="free_y" #The scales actually do stay fixed
               , space="fixed")+
   scale_x_continuous(labels = percent_format())+geom_vline(aes(xintercept=0.25))  
 Tree5A
-ggsave600dpi("Output//Tree5A.png", Tree5A, width=6.5, height= 3, units="in")
+ggsave600dpi("Output//Figure09_Tree5A.png", Tree5A, width=6.5, height= 2.5, units="in")
+ggsave("Output//Figure09_Tree5A.eps", Tree5A, width=6.5, height= 2.5, units="in")
 sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
       full_data$Customer=="Defense"& 
       full_data$Fiscal.Year >=2012&
@@ -772,7 +774,8 @@ sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
       full_data$Customer=="Defense"])
 
 
-ggsave600dpi("Output//Tree5B.png", Tree5B, width=6.5, height= 3, units="in")
+ggsave600dpi("Output//Figure10_Tree5B.png", Tree5B, width=6.5, height= 3, units="in")
+ggsave("Output//Figure10_Tree5B.eps", Tree5B, width=6.5, height= 3, units="in")
 
 
 ```
@@ -811,7 +814,8 @@ Tree5C<-LatticePlotWrapper_csis360(
               , space="fixed")+
   scale_x_continuous(labels = percent_format())+geom_vline(aes(xintercept=0.25))  
 Tree5C
-ggsave("Output//Tree5C.png", Tree5C, width=6.5, height= 3, units="in",dpi=600)
+ggsavedpi600("Output//Figure11_Tree5C.png", Tree5C, width=6.5, height= 3, units="in")
+ggsave("Output//Figure11_Tree5C.eps", Tree5C, width=6.5, height= 3, units="in")
 sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
       full_data$Customer=="Defense"& 
     full_data$OfficeOCOcrisisPercentRound1>=0.25],na.rm=TRUE)/
