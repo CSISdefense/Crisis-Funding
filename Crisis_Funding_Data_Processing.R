@@ -16,11 +16,6 @@ library(reshape2)
 library(Hmisc)
 library(csis360)
 
-
-source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
-source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
-
-
 ##Import Data
 # read in detailed defense dataset    
 # ZipFile<-unz(file.path("Data","Defense_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.zip"),
@@ -53,8 +48,7 @@ full_data<-full_data[,!colnames(full_data) %in%
 
 
 
-full_data<-apply_lookups(Path,full_data)
-full_data<-subset(full_data, year(Fiscal.Year)>=2000 & year(Fiscal.Year)<=2017)
+full_data<-subset(full_data, Fiscal.Year>=2000 & Fiscal.Year<=2017)
  
 #Create new  variables
 full_data$CrisisFundingLegacy<-full_data$CrisisFunding
@@ -92,6 +86,15 @@ full_data<-read_and_join(
   # new_var_checked=TRUE,
   skip_check_var="CHPKisCrisisFunding"
   )
+
+
+colnames(full_data)[colnames(full_data)=="ProductOrServiceArea"]<-"ProductServiceOrRnDarea"
+full_data<-read_and_join(full_data,
+                      "LOOKUP_Buckets.csv",
+                      by="ProductServiceOrRnDarea",
+                      add_var="ProductServiceOrRnDarea.sum")
+colnames(full_data)[colnames(full_data)=="ProductServiceOrRnDarea"]<-"ProductOrServiceArea"
+
 
 colnames(full_data)[colnames(full_data)=="ContractingCustomer"]<-"Customer"
 full_data<-read_and_join(
@@ -139,120 +142,35 @@ full_data<-read_and_join(
   # new_var_checked=TRUE,
   skip_check_var=c("SAMcrisisFunding")
 )
+full_data<-read_and_join(full_data,
+                      "Lookup_SubCustomer.csv",
+                      by=c("Customer","SubCustomer"),
+                      add_var="SubCustomer.detail"
+)
 
 
+full_data<-replace_nas_with_unlabeled(full_data,"ClassifyNumberOfOffers")
+full_data<-read_and_join(full_data,
+                      "Lookup_SQL_CompetitionClassification.csv",
+                      by=c("CompetitionClassification",
+                           "ClassifyNumberOfOffers"),
+                      add_var="No.Competition.Offer")
 
 
+full_data$Dur.Simple<-factor(full_data$UnmodifiedUltimateDurationCategory)
+levels(full_data$Dur.Simple)<- list(
+  "<~1 year"=c("<=2 Months",">2-7 Months",">7-12 Months"),
+  "(~1 year,~2 years]"=">1-2 Years",
+  "(~2 years+]"=c(">2-4 Years",">4 years"),
+  "Unlabeled"="Unlabeled"
+  )
 
 full_data<-replace_nas_with_unlabeled(full_data,"ContractCrisisFunding")
 full_data<-replace_nas_with_unlabeled(full_data,"Is.Defense")
 full_data<-replace_nas_with_unlabeled(full_data,"Theater")
 full_data<-replace_nas_with_unlabeled(full_data,"contingencyhumanitarianpeacekeepingoperationText")
-
-
+full_data<-replace_nas_with_unlabeled(full_data,"Dur.Simple")
 full_data$SAMcrisisFunding[full_data$SAMcrisisFunding==""]<-NA
-
-full_data<-full_data[,!colnames(full_data) %in% c(
-  # "Fiscal.Year"                                     
-  "SimpleArea",
-  # "ProductOrServiceArea"                            
-  # "Customer"                                        
-  # "ContractingSubCustomer"                          
-  # "PlaceCountryText"                                
-  # "CrisisFundingTheater"                            
-  # "VendorPlaceType"                                 
-  # "Vendor.Size"                                     
-  # "UnmodifiedUltimateDurationCategory"              
-  # "OMBagencyName"                                   
-  # "OMBbureauName"                                   
-  # "treasuryagencycode"                              
-  # "mainaccountcode"                                 
-  # "isUndefinitizedAction"                           
-  # "OCOcrisisScore"                                  
-  # "CompetitionClassification"                       
-  # "ClassifyNumberOfOffers"                          
-  # "IsOMBocoList"                                    
-  # "PSCOCOcrisisScore"                               
-  # "OfficeOCOcrisisScore"                            
-  # "MajorCommandID"                                  
-  # "IsMultipleYearProcRnD"                           
-  # "isforeign"                                       
-  # "ContractCrisisFunding"                           
-  # "nationalinterestactioncode"                      
-  # "CrisisFunding"                                   
-  # "localareasetaside"                               
-  # "ContingencyHumanitarianPeacekeepingOperation"    
-  # "ConHumIsOCOcrisisFunding"                        
-  # "CCRexception"                                    
-  # "IsOCOcrisisFunding"                              
-  # "DecisionTree"                                    
-  # "DecisionTreeStep4"                               
-  # "pscOCOcrisisPoint"                               
-  # "FundingAccountOCOpoint"                          
-  # "OfficeOCOcrisisPoint"                            
-  # "PercentFundingAccountOCO"                        
-  # "OfficeOCOcrisisPercentSqrt"                      
-  # "pscOCOcrisisPercentSqrt"                         
-  # "Action.Obligation"                               
-  # "numberOfActions"                                 
-  # "MajorCommandCode"                                
-  # "ContractingOfficeCode"                           
-  # "Contracting.Agency.ID"                           
-  # "MajorCommandName"                                
-  # "MCC_StartFiscal_Year"                            
-  # "MCC_EndFiscal_Year"                              
-  # "ContractingOfficeName"                           
-  # "Competition.detail"                              
-  # "Competition.sum"                                 
-  # "Competition.effective.only"                      
-  # "Competition.multisum"                            
-  # "No.Competition.sum"                              
-  # "ProductServiceOrRnDarea"                         
-  "ServicesCategory.detail",
-  "ServicesCategory.sum",
-  "ProductsCategory.detail",
-  "ProductOrServiceArea.DLA",
-  "ProductOrServicesCategory.Graph",
-  "ProductServiceOrRnDarea.sum",
-  # "SupplyServiceFRC"                                
-  # "SupplyServiceERS"                                
-  "RnDCategory.detail",
-  # "Vendor.Size.detail"                              
-  # "Vendor.Size.sum"                                 
-  # "Shiny.VendorSize"                                
-  "Deflator.2005",
-  "Deflator.2011",
-  "Deflator.2012",
-  "Deflator.2013",
-  "Deflator.2014",
-  "Deflator.2015",
-  "Deflator.2016",
-  # "Deflator.2017"                                   
-  # "Unknown.2017"                                    
-  # "OMB.2019"                                        
-  "Obligation.2013",
-  "Obligation.2014",
-  "Obligation.2015",
-  # "Obligation.2016"                                 
-  # "LogOfAction.Obligation"                          
-  # "Fiscal.Year.End"                                 
-  # "Fiscal.Year.Start"                               
-  # "Graph"                                           
-  # "CrisisFundingLegacy"                             
-  # "Theater"                                         
-  # "International"                                   
-  # "contingencyhumanitarianpeacekeepingoperationText"
-  # "CHPKisCrisisFunding"                             
-  # "Is.Defense"                                      
-  # "nationalinterestactioncodeText"                  
-  # "IsHurricane"                                     
-  # "NIAcrisisFunding"                                
-  # "SubCustomer"                                     
-  "SubCustomer.detail"
-  # "SAMexceptionText"                                
-  # "SAMexception.sum"                                
-  # "SAMcrisisFunding"  
-)]
 
 
 full_data<-deflate(full_data,
@@ -262,18 +180,11 @@ full_data<-deflate(full_data,
 
 
 
-
-full_data$NoCompOffr<-as.character(full_data$No.Competition.sum)
-full_data$NoCompOffr<-as.character(full_data$NoCompOffr)
-full_data$NoCompOffr[full_data$ClassifyNumberOfOffers %in% c("5-9 Offers","10-24 Offers","25-99 Offers","100+ Offers")
-                     &  full_data$NoCompOffr == "2+ Offers"] <-"5+ Offers"
-full_data$NoCompOffr[full_data$ClassifyNumberOfOffers %in% c("Two Offers","3-4 Offers")
-                     &  full_data$NoCompOffr == "2+ Offers"] <-"2-4 Offers"
+full_data$NoCompOffr<-as.character(full_data$No.Competition.Offer)
+summary(factor(full_data$NoCompOffr))
 
 full_data$NoCompOffr[full_data$IsUrgency==1]<-"Urgency"
 full_data$NoCompOffr<-factor(full_data$NoCompOffr)
-
-summary(full_data$NoCompOffr)
 
 levels(full_data$NoCompOffr)<-list(
   "1 Offer"="1 Offer",              
@@ -291,15 +202,57 @@ full_data$NoCompOffr<-factor(full_data$NoCompOffr,c(
     "5+ Offers",
   "Unlabeled"
   ))
-full_data %>% group_by(NoCompOffr) %>% dplyr::summarise(obligation.2016=sum(Obligation.2016,na.rm=TRUE))
+
+colnames(full_data)[colnames(full_data)=="Action.Obligation.2017"]<-"Obligation.2017"
+full_data %>% group_by(NoCompOffr) %>% dplyr::summarise(Obligation.2017=sum(Obligation.2017,na.rm=TRUE))
 
 
 for(i in 1:ncol(full_data))
   if (typeof(full_data[,i])=="character")
     full_data[,i]<-factor(full_data[,i])
 
+full_data$dFYear <-as.Date(paste("1/1/",as.character(full_data$Fiscal.Year),sep=""),"%m/%d/%Y")
+
+full_data$NIAlist<-full_data$nationalinterestactioncodeText
+# labels.x.DF<-prepare_labels_and_colors(full_data,"nationalinterestactioncodeText")
+# full_data$NIAlist<-factor(full_data$nationalinterestactioncodeText,
+#                           levels=c(rev(labels.x.DF$variable)),
+#                           labels=c(rev(labels.x.DF$Label)),
+#                           ordered=TRUE)
+full_data<-replace_nas_with_unlabeled(full_data,"NIAcrisisFunding")
+
+#Priming all the labels_and_colors with the legend values we need.
+full_data$CrisisFunding1A<-full_data$CrisisFunding
+full_data$CrisisFunding1B<-full_data$CrisisFunding
+full_data$CrisisFunding1C<-full_data$CrisisFunding
+full_data$CrisisFunding2<-full_data$CrisisFunding
+
+full_data$CrisisFunding3<-full_data$CrisisFunding
+full_data$CrisisFunding3<-factor(full_data$CrisisFunding3,
+                                 levels=c("OCO","Disaster","ARRA","Excluded","Unlabeled"))
+full_data$CrisisFunding3[1]<-"Excluded"
+full_data$CrisisFunding4A<-full_data$CrisisFunding3
+full_data$CrisisFunding4B<-full_data$CrisisFunding3
+
+full_data$MultipleYearProcRnD<-factor(full_data$IsMultipleYearProcRnD)
+levels(full_data$MultipleYearProcRnD)<-list(
+  "Excluded"="1",
+  "Remainder"="0"
+)
+
+
 full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
 full_column_key<-get_column_key(full_data)
+
+full_data$CrisisFunding1A<-NA
+full_data$CrisisFunding1B<-NA
+full_data$CrisisFunding1C<-NA
+full_data$CrisisFunding2<-NA
+
+full_data$CrisisFunding3<-NA
+full_data$CrisisFunding4A<-NA
+full_data$CrisisFunding4B<-NA
+
 
 save(full_data,full_labels_and_colors,full_column_key,
   file="Data//budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
