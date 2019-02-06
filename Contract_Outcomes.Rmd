@@ -5134,6 +5134,157 @@ stargazer::stargazer(CBre_21A,CBre_21C,type="text",#Term_20A,#Term_20C
 
 summary_residual_compare(CBre_21A,CBre_21C,Term_21A,Term_21C,bins=50)
 ```
+
+
+### 21D: NoComOffr2:Ceil and NoCompOffr:UCA
+```{r Model21D}
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
+    
+
+# load("Output//Model21D_CBre.rdata")
+if(!exists("CBre_21D"))
+  CBre_21D <- glmer (data=fed_1m,
+                   b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2+
+                     cl_Ceil:NoCompOffr2+
+                   #   capped_cl_Days:NoCompOffr+
+                   # NoCompOffr:Veh,
+    
+
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office) + 
+                     (0 + OffPlace | PlaceCountryISO3) + 
+                     (1 | StartFY)
+               , 
+                   family=binomial(link="logit"),
+                verbose=1)
+  glmer_examine(CBre_21D)
+
+  
+if(!exists("Term_21D"))
+  Term_21D <- glmer (data=fed_1m,
+                   b_Term ~ Crisis +NoCompOffr2+
+                     b_UCA+
+                     c_OffCri+
+                     OffPlace+
+                    cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                          #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # b_UCA:NoCompOffr2,
+  
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office)+
+                     (0 + OffPlace| PlaceCountryISO3), 
+                   family=binomial(link="logit"),
+                   verbose=1,
+     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+  glmer_examine(Term_21D)
+  
+  
+  save(Term_21D, file="Output//Model21D_Term.RData")
+  
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_21A,CBre_21D,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+summary_residual_compare(CBre_21A,CBre_21D,Term_21A,Term_21D,bins=50)
+```
+
+
+
+### 21E: NoComOffr2:Ceil and NoCompOffr:UCA
+```{r Model21E}
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
+    
+# load("Output//Model21D_CBre.rdata")
+if(!exists("CBre_21D"))
+  CBre_21D <- glmer (data=fed_1m,
+                   b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # Veh:cl_Ceil+
+                     b_UCA:NoCompOffr2+
+                     cl_Ceil:NoCompOffr2+
+                   #   capped_cl_Days:NoCompOffr+
+                   # NoCompOffr:Veh,
+    
+
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office) + 
+                     (0 + OffPlace | PlaceCountryISO3) + 
+                     (1 | StartFY)
+               , 
+                   family=binomial(link="logit"),
+                verbose=1)
+  glmer_examine(CBre_21D)
+
+  
+  
+  save(CBre_21D, file="Output//Model21D_CBre.RData")
+# load("Output//Model21E_CBre.rdata")
+if(!exists("CBre_21E"))
+  CBre_21E <- glmer (data=fed_1m,
+                   b_CBre ~ Crisis +NoCompOffr2 +
+                     b_UCA+
+                     
+                     OffPlace+
+                     cl_Ceil+
+                     capped_cl_Days+
+                     Veh+
+                     PricingFee+
+                     #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # Veh:cl_Ceil+
+                     # b_UCA:NoCompOffr2+
+                     cl_Ceil:NoCompOffr2+
+                   #   capped_cl_Days:NoCompOffr+
+                   # NoCompOffr:Veh,
+    
+
+                     (1 | CrisisProductOrServiceArea/ProdServ) + 
+                     (1 | Customer/Office) + 
+                     (0 + OffPlace | PlaceCountryISO3) + 
+                     (1 | StartFY)
+               , 
+                   family=binomial(link="logit"),
+                verbose=1)
+  glmer_examine(CBre_21E)
+
+  
+  
+  
+  save(CBre_21E, file="Output//Model21E_CBre.RData")
+  
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_21A,CBre_21D,type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+summary_residual_compare(CBre_21A,CBre_21D,Term_21A,Term_21D,bins=50)
+```
+
 ## Crisis-Only
 ### 22A: Minimal Interactions
 ```{r Model22A}
@@ -5663,6 +5814,10 @@ stargazer::stargazer(CBre_22F,CBre_22G,Term_22E,Term_22G,type="text",#Term_20A,#
 
 
 summary_residual_compare(CBre_22F,CBre_22G,Term_22E,Term_22G,bins=50)
+
+
+  CBre_22G.all<-allFit_save(CBre_22G,filename="output/CBre_22G_allfit.rdata")
+  Term_22G.all<-allFit_save(Term_22G,filename="output/Term_22G_allfit.rdata")
 
 ```
 
