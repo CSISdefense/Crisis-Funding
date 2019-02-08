@@ -1463,7 +1463,15 @@ save(crisis_smp,crisis_with_na,
 # save(extra_large_crisis_smp,extra_large_crisis_with_na,file="Data\\extra_large_crisis_smp.Rdata")
 # load("Data\\extra_large_crisis_smp.Rdata")
   load("Data\\fed_sample.Rdata")
-
+colnames(fed_1m)[colnames(fed_1m)=="OffPl99"]<-"OffPlace"
+colnames(fed_1m)[colnames(fed_1m)=="Agency"]<-"AgencyID"
+    fed_1m<-csis360::read_and_join(fed_1m,
+                                   "Agency_AgencyID.csv",
+path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                                      directory="",
+                                   by=c("AgencyID"),
+                                   add_var="Customer")
+    colnames(fed_1m)[colnames(fed_1m)=="AgencyID"]<-"Agency"
 ```
 
 ## Output: Models

@@ -5096,7 +5096,7 @@ summary_residual_compare(CBre_21A,CBre_21B,Term_21A,Term_21B,bins=50)
 # summary(large_crisis_smp$CPSA)
     
 
-# load("Output//Model21C_CBre.rdata")
+load("Output//Model21C_CBre.rdata")
 if(!exists("CBre_21C"))
   CBre_21C <- glmer (data=fed_1m,
                    b_CBre ~ Crisis +NoCompOffr2 +
@@ -5122,8 +5122,7 @@ if(!exists("CBre_21C"))
                      (1 | StartFY)
                , 
                    family=binomial(link="logit"),
-                verbose=1)
-  glmer_examine(CBre_21C)
+                verbose=1)y
 
   
   save(CBre_21C, file="Output//Model21C_CBre.RData")
@@ -5142,7 +5141,7 @@ summary_residual_compare(CBre_21A,CBre_21C,Term_21A,Term_21C,bins=50)
 # summary(large_crisis_smp$CPSA)
     
 
-# load("Output//Model21D_CBre.rdata")
+load("Output//Model21D_CBre.rdata")
 if(!exists("CBre_21D"))
   CBre_21D <- glmer (data=fed_1m,
                    b_CBre ~ Crisis +NoCompOffr2 +
@@ -5171,7 +5170,7 @@ if(!exists("CBre_21D"))
                 verbose=1)
   glmer_examine(CBre_21D)
 
-  
+load("Output//Model21D_Term.rdata")
 if(!exists("Term_21D"))
   Term_21D <- glmer (data=fed_1m,
                    b_Term ~ Crisis +NoCompOffr2+
@@ -5199,51 +5198,20 @@ if(!exists("Term_21D"))
   save(Term_21D, file="Output//Model21D_Term.RData")
   
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_21A,CBre_21D,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(CBre_21C,CBre_21D,type="text",#Term_20A,#Term_20C
                         digits=2)
 
-summary_residual_compare(CBre_21A,CBre_21D,Term_21A,Term_21D,bins=50)
+summary_residual_compare(CBre_21A,CBre_21D,bins=50)#,Term_21A,Term_21D
+summary_residual_compare(CBre_21C,CBre_21D,bins=50)#,Term_21A,Term_21D
 ```
 
 
 
-### 21E: NoComOffr2:Ceil and NoCompOffr:UCA
+### 21E: NoComOffr2:Ceil but not NoCompOffr:UCA
 ```{r Model21E}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
     
-# load("Output//Model21D_CBre.rdata")
-if(!exists("CBre_21D"))
-  CBre_21D <- glmer (data=fed_1m,
-                   b_CBre ~ Crisis +NoCompOffr2 +
-                     b_UCA+
-                     
-                     OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
-                     Veh+
-                     PricingFee+
-                     #Crisis:NoCompOffr+
-                     # b_UCA:Crisis+
-                     # Veh:cl_Ceil+
-                     b_UCA:NoCompOffr2+
-                     cl_Ceil:NoCompOffr2+
-                   #   capped_cl_Days:NoCompOffr+
-                   # NoCompOffr:Veh,
-    
-
-                     (1 | CrisisProductOrServiceArea/ProdServ) + 
-                     (1 | Customer/Office) + 
-                     (0 + OffPlace | PlaceCountryISO3) + 
-                     (1 | StartFY)
-               , 
-                   family=binomial(link="logit"),
-                verbose=1)
-  glmer_examine(CBre_21D)
-
-  
-  
-  save(CBre_21D, file="Output//Model21D_CBre.RData")
 # load("Output//Model21E_CBre.rdata")
 if(!exists("CBre_21E"))
   CBre_21E <- glmer (data=fed_1m,
