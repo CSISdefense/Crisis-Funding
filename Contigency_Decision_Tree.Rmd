@@ -71,7 +71,8 @@ Tree1A<-LatticePlotWrapper_csis360(
   VAR.facet.secondary="Is.Defense", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
-  DataLabels=FALSE
+  DataLabels=FALSE,
+  caption=TRUE
   #                       ,VAR.override.coloration=NA
 )+facet_grid(primary ~ secondary
               , scales="free_y" #The scales actually do stay fixed
@@ -816,8 +817,8 @@ Tree5C<-LatticePlotWrapper_csis360(
               , space="fixed")+
   scale_x_continuous(labels = percent_format())+geom_vline(aes(xintercept=0.25))  
 Tree5C
-ggsavedpi600("Output//Figure11_Tree5C.png", Tree5C, width=6.5, height= 3, units="in")
-ggsave("Output//Figure11_Tree5C.eps", Tree5C, width=6.5, height= 3, units="in")
+ggsave600dpi("Output//Figure11_Tree5C.png", Tree5C, width=6.5, height= 2.5, units="in")
+ggsave("Output//Figure11_Tree5C.eps", Tree5C, width=6.5, height= 2.5, units="in")
 sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
       full_data$Customer=="Defense"& 
     full_data$OfficeOCOcrisisPercentRound1>=0.25],na.rm=TRUE)/
@@ -840,6 +841,7 @@ sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Unlabeled"&
 #Step 6 Adding up the points
 ```{r Step1B}
 full_data<-replace_nas_with_unlabeled(full_data,"DecisionTree")
+
 full_data$CrisisPoints<-as.character(full_data$CrisisFunding4B)
 full_data$CrisisPoints[(full_data$pscOCOcrisisPoint+
     full_data$OfficeOCOcrisisPoint+
@@ -857,6 +859,11 @@ full_data$CrisisPoints[full_data$CrisisPoints %in%
     c("ARRA","Excluded","Unlabeled","Disaster"
   )]<-"All Non-OCO"
 
+full_data$CrisisPointsOnly<-full_data$CrisisPoints
+full_data$CrisisPointsOnly[full_data$CrisisPointsOnly=="All Non-OCO"]<-NA
+full_data$CrisisPointsOnly<-factor(full_data$CrisisPointsOnly)
+
+levels(factor(full_data$CrisisPointsOnly))
 
 
 full_data$OMBtheater<-as.character(full_data$Theater)
@@ -867,65 +874,75 @@ full_data$OMBtheater<-factor(full_data$OMBtheater)
 # ,[ContingencyHumanitarianPeacekeepingOperation]
 
 
-Tree6percent<-LatticePercentLineWrapper(
+full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
+full_column_key<-get_column_key(full_data)
+
+
+Tree6percent<-build_plot(
+  data=subset(full_data,!Theater %in% c("Unlabeled")),
+  chart_geom = "Bar Chart",
+  share = TRUE,
+  x_var="dFYear",
+  y_var="Obligation.2017",
+  color_var="CrisisPoints",
+  facet_var="OMBtheater",
+  legend=TRUE, #Include a legend
+  caption=TRUE, #Include a source caption
+  labels_and_colors=full_labels_and_colors,
+  column_key=full_column_key,
+  format=TRUE
+)+
+   theme(legend.title = element_text())+
+  labs(x="Fiscal Year",
+       y="Percent of Obligations",
+       fill="Classification\nAfter Step 5")+
+  scale_x_date(
+            # breaks=date_breaks("5 years"),
+            labels=date_format("'%y"))+
+facet_wrap(~OMBtheater,nrow=1)
+
+
+
+Tree6final<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification\nAfter Step 5",
   VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
-  VAR.Coloration=full_labels_and_colors,
-  VAR.long.DF=subset(full_data,!Theater %in% c("Unlabeled")),
-  # NA, #VAR.ncol
-  VAR.x.variable="dFYear", #VAR.x.variable
-  VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="CrisisPoints", #VAR.y.series
-  VAR.facet.primary= "OMBtheater", #VAR.facet.primary
-  # VAR.facet.secondary="contingencyhumanitarianpeacekeepingoperationText", # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  DataLabels=FALSE
-  #                       ,VAR.override.coloration=NA
-)+theme(legend.position="bottom")+
-  scale_x_date(
-            # breaks=date_breaks("5 years"),
-            labels=date_format("'%y"))+geom_line(size=1)
-# +facet_grid(primary ~ secondary
-#               , scales="free_y" #The scales actually do stay fixed
-#               , space="fixed")
-
-Tree6final<-LatticePlotWrapper_csis360(
-  VAR.color.legend.label="Final Classification",
-  VAR.main.label=NULL,
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
-  VAR.Coloration=full_labels_and_colors,
+  VAR.Y.label="Obligations (2017 $)",
+  VAR.Coloration=subset(full_labels_and_colors,column!="CrisisPointsOnly" | variable !='Unlabeled'), #Dropping unlabeled from legend.
   VAR.long.DF=subset(full_data,!Theater %in% c("Unlabeled") &
-      CrisisPoints %in% c("OCO","1 point", "2 points", "3 points")),
+                       DecisionTree %in% c("OCO","Unlabeled") &
+      !is.na(CrisisPointsOnly)),
   # NA, #VAR.ncol
   VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="CrisisPoints", #VAR.y.series
+  VAR.y.series="CrisisPointsOnly", #VAR.y.series
   VAR.facet.primary= "OMBtheater", #VAR.facet.primary
   VAR.facet.secondary="DecisionTree", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
-  DataLabels=FALSE
+  DataLabels=FALSE,
+  caption=TRUE
   #                       ,VAR.override.coloration=NA
 )+theme(legend.position="bottom")+
   scale_x_date(
-            # breaks=date_breaks("5 years"),
             labels=date_format("'%y"))+facet_grid(primary ~ secondary
               , scales="free_y" #The scales actually do stay fixed
-              , space="free_y")
-
-
-Tree6final
+              , space="free_y")+
+    scale_y_continuous(expand =c(0.01,2.5e9),
+                      label = unit_format(unit = "B", scale = 1e-9),
+                      breaks = scales::pretty_breaks(n = 3))+
+  labs(caption="Source: FPDS; CSIS Analysis.\nUnlabeled location, zero point and excluded,\nand Recovery/Disaster contracts not shown.")
 # csis360::get_column_key(full_data)
-Tree6percent<-Tree6percent+geom_line(size=1)
 
+levels(full_data$CrisisPointsOnly)
 
-ggsave("Output//Tree6percent.png", Tree6percent, width=6.5, height= 3.5, units="in",dpi=600)
-ggsave("Output//Tree6final.png", Tree6final, width=4, height= 7.5, units="in",dpi=600)
+ggsave600dpi("Output//Figure12_Tree6percent.png", Tree6percent, width=6.5, height= 2.5, units="in")
+ggsave("Output//Figure12_Tree6percent.eps", Tree6percent, width=6.5, height= 2.5, units="in")
 
+ggsave600dpi("Output//Figure13_Tree6final.png", Tree6final, width=4, height= 7.5, units="in")
+ggsave("Output//Figure13_Tree6final.eps", Tree6final, width=4, height= 7.5, units="in")
+
+full_data$CrisisFunding<-full_data$CrisisFunding4B
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$DecisionTree=="OCO"]<-"OCO"
 save(full_data,file="Data//full_data_after_step_6.Rdata")
 

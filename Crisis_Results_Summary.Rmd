@@ -20,12 +20,12 @@ library(dplyr)
 library(Hmisc)
 library(texreg)
 library(reshape2)
-source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
-source("ContractCleanup.r")
-
 library(plyr)
 library(reshape2)
 library(lubridate)
+
+source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
+source("ContractCleanup.r")
 source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
 source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
 
@@ -54,18 +54,16 @@ note.text.size<-1.40
 load(file="Data//full_data_after_step_6.Rdata")
 full_data$CrisisDisplay<-as.character(full_data$CrisisFunding)
 full_data$CrisisDisplay[full_data$CrisisDisplay  %in% c("Unlabeled","Excluded")]<-"All Other"
+full_data$CrisisDisplay<-factor(full_data$CrisisDisplay)
 
 full_data$SAMcrisisFunding[full_data$SAMcrisisFunding==""]<-NA
-full_data<-full_data[,!colnames(full_data) %in% c("SubCustomer","SubCustomer.detail")]
-#There's 53 some subcustomers to add at some point.
-full_data$CrisisDisplay<-factor(full_data$CrisisDisplay)
-full_data$No.Competition.sum<-factor(full_data$No.Competition.sum)
-full_data$Competition.multisum<-factor(full_data$Competition.multisum)
 full_data$isUndefinitizedAction<-factor(full_data$isUndefinitizedAction)
-full_data$SupplyServiceERS<-factor(full_data$SupplyServiceERS)
 
-
-
+# full_data<-full_data %>% select(-SubCustomer,-SubCustomer.detail)
+#There's 53 some subcustomers to add at some point.
+# full_data$No.Competition.sum<-factor(full_data$No.Competition.sum)
+# full_data$Competition.multisum<-factor(full_data$Competition.multisum)
+# full_data$SupplyServiceERS<-factor(full_data$SupplyServiceERS)
 
 ```
 
@@ -80,74 +78,69 @@ summary_data<-full_data%>%
     Is.Defense,
     CrisisDisplay,
     International,
-    No.Competition.sum,
-    Competition.multisum,
+    NoCompOffr,
     Theater,
     isUndefinitizedAction,
-    SupplyServiceERS,
-    ProductOrServiceArea,
-    # Reachback,
+    # SupplyServiceERS,     #Should switch this to CrisisProdServ
+    ProductOrServiceArea, 
+    # Reachback,            #Swap in OffPlace
     UnmodifiedUltimateDurationCategory,
     PlaceCountryText)%>%
-  dplyr::summarise( Obligation.2016=sum(Obligation.2016))
-
+  dplyr::summarise( Obligation.2017=sum(Obligation.2017))
 
 summary_data$DecisionTreeDisplay<-as.character( summary_data$CrisisDisplay)
 
+summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
+                                   summary_data$International=="Domestic" &
+                                   summary_data$Is.Defense==FALSE & 
+                                   summary_data$Fiscal.Year>=2007
+                                 ]<-"Other U.S. Civilian"
 
 summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
-                                      summary_data$International=="Domestic" &
-                                      summary_data$Is.Defense==FALSE & 
-                                   year(summary_data$Fiscal.Year)>=2007
-                                      ]<-"Other U.S. Civilian"
+                                   summary_data$International=="Domestic" &
+                                   summary_data$Is.Defense==TRUE & 
+                                   summary_data$Fiscal.Year>=2007
+                                 ]<-"Other U.S. Defense"
 
 summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
-                                      summary_data$International=="Domestic" &
-                                      summary_data$Is.Defense==TRUE & 
-                                   year(summary_data$Fiscal.Year)>=2007
-                                      ]<-"Other U.S. Defense"
+                                   summary_data$International=="International" &
+                                   summary_data$Is.Defense==FALSE & 
+                                   summary_data$Fiscal.Year>=2007
+                                 ]<-"Other Intl. Civilian"
 
 summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
-                                      summary_data$International=="International" &
-                                      summary_data$Is.Defense==FALSE & 
-                                   year(summary_data$Fiscal.Year)>=2007
-                                      ]<-"Other Intl. Civilian"
+                                   summary_data$International=="International" &
+                                   summary_data$Is.Defense==TRUE & 
+                                   summary_data$Fiscal.Year>=2007
+                                 ]<-"Other Intl. Defense"
 
-summary_data$DecisionTreeDisplay[summary_data$CrisisDisplay=="All Other" &
-                                      summary_data$International=="International" &
-                                      summary_data$Is.Defense==TRUE & 
-                                   year(summary_data$Fiscal.Year)>=2007
-                                      ]<-"Other Intl. Defense"
-
-summary_data$DecisionTreeDisplay[year(summary_data$Fiscal.Year)<2007]<-  "Not in Sample"
-
+summary_data$DecisionTreeDisplay[summary_data$Fiscal.Year<2007]<-  "Not in Sample"
 
 summary_data$DecisionTreeDisplay[(is.na(summary_data$International)) |
-                                            is.na(summary_data$Is.Defense) &
-                                            summary_data$CrisisDisplay=="All Other" 
-                                      ]<-"Not in Sample"
+                                   is.na(summary_data$Is.Defense) &
+                                   summary_data$CrisisDisplay=="All Other" 
+                                 ]<-"Not in Sample"
 
 summary_data$DecisionTreeDisplay<-ordered(summary_data$DecisionTreeDisplay,
-levels=c("Disaster",
-  "ARRA",
-  "OCO",
-"Other U.S. Civilian",
-"Other Intl. Civilian",
-"Other U.S. Defense",
-"Other Intl. Defense",
-  "Not in Sample"
-))
-  
-
+                                          levels=c("Disaster",
+                                                   "ARRA",
+                                                   "OCO",
+                                                   "Other U.S. Civilian",
+                                                   "Other Intl. Civilian",
+                                                   "Other U.S. Defense",
+                                                   "Other Intl. Defense",
+                                                   "Not in Sample"
+                                          ))
 
 summary(summary_data$DecisionTreeDisplay)
+
 summary_data<-ddply(summary_data,
-                .(
-                  DecisionTreeDisplay
-                  ),
-                plyr::mutate,
-                pDatasetObligation=Obligation.2016/sum(Obligation.2016)
-                )
+                    .(
+                      DecisionTreeDisplay
+                    ),
+                    plyr::mutate,
+                    pDatasetObligation=Obligation.2017/sum(Obligation.2017)
+)
 
 labels_and_colors<-prepare_labels_and_colors(summary_data,na_replaced=TRUE)
 column_key<-csis360::get_column_key(summary_data)
@@ -155,25 +148,20 @@ column_key<-csis360::get_column_key(summary_data)
 complete_summary_data<-summary_data 
 summary_data<-subset(summary_data,DecisionTreeDisplay != "Not in Sample")
 
-
-
 save(complete_summary_data,summary_data,labels_and_colors,column_key,file="output//crisis_transaction_summary.Rdata")
-
 
 ```
 
 ## Transaction Data Display
 
-### Top level history
+### Crisis History
 ```{r Toplevel}
 
-
-debug(get_plot_theme)
 chapter4topline<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Customer",
   VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligations (2016 $ Billions)",
+  VAR.Y.label="Obligations (2017 $ Billions)",
   VAR.Coloration=labels_and_colors,
   VAR.long.DF=subset(complete_summary_data,!is.na(International)),
   # NA, #VAR.ncol
@@ -200,9 +188,6 @@ ggsave("Output//chapter4topline.png", chapter4topline, width=6.5, height= 4, uni
 ### Country
 ```{r Country}
 
-
-
-
 Country<-ddply(summary_data,
                 .(Fiscal.Year,
                   DecisionTreeDisplay,
@@ -215,13 +200,11 @@ Country<-ddply(summary_data,
 
 write.csv(Country,file.path("Output","Country.csv"))
 
-
-
 # LatticePlotWrapper(
 #   VAR.color.legend.label="OCO labeling detail",
 #   VAR.main.label="All Defense Contracts",
 #   VAR.X.label="Fiscal Year",
-#   VAR.Y.label="Obligation (2016 $ Billions)",
+#   VAR.Y.label="Obligation (2017 $ Billions)",
 #   VAR.Coloration=Coloration,
 #   VAR.long.DF=summary_data  ,
 #   # NA, #VAR.ncol
@@ -236,13 +219,11 @@ write.csv(Country,file.path("Output","Country.csv"))
 #   #                       ,VAR.override.coloration=NA
 # )+theme(legend.position="bottom")
 
-
-
 # OCOdetailZoom<-LatticePlotWrapper(
 #   VAR.color.legend.label="OCO labeling detail",
 #   VAR.main.label="Confident OCO or International Defense Contracts",
 #   VAR.X.label="Fiscal Year",
-#   VAR.Y.label="Obligation (2016 $ Billions)",
+#   VAR.Y.label="Obligation (2017 $ Billions)",
 #   VAR.Coloration=Coloration,
 #   VAR.long.DF=subset(summary_data,
 #                      (DecisionTreeDisplay=="Confident OCO" | 
@@ -265,18 +246,8 @@ write.csv(Country,file.path("Output","Country.csv"))
 ```
 
 ### Competition
+
 ```{r Competition}
-summary_data$No.Competition.sum<-ordered(
-  summary_data$No.Competition.sum,
-  c("2+ Offers","1 Offer", 
-    "No Comp. (Only 1 Source)",
-    "Follow on to Competed Action",
-    "No Comp. (Other)",
-    "No Comp. (Unlabeled)"    ,
-    "Unlabeled"
-                                                        ))
-
-
 
 #Competition and Simple Area
 CompetitionSupplyServiceERS<-ddply(summary_data,
@@ -363,7 +334,7 @@ ggsave("Output//CompOverall.png", CompOverall, width=4.5, height= 8, units="in",
 #   VAR.color.legend.label="Competition",
 #   VAR.main.label="Confident OCO and Labeled Product or Service Defense Contracts",
 #   VAR.X.label="Fiscal Year",
-#   VAR.Y.label="Obligation (2016 $ Billions)",
+#   VAR.Y.label="Obligation (2017 $ Billions)",
 #   VAR.Coloration=Coloration,
 #   VAR.long.DF=subset(CompetitionSupplyServiceERS,
 #                      SupplyServiceERS!="Unlabeled"&
@@ -409,7 +380,7 @@ LatticePlotWrapper(
   VAR.color.legend.label="Competition",
   VAR.main.label="Confident OCO and Labeled Duration Defense Contracts",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligation (2016 $ Billions)",
+  VAR.Y.label="Obligation (2017 $ Billions)",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(summary_data,
                      !is.na(UnmodifiedUltimateDurationCategory)),
@@ -455,7 +426,7 @@ LatticePlotWrapper(
   VAR.color.legend.label="Competition",
   VAR.main.label="Confident OCO and Labeled Duration Defense Contracts",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligation (2016 $ Billions)",
+  VAR.Y.label="Obligation (2017 $ Billions)",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(summary_data,
                      !is.na(UnmodifiedUltimateDurationCategory)),
@@ -644,7 +615,7 @@ LatticePlotWrapper(
   VAR.color.legend.label="Undefinitized Contract Action (UCA)",
   VAR.main.label="Labeled UCA Status and Duration Defense Contracts",
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligation (2016 $ Billions)",
+  VAR.Y.label="Obligation (2017 $ Billions)",
   VAR.Coloration=Coloration,
   VAR.long.DF=subset(UCADuration,
                      !is.na(UnmodifiedUltimateDurationCategory)),
