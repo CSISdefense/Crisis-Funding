@@ -271,10 +271,8 @@ CompetitionSupplyServiceERS<-ddply(CompetitionSupplyServiceERS,
                 pObligation=Obligation.2016/sum(Obligation.2016)
                 )
 
-
-
 geom.text.size<-2.5
-# debug(LatticePlotWrapper) 
+
 CompOverall<-  LatticePlotWrapper_csis360(
   VAR.color.legend.label="Dataset",
   VAR.main.label=NULL,
@@ -305,7 +303,7 @@ CompOverall
 ggsave("Output//CompOverall.png", CompOverall, width=4.5, height= 8, units="in",dpi=300)
 
 
-  LatticePercentLineWrapper(
+LatticePercentLineWrapper(
   VAR.color.legend.label="Competition",
   VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
@@ -325,7 +323,7 @@ ggsave("Output//CompOverall.png", CompOverall, width=4.5, height= 8, units="in",
   #                       ,VAR.override.coloration=NA
 )+
   # +theme(legend.position = "bottom")+
-    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=270))
 
 
@@ -1323,7 +1321,8 @@ fed$ProdServ[fed$ProdServ==""]<-NA
 # summary(factor(fed_1m$ProdServ[is.na(fed_1m$CrisisProductOrServiceArea)]))
 # summary(factor(fed_1m$ProdServ[is.na(fed_1m$CrisisProductOrServiceArea)]))
 # fed_1m$ProdServ[fed_1m$ProdServ==""]<-NA
-# fed_1m<-fed_1m[get_complete_list(fed_1m),]
+fed_1m<-fed_1m[get_complete_list(fed_1m),]
+fed_250k<-fed_250k[get_complete_list(fed_250k),]
 
 # fed_1m$Customer<-factor(fed_1m$Customer)
 # fed_1m$CrisisProductOrServiceArea<-factor(fed_1m$CrisisProductOrServiceArea)
@@ -1433,8 +1432,7 @@ save(crisis_smp,crisis_with_na,
 # 
 # save(extra_large_crisis_smp,extra_large_crisis_with_na,file="Data\\extra_large_crisis_smp.Rdata")
 # load("Data\\extra_large_crisis_smp.Rdata")
-  load("Data\\fed_sample.Rdata")
-
+summary(fed_1m)
 ```
 
 ## Output: Models
