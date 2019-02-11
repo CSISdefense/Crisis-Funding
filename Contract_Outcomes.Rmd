@@ -3452,8 +3452,14 @@ OffCri doesn't add anything on the ceiling breaches but does for terminations.
 Crisis:NoCompOffr. Expecation is that competition correlates with lower estimates of terminations and ceiling breaches for crisis subsets. Urgency is expected to estimate an even higher risk for crisis subsets.
 
 ```{r Model10C}
-crisis_all$NoCompOffr2<-factor(crisis_all$NoCompOffr,levels=c(  "2-4 offers" ,"Other No",   "Urgency" ,   "1 offer"  ,"5+ offers" ))
-fed_1m$NoCompOffr2<-factor(fed_1m$NoCompOffr,levels=c(  "2-4 offers" ,"Other No",   "Urgency" ,   "1 offer"  ,"5+ offers" ))
+crisis_all$NoCompOffr2<-factor(crisis_all$NoCompOffr,
+                               levels=c(  "2-4 offers" ,"Other No",   "Urgency" ,   "1 offer"  ,"5+ offers" ))
+fed_1m$NoCompOffr2<-factor(fed_1m$NoCompOffr,
+                           levels=c(  "2-4 offers" ,
+                                      "Other No",  
+                                      "Urgency" ,  
+                                      "1 offer"  ,
+                                      "5+ offers" ))
 
 
   CBre_10C <- glm (data=crisis_all,
@@ -5242,15 +5248,20 @@ if(!exists("CBre_21E"))
   glmer_examine(CBre_21E)
 
   
+
+pars<-get_pars(CBre_21E)
+if(!exists("CBre_Cons_13B.restart"))
+  CBre_21E.restart <- update(CBre_21E, start=pars)
   
   
   save(CBre_21E, file="Output//Model21E_CBre.RData")
   
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_21A,CBre_21D,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(CBre_21A,CBre_21D,CBre_21E,type="text",#Term_20A,#Term_20C
                         digits=2)
 
-summary_residual_compare(CBre_21A,CBre_21D,Term_21A,Term_21D,bins=50)
+summary_residual_compare(CBre_21A,CBre_21E,bins=50)
+summary_residual_compare(CBre_21D,CBre_21E,bins=50)
 ```
 
 ## Crisis-Only
