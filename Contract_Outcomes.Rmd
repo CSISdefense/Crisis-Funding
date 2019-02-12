@@ -5245,8 +5245,8 @@ if(!exists("CBre_21E"))
                , 
                    family=binomial(link="logit"),
                 verbose=1)
-  glmer_examine(CBre_21E)
-
+  glmer_examine(CBre_21E.restart)
+summary(CBre_21E.restart)
   
 
 pars<-get_pars(CBre_21E)
@@ -5254,7 +5254,7 @@ if(!exists("CBre_Cons_13B.restart"))
   CBre_21E.restart <- update(CBre_21E, start=pars)
   
   
-  save(CBre_21E, file="Output//Model21E_CBre.RData")
+  save(CBre_21E, CBre_21E.restart, file="Output//Model21E_CBre.RData")
   
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_21A,CBre_21D,CBre_21E,type="text",#Term_20A,#Term_20C
