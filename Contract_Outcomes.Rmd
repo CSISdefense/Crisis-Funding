@@ -5128,7 +5128,8 @@ if(!exists("CBre_21C"))
                      (1 | StartFY)
                , 
                    family=binomial(link="logit"),
-                verbose=1)y
+                verbose=1)
+  glmer_examine(CBre_21C)
 
   
   save(CBre_21C, file="Output//Model21C_CBre.RData")
@@ -5140,14 +5141,13 @@ stargazer::stargazer(CBre_21A,CBre_21C,type="text",#Term_20A,#Term_20C
 summary_residual_compare(CBre_21A,CBre_21C,Term_21A,Term_21C,bins=50)
 ```
 
-
 ### 21D: NoComOffr2:Ceil and NoCompOffr:UCA
 ```{r Model21D}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
     
 
-load("Output//Model21D_CBre.rdata")
+# load("Output//Model21D_CBre.rdata")
 if(!exists("CBre_21D"))
   CBre_21D <- glmer (data=fed_1m,
                    b_CBre ~ Crisis +NoCompOffr2 +

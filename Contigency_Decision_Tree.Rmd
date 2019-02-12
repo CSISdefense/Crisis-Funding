@@ -11,7 +11,7 @@ pdf_document: default
 #Setup
 ```{r setup, include=FALSE}
 
-library(dplyr)
+
 library(tidyr)
 library(reshape2)
 library(Hmisc)
