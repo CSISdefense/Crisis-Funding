@@ -20,11 +20,11 @@ library(dplyr)
 library(Hmisc)
 library(texreg)
 library(reshape2)
-library(plyr)
 library(reshape2)
 library(lubridate)
 library(showtext)
 library(extrafont)
+library(tidyverse)
 font_import()
 
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
@@ -77,7 +77,6 @@ full_data$isUndefinitizedAction<-factor(full_data$isUndefinitizedAction)
 ```{r Summary}
 
 
-
 summary_data<-full_data%>%
   dplyr::group_by(Fiscal.Year,
     Is.Defense,
@@ -90,6 +89,7 @@ summary_data<-full_data%>%
     ProductOrServiceArea, 
     # Reachback,            #Swap in OffPlace
     UnmodifiedUltimateDurationCategory,
+    dFYear,
     PlaceCountryText)%>%
   dplyr::summarise( Obligation.2017=sum(Obligation.2017))
 
@@ -145,13 +145,13 @@ summary_data$DecisionTreeDisplay<-ordered(summary_data$DecisionTreeDisplay,
 
 summary(summary_data$DecisionTreeDisplay)
 
-summary_data<-ddply(summary_data,
-                    .(
-                      DecisionTreeDisplay
-                    ),
-                    plyr::mutate,
-                    pDatasetObligation=Obligation.2017/sum(Obligation.2017)
-)
+summary_data<-summary_data %>% group_by(DecisionTreeDisplay) %>%
+                    dplyr::mutate(
+                    pDatasetObligation=Obligation.2017/sum(Obligation.2017,na.rm=TRUE))
+
+summary_data<-summary_data %>% group_by(DecisionTreeDisplay,Fiscal.Year) %>%
+                    dplyr::mutate(
+                    pAnnualDatasetObligation=Obligation.2017/sum(Obligation.2017,na.rm=TRUE))
 
 
 ```
@@ -165,7 +165,7 @@ summary_data<-replace_nas_with_unlabeled(summary_data,"UnmodifiedUltimateDuratio
 summary_data<-replace_nas_with_unlabeled(summary_data,"isUndefinitizedAction")
 summary_data<-replace_nas_with_unlabeled(summary_data,"Theater")
 summary_data<-replace_nas_with_unlabeled(summary_data,"International")
-summary_data<-replace_nas_with_unlabeled(summary_data,"Reachback")
+# summary_data<-replace_nas_with_unlabeled(summary_data,"Reachback")
 
 labels_and_colors<-prepare_labels_and_colors(summary_data,na_replaced=TRUE)
 column_key<-csis360::get_column_key(summary_data)
@@ -306,153 +306,30 @@ CompOverall<-  LatticePlotWrapper_csis360(
     scale_y_continuous( labels = percent_format())+
   facet_grid(primary ~ .)
     )
-
 ggsave("Output//CompOverall.png", CompOverall, width=4.5, height= 8, units="in",dpi=300)
 
-#Competition and Simple Area
-
-build_plot <- function(
-  data,
-  chart_geom = "Line Chart",
-  share = FALSE,
-  x_var=NULL,
-  y_var, #Name of variable to plot on y-axis
-  color_var="None",       # name of coloration variable, as string
-  facet_var="None",        # name of facet variable, as string
-  legend=TRUE, #Include a legend
-  caption=TRUE, #Include a source caption
-  labels_and_colors=NULL,
-  column_key=NULL,
-  format=FALSE
-)
-
+(
 build_plot(
-  VAR.color.legend.label="Competition",
-  VAR.main.label=NULL,
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligation.2017",
+  data=subset(summary_data),
+  chart_geom = "Bar Chart",
+  share = TRUE,
   labels_and_colors=labels_and_colors,
-  data=subset(summary_data,
-                     SupplyServiceERS!="Unlabeled"),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="NoCompOffr", #VAR.y.series
-  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
-  VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  # ,DataLabels=NA
-  #                       ,VAR.override.coloration=NA
-)+
+  x_var="dFYear", #x_var
+  y_var="Obligation.2017", #VAR.y.variable
+  color_var="NoCompOffr", #color_var
+  facet_var="DecisionTreeDisplay", #facet_var
+  column_key=full_column_key,
+  format=TRUE
+)+labs(line="Competition",
+  title=NULL,
+  xlab="Fiscal Year",
+  ylab="Percent of Obligations")+
   # +theme(legend.position = "bottom")+
   scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=270))
-
-
-#Competition and Duration
-
-# Breakdown by number of offers
-(
-LatticePlotWrapper_csis360(
-  VAR.color.legend.label="Competition",
-  VAR.main.label="Confident OCO and Labeled Duration Defense Contracts",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligation (2017 $ Billions)",
-  VAR.Coloration=labels_and_colors,
-  VAR.long.DF=subset(summary_data,
-                     !is.na(UnmodifiedUltimateDurationCategory)),
-  # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="NoCompOffr", #VAR.y.series Was originally Competition.s
-  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
-  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  # ,DataLabels=NA
-  #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
-   facet_grid(  primary~ secondary,scales="free_y")
 )
 
-
-  build_plot(
-  VAR.color.legend.label="Competition",
-  VAR.main.label=NULL,
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligation.2017",
-  labels_and_colors=labels_and_colors,
-  data=subset(summary_data, #Originally CompetitionDuration
-                     !is.na(UnmodifiedUltimateDurationCategory)),
-  # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="NoCompOffr", #VAR.y.series
-  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
-  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  # ,DataLabels=NA
-  #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
-    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-  theme(strip.text.y = element_text(angle=270))
-
-
-
-#Breakdown by reason not competed 
-  (
-LatticePlotWrapper_csis360(
-  VAR.color.legend.label="Competition",
-  VAR.main.label="Confident OCO and Labeled Duration Defense Contracts",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligation (2017 $ Billions)",
-  VAR.Coloration=labels_and_colors,
-  VAR.long.DF=subset(summary_data,
-                     !is.na(UnmodifiedUltimateDurationCategory)),
-  # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="NoCompOffr", #VAR.y.series
-  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
-  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  # ,DataLabels=NA
-  #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
-   facet_grid(  primary~ secondary,scales="free_y")
-)
-  
-  
-  
-  build_plot(
-  VAR.color.legend.label="Competition",
-  VAR.main.label=NULL,
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligation.2017",
-  labels_and_colors=labels_and_colors,
-  data=subset(summary_data,
-                     !is.na(UnmodifiedUltimateDurationCategory)),
-  # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="NoCompOffr", #VAR.y.series
-  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
-  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  # ,DataLabels=NA
-  #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
-    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-  theme(strip.text.y = element_text(angle=270))
-
-
-
-#Breakdown by reason not competed 
- #Start Fiscal Year
 ```
 
 
@@ -492,51 +369,60 @@ UCAoverall<-  LatticePlotWrapper_csis360(
   
 ggsave("Output//UCAoverall.png", UCAoverall, width=4.5, height= 5, units="in",dpi=300)
 
+(
 build_plot(
-  VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
-  VAR.main.label="Defense Contracts with Labeled Cector",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligation.2017",
   labels_and_colors=labels_and_colors,
-  data=subset(summary_data,SupplyServiceERS!="Unlabeled"),
+    chart_geom = "Bar Chart",
+  share = TRUE,
+  data=subset(summary_data),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="isUCA", #VAR.y.series
-  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
-  VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
+  x_var="dFYear", #x_var
+  y_var="Obligation.2017", #y_var
+  color_var="isUCA", #color_var
+  facet_var="DecisionTreeDisplay", #facet_var
+  column_key=full_column_key,
+  format=TRUE
   # ,MovingAverage=0
   # ,MovingSides=1
   # ,DataLabels=NA
   #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
+)+labs(line="Is Undefinitized Contract Action (UCA)",
+  title="Defense Contracts with Labeled Cector",
+  xlab="Fiscal Year",
+  ylab="Percent of Obligations")+
+  theme(legend.position = "bottom")+
     scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=270))
+)
 
+View(levels(summary_data$isUCA))
 
-
-#UCA and Duration
-
-build_plot(
-  VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
-  VAR.main.label="Defense Contracts with Labeled Cector",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligation.2017",
+(
+UCAannual<-build_plot(
   labels_and_colors=labels_and_colors,
-  data=subset(summary_data,!is.na(UnmodifiedUltimateDurationCategory)),
+    chart_geom = "Line Chart",
+  share = FALSE,
+  data=summary_data %>% filter( isUCA!="Not UCA"),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="isUCA", #VAR.y.series
-  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
-  VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
+  x_var="dFYear", #x_var
+  y_var="pAnnualDatasetObligation", #y_var
+  color_var="isUCA", #color_var
+  facet_var="DecisionTreeDisplay", #facet_var
+  column_key=full_column_key,
+  format=TRUE
   # ,MovingAverage=0
   # ,MovingSides=1
   # ,DataLabels=NA
   #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
+)+labs(line="Is Undefinitized Contract Action (UCA)",
+  title="Defense Contracts with Labeled Cector",
+  xlab="Fiscal Year",
+  ylab="Percent of Obligations")+
+  theme(legend.position = "bottom")+
     scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+    scale_y_continuous(labels = scales::percent)+coord_cartesian(ylim=c(0,0.3))+
   theme(strip.text.y = element_text(angle=270))
+)
 
 
 #Breakdown by reason not competed 
@@ -677,23 +563,23 @@ ggsave("Output//UCAoverall.png", UCAoverall, width=6.5, height= 5, units="in",dp
 
 
 build_plot(
-  VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
-  VAR.main.label="Defense Contracts with Labeled Reachback",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligation.2017",
+  
   labels_and_colors=labels_and_colors,
   data=subset(CompetitionReachback,!is.na(Reachback)),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="NoCompOffr", #VAR.y.series
-  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
+  x_var="dFYear", #x_var
+  y_var="Obligation.2017", #y_var
+  color_var="NoCompOffr", #color_var
+  facet_var="DecisionTreeDisplay", #facet_var
   VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   # ,DataLabels=NA
   #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
+)+labs(line="Is Undefinitized Contract Action (UCA)",
+  title="Defense Contracts with Labeled Reachback",
+  xlab="Fiscal Year",
+  ylab="Percent of Obligations")+theme(legend.position = "bottom")+
     scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=270))
 
@@ -722,23 +608,22 @@ UCAReachback<-ddply(UCAReachback,
 
 
 build_plot(
-  VAR.color.legend.label="Is Undefinitized Contract Action (UCA)",
-  VAR.main.label="Defense Contracts with Labeled Reachback",
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligation.2017",
   labels_and_colors=labels_and_colors,
   data=subset(UCAReachback,!is.na(Reachback)),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
-  VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="isUCA", #VAR.y.series
-  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
+  x_var="dFYear", #x_var
+  y_var="Obligation.2017", #y_var
+  color_var="isUCA", #color_var
+  facet_var="DecisionTreeDisplay", #facet_var
   VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   # ,DataLabels=NA
   #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
+)+labs(line="Is Undefinitized Contract Action (UCA)",
+  title="Defense Contracts with Labeled Reachback",
+  xlab="Fiscal Year",
+  yab="Percent of Obligations")+theme(legend.position = "bottom")+
     scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=270))
   
