@@ -206,7 +206,7 @@ chapter4topline<-LatticePlotWrapper_csis360(
   geom_vline(xintercept=2006.5)+get_caption()
 )
 
-ggsave("Output//chapter4topline.png", chapter4topline, width=6.5, height= 4, units="in",dpi=600)
+ggsave600dpi("Output//chapter4topline.png", chapter4topline, width=6.5, height= 4, units="in")
 
 ```
 
@@ -277,7 +277,6 @@ write.csv(Country,file.path("Output","Country.csv"))
 
 ```{r Competition}
 
-
 geom.text.size<-2.5
 (
 CompOverall<-  LatticePlotWrapper_csis360(
@@ -306,7 +305,7 @@ CompOverall<-  LatticePlotWrapper_csis360(
     scale_y_continuous( labels = percent_format())+
   facet_grid(primary ~ .)
     )
-ggsave("Output//CompOverall.png", CompOverall, width=4.5, height= 8, units="in",dpi=300)
+ggsave600dpi("Output//CompOverall.png", CompOverall, width=4.5, height= 8, units="in")
 
 (
 build_plot(
@@ -367,42 +366,15 @@ UCAoverall<-  LatticePlotWrapper_csis360(
     # )
 )
   
-ggsave("Output//UCAoverall.png", UCAoverall, width=4.5, height= 5, units="in",dpi=300)
-
-(
-build_plot(
-  labels_and_colors=labels_and_colors,
-    chart_geom = "Bar Chart",
-  share = TRUE,
-  data=subset(summary_data),
-  # NA, #VAR.ncol
-  x_var="dFYear", #x_var
-  y_var="Obligation.2017", #y_var
-  color_var="isUCA", #color_var
-  facet_var="DecisionTreeDisplay", #facet_var
-  column_key=full_column_key,
-  format=TRUE
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  # ,DataLabels=NA
-  #                       ,VAR.override.coloration=NA
-)+labs(line="Is Undefinitized Contract Action (UCA)",
-  title="Defense Contracts with Labeled Cector",
-  xlab="Fiscal Year",
-  ylab="Percent of Obligations")+
-  theme(legend.position = "bottom")+
-    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-  theme(strip.text.y = element_text(angle=270))
-)
-
-View(levels(summary_data$isUCA))
+ggsave600dpi("Output//UCAoverall.png", UCAoverall, width=4.5, height= 5, units="in")
 
 (
 UCAannual<-build_plot(
   labels_and_colors=labels_and_colors,
     chart_geom = "Line Chart",
   share = FALSE,
-  data=summary_data %>% filter( isUCA!="Not UCA"),
+  data=summary_data %>% filter( isUCA!="Not UCA" & 
+                                  DecisionTreeDisplay %in% c("Disaster","ARRA","OCO")),
   # NA, #VAR.ncol
   x_var="dFYear", #x_var
   y_var="pAnnualDatasetObligation", #y_var
@@ -415,7 +387,7 @@ UCAannual<-build_plot(
   # ,DataLabels=NA
   #                       ,VAR.override.coloration=NA
 )+labs(line="Is Undefinitized Contract Action (UCA)",
-  title="Defense Contracts with Labeled Cector",
+  # title="Defense Contracts with Labeled Cector",
   xlab="Fiscal Year",
   ylab="Percent of Obligations")+
   theme(legend.position = "bottom")+
@@ -423,6 +395,36 @@ UCAannual<-build_plot(
     scale_y_continuous(labels = scales::percent)+coord_cartesian(ylim=c(0,0.3))+
   theme(strip.text.y = element_text(angle=270))
 )
+ggsave600dpi("Output//UCAannual.png", UCAannual, width=4.5, height= 2, units="in")
+
+
+(
+UCAannual<-build_plot(
+  labels_and_colors=labels_and_colors,
+    chart_geom = "Line Chart",
+  share = FALSE,
+  data=summary_data %>% filter( isUCA!="Not UCA" & 
+                                  DecisionTreeDisplay %in% c("Disaster","ARRA","OCO")),
+  # NA, #VAR.ncol
+  x_var="dFYear", #x_var
+  y_var="pAnnualDatasetObligation", #y_var
+  color_var="isUCA", #color_var
+  facet_var="DecisionTreeDisplay", #facet_var
+  column_key=full_column_key,
+  format=TRUE
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+)+labs(line="Is Undefinitized Contract Action (UCA)",
+  # title="Defense Contracts with Labeled Cector",
+  xlab="Fiscal Year",
+  ylab="Percent of Obligations")+
+  theme(legend.position = "bottom")+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+    scale_y_continuous(labels = scales::percent)+coord_cartesian(ylim=c(0,0.3))+
+  theme(strip.text.y = element_text(angle=270))
+)+facet_grid(DecisionTreeDisplay ~ NoCompOffr)
 
 
 #Breakdown by reason not competed 
@@ -488,7 +490,7 @@ ReachbackComp<-  LatticePlotWrapper_csis360(
   facet_grid(primary ~ secondary)
     # )
 ReachbackComp
-ggsave("Output//ReachbackComp.png", ReachbackComp, width=4.5, height= 8, units="in",dpi=300)
+ggsave600dpi("Output//ReachbackComp.png", ReachbackComp, width=4.5, height= 8, units="in")
 
 
 geom.text.size<-3
@@ -523,7 +525,7 @@ ReachbackUCA<-  LatticePlotWrapper_csis360(
   facet_grid(primary ~ secondary)
     # )
 ReachbackUCA
-ggsave("Output//ReachbackUCA.png", ReachbackUCA, width=4.5, height= 4.5, units="in",dpi=300)
+ggsave600dpi("Output//ReachbackUCA.png", ReachbackUCA, width=4.5, height= 4.5, units="in")
 
 summary(summary_data$Reachback)
 
@@ -554,7 +556,7 @@ UCAoverall<-  LatticePlotWrapper_csis360(
   facet_grid(primary ~ .)
     # )
 UCAoverall
-ggsave("Output//UCAoverall.png", UCAoverall, width=6.5, height= 5, units="in",dpi=300)
+ggsave600dpi("Output//UCAoverall.png", UCAoverall, width=6.5, height= 5, units="in")
 
 
 
