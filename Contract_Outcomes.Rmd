@@ -5285,7 +5285,7 @@ if(!exists("CBre_22A"))
                      # Is.Defense +
                     # Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr+
+                     cl_Ceil:NoCompOffr2+
                      # capped_cl_Days:NoCompOffr+
                      # capped_cl_Days:Veh+ 
                      # cl_Ceil:Veh+
@@ -5301,6 +5301,7 @@ if(!exists("CBre_22A"))
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
+  save(CBre_22A,Term_22A, file="Output//Model22A.RData")
   glmer_examine(CBre_22A)
   
 if(!exists("Term_22A"))
