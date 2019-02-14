@@ -25,7 +25,7 @@ library(lubridate)
 library(showtext)
 library(extrafont)
 library(tidyverse)
-font_import()
+# font_import()
 
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
 source("ContractCleanup.r")
@@ -181,6 +181,7 @@ save(labels_and_colors,column_key,complete_summary_data,file="Shiny/Crisis_Fundi
 
 ### Crisis History
 ```{r Toplevel}
+
 (
 chapter4topline<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Customer",
@@ -188,9 +189,9 @@ chapter4topline<-LatticePlotWrapper_csis360(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2017 $ Billions)",
   VAR.Coloration=labels_and_colors,
-  VAR.long.DF=subset(complete_summary_data,!is.na(International)),
+  VAR.long.DF=subset(complete_summary_data,!is.na(International) & International!="Unlabeled"),
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="Is.Defense", #VAR.y.series
   VAR.facet.primary="CrisisDisplay", #VAR.facet.primary
@@ -202,11 +203,14 @@ chapter4topline<-LatticePlotWrapper_csis360(
   DataLabels=FALSE
 )+  facet_grid(primary ~ secondary
               , scales="free_y" 
-              , space="fixed")+theme(legend.position = 'right')+
-  geom_vline(xintercept=2006.5)+get_caption()
+              , space="fixed")+theme(legend.position = 'bottom')+get_caption()+
+  scale_x_date("Fiscal Year",labels = date_format("'%y"), date_breaks="3 years")+
+  geom_vline(xintercept=as.numeric(as.Date("2006-07-01")))
 )
 
 ggsave600dpi("Output//chapter4topline.png", chapter4topline, width=6.5, height= 4, units="in")
+
+ggsave("Output//chapter4topline.eps", chapter4topline, width=6.5, height= 4, units="in")
 
 ```
 
@@ -303,13 +307,23 @@ CompOverall<-  LatticePlotWrapper_csis360(
   theme(strip.text.y = element_text(angle=0))+
   theme(axis.text.x = element_text(angle=90))+
     scale_y_continuous( labels = percent_format())+
-  facet_grid(primary ~ .)
+  facet_grid(primary ~ .#,scales="free_y", space="free_y"
+             )
     )
-ggsave600dpi("Output//CompOverall.png", CompOverall, width=4.5, height= 8, units="in")
+
+
+ggsave600dpi("Output//CompOverall.png", CompOverall, 
+             width=4, height= 6, units="in"
+             )
+
+
+ggsave("Output//CompOverall.eps", CompOverall, 
+             width=4, height= 6, units="in"
+             )
 
 (
-build_plot(
-  data=subset(summary_data),
+CompAnnual<-build_plot(
+  data=summary_data %>% filter(DecisionTreeDisplay %in% c("Disaster","ARRA","OCO")),
   chart_geom = "Bar Chart",
   share = TRUE,
   labels_and_colors=labels_and_colors,
@@ -318,7 +332,7 @@ build_plot(
   y_var="Obligation.2017", #VAR.y.variable
   color_var="NoCompOffr", #color_var
   facet_var="DecisionTreeDisplay", #facet_var
-  column_key=full_column_key,
+  column_key=column_key,
   format=TRUE
 )+labs(line="Competition",
   title=NULL,
@@ -328,6 +342,16 @@ build_plot(
   scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=270))
 )
+
+ggsave600dpi("Output//CompAnnual.png", CompAnnual, 
+             width=4, height= 3, units="in"
+             )
+
+
+ggsave("Output//CompAnnual.eps", CompAnnual, 
+             width=4, height= 3, units="in"
+             )
+
 
 ```
 
@@ -366,7 +390,8 @@ UCAoverall<-  LatticePlotWrapper_csis360(
     # )
 )
   
-ggsave600dpi("Output//UCAoverall.png", UCAoverall, width=4.5, height= 5, units="in")
+ggsave600dpi("Output//UCAoverall.png", UCAoverall, width=4, height= 5, units="in")
+
 
 (
 UCAannual<-build_plot(
@@ -380,7 +405,7 @@ UCAannual<-build_plot(
   y_var="pAnnualDatasetObligation", #y_var
   color_var="isUCA", #color_var
   facet_var="DecisionTreeDisplay", #facet_var
-  column_key=full_column_key,
+  column_key=column_key,
   format=TRUE
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -390,66 +415,45 @@ UCAannual<-build_plot(
   # title="Defense Contracts with Labeled Cector",
   xlab="Fiscal Year",
   ylab="Percent of Obligations")+
-  theme(legend.position = "bottom")+
+  theme(legend.position = "right")+
     scale_x_date("Fiscal Year",labels = date_format("'%y"))+
     scale_y_continuous(labels = scales::percent)+coord_cartesian(ylim=c(0,0.3))+
   theme(strip.text.y = element_text(angle=270))
 )
 ggsave600dpi("Output//UCAannual.png", UCAannual, width=4.5, height= 2, units="in")
 
-
+debug(LatticePlotWrapper_csis360)
 (
-UCAannual<-build_plot(
-  labels_and_colors=labels_and_colors,
-    chart_geom = "Line Chart",
-  share = FALSE,
-  data=summary_data %>% filter( isUCA!="Not UCA" & 
-                                  DecisionTreeDisplay %in% c("Disaster","ARRA","OCO")),
+UCAoverall<-  LatticePlotWrapper_csis360(
+  VAR.color.legend.label="Dataset",
+  VAR.main.label=NULL,
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Percent of Obligations",
+  VAR.Coloration=labels_and_colors,
+  VAR.long.DF=subset(summary_data,
+                     DecisionTreeDisplay!="Not in Sample"),
   # NA, #VAR.ncol
-  x_var="dFYear", #x_var
-  y_var="pAnnualDatasetObligation", #y_var
-  color_var="isUCA", #color_var
-  facet_var="DecisionTreeDisplay", #facet_var
-  column_key=full_column_key,
-  format=TRUE
+  VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
+  VAR.y.variable="pDatasetObligation", #VAR.y.variable
+  VAR.y.series="DecisionTreeDisplay", #VAR.y.series
+  VAR.facet.primary="isUCA", #VAR.facet.primary
+  VAR.facet.secondary="NoCompOffr" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
-  # ,DataLabels=NA
+   ,DataLabels=TRUE
   #                       ,VAR.override.coloration=NA
-)+labs(line="Is Undefinitized Contract Action (UCA)",
-  # title="Defense Contracts with Labeled Cector",
-  xlab="Fiscal Year",
-  ylab="Percent of Obligations")+
-  theme(legend.position = "bottom")+
-    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-    scale_y_continuous(labels = scales::percent)+coord_cartesian(ylim=c(0,0.3))+
-  theme(strip.text.y = element_text(angle=270))
-)+facet_grid(DecisionTreeDisplay ~ NoCompOffr)
-
-
-#Breakdown by reason not competed 
-(
-  LatticePlotWrapper_csis360(
-    VAR.color.legend.label="Undefinitized Contract Action (UCA)",
-    VAR.main.label="Labeled UCA Status and Duration Defense Contracts",
-    VAR.X.label="Fiscal Year",
-    VAR.Y.label="Obligation (2017 $ Billions)",
-    VAR.Coloration=labels_and_colors,
-    VAR.long.DF=subset(summary_data,
-                       !is.na(UnmodifiedUltimateDurationCategory)),
-    # NA, #VAR.ncol
-    VAR.x.variable="Fiscal.Year", #VAR.x.variable
-    VAR.y.variable="Obligation.2017", #VAR.y.variable
-    VAR.y.series="isUCA", #VAR.y.series
-    VAR.facet.primary="DecisionTreeDisplay"#, #VAR.facet.primary
-    # VAR.facet.secondary="UnmodifiedUltimateDurationCategory" # VAR.facet.secondary=NA
-    # ,MovingAverage=0
-    # ,MovingSides=1
-    # ,DataLabels=NA
-    #                       ,VAR.override.coloration=NA
-  )+theme(legend.position = "bottom")#+
-    # facet_grid(  primary~ secondary,scales="free_y")
+)+
+# +theme(legend.position = "bottom")+
+  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=0))+
+  theme(axis.text.x = element_text(angle=90))+
+    scale_y_continuous( labels = percent_format())#+
+  # facet_grid(primary ~ .)
+    # )
 )
+
+
+
 
 ```
 
