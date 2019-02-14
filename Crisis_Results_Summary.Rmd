@@ -205,7 +205,7 @@ chapter4topline<-LatticePlotWrapper_csis360(
               , scales="free_y" 
               , space="fixed")+theme(legend.position = 'bottom')+get_caption()+
   scale_x_date("Fiscal Year",labels = date_format("'%y"), date_breaks="3 years")+
-  geom_vline(xintercept=as.numeric(as.Date("2006-07-01")))
+  geom_vline(xintercept=as.numeric(as.Date("2006-07-01")))+labs(caption="Note: Excludes Unlabeled Place of Performance\nSource: FPDS; CSIS analysis")
 )
 
 ggsave600dpi("Output//chapter4topline.png", chapter4topline, width=6.5, height= 4, units="in")
@@ -300,6 +300,7 @@ CompOverall<-  LatticePlotWrapper_csis360(
   # ,MovingAverage=0
   # ,MovingSides=1
    ,DataLabels=TRUE
+  ,caption=TRUE
   #                       ,VAR.override.coloration=NA
 )+
   # theme(legend.position = "bottom")+
@@ -336,8 +337,8 @@ CompAnnual<-build_plot(
   format=TRUE
 )+labs(line="Competition",
   title=NULL,
-  xlab="Fiscal Year",
-  ylab="Percent of Obligations")+
+  x="Fiscal Year",
+  y="Percent of Obligations")+
   # +theme(legend.position = "bottom")+
   scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=270))
@@ -379,6 +380,7 @@ UCAoverall<-  LatticePlotWrapper_csis360(
   # ,MovingAverage=0
   # ,MovingSides=1
    ,DataLabels=TRUE
+  ,caption=TRUE
   #                       ,VAR.override.coloration=NA
 )+
 # +theme(legend.position = "bottom")+
@@ -391,6 +393,8 @@ UCAoverall<-  LatticePlotWrapper_csis360(
 )
   
 ggsave600dpi("Output//UCAoverall.png", UCAoverall, width=4, height= 5, units="in")
+
+ggsave("Output//UCAoverall.eps", UCAoverall, width=4, height= 5, units="in")
 
 
 (
@@ -413,8 +417,8 @@ UCAannual<-build_plot(
   #                       ,VAR.override.coloration=NA
 )+labs(line="Is Undefinitized Contract Action (UCA)",
   # title="Defense Contracts with Labeled Cector",
-  xlab="Fiscal Year",
-  ylab="Percent of Obligations")+
+  x="Fiscal Year",
+  y="Percent of Obligations")+
   theme(legend.position = "right")+
     scale_x_date("Fiscal Year",labels = date_format("'%y"))+
     scale_y_continuous(labels = scales::percent)+coord_cartesian(ylim=c(0,0.3))+
@@ -422,7 +426,6 @@ UCAannual<-build_plot(
 )
 ggsave600dpi("Output//UCAannual.png", UCAannual, width=4.5, height= 2, units="in")
 
-debug(LatticePlotWrapper_csis360)
 (
 UCAoverall<-  LatticePlotWrapper_csis360(
   VAR.color.legend.label="Dataset",
@@ -584,8 +587,8 @@ build_plot(
   #                       ,VAR.override.coloration=NA
 )+labs(line="Is Undefinitized Contract Action (UCA)",
   title="Defense Contracts with Labeled Reachback",
-  xlab="Fiscal Year",
-  ylab="Percent of Obligations")+theme(legend.position = "bottom")+
+  x="Fiscal Year",
+  y="Percent of Obligations")+theme(legend.position = "bottom")+
     scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=270))
 
@@ -628,7 +631,7 @@ build_plot(
   #                       ,VAR.override.coloration=NA
 )+labs(line="Is Undefinitized Contract Action (UCA)",
   title="Defense Contracts with Labeled Reachback",
-  xlab="Fiscal Year",
+  x="Fiscal Year",
   yab="Percent of Obligations")+theme(legend.position = "bottom")+
     scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=270))
