@@ -75,7 +75,21 @@ full_data$isUndefinitizedAction<-factor(full_data$isUndefinitizedAction)
 
 
 ```{r Summary}
+  full_data<-csis360::read_and_join( full_data,
+                                      "Office.ContractingOfficeCode.txt",
+                                      path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                                      directory="office\\",
+                                      by="ContractingOfficeCode",
+                                      add_var=c("PlaceIntlPercent","CrisisPercent"),
+                                      new_var_checked=FALSE)
 
+
+    colnames(contract)[colnames(contract)=="PlaceIntlPercent"]<-"OffIntl"
+    full_data$OffPlace<-Hmisc::cut2(full_data$OffIntl,c(0.01,0.50))
+    levels(contract$OffPlace) <-
+      list("US99"=c("[0.00,0.01)"),
+           "Mixed"=c("[0.01,0.50)"),
+           "Intl"=c("[0.50,1.00]"))
 
 summary_data<-full_data%>%
   dplyr::group_by(Fiscal.Year,
@@ -88,6 +102,7 @@ summary_data<-full_data%>%
     # SupplyServiceERS,     #Should switch this to CrisisProdServ
     ProductOrServiceArea, 
     # Reachback,            #Swap in OffPlace
+    OMBtheater,
     UnmodifiedUltimateDurationCategory,
     dFYear,
     PlaceCountryText)%>%
@@ -465,6 +480,39 @@ UCAoverall<-  LatticePlotWrapper_csis360(
 #### Reachback
 ```{r Reachback}
 
+
+(
+OMBtheater<-LatticePlotWrapper_csis360(
+  VAR.color.legend.label="Customer",
+  VAR.main.label=NULL,
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2017 $ Billions)",
+  VAR.Coloration=labels_and_colors,
+  VAR.long.DF=subset(complete_summary_data,!is.na(International) & International!="Unlabeled"),
+  # NA, #VAR.ncol
+  VAR.x.variable="dFYear", #VAR.x.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
+  VAR.y.series="CrisisDisplay", #VAR.y.series
+  VAR.facet.primary="OMBtheater", #VAR.facet.primary
+  # VAR.facet.secondary="OMBtheater", # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  # ,DataLabels=NA
+  #                       ,VAR.override.coloration=NA
+  DataLabels=FALSE
+)+  facet_grid(primary~ . #~ secondary
+             , scales="free_y"#         , space="fixed"
+             )+theme(legend.position = 'bottom')+get_caption()+
+  scale_x_date("Fiscal Year",labels = date_format("'%y"), date_breaks="3 years")+
+  geom_vline(xintercept=as.numeric(as.Date("2006-07-01")))+labs(caption="Note: Excludes Unlabeled Place of Performance\nSource: FPDS; CSIS analysis")
+)
+
+ggsave600dpi("Output//chapter4topline.png", chapter4topline, width=6.5, height= 4, units="in")
+
+ggsave("Output//chapter4topline.eps", chapter4topline, width=6.5, height= 4, units="in")
+
+
+
 geom.text.size<-2.5
 ReachbackComp<-  LatticePlotWrapper_csis360(
   VAR.color.legend.label="Dataset",
@@ -536,84 +584,6 @@ ggsave600dpi("Output//ReachbackUCA.png", ReachbackUCA, width=4.5, height= 4.5, u
 
 summary(summary_data$Reachback)
 
-geom.text.size<-3
-UCAoverall<-  LatticePlotWrapper_csis360(
-  VAR.color.legend.label="Dataset",
-  VAR.main.label=NULL,
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
-  VAR.Coloration=labels_and_colors,
-  VAR.long.DF=subset(summary_data,
-                     DecisionTreeDisplay!="Not in Sample"),
-  # NA, #VAR.ncol
-  VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
-  VAR.y.variable="pDatasetObligation", #VAR.y.variable
-  VAR.y.series="DecisionTreeDisplay", #VAR.y.series
-  VAR.facet.primary="isUCA" #VAR.facet.primary
-  # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-   ,DataLabels=TRUE
-  #                       ,VAR.override.coloration=NA
-)+theme(legend.position = "bottom")+
-  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-  theme(strip.text.y = element_text(angle=0))+
-  theme(axis.text.x = element_text(angle=90))+
-    scale_y_continuous( labels = percent_format())+
-  facet_grid(primary ~ .)
-    # )
-UCAoverall
-ggsave600dpi("Output//UCAoverall.png", UCAoverall, width=6.5, height= 5, units="in")
-
-
-
-
-#Competition and Reachback
-
-
-build_plot(
-  
-  labels_and_colors=labels_and_colors,
-  data=subset(CompetitionReachback,!is.na(Reachback)),
-  # NA, #VAR.ncol
-  x_var="dFYear", #x_var
-  y_var="Obligation.2017", #y_var
-  color_var="NoCompOffr", #color_var
-  facet_var="DecisionTreeDisplay", #facet_var
-  VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  # ,DataLabels=NA
-  #                       ,VAR.override.coloration=NA
-)+labs(line="Is Undefinitized Contract Action (UCA)",
-  title="Defense Contracts with Labeled Reachback",
-  x="Fiscal Year",
-  y="Percent of Obligations")+theme(legend.position = "bottom")+
-    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-  theme(strip.text.y = element_text(angle=270))
-
-
-#UCA and Reachback
-UCAReachback<-ddply(summary_data,
-                .(
-                  Fiscal.Year,
-                  DecisionTreeDisplay,
-                  Reachback,
-                  isUCA
-                  ),
-                plyr::summarise,
-                Obligation.2017=sum(Obligation.2017)
-                )
-
-UCAReachback<-ddply(UCAReachback,
-                .(
-                  Fiscal.Year,
-                  DecisionTreeDisplay,
-                  Reachback
-                  ),
-                plyr::mutate,
-                pObligation=Obligation.2017/sum(Obligation.2017)
-                )
 
 
 build_plot(
