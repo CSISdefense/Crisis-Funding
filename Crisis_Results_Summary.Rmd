@@ -83,7 +83,6 @@ full_data$isUndefinitizedAction<-factor(full_data$isUndefinitizedAction)
 # Dur.Simple (but no raw)
 # Ceiling
 #ContractingOfficeCode
-full_data$OfficeOCOcrisisPercentRound1
 
 
 summary_data<-full_data%>%
@@ -93,6 +92,7 @@ summary_data<-full_data%>%
     International,
     NoCompOffr,
     Theater,
+    OMBtheater,
     isUndefinitizedAction,
     Customer,
     # SupplyServiceERS,     #Should switch this to CrisisProdServ
@@ -165,6 +165,11 @@ summary_data<-summary_data %>% group_by(DecisionTreeDisplay,Fiscal.Year) %>%
                     pAnnualDatasetObligation=Obligation.2017/sum(Obligation.2017,na.rm=TRUE))
 
 
+summary_data$IsAnyCrisis<-summary_data$CrisisDisplay
+levels(summary_data$IsAnyCrisis)<-list("All Other"="All Other",
+                                       "Any Crisis"=c("OCO","ARRA","Disaster"))
+
+
 ```
 
 
@@ -226,65 +231,6 @@ ggsave("Output//chapter4topline.eps", chapter4topline, width=6.5, height= 4, uni
 ```
 
 
-### Country
-```{r Country}
-
-Country<-ddply(summary_data,
-                .(Fiscal.Year,
-                  DecisionTreeDisplay,
-                  PlaceCountryText,
-                  Theater
-                  ),
-                plyr::summarise,
-                Obligation.2017=sum(Obligation.2017)
-                )
-
-write.csv(Country,file.path("Output","Country.csv"))
-
-# LatticePlotWrapper_csis360(
-#   VAR.color.legend.label="OCO labeling detail",
-#   VAR.main.label="All Defense Contracts",
-#   VAR.X.label="Fiscal Year",
-#   VAR.Y.label="Obligation (2017 $ Billions)",
-#   VAR.Coloration=labels_and_colors,
-#   VAR.long.DF=summary_data  ,
-#   # NA, #VAR.ncol
-#   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-#   VAR.y.variable="Obligation.2017", #VAR.y.variable
-#   VAR.y.series="OCOlabelDetail", #VAR.y.series
-#   VAR.facet.primary="DecisionTreeDisplay" #VAR.facet.primary
-#   # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
-#   # ,MovingAverage=0
-#   # ,MovingSides=1
-#   ,DataLabels=FALSE
-#   #                       ,VAR.override.coloration=NA
-# )+theme(legend.position="bottom")
-
-# OCOdetailZoom<-LatticePlotWrapper_csis360(
-#   VAR.color.legend.label="OCO labeling detail",
-#   VAR.main.label="Confident OCO or International Defense Contracts",
-#   VAR.X.label="Fiscal Year",
-#   VAR.Y.label="Obligation (2017 $ Billions)",
-#   VAR.Coloration=labels_and_colors,
-#   VAR.long.DF=subset(summary_data,
-#                      (DecisionTreeDisplay=="Confident OCO" | 
-#                        International=="International") & 
-#                        !is.na(International)),
-#   # NA, #VAR.ncol
-#   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-#   VAR.y.variable="Obligation.2017", #VAR.y.variable
-#   VAR.y.series="OCOlabelDetail", #VAR.y.series
-#   VAR.facet.primary="International", #VAR.facet.primary
-#   VAR.facet.secondary="DecisionTreeDisplay" # VAR.facet.secondary=NA
-#   # ,MovingAverage=0
-#   # ,MovingSides=1
-#   # ,DataLabels=NA
-#   #                       ,VAR.override.coloration=NA
-# )
-
-# OCOdetailZoom+theme(legend.position="bottom")
-
-```
 
 
 ### Study Variables
@@ -517,6 +463,86 @@ ggsave600dpi("Output//ReachbackComp.png", ReachbackComp, width=4.5, height= 8, u
 ```
 
 ### Other Variables
+#### Country
+```{r Country}
+
+Country<-ddply(summary_data,
+                .(Fiscal.Year,
+                  DecisionTreeDisplay,
+                  PlaceCountryText,
+                  Theater
+                  ),
+                plyr::summarise,
+                Obligation.2017=sum(Obligation.2017)
+                )
+
+write.csv(Country,file.path("Output","Country.csv"))
+
+
+summary_data$SelectCountry<-as.character(summary_data$OMBtheater)
+#Countries, other than the U.S. with at least $5 billion in cumulative OCO
+country_list<-c("AFGHANISTAN",
+                "IRAQ",
+                "KUWAIT",
+                "SOUTH KOREA",
+                "UNITED ARAB EMIRATES",
+                "BAHRAIN",
+                "KYRGYZSTAN"
+                )
+summary_data$SelectCountry[summary_data$PlaceCountryText %in% country_list]<-
+  as.character(summary_data$PlaceCountryText[
+    summary_data$PlaceCountryText %in% country_list])
+summary_data$SelectCountry<-factor(summary_data$SelectCountry,
+                                   levels=c("AFGHANISTAN",
+                "IRAQ",
+                "KUWAIT",
+                "UNITED ARAB EMIRATES",
+                "BAHRAIN",
+                "KYRGYZSTAN",
+                "Other OMB OCO list",
+                "SOUTH KOREA",
+                "Rest of World"   ,
+                "Domestic"),
+                labels=c("Afghanistan",
+                "Iraq",
+                "Kuwait",
+                "United Arab Emirates",
+                "Bahrain",
+                "Kyrgzstan",
+                "Other OMB OCO list",
+                "South Korea",
+                "Rest of World"   ,
+                "Domestic"
+                ))
+
+
+
+(
+LatticePlotWrapper_csis360(
+  VAR.color.legend.label="Contracting Office Place of Performance",
+  VAR.main.label=NULL,
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligation (2017 $ Billions)",
+  VAR.Coloration=labels_and_colors,
+  VAR.long.DF=summary_data%>% filter(SelectCountry != "Domestic")  ,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
+  VAR.y.series="DecisionTreeDisplay", #VAR.y.series
+  VAR.facet.primary="SelectCountry", #VAR.facet.primary
+  VAR.facet.secondary= "IsAnyCrisis" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position="bottom")+facet_grid(primary~secondary,scales="fixed")
+)
+
+
+
+```
+
+
 #### Product Or Service Area
 ```{r ProductOrService}
  # summary_data$isUCA<-"Not UCA" 
@@ -637,6 +663,7 @@ ggsave("Output//Duration.eps", Duration, width=4, height= 5, units="in")
 
 
 
+
 (
 DurationComp<-  LatticePlotWrapper_csis360(
   VAR.color.legend.label="Dataset",
@@ -647,11 +674,11 @@ DurationComp<-  LatticePlotWrapper_csis360(
   VAR.long.DF=summary_data  %>% filter( 
                                   DecisionTreeDisplay %in% c("Disaster","ARRA","OCO")),
   # NA, #VAR.ncol
-  VAR.x.variable="Dur.Simple", #VAR.x.variable
+  VAR.x.variable="NoCompOffr", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="NoCompOffr", #VAR.y.series
   VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
-  VAR.facet.secondary="NoCompOffr" # VAR.facet.secondary=NA
+  VAR.facet.secondary="Dur.Simple" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
    ,DataLabels=FALSE
@@ -660,12 +687,11 @@ DurationComp<-  LatticePlotWrapper_csis360(
   # theme(legend.position = "bottom")+
   #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=0))+
-  theme(axis.text.x = element_text(angle=90))#+
-  # facet_grid(primary ~ .#,scales="free_y", space="free_y"
-             # )
+  theme(axis.text.x = element_text(angle=90))+
+  facet_grid(primary ~ secondary,scales="free_y"#, space="free_y"
+             )
     )
  
-
 
 ```
 
