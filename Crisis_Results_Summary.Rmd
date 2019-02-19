@@ -83,6 +83,13 @@ full_data$isUndefinitizedAction<-factor(full_data$isUndefinitizedAction)
                                       add_var=c("PlaceIntlPercent","CrisisPercent"),
                                       new_var_checked=FALSE)
 
+# CrisisProductOrServiceArea
+# SupplyServiceConstruction
+# Pricing
+# Vehicle
+# Dur.Simple (but no raw)
+# Ceiling
+#ContractingOfficeCode
 
     colnames(contract)[colnames(contract)=="PlaceIntlPercent"]<-"OffIntl"
     full_data$OffPlace<-Hmisc::cut2(full_data$OffIntl,c(0.01,0.50))
@@ -98,10 +105,13 @@ summary_data<-full_data%>%
     International,
     NoCompOffr,
     Theater,
+    OMBtheater,
     isUndefinitizedAction,
+    Customer,
     # SupplyServiceERS,     #Should switch this to CrisisProdServ
     ProductOrServiceArea, 
     # Reachback,            #Swap in OffPlace
+    Dur.Simple,
     OMBtheater,
     UnmodifiedUltimateDurationCategory,
     dFYear,
@@ -169,6 +179,11 @@ summary_data<-summary_data %>% group_by(DecisionTreeDisplay,Fiscal.Year) %>%
                     pAnnualDatasetObligation=Obligation.2017/sum(Obligation.2017,na.rm=TRUE))
 
 
+summary_data$IsAnyCrisis<-summary_data$CrisisDisplay
+levels(summary_data$IsAnyCrisis)<-list("All Other"="All Other",
+                                       "Any Crisis"=c("OCO","ARRA","Disaster"))
+
+
 ```
 
 
@@ -230,65 +245,6 @@ ggsave("Output//chapter4topline.eps", chapter4topline, width=6.5, height= 4, uni
 ```
 
 
-### Country
-```{r Country}
-
-Country<-ddply(summary_data,
-                .(Fiscal.Year,
-                  DecisionTreeDisplay,
-                  PlaceCountryText,
-                  Theater
-                  ),
-                plyr::summarise,
-                Obligation.2017=sum(Obligation.2017)
-                )
-
-write.csv(Country,file.path("Output","Country.csv"))
-
-# LatticePlotWrapper_csis360(
-#   VAR.color.legend.label="OCO labeling detail",
-#   VAR.main.label="All Defense Contracts",
-#   VAR.X.label="Fiscal Year",
-#   VAR.Y.label="Obligation (2017 $ Billions)",
-#   VAR.Coloration=labels_and_colors,
-#   VAR.long.DF=summary_data  ,
-#   # NA, #VAR.ncol
-#   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-#   VAR.y.variable="Obligation.2017", #VAR.y.variable
-#   VAR.y.series="OCOlabelDetail", #VAR.y.series
-#   VAR.facet.primary="DecisionTreeDisplay" #VAR.facet.primary
-#   # VAR.facet.secondary= NULL # VAR.facet.secondary=NA
-#   # ,MovingAverage=0
-#   # ,MovingSides=1
-#   ,DataLabels=FALSE
-#   #                       ,VAR.override.coloration=NA
-# )+theme(legend.position="bottom")
-
-# OCOdetailZoom<-LatticePlotWrapper_csis360(
-#   VAR.color.legend.label="OCO labeling detail",
-#   VAR.main.label="Confident OCO or International Defense Contracts",
-#   VAR.X.label="Fiscal Year",
-#   VAR.Y.label="Obligation (2017 $ Billions)",
-#   VAR.Coloration=labels_and_colors,
-#   VAR.long.DF=subset(summary_data,
-#                      (DecisionTreeDisplay=="Confident OCO" | 
-#                        International=="International") & 
-#                        !is.na(International)),
-#   # NA, #VAR.ncol
-#   VAR.x.variable="Fiscal.Year", #VAR.x.variable
-#   VAR.y.variable="Obligation.2017", #VAR.y.variable
-#   VAR.y.series="OCOlabelDetail", #VAR.y.series
-#   VAR.facet.primary="International", #VAR.facet.primary
-#   VAR.facet.secondary="DecisionTreeDisplay" # VAR.facet.secondary=NA
-#   # ,MovingAverage=0
-#   # ,MovingSides=1
-#   # ,DataLabels=NA
-#   #                       ,VAR.override.coloration=NA
-# )
-
-# OCOdetailZoom+theme(legend.position="bottom")
-
-```
 
 
 ### Study Variables
@@ -550,28 +506,194 @@ ReachbackComp
 ggsave600dpi("Output//ReachbackComp.png", ReachbackComp, width=4.5, height= 8, units="in")
 
 
+
+```
+
+### Other Variables
+#### Country
+```{r Country}
+
+Country<-ddply(summary_data,
+                .(Fiscal.Year,
+                  DecisionTreeDisplay,
+                  PlaceCountryText,
+                  Theater
+                  ),
+                plyr::summarise,
+                Obligation.2017=sum(Obligation.2017)
+                )
+
+write.csv(Country,file.path("Output","Country.csv"))
+
+
+summary_data$SelectCountry<-as.character(summary_data$OMBtheater)
+#Countries, other than the U.S. with at least $5 billion in cumulative OCO
+country_list<-c("AFGHANISTAN",
+                "IRAQ",
+                "KUWAIT",
+                "SOUTH KOREA",
+                "UNITED ARAB EMIRATES",
+                "BAHRAIN",
+                "KYRGYZSTAN"
+                )
+summary_data$SelectCountry[summary_data$PlaceCountryText %in% country_list]<-
+  as.character(summary_data$PlaceCountryText[
+    summary_data$PlaceCountryText %in% country_list])
+summary_data$SelectCountry<-factor(summary_data$SelectCountry,
+                                   levels=c("AFGHANISTAN",
+                "IRAQ",
+                "KUWAIT",
+                "UNITED ARAB EMIRATES",
+                "BAHRAIN",
+                "KYRGYZSTAN",
+                "Other OMB OCO list",
+                "SOUTH KOREA",
+                "Rest of World"   ,
+                "Domestic"),
+                labels=c("Afghanistan",
+                "Iraq",
+                "Kuwait",
+                "United Arab Emirates",
+                "Bahrain",
+                "Kyrgzstan",
+                "Other OMB OCO list",
+                "South Korea",
+                "Rest of World"   ,
+                "Domestic"
+                ))
+
+
+
+(
+LatticePlotWrapper_csis360(
+  VAR.color.legend.label="Contracting Office Place of Performance",
+  VAR.main.label=NULL,
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligation (2017 $ Billions)",
+  VAR.Coloration=labels_and_colors,
+  VAR.long.DF=summary_data%>% filter(SelectCountry != "Domestic")  ,
+  # NA, #VAR.ncol
+  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
+  VAR.y.series="DecisionTreeDisplay", #VAR.y.series
+  VAR.facet.primary="SelectCountry", #VAR.facet.primary
+  VAR.facet.secondary= "IsAnyCrisis" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+  ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+theme(legend.position="bottom")+facet_grid(primary~secondary,scales="fixed")
+)
+
+
+
+```
+
+
+#### Product Or Service Area
+```{r ProductOrService}
+ # summary_data$isUCA<-"Not UCA" 
+
 geom.text.size<-3
-ReachbackUCA<-  LatticePlotWrapper_csis360(
+ProductOrServiceArea
+summary_data$ProductOrServiceArea
+(
+ProductOrServiceArea<-  LatticePlotWrapper_csis360(
+  VAR.color.legend.label="Dataset",
+  VAR.main.label=NULL,
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2017 $, Variable Scale)",
+  VAR.Coloration=labels_and_colors,
+  VAR.long.DF=summary_data %>% filter(DecisionTreeDisplay %in% c("Disaster","ARRA","OCO")),
+  # NA, #VAR.ncol
+  VAR.x.variable="ProductOrServiceArea", #VAR.x.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
+  VAR.y.series="ProductOrServiceArea", #VAR.y.series
+  VAR.facet.primary="DecisionTreeDisplay" #VAR.facet.primary
+  # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+   ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+
+# +theme(legend.position = "bottom")+
+  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=0))+
+  theme(axis.text.x = element_text(angle=90))+
+  facet_grid(primary ~ ., scales="free_y")
+    # )
+)
+ 
+
+ 
+ggsave600dpi("Output//ProductService.png", UCAoverall, width=4, height= 5, units="in")
+ggsave("Output//ProductService.eps", UCAoverall, width=4, height= 5, units="in")
+```
+
+
+#### Customer
+```{r Customer}
+ # summary_data$isUCA<-"Not UCA" 
+
+geom.text.size<-3
+
+
+(
+Customer<-  LatticePlotWrapper_csis360(
+  VAR.color.legend.label="Dataset",
+  VAR.main.label=NULL,
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2017 $, Variable Scale)",
+  VAR.Coloration=labels_and_colors,
+  VAR.long.DF=summary_data %>% filter(DecisionTreeDisplay %in% c("Disaster","ARRA","OCO")),
+  # NA, #VAR.ncol
+  VAR.x.variable="Customer", #VAR.x.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
+  VAR.y.series="Customer", #VAR.y.series
+  VAR.facet.primary="DecisionTreeDisplay"#, #VAR.facet.primary
+  # VAR.facet.secondary="Is.Defense" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+   ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+
+# +theme(legend.position = "bottom")+
+  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=0))+
+  theme(axis.text.x = element_text(angle=90))+
+    facet_wrap(primary ~ . , scales="free_y", ncol=1)
+  # facet_grid(. ~ primary +secondary, scales="free", space = "free_x")
+)
+ 
+
+ 
+ggsave600dpi("Output//Customer.png", Customer, width=4, height= 5, units="in")
+ggsave("Output//Customer.eps", Customer, width=4, height= 5, units="in")
+```
+
+
+#### Duration
+```{r Duration}
+ # summary_data$isUCA<-"Not UCA" 
+
+(
+Duration<-  LatticePlotWrapper_csis360(
   VAR.color.legend.label="Dataset",
   VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
   VAR.Coloration=labels_and_colors,
   VAR.long.DF=subset(summary_data,
-                     !DecisionTreeDisplay %in% c("Not in Sample",
-                       "Disaster ('07+)",
-                       "ARRA ('09-'13)") &
-      Is.Defense==TRUE &
-      !is.na(Reachback)),
+                     DecisionTreeDisplay!="Not in Sample"),
   # NA, #VAR.ncol
   VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
-  VAR.y.variable="pDatasetReachbackObligation", #VAR.y.variable
+  VAR.y.variable="pDatasetObligation", #VAR.y.variable
   VAR.y.series="DecisionTreeDisplay", #VAR.y.series
-  VAR.facet.primary="isUCA", #Competition.multisum", #VAR.facet.primary
-  VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
+  VAR.facet.primary="Dur.Simple" #VAR.facet.primary
+  # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
-   ,DataLabels=TRUE
+   ,DataLabels=FALSE
   #                       ,VAR.override.coloration=NA
 )+
   # theme(legend.position = "bottom")+
@@ -579,41 +701,46 @@ ReachbackUCA<-  LatticePlotWrapper_csis360(
   theme(strip.text.y = element_text(angle=0))+
   theme(axis.text.x = element_text(angle=90))+
     scale_y_continuous( labels = percent_format())+
-  facet_grid(primary ~ secondary)
-    # )
-ReachbackUCA
-ggsave600dpi("Output//ReachbackUCA.png", ReachbackUCA, width=4.5, height= 4.5, units="in")
+  facet_grid(primary ~ .#,scales="free_y", space="free_y"
+             )
+    )
+ 
+ggsave600dpi("Output//Duration.png", Duration, width=4, height= 5, units="in")
+ggsave("Output//Duration.eps", Duration, width=4, height= 5, units="in")
 
-summary(summary_data$Reachback)
 
 
 
-build_plot(
-  labels_and_colors=labels_and_colors,
-  data=subset(UCAReachback,!is.na(Reachback)),
+(
+DurationComp<-  LatticePlotWrapper_csis360(
+  VAR.color.legend.label="Dataset",
+  VAR.main.label=NULL,
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2017 $, Variable Scale)",
+  VAR.Coloration=labels_and_colors,
+  VAR.long.DF=summary_data  %>% filter( 
+                                  DecisionTreeDisplay %in% c("Disaster","ARRA","OCO")),
   # NA, #VAR.ncol
-  x_var="dFYear", #x_var
-  y_var="Obligation.2017", #y_var
-  color_var="isUCA", #color_var
-  facet_var="DecisionTreeDisplay", #facet_var
-  VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
+  VAR.x.variable="NoCompOffr", #VAR.x.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
+  VAR.y.series="NoCompOffr", #VAR.y.series
+  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
+  VAR.facet.secondary="Dur.Simple" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
-  # ,DataLabels=NA
+   ,DataLabels=FALSE
   #                       ,VAR.override.coloration=NA
-)+labs(line="Is Undefinitized Contract Action (UCA)",
-  title="Defense Contracts with Labeled Reachback",
-  xlab="Fiscal Year",
-  yab="Percent of Obligations")+theme(legend.position = "bottom")+
-    scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-  theme(strip.text.y = element_text(angle=270))
-  
+)+
+  # theme(legend.position = "bottom")+
+  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=0))+
+  theme(axis.text.x = element_text(angle=90))+
+  facet_grid(primary ~ secondary,scales="free_y"#, space="free_y"
+             )
+    )
+ 
 
 ```
-
-
-
-
 
 # Modeling
 
