@@ -22,7 +22,7 @@ library(texreg)
 library(reshape2)
 library(reshape2)
 library(lubridate)
-library(showtext)
+library(showtext) #Not sure I actually need this.
 library(extrafont)
 library(tidyverse)
 font_import()
@@ -276,8 +276,8 @@ write.csv(Country,file.path("Output","Country.csv"))
 #### Competition
 
 ```{r Competition}
+undebug(LatticePlotWrapper_csis360)
 
-geom.text.size<-2.5
 (
 CompOverall<-  LatticePlotWrapper_csis360(
   VAR.color.legend.label="Dataset",
@@ -296,6 +296,7 @@ CompOverall<-  LatticePlotWrapper_csis360(
   # ,MovingAverage=0
   # ,MovingSides=1
    ,DataLabels=TRUE
+  ,geom.text.size=2.5
   #                       ,VAR.override.coloration=NA
 )+
   # theme(legend.position = "bottom")+
@@ -305,7 +306,8 @@ CompOverall<-  LatticePlotWrapper_csis360(
     scale_y_continuous( labels = percent_format())+
   facet_grid(primary ~ .)
     )
-ggsave600dpi("Output//CompOverall.png", CompOverall, width=4.5, height= 8, units="in")
+ggsave600dpi("Output//CompOverall.png", CompOverall, width=4.5, height= 8, units="in",size=12)
+ggsave("Output//CompOverall.png", CompOverall, width=4.5, height= 8, units="in" , dpi=600)
 
 (
 build_plot(
