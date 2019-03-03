@@ -5838,7 +5838,7 @@ if(!exists("CBre_22H")){
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
-  save(CBre_22H, file="Output//Model22H.RData")
+  
 }
   glmer_examine(CBre_22H)
   
@@ -5850,7 +5850,8 @@ stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
 stargazer::stargazer(CBre_21B,CBre_22H,
                         digits=2)
 
-
+CBre_22H.all<-allFit_save(CBre_22H,filename="output/CBre_22H_allfit.rdata")
+save(CBre_22H,CBre_22H.all, file="Output//Model22H.RData")
 summary_residual_compare(CBre_10A,CBre_20G,bins=50)
 summary_residual_compare(CBre_10D,CBre_20G,bins=50)
 summary_residual_compare(CBre_20A,CBre_20G,bins=50)

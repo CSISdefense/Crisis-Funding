@@ -22,7 +22,7 @@ library(texreg)
 library(reshape2)
 library(reshape2)
 library(lubridate)
-library(showtext)
+library(showtext) #Not sure I actually need this.
 library(extrafont)
 library(tidyverse)
 # font_import()
@@ -251,8 +251,8 @@ ggsave("Output//chapter4topline.eps", chapter4topline, width=6.5, height= 4, uni
 #### Competition
 
 ```{r Competition}
+undebug(LatticePlotWrapper_csis360)
 
-geom.text.size<-2.5
 (
 CompOverall<-  LatticePlotWrapper_csis360(
   VAR.color.legend.label="Dataset",
@@ -271,6 +271,7 @@ CompOverall<-  LatticePlotWrapper_csis360(
   # ,MovingAverage=0
   # ,MovingSides=1
    ,DataLabels=TRUE
+  ,geom.text.size=2.5
   #                       ,VAR.override.coloration=NA
 )+
   # theme(legend.position = "bottom")+
