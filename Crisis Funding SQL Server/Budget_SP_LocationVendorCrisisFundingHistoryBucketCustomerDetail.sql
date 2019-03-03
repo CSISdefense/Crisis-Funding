@@ -22,6 +22,7 @@ SELECT [fiscal_year]
       ,[ProductOrServiceArea]
 	  ,ContractingCustomer
 	  ,ContractingSubCustomer
+	  ,ContractingOfficeID
       ,[PlaceCountryText]
 	  ,[CrisisFundingTheater]
 	  ,[VendorPlaceType]
@@ -74,6 +75,7 @@ SELECT [fiscal_year]
 	  ,[ContractCrisisFunding]
 	  ,ContractingCustomer
 	  ,ContractingSubCustomer
+	  ,ContractingOfficeID
       ,[nationalinterestactioncode]
       ,[NIAcrisisFunding]
 	  ,IsOCOcrisisFunding
