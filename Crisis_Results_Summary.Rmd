@@ -267,7 +267,7 @@ ggsave("Output//chapter4topline.eps", chapter4topline, width=6.5, height= 4, uni
 # debug(LatticePlotWrapper_csis360)
 (
 CompOverall<-  LatticePlotWrapper_csis360(
-  VAR.color.legend.label="Dataset",
+  VAR.color.legend.label="Competition",
   VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
@@ -286,7 +286,7 @@ CompOverall<-  LatticePlotWrapper_csis360(
   ,geom.text.size=2.5
   #                       ,VAR.override.coloration=NA
 )+
-  theme(legend.position = "right")+
+  theme(legend.position = "bottom")+
   #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=0))+
   theme(axis.text.x = element_text(angle=90))+
