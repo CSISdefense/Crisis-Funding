@@ -116,7 +116,7 @@ full_data$contingencyhumanitarianpeacekeepingoperationText[
 
 
 Tree1B<-build_plot(
-  data=share_data,f
+  data=share_data,
   chart_geom = "Line Chart",
   share = TRUE,
   x_var="dFYear",
