@@ -17,7 +17,7 @@ library(reshape2)
 library(Hmisc)
 library(csis360)
 library(scales)
-source("https://raw.githubusercontent.com/CSISdefense/csis360/master/R/Plot_Style.R")
+# source("https://raw.githubusercontent.com/CSISdefense/csis360/master/R/Plot_Style.R")
 
 
 # diigtheme1:::diiggraph()
@@ -56,7 +56,10 @@ full_column_key<-get_column_key(full_data)
 
 
 library(showtext)
+font_add_google("Open Sans")
 
+debug(LatticePlotWrapper_csis360)
+(
 Tree1A<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="ARRA/CSIS Labeled Contract",
   VAR.main.label=NULL,
@@ -117,7 +120,7 @@ full_data$contingencyhumanitarianpeacekeepingoperationText[
 
 
 Tree1B<-build_plot(
-  data=share_data,f
+  data=share_data,
   chart_geom = "Line Chart",
   share = TRUE,
   x_var="dFYear",
