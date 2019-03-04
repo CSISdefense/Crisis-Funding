@@ -154,7 +154,7 @@ full_data<-read_and_join(full_data,
                       "Lookup_SQL_CompetitionClassification.csv",
                       by=c("CompetitionClassification",
                            "ClassifyNumberOfOffers"),
-                      add_var="No.Competition.Offer","Competition.multisum")
+                      add_var=c("No.Competition.Offer"))
 
 
 full_data$Dur.Simple<-factor(full_data$UnmodifiedUltimateDurationCategory)
