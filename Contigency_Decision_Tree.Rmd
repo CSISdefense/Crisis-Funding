@@ -12,12 +12,12 @@ pdf_document: default
 ```{r setup, include=FALSE}
 
 
-library(tidyr)
+library(tidyverse)
 library(reshape2)
 library(Hmisc)
 library(csis360)
 library(scales)
-
+library(showtext)
 
 # diigtheme1:::diiggraph()
 
@@ -54,7 +54,17 @@ full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
 full_column_key<-get_column_key(full_data)
 
 
-library(showtext)
+group_by_names<-function(df,
+                         group_var,
+                         group_var2){
+  # group_var<-as.name(group_var)
+  df %>%
+    dplyr::group_by(!! as.name(group_var),!! as.name(group_var2)) %>%
+    dplyr::summarise(Obligation.2017= sum(Obligation.2017))
+}
+
+
+group_by_names(full_data,"Fiscal.Year","CrisisFunding1A")
 
 Tree1A<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="ARRA/CSIS Labeled Contract",
