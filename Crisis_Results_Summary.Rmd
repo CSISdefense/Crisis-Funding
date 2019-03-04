@@ -91,9 +91,9 @@ full_data$isUndefinitizedAction<-factor(full_data$isUndefinitizedAction)
 # Ceiling
 #ContractingOfficeCode
 
-    colnames(contract)[colnames(contract)=="PlaceIntlPercent"]<-"OffIntl"
+    colnames(full_data)[colnames(full_data)=="PlaceIntlPercent"]<-"OffIntl"
     full_data$OffPlace<-Hmisc::cut2(full_data$OffIntl,c(0.01,0.50))
-    levels(contract$OffPlace) <-
+    levels(full_data$OffPlace) <-
       list("US99"=c("[0.00,0.01)"),
            "Mixed"=c("[0.01,0.50)"),
            "Intl"=c("[0.50,1.00]"))
@@ -104,6 +104,7 @@ summary_data<-full_data%>%
     CrisisDisplay,
     International,
     NoCompOffr,
+    Competition.multisum,
     Theater,
     OMBtheater,
     isUndefinitizedAction,
@@ -184,6 +185,17 @@ levels(summary_data$IsAnyCrisis)<-list("All Other"="All Other",
                                        "Any Crisis"=c("OCO","ARRA","Disaster"))
 
 
+summary_data$Competition.multisum<-summary_data$NoCompOffr
+levels(summary_data$Competition.multisum)<-
+      list("Other No"  =c("Other No"  ),
+           "Urgency" = "Urgency",
+           "1 Offer"="1 Offer",
+           "2+ Offers"= c("2-4 Offers", "5+ Offers"),
+                                   "Unlabeled"=c("Unlabeled"))
+
+summary(summary_data$NoCompOffr)
+
+
 ```
 
 
@@ -251,11 +263,11 @@ ggsave("Output//chapter4topline.eps", chapter4topline, width=6.5, height= 4, uni
 #### Competition
 
 ```{r Competition}
-undebug(LatticePlotWrapper_csis360)
 
+# debug(LatticePlotWrapper_csis360)
 (
 CompOverall<-  LatticePlotWrapper_csis360(
-  VAR.color.legend.label="Dataset",
+  VAR.color.legend.label="Competition",
   VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Percent of Obligations",
@@ -265,8 +277,8 @@ CompOverall<-  LatticePlotWrapper_csis360(
   # NA, #VAR.ncol
   VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
   VAR.y.variable="pDatasetObligation", #VAR.y.variable
-  VAR.y.series="DecisionTreeDisplay", #VAR.y.series
-  VAR.facet.primary="NoCompOffr" #VAR.facet.primary
+  VAR.y.series="NoCompOffr", #VAR.y.series
+  VAR.facet.primary="Competition.multisum" #VAR.facet.primary
   # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -274,23 +286,28 @@ CompOverall<-  LatticePlotWrapper_csis360(
   ,geom.text.size=2.5
   #                       ,VAR.override.coloration=NA
 )+
-  # theme(legend.position = "bottom")+
+  theme(legend.position = "bottom")+
   #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=0))+
   theme(axis.text.x = element_text(angle=90))+
-    scale_y_continuous( labels = percent_format())+
+    scale_y_continuous( labels = percent_format(accuracy=1))+
   facet_grid(primary ~ .#,scales="free_y", space="free_y"
              )
     )
 
+CompOverall$data
+
+CompOverall$data %>%  group_by(primary,x.variable) %>%
+  dplyr::summarise(obligations=sum(y.variable))
+
 
 ggsave600dpi("Output//CompOverall.png", CompOverall, 
-             width=4, height= 6, units="in"
+             width=4.5, height= 6, units="in",size=11
              )
 
 
 ggsave("Output//CompOverall.eps", CompOverall, 
-             width=4, height= 6, units="in"
+             width=4.5, height= 6, units="in"
              )
 
 (
@@ -314,7 +331,7 @@ CompAnnual<-build_plot(
   scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=270),
         legend.position = "bottom")+
-    guides(fill=guide_legend(ncol=2))+
+    guides(fill=guide_legend(ncol=6))+
     facet_grid(DecisionTreeDisplay~ ., scales = "free_y")
 )
 
