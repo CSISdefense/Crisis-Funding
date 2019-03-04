@@ -18,6 +18,7 @@ library(Hmisc)
 library(csis360)
 library(scales)
 library(showtext)
+source("https://raw.githubusercontent.com/CSISdefense/csis360/master/R/Plot_Style.R")
 
 # diigtheme1:::diiggraph()
 
@@ -849,7 +850,7 @@ sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Unlabeled"&
 
 
 #Step 6 Adding up the points
-```{r Step1B}
+```{r Step6}
 full_data<-replace_nas_with_unlabeled(full_data,"DecisionTree")
 
 full_data$CrisisPoints<-as.character(full_data$CrisisFunding4B)
