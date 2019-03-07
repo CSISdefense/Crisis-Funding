@@ -548,6 +548,16 @@ ReachbackCrisisHistory<-LatticePlotWrapper_csis360(
 
 )
 
+#   +labs(line="Competition",
+#   title=NULL,
+#   xlab="Fiscal Year",
+#   ylab="Percent of Obligations (Variable Scale")+
+#   # +theme(legend.position = "bottom")+
+#   scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+#   theme(strip.text.y = element_text(angle=270),
+#         legend.position = "bottom")+
+#     guides(fill=guide_legend(ncol=6))+
+#     facet_grid(DecisionTreeDisplay~ ., scales = "free_y")
 
 # 
 # (
@@ -589,8 +599,61 @@ ggsave("Output//ReachbackComp.png", ReachbackComp, width=4.5, height= 8, units="
 
 ```
 
-### Other Variables
-#### Country
+
+#### Contracting Office
+```{r Koff}
+full_data$ContractingOfficeCode
+office_data<-summary_data %>%
+  dplyr::group_by(CrisisDisplay,
+                  # SupplyServiceERS,     #Should switch this to CrisisProdServ
+                  # Reachback,            #Swap in OffPlace
+                  CrisisPercent,
+                  DecisionTreeDisplay,
+                  OffPlace)%>%
+  dplyr::summarise( Obligation.2017=sum(Obligation.2017)
+  )
+
+
+(
+  ggplot(
+    data=office_data %>% filter(CrisisDisplay=="OCO"),
+    aes(x=CrisisPercent,
+        y=Obligation.2017,
+        color=OffPlace)
+    
+  )+geom_point()
+)
+
+(
+#+facet_wrap( "CrisisDisplay" )
+CrisisPercent<-build_plot(
+  data=subset(summary_data,
+                     DecisionTreeDisplay!="Not in Sample"),
+  chart_geom = "Histogram",
+  share = FALSE,
+  labels_and_colors=labels_and_colors,
+  # NA, #VAR.ncol
+  x_var="CrisisPercent", #x_var
+  y_var="Obligation.2017", #VAR.y.variable
+  color_var="DecisionTreeDisplay", #color_var
+  facet_var="DecisionTreeDisplay", #facet_var
+  column_key=column_key,
+  format=TRUE
+)+theme(legend.position = "none")
+)
+str(office_data$CrisisPercent)
+
+  ggplot(data=office_data,
+         aes(x=CrisisPercent,
+             weight=Obligation.2017,
+             fill=OffPlace))+
+    geom_histogram(bins=100)+facet_grid(DecisionTreeDisplay ~., scales="free_y")
+  
+
+```
+
+
+#### Country : Office Place
 ```{r Country}
 
 Country<-ddply(summary_data,
@@ -671,6 +734,9 @@ CountryOffPlace<-LatticePlotWrapper_csis360(
 ggsave("Output//CountryOffPlace.png", CountryOffPlace, width=4.5, height= 8, units="in")
 
 ```
+
+### Other Variables
+
 
 
 #### Product Or Service Area
@@ -1394,16 +1460,16 @@ summary(fed_1m)
 
 ## Output: Models
 
-###Federal-Wide 21B Term
+###Federal-Wide 21D Term
 ```{r Model21B}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
     
 
-load("Output//Model21B.rdata")
+load("Output//Model21D.rdata")
 
-if(!exists("Term_21B"))
-  Term_21B <- glmer (data=fed_1m,
+if(!exists("Term_21D"))
+  Term_21D <- glmer (data=fed_1m,
                    b_Term ~ Crisis +NoCompOffr2+
                      b_UCA+
                      c_OffCri+
@@ -1418,29 +1484,29 @@ if(!exists("Term_21B"))
   
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office)+
-                     (1 + OffPlace| PlaceCountryISO3), 
+                     (0 + OffPlace| PlaceCountryISO3), 
                    family=binomial(link="logit"),
                    verbose=1,
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
-  glmer_examine(Term_21B)
+  glmer_examine(Term_21D)
   
-stargazer::stargazer(Term_21B,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(Term_21D,type="text",#Term_20A,#Term_20C
                         digits=2)
 
-summary_residual_compare(Term_21B,bins=50)
+summary_residual_compare(Term_21D,bins=50)
 
-  CBre_22F.all<-allFit_save(CBre_22F,filename="output/CBre_22F_allfit.rdata")
+  CBre_22H.all<-allFit_save(CBre_22H,filename="output/CBre_22H_allfit.rdata")
 ```
 
 
-### Federal-Wide 21C: CBre
-```{r Model21C}
+### Federal-Wide 21E: CBre
+```{r Model21E}
 
 
-load("Output//Model21C_CBre.rdata")
-if(!exists("CBre_21C"))
-  CBre_21C <- glmer (data=fed_1m,
+load("Output//Model21E_CBre.rdata")
+if(!exists("CBre_21E"))
+  CBre_21E <- glmer (data=fed_1m,
                    b_CBre ~ Crisis +NoCompOffr2 +
                      b_UCA+
                      
@@ -1452,7 +1518,7 @@ if(!exists("CBre_21C"))
                      #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
                      # Veh:cl_Ceil+
-                     b_UCA:NoCompOffr2+
+                     # b_UCA:NoCompOffr2+
                      cl_Ceil:NoCompOffr2+
                    #   capped_cl_Days:NoCompOffr+
                    # NoCompOffr:Veh,
@@ -1460,35 +1526,35 @@ if(!exists("CBre_21C"))
 
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office) + 
-                     (1 + OffPlace | PlaceCountryISO3) + 
+                     (0 + OffPlace | PlaceCountryISO3) + 
                      (1 | StartFY)
                , 
                    family=binomial(link="logit"),
                 verbose=1)
-  glmer_examine(CBre_21C)
+  glmer_examine(CBre_21E)
 
   
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_21C,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(CBre_21E,type="text",#Term_20A,#Term_20C
                         digits=2)
 
-summary_residual_compare(CBre_21C,bins=50)
+summary_residual_compare(CBre_21E,bins=50)
 
 
-  CBre_21C.all<-allFit_save(CBre_21C,filename="output/CBre_21C_allfit.rdata")
+  CBre_21E.all<-allFit_save(CBre_21E,filename="output/CBre_21E_allfit.rdata")
 ```
 
 
-### Crisis-Only 22E Term
-```{r Model22E}
+### Crisis-Only 22G Term
+```{r Model22G}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model22E.rdata")
+load("Output//Model22G.rdata")
 
   
-if(!exists("Term_22E"))
-  Term_22E <- glmer (data=crisis_all,
+if(!exists("Term_22G"))
+  Term_22G <- glmer (data=crisis_all,
                    b_Term ~ Crisis +NoCompOffr2+
                      b_UCA+
                      c_OffCri+
@@ -1502,18 +1568,18 @@ if(!exists("Term_22E"))
                      # b_UCA:NoCompOffr2+
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office)+
-                     (1 + OffPlace| PlaceCountryISO3), 
+                     (0 + OffPlace| PlaceCountryISO3), 
                    family=binomial(link="logit"),
                      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
-  glmer_examine(Term_22E)
+  glmer_examine(Term_22G)
   
   
   source(system.file("utils", "allFit.R", package="lme4"))
   
   
-  Term_22E.all<-allFit_save(Term_22E,filename="output/Term_22E_allfit.rdata")
-  Term_22E_ss_cons <- summary(Term_22E.all) 
+  Term_22G.all<-allFit_save(Term_22G,filename="output/Term_22G_allfit.rdata")
+  Term_22G_ss_cons <- summary(Term_22G.all) 
 
     structure(res, class = "allfit", fit = m, sessionInfo =  sessionInfo(),
               data = data # is dropped if NULL
@@ -1528,16 +1594,16 @@ if(!exists("Term_22E"))
     
       
 # Plot the model and Vehicle 
-stargazer::stargazer(Term_22E,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(Term_22G,type="text",#Term_20A,#Term_20C
                         digits=2)
 
-summary_residual_compare(Term_22E,bins=50)
+summary_residual_compare(Term_22G,bins=50)
 ```
 
 ```{r Xinyi: Plot Countries with top20 frequencies and their multilevel intercept}
-load("Output//Model22E.rdata")
-coef(Term_22E)$PlaceCountryISO3[1]
-Country_Intercept <- as.data.frame(coef(Term_22E)$PlaceCountryISO3[1])
+load("Output//Model22G.rdata")
+coef(Term_22G)$PlaceCountryISO3[1]
+Country_Intercept <- as.data.frame(coef(Term_22G)$PlaceCountryISO3[1])
 Country_Intercept$Countries <- row.names(Country_Intercept)
 row.names(Country_Intercept) <- NULL
 colnames(Country_Intercept) <- c("Intercept", "Countries")
@@ -1577,12 +1643,12 @@ ggplot(data = Country_Intercept20,
 
 
 
-### Crisis-Only 22F CBre
-```{r Model22F}
+### Crisis-Only 22H CBre
+```{r Model22H}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model22F_CBre.RData")
+load("Output//Model22H_CBre.RData")
 
 
 fed_1m$ProdServ<-factor(fed_1m$ProdServ)
@@ -1612,8 +1678,8 @@ summary(fed_1m[,colnames(fed_1m) %in%
                      "StartFY")])
 
 
-if(!exists("CBre_22F"))
-  CBre_22F <- glmer (data=crisis_all,
+if(!exists("CBre_22H"))
+  CBre_22H <- glmer (data=crisis_all,
                      b_CBre ~ Crisis +NoCompOffr2 +
                      b_UCA+
                      OffPlace+
@@ -1625,10 +1691,10 @@ if(!exists("CBre_22F"))
                      # b_UCA:Crisis+
                      # Veh:cl_Ceil+
                        NoCompOffr2:cl_Ceil+
-                     b_UCA:NoCompOffr2+
+                     # b_UCA:NoCompOffr2+
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office) + 
-                     (1 + OffPlace | PlaceCountryISO3) + 
+                     (0 + OffPlace | PlaceCountryISO3) + 
                      (1 | StartFY)
                , 
                    family=binomial(link="logit")
@@ -1636,11 +1702,11 @@ if(!exists("CBre_22F"))
      # optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE))
      )
 
-  glmer_examine(CBre_22F)
-  load("Output//CBre_22F_allfit.rdata")
+  glmer_examine(CBre_22H)
+  load("Output//CBre_22H_allfit.rdata")
 
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_22F,res[1],res[2],res[3],#res[4],
+stargazer::stargazer(CBre_22H,res[1],res[2],res[3],#res[4],
                      res[5],#res[6],res[7],
                      type="text",#Term_20A,#Term_20C
                         digits=2)
@@ -1648,24 +1714,24 @@ stargazer::stargazer(CBre_22F,res[1],res[2],res[3],#res[4],
 length(res[[6]])
 res[[5]]
 
-summary_residual_compare(CBre_22F,bins=50)
+summary_residual_compare(CBre_22H,bins=50)
 
 
-  CBre_22F.all<-allFit_save(CBre_22F,filename="output/CBre_22F_allfit.rdata")
+  CBre_22H.all<-allFit_save(CBre_22H,filename="output/CBre_22H_allfit.rdata")
 ```
 
 # Tables for Paper
 ## Moel Results Directly
 ```{r Output-Direct}
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_21C,CBre_22F,Term_21B,Term_22E,type="text",
+stargazer::stargazer(CBre_21E,CBre_22H,Term_21D,Term_22G,type="text",
                        digits=2)
 
 
-summary_residual_compare(CBre_21C,CBre_22F,Term_21B,Term_22E,bins=50)
+summary_residual_compare(CBre_21E,CBre_22H,Term_21D,Term_22G,bins=50)
 
 
-texreg::htmlreg(list(CBre_21C,CBre_22F,Term_21B,Term_22E),file="Output//Both_Model.html",
+texreg::htmlreg(list(CBre_21E,CBre_22H,Term_21D,Term_22G),file="Output//Both_Model.html",
                 single.row = TRUE,
                 custom.model.name=c("Federal-Wide<br>Ceiling Breach",
                                     "Crisis-Only<br>Ceiling Breach",

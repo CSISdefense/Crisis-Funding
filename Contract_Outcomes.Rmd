@@ -5147,7 +5147,7 @@ summary_residual_compare(CBre_21A,CBre_21C,Term_21A,Term_21C,bins=50)
 # summary(large_crisis_smp$CPSA)
     
 
-# load("Output//Model21D_CBre.rdata")
+load("Output//Model21D_CBre.rdata")
 if(!exists("CBre_21D"))
   CBre_21D <- glmer (data=fed_1m,
                    b_CBre ~ Crisis +NoCompOffr2 +
@@ -5218,7 +5218,7 @@ summary_residual_compare(CBre_21C,CBre_21D,bins=50)#,Term_21A,Term_21D
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
     
-# load("Output//Model21E_CBre.rdata")
+load("Output//Model21E_CBre.rdata")
 if(!exists("CBre_21E"))
   CBre_21E <- glmer (data=fed_1m,
                    b_CBre ~ Crisis +NoCompOffr2 +
@@ -5810,6 +5810,7 @@ summary_residual_compare(CBre_22F,CBre_22G,Term_22E,Term_22G,bins=50)
 
 load("Output//Model22H.rdata")
 
+
 if(!exists("CBre_22H")){
   CBre_22H <- glmer (data=crisis_all,
                    b_CBre ~ Crisis +NoCompOffr2 +
@@ -5859,4 +5860,95 @@ summary_residual_compare(CBre_20C,CBre_20G,bins=50)#Term_20C,Term_20G,
 summary_residual_compare(CBre_20B,CBre_20G,bins=50)
 summary_residual_compare(CBre_21B,CBre_22H,bins=50)
 
+```
+
+
+# Comparisons
+## Ceiling Breach
+```{r CrisisOnlyComparison}
+load("Output//Model21D_CBre.rdata")
+
+load("Output//Model21E_CBre.rdata")
+
+#Ceiling Breach
+load("Output//Model22H.rdata")
+load("Output//Model22G_CBre.RData")
+
+summary_residual_compare(CBre_22G,CBre_22H,CBre_21D,CBre_21E.restart,bins=50)
+stargazer::stargazer(CBre_22G,CBre_22H,CBre_21D,CBre_21E.restart,type="text",
+                        digits=2)
+
+summary(CBre_22H.all)
+
+  
+ summary(CBre_22H.all$bobyqa)
+ 
+ model.all<-CBre_22H.all
+ 
+ stargazer.all<-function(model.all){
+   
+  stargazer::stargazer(model.all$bobyqa,
+                      model.all$Nelder_Mead,
+                      model.all$nlminbw,
+                      model.all[5],model.all[6],
+                      model.all[7],
+                      type="text",
+                        digits=2)
+ }
+ 
+ summary(CBre_22H.all)
+ stargazer.all(CBre_22H.all)
+ 
+   load("output/CBre_22G_allfit.rdata")
+   CBre_22G.all<-res
+   rm(res)
+   summary(CBre_22G.all)
+   summary(CBre_22G.all$bobyqa)
+   stargazer.all(CBre_22G.all)
+ rm(CBre_22G.all)
+   
+  
+   #CBre_22F
+   # load("output/CBre_22F_allfit.rdata")
+   # CBre_22F.all<-res
+   # rm(res)
+   # summary(CBre_22F.all)
+   # summary(CBre_22F.all$bobyqa)
+   # stargazer.all(CBre_22F.all)
+   # #THis does have more glitches, elimating the const term seemed to help.
+ 
+ # load("output/CBre_21C_allfit.rdata")
+ # CBre_21C.all<-res
+ # summary(CBre_21C.all)
+ # #Only finished 1st one
+ 
+ 
+ # load("output/Model21E_CBre.rdata")
+ #No allfit, just update
+ #Only finished 1st one
+   
+ 
+  ss$fixef               ## fixed effects
+  ss$ llik                ## log-likelihoods
+  ss$ sdcor               ## SDs and correlations
+  ss$ theta               ## Cholesky factors
+  ss$ which.OK            ## which fits worked
+
+```
+
+
+```{r CopmareTerm}
+ 
+load("output/Term_22E_allfit.rdata")
+Term_22E.all<-res
+summary(Term_22E.all)
+   stargazer.all(Term_22E.all)
+ 
+   
+   #Termination 22G
+  load("output/Term_22G_allfit.rdata")
+ Term_22G.all<-res
+   summary(Term_22G.all)
+   stargazer.all(Term_22G.all)
+ 
 ```
