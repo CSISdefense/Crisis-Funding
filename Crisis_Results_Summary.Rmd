@@ -110,6 +110,7 @@ if(! "OffPlace" %in% colnames(full_data)){
 
 ```{r Summary}
   
+
 summary_data<-full_data%>%
   dplyr::group_by(Fiscal.Year,
     Is.Defense,
@@ -219,7 +220,7 @@ summary(summary_data$NoCompOffr)
 ```
 
 
-#### Labels/Colors and Output to Shiny
+### Labels/Colors and Output to Shiny
 ```{r Output }
 
 
@@ -272,10 +273,14 @@ chapter4topline<-LatticePlotWrapper_csis360(
 
 
 
-full_data %>%  filter(CrisisDisplay=="Disaster" >=2005) %>%
+disaster_summary<-full_data %>%  filter(CrisisDisplay=="Disaster") %>%
   group_by(CrisisDisplay,nationalinterestactioncodeText,Fiscal.Year) %>%
-  dplyr::summarise(obligations=sum(y.variable))
+  dplyr::summarise(obligations=sum(Obligation.2017)) %>% group_by(Fiscal.Year) %>%
+  dplyr::mutate(annual_share=round(obligations/sum(obligations),3)) %>% group_by(nationalinterestactioncodeText) %>%
+  dplyr::mutate(disaster_share=round(obligations/sum(obligations),3)) 
 
+disaster_summary<-disaster_summary[order(disaster_summary$Fiscal.Year),]
+write.csv(disaster_summary,file="Output//disaster_summary.csv")
 chapter4topline$data %>%  group_by(primary,x.variable) %>%
   dplyr::summarise(obligations=sum(y.variable))
 
@@ -1466,7 +1471,7 @@ summary(fed_1m)
 # summary(large_crisis_smp$CPSA)
     
 
-load("Output//Model21D.rdata")
+load("Output//Model21D_Term.rdata")
 
 if(!exists("Term_21D"))
   Term_21D <- glmer (data=fed_1m,
@@ -1505,8 +1510,8 @@ summary_residual_compare(Term_21D,bins=50)
 
 
 load("Output//Model21E_CBre.rdata")
-if(!exists("CBre_21E"))
-  CBre_21E <- glmer (data=fed_1m,
+if(!exists("CBre_21E.restart"))
+  CBre_21E.restart <- glmer (data=fed_1m,
                    b_CBre ~ Crisis +NoCompOffr2 +
                      b_UCA+
                      
@@ -1531,17 +1536,17 @@ if(!exists("CBre_21E"))
                , 
                    family=binomial(link="logit"),
                 verbose=1)
-  glmer_examine(CBre_21E)
+  glmer_examine(CBre_21E.restart)
 
   
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_21E,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(CBre_21E.restart,type="text",#Term_20A,#Term_20C
                         digits=2)
 
-summary_residual_compare(CBre_21E,bins=50)
+summary_residual_compare(CBre_21E.restart,bins=50)
 
 
-  CBre_21E.all<-allFit_save(CBre_21E,filename="output/CBre_21E_allfit.rdata")
+  CBre_21E.all<-allFit_save(CBre_21E.restart,filename="output/CBre_21E_allfit.rdata")
 ```
 
 
@@ -1550,7 +1555,7 @@ summary_residual_compare(CBre_21E,bins=50)
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model22G.rdata")
+load("output/Model22G_CBre.RData")
 
   
 if(!exists("Term_22G"))
@@ -1648,7 +1653,7 @@ ggplot(data = Country_Intercept20,
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model22H_CBre.RData")
+load("Output//Model22H.RData")
 
 
 fed_1m$ProdServ<-factor(fed_1m$ProdServ)
@@ -1724,14 +1729,17 @@ summary_residual_compare(CBre_22H,bins=50)
 ## Moel Results Directly
 ```{r Output-Direct}
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_21E,CBre_22H,Term_21D,Term_22G,type="text",
+
+
+
+stargazer::stargazer(CBre_21E.restart,CBre_22H,Term_21D,Term_22G,type="text",
                        digits=2)
 
 
-summary_residual_compare(CBre_21E,CBre_22H,Term_21D,Term_22G,bins=50)
+summary_residual_compare(CBre_21E.restart,CBre_22H,Term_21D,Term_22G,bins=50)
 
 
-texreg::htmlreg(list(CBre_21E,CBre_22H,Term_21D,Term_22G),file="Output//Both_Model.html",
+texreg::htmlreg(list(CBre_21E.restart,CBre_22H,Term_21D,Term_22G),file="Output//Both_Model.html",
                 single.row = TRUE,
                 custom.model.name=c("Federal-Wide<br>Ceiling Breach",
                                     "Crisis-Only<br>Ceiling Breach",
@@ -1742,7 +1750,7 @@ texreg::htmlreg(list(CBre_21E,CBre_22H,Term_21D,Term_22G),file="Output//Both_Mod
                 groups = list("Study Variables" = 2:9,
                               "Crisis Category" = 10:12,
                               "Contract Characteristics"=13:23,
-"Interactions" = 24:31),
+"Interactions" = 24:27),
                 custom.coef.map=list("(Intercept)"="(Intercept)",
                                      "NoCompOffrUrgency"="No Comp, Urgency",
                                      "NoCompOffr2Urgency"="No Comp, Urgency",
@@ -1755,8 +1763,8 @@ texreg::htmlreg(list(CBre_21E,CBre_22H,Term_21D,Term_22G),file="Output//Both_Mod
 "NoCompOffr25+ offers"="Comp=5+ offers",
 "b_UCA"="UCA",
 "c_OffCri"="Cont. Office Crisis %",
-"OffPlaceMixed"="Cont. Office 50-99% Intl.",
-"OffPlaceIntl"="Cont. Office 99%+ Intl.",
+"OffPlaceMixed"="Cont. Office 1-50% Intl.",
+"OffPlaceIntl"="Cont. Office 50%+ Intl.",
 "CrisisOCO"="Crisis=OCO",
 "CrisisARRA"="Crisis=Recovery Act",
 "CrisisDis"="Crisis=Disaster Relief",
@@ -1813,6 +1821,8 @@ caption.above=TRUE)
 
 ## Model Odds Ratio
 ```{r Output-Odds Ratio}
+summary_residual_compare(CBre_21E.restart,CBre_22H,Term_21D,Term_22G,bins=50)
+
 or1<-odds_ratio(CBre_Cons_13B.restart,"CBre_Cons_13B","Concentration","Ceiling Breaches")
 or2<-odds_ratio(CBre_Comp_13C,"CBre_Comp_13C","Competition","Ceiling Breaches")
 or3<-odds_ratio(CBre_Cons_Comp_15A,"CBre_Cons_Comp_15A","Both","Ceiling Breaches")

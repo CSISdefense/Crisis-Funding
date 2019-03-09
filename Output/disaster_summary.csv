@@ -1,0 +1,158 @@
+"","CrisisDisplay","nationalinterestactioncodeText","Fiscal.Year","obligations","annual_share","disaster_share"
+"1","Disaster","Hurricane Katrina 2005",2000,42383.0571396631,1,0
+"2","Disaster","Hurricane Rita 2005",2000,0,0,0
+"3","Disaster","Hurricane Chris 2006",2002,49123.915014272,0.002,0.005
+"4","Disaster","Hurricane Katrina 2005",2002,7895.6770439968,0,0
+"5","Disaster","Hurricane Rita 2005",2002,20345536.5939063,0.997,0.012
+"6","Disaster","Hurricane Wilma 2005",2002,533.491692161946,0,0
+"7","Disaster","Hurricane Chris 2006",2003,112980.937342345,0.004,0.011
+"8","Disaster","Hurricane Katrina 2005",2003,0,0,0
+"9","Disaster","Hurricane Rita 2005",2003,29896998.6400848,0.995,0.017
+"10","Disaster","Hurricane Wilma 2005",2003,47508.2226225086,0.002,0
+"11","Disaster","American Samoa Earthquake, Tsunami And Flooding",2004,0,0,0
+"12","Disaster","Hurricane Chris 2006",2004,138802.100898622,0.003,0.014
+"13","Disaster","Hurricane Katrina 2005",2004,731875.202065773,0.014,0
+"14","Disaster","Hurricane Rita 2005",2004,50119932.4602073,0.983,0.028
+"15","Disaster","Hurricane Chris 2006",2005,2129692.16837095,0,0.212
+"16","Disaster","Hurricane Katrina 2005",2005,5286466826.98134,0.97,0.218
+"17","Disaster","Hurricane Ophelia 2005",2005,711730.624183468,0,0.007
+"18","Disaster","Hurricane Rita 2005",2005,162532477.315756,0.03,0.092
+"19","Disaster","Hurricane Wilma 2005",2005,19694.4737648887,0,0
+"20","Disaster","Hurricane Chris 2006",2006,1989490.99170365,0,0.198
+"21","Disaster","Hurricane Ernesto 2006",2006,18194568.0495572,0.001,0.269
+"22","Disaster","Hurricane Katrina 2005",2006,12680492795.4774,0.885,0.523
+"23","Disaster","Hurricane Ophelia 2005",2006,19887225.9939151,0.001,0.183
+"24","Disaster","Hurricane Rita 2005",2006,1097282975.80464,0.077,0.621
+"25","Disaster","Hurricane Wilma 2005",2006,511493235.561603,0.036,0.31
+"26","Disaster","Hurricane Chris 2006",2007,1752040.66604528,0,0.175
+"27","Disaster","Hurricane Ernesto 2006",2007,23732504.3876148,0.005,0.351
+"28","Disaster","Hurricane Katrina 2005",2007,3420856110.67068,0.789,0.141
+"29","Disaster","Hurricane Ophelia 2005",2007,53347889.9034006,0.012,0.49
+"30","Disaster","Hurricane Rita 2005",2007,136915447.456074,0.032,0.077
+"31","Disaster","Hurricane Wilma 2005",2007,697015395.372846,0.161,0.422
+"32","Disaster","Midwest Storms And Flooding 2008",2007,6635.95008216542,0,0
+"33","Disaster","California Wildfires 2008",2008,116112571.122265,0.044,0.577
+"34","Disaster","Hurricane Chris 2006",2008,1496531.34708551,0.001,0.149
+"35","Disaster","Hurricane Ernesto 2006",2008,11958072.0163772,0.004,0.177
+"36","Disaster","Hurricane Gustav 2008",2008,321296330.560166,0.121,0.91
+"37","Disaster","Hurricane Hanna 2008",2008,1731239.09369509,0.001,1.923
+"38","Disaster","Hurricane Ike 2008",2008,429474001.137463,0.161,0.331
+"39","Disaster","Hurricane Katrina 2005",2008,959047672.067883,0.36,0.04
+"40","Disaster","Hurricane Ophelia 2005",2008,14395221.4362609,0.005,0.132
+"41","Disaster","Hurricane Rita 2005",2008,64309803.0119527,0.024,0.036
+"42","Disaster","Hurricane Wilma 2005",2008,376893857.571358,0.141,0.228
+"43","Disaster","Midwest Storms And Flooding 2008",2008,369030357.460904,0.138,0.381
+"44","Disaster","American Samoa Earthquake, Tsunami And Flooding",2009,306236.59879375,0,0.025
+"45","Disaster","California Wildfires 2008",2009,67363590.9209633,0.032,0.335
+"46","Disaster","Hurricane Chris 2006",2009,2340767.18460323,0.001,0.233
+"47","Disaster","Hurricane Ernesto 2006",2009,3385551.98129439,0.002,0.05
+"48","Disaster","Hurricane Gustav 2008",2009,26195839.7114603,0.012,0.074
+"49","Disaster","Hurricane Hanna 2008",2009,-830741.989819987,0,-0.923
+"50","Disaster","Hurricane Ike 2008",2009,671048903.309157,0.32,0.517
+"51","Disaster","Hurricane Katrina 2005",2009,673560426.528482,0.321,0.028
+"52","Disaster","Hurricane Ophelia 2005",2009,3519222.65089941,0.002,0.032
+"53","Disaster","Hurricane Rita 2005",2009,50102698.1572554,0.024,0.028
+"54","Disaster","Hurricane Wilma 2005",2009,504988.10807456,0,0
+"55","Disaster","Midwest Storms And Flooding 2008",2009,598223800.628951,0.285,0.618
+"56","Disaster","American Samoa Earthquake, Tsunami And Flooding",2010,11272173.5834717,0.039,0.938
+"57","Disaster","California Wildfires 2008",2010,11574385.1401279,0.04,0.058
+"58","Disaster","Gulf Oil Spill 0410",2010,190896114.990545,0.662,0.294
+"59","Disaster","Haiti Earthquake 2010",2010,140284504.841797,0.486,0.523
+"60","Disaster","Hurricane Chris 2006",2010,29747.6297999448,0,0.003
+"61","Disaster","Hurricane Earl 2010",2010,3805956.09893061,0.013,1
+"62","Disaster","Hurricane Ernesto 2006",2010,709922.36722069,0.002,0.011
+"63","Disaster","Hurricane Gustav 2008",2010,-3895689.12063766,-0.014,-0.011
+"64","Disaster","Hurricane Ike 2008",2010,32210776.7592785,0.112,0.025
+"65","Disaster","Hurricane Katrina 2005",2010,-142433473.618357,-0.494,-0.006
+"66","Disaster","Hurricane Ophelia 2005",2010,6251714.59014302,0.022,0.057
+"67","Disaster","Hurricane Rita 2005",2010,22859648.0226819,0.079,0.013
+"68","Disaster","Hurricane Wilma 2005",2010,14806755.9186345,0.051,0.009
+"69","Disaster","Midwest Storms And Flooding 2008",2010,124924.382197672,0,0
+"70","Disaster","American Samoa Earthquake, Tsunami And Flooding",2011,219986.377336365,0,0.018
+"71","Disaster","California Wildfires 2008",2011,2430001.09136324,0.002,0.012
+"72","Disaster","Gulf Oil Spill 0410",2011,176066255.341145,0.172,0.271
+"73","Disaster","Haiti Earthquake 2010",2011,124918554.84075,0.122,0.466
+"74","Disaster","Hurricane Ernesto 2006",2011,2291614.73992713,0.002,0.034
+"75","Disaster","Hurricane Gustav 2008",2011,-143820.047891535,0,0
+"76","Disaster","Hurricane Ike 2008",2011,117970131.794325,0.115,0.091
+"77","Disaster","Hurricane Irene 2011",2011,99513492.5564712,0.097,0.471
+"78","Disaster","Hurricane Katrina 2005",2011,356320954.999704,0.348,0.015
+"79","Disaster","Hurricane Ophelia 2005",2011,3578189.13921104,0.003,0.033
+"80","Disaster","Hurricane Rita 2005",2011,48273264.7564337,0.047,0.027
+"81","Disaster","Hurricane Wilma 2005",2011,-523207.111463845,-0.001,0
+"82","Disaster","Midwest Storms And Flooding 2008",2011,89617.8178986272,0,0
+"83","Disaster","Pacific Earthquake/Tsunami 2011",2011,93807816.4242274,0.092,1
+"84","Disaster","American Samoa Earthquake, Tsunami And Flooding",2012,218213.050551073,0,0.018
+"85","Disaster","California Wildfires 2008",2012,1622043.94279845,0.002,0.008
+"86","Disaster","Gulf Oil Spill 0410",2012,190493806.245482,0.287,0.294
+"87","Disaster","Haiti Earthquake 2010",2012,2844519.28354981,0.004,0.011
+"88","Disaster","Hurricane Ernesto 2006",2012,31753.2882153082,0,0
+"89","Disaster","Hurricane Gustav 2008",2012,-1345763.85597624,-0.002,-0.004
+"90","Disaster","Hurricane Ike 2008",2012,4629343.16637493,0.007,0.004
+"91","Disaster","Hurricane Irene 2011",2012,107089432.417579,0.161,0.507
+"92","Disaster","Hurricane Isaac 2012",2012,67846148.1598301,0.102,0.886
+"93","Disaster","Hurricane Katrina 2005",2012,176415596.485628,0.265,0.007
+"94","Disaster","Hurricane Ophelia 2005",2012,2448587.53977103,0.004,0.023
+"95","Disaster","Hurricane Rita 2005",2012,71903314.6828317,0.108,0.041
+"96","Disaster","Hurricane Wilma 2005",2012,40382744.6040588,0.061,0.024
+"97","Disaster","Midwest Storms And Flooding 2008",2012,0,0,0
+"98","Disaster","Pacific Earthquake/Tsunami 2011",2012,0,0,0
+"99","Disaster","American Samoa Earthquake, Tsunami And Flooding",2013,0,0,0
+"100","Disaster","California Wildfires 2008",2013,868823.932829906,0,0.004
+"101","Disaster","Gulf Oil Spill 0410",2013,91265809.1138042,0.039,0.141
+"102","Disaster","Hurricane Ernesto 2006",2013,33231.5028463482,0,0
+"103","Disaster","Hurricane Gustav 2008",2013,179526.809965779,0,0.001
+"104","Disaster","Hurricane Ike 2008",2013,22135097.8707162,0.009,0.017
+"105","Disaster","Hurricane Irene 2011",2013,4648996.68953009,0.002,0.022
+"106","Disaster","Hurricane Isaac 2012",2013,8738029.69070792,0.004,0.114
+"107","Disaster","Hurricane Katrina 2005",2013,424112979.146489,0.18,0.017
+"108","Disaster","Hurricane Ophelia 2005",2013,1782736.58856447,0.001,0.016
+"109","Disaster","Hurricane Rita 2005",2013,249736.357554135,0,0
+"110","Disaster","Hurricane Sandy 2013",2013,1547702316.43336,0.656,0.51
+"111","Disaster","Hurricane Wilma 2005",2013,1814293.0466152,0.001,0.001
+"112","Disaster","Midwest Storms And Flooding 2008",2013,-1493.69193815747,0,0
+"113","Disaster","Oklahoma Tornado And Storm 2013",2013,256870121.270067,0.109,0.944
+"114","Disaster","Pacific Earthquake/Tsunami 2011",2013,0,0,0
+"115","Disaster","American Samoa Earthquake, Tsunami And Flooding",2014,0,0,0
+"116","Disaster","California Wildfires 2008",2014,0,0,0
+"117","Disaster","Hurricane Ernesto 2006",2014,-489.55922360847,0,0
+"118","Disaster","Hurricane Gustav 2008",2014,5024958.46935274,0.005,0.014
+"119","Disaster","Hurricane Hanna 2008",2014,0,0,0
+"120","Disaster","Hurricane Ike 2008",2014,6958036.3800384,0.008,0.005
+"121","Disaster","Hurricane Katrina 2005",2014,191275982.543283,0.209,0.008
+"122","Disaster","Hurricane Ophelia 2005",2014,293361.65477629,0,0.003
+"123","Disaster","Hurricane Rita 2005",2014,1701206.28607841,0.002,0.001
+"124","Disaster","Hurricane Sandy 2013",2014,693116632.405077,0.758,0.228
+"125","Disaster","Hurricane Wilma 2005",2014,162071.365593783,0,0
+"126","Disaster","Midwest Storms And Flooding 2008",2014,-12040.9934024964,0,0
+"127","Disaster","Oklahoma Tornado And Storm 2013",2014,15296547.2220426,0.017,0.056
+"128","Disaster","California Wildfires 2008",2015,1008742.40254588,0.002,0.005
+"129","Disaster","Hurricane Ernesto 2006",2015,5858031.61737829,0.011,0.087
+"130","Disaster","Hurricane Gustav 2008",2015,2571005.04215046,0.005,0.007
+"131","Disaster","Hurricane Ike 2008",2015,5198228.88363089,0.01,0.004
+"132","Disaster","Hurricane Katrina 2005",2015,61280141.0208538,0.117,0.003
+"133","Disaster","Hurricane Ophelia 2005",2015,345777.119287116,0.001,0.003
+"134","Disaster","Hurricane Rita 2005",2015,1360453.97708442,0.003,0.001
+"135","Disaster","Hurricane Sandy 2013",2015,446045596.07942,0.85,0.147
+"136","Disaster","Hurricane Wilma 2005",2015,1129737.03752469,0.002,0.001
+"137","Disaster","California Wildfires 2008",2016,97870.1545459086,0,0
+"138","Disaster","Hurricane Ernesto 2006",2016,1309482.48631517,0.004,0.019
+"139","Disaster","Hurricane Gustav 2008",2016,1877184.70874977,0.006,0.005
+"140","Disaster","Hurricane Ike 2008",2016,4832098.31206883,0.015,0.004
+"141","Disaster","Hurricane Katrina 2005",2016,122130850.973648,0.371,0.005
+"142","Disaster","Hurricane Ophelia 2005",2016,365935.87430875,0.001,0.003
+"143","Disaster","Hurricane Rita 2005",2016,1222046.51237695,0.004,0.001
+"144","Disaster","Hurricane Sandy 2013",2016,192267312.455785,0.583,0.063
+"145","Disaster","Hurricane Wilma 2005",2016,5415683.06606974,0.016,0.003
+"146","Disaster","California Wildfires 2008",2017,-4.17,0,0
+"147","Disaster","Hurricane Ernesto 2006",2017,102044.2305,0,0.002
+"148","Disaster","Hurricane Gustav 2008",2017,1361507.59,0.001,0.004
+"149","Disaster","Hurricane Harvey 2017",2017,932461725.955,0.445,1
+"150","Disaster","Hurricane Ike 2008",2017,2928365.6164,0.001,0.002
+"151","Disaster","Hurricane Irma 2017",2017,541208333.6607,0.259,1
+"152","Disaster","Hurricane Katrina 2005",2017,45716687.2563,0.022,0.002
+"153","Disaster","Hurricane Maria 2017",2017,400967131.8187,0.192,1
+"154","Disaster","Hurricane Ophelia 2005",2017,1841078.5341,0.001,0.017
+"155","Disaster","Hurricane Rita 2005",2017,9278087.7297,0.004,0.005
+"156","Disaster","Hurricane Sandy 2013",2017,154890811.9555,0.074,0.051
+"157","Disaster","Hurricane Wilma 2005",2017,2382816.5255,0.001,0.001

@@ -5905,7 +5905,6 @@ summary(CBre_22H.all)
    summary(CBre_22G.all)
    summary(CBre_22G.all$bobyqa)
    stargazer.all(CBre_22G.all)
- rm(CBre_22G.all)
    
   
    #CBre_22F
@@ -5936,7 +5935,7 @@ summary(CBre_22H.all)
 
 ```
 
-
+## Termination
 ```{r CopmareTerm}
  
 load("output/Term_22E_allfit.rdata")
