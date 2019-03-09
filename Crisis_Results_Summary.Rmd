@@ -285,9 +285,9 @@ chapter4topline$data %>%  group_by(primary,x.variable) %>%
   dplyr::summarise(obligations=sum(y.variable))
 
 
-ggsave600dpi("Output//chapter4topline.png", chapter4topline, width=6.5, height= 4, units="in")
+ggsave600dpi("Output//Figure14_topline.png", chapter4topline, width=6.5, height= 4, units="in")
 
-ggsave("Output//chapter4topline.eps", device=cairo_pdf, chapter4topline, width=6.5, height= 4, units="in")
+ggsave("Output//Figure14_topline.eps", device=cairo_pdf, chapter4topline, width=6.5, height= 4, units="in")
 
 ```
 
@@ -298,7 +298,7 @@ ggsave("Output//chapter4topline.eps", device=cairo_pdf, chapter4topline, width=6
 #### Competition
 
 ```{r Competition}
-debug(LatticePlotWrapper_csis360)
+
 # debug(LatticePlotWrapper_csis360)
 (
 CompOverall<-  LatticePlotWrapper_csis360(
@@ -336,14 +336,14 @@ CompOverall$data %>%  group_by(primary,x.variable) %>%
   dplyr::summarise(obligations=sum(y.variable))
 
 
-ggsave600dpi("Output//CompOverall.png", CompOverall, 
+ggsave600dpi("Output//Figure15_CompOverall.png", CompOverall, 
              width=4.5, height= 6, units="in",size=11
              )
 
 
 
 
-ggsave("Output//CompOverall.eps", device=cairo_pdf, CompOverall, 
+ggsave("Output//Figure15_CompOverall.eps", device=cairo_pdf, CompOverall, 
              width=4.5, height= 6, units="in"
              )
 
@@ -372,12 +372,12 @@ CompAnnual<-build_plot(
     facet_grid(DecisionTreeDisplay~ ., scales = "free_y")
 )
 
-ggsave600dpi("Output//CompAnnual.png", CompAnnual, 
+ggsave("Output//Figure16_CompAnnual.png", CompAnnual, 
              width=2.5, height= 4, units="in"
              )
 
 
-ggsave("Output//CompAnnual.eps", device=cairo_pdf, CompAnnual, 
+ggsave("Output//Figure16_CompAnnual.eps", device=cairo_pdf, CompAnnual, 
              width=2.5, height= 4, units="in"
              )
 
