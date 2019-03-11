@@ -229,7 +229,7 @@ summary_data<-replace_nas_with_unlabeled(summary_data,"isUndefinitizedAction")
 summary_data<-replace_nas_with_unlabeled(summary_data,"Theater")
 summary_data<-replace_nas_with_unlabeled(summary_data,"International")
 # summary_data<-replace_nas_with_unlabeled(summary_data,"Reachback")
-
+# undebug(prepare_labels_and_colors)
 labels_and_colors<-prepare_labels_and_colors(summary_data,na_replaced=TRUE)
 column_key<-csis360::get_column_key(summary_data)
 
@@ -299,7 +299,7 @@ ggsave("Output//Figure14_topline.eps", device=cairo_pdf, chapter4topline, width=
 
 ```{r Competition}
 
-# debug(LatticePlotWrapper_csis360)
+# undebug(LatticePlotWrapper_csis360)
 (
 CompOverall<-  LatticePlotWrapper_csis360(
   VAR.color.legend.label="Competition",
@@ -368,17 +368,53 @@ CompAnnual<-build_plot(
   scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=270),
         legend.position = "bottom")+
+    guides(fill=guide_legend(ncol=2))+
+    facet_grid(DecisionTreeDisplay~ ., scales = "free_y")
+)
+
+comp_summary<-CompAnnual$data %>%  group_by(dFYear,DecisionTreeDisplay,NoCompOffr) %>%
+  dplyr::summarise(obligations=sum(Obligation.2017))%>%  
+  group_by(dFYear,DecisionTreeDisplay) %>%
+  dplyr::mutate(share=obligations/sum(obligations))
+write.csv(comp_summary,file="output/compsummary.csv")
+
+
+undebug(format_data_for_plot)
+(
+CompAnnualShare<-build_plot(
+  data=summary_data %>% filter(DecisionTreeDisplay %in% c("Disaster","ARRA","OCO")),
+  chart_geom = "Bar Chart",
+  share = TRUE,
+  labels_and_colors=labels_and_colors,
+  # NA, #VAR.ncol
+  x_var="dFYear", #x_var
+  y_var="Obligation.2017", #VAR.y.variable
+  color_var="NoCompOffr", #color_var
+  facet_var="DecisionTreeDisplay", #facet_var
+  column_key=column_key,
+  format=TRUE
+)+labs(line="Competition",
+  title=NULL,
+  xlab="Fiscal Year",
+  ylab="Percent of Obligations (Variable Scale")+
+  # +theme(legend.position = "bottom")+
+  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270),
+        legend.position = "bottom")+
     guides(fill=guide_legend(ncol=6))+
     facet_grid(DecisionTreeDisplay~ ., scales = "free_y")
 )
 
+
+
+
 ggsave("Output//Figure16_CompAnnual.png", CompAnnual, 
-             width=2.5, height= 4, units="in"
+             width=2.5, height= 4.5, units="in"
              )
 
 
 ggsave("Output//Figure16_CompAnnual.eps", device=cairo_pdf, CompAnnual, 
-             width=2.5, height= 4, units="in"
+             width=2.5, height= 4.5, units="in"
              )
 
 
