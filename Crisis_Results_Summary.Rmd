@@ -224,6 +224,44 @@ summary(summary_data$NoCompOffr)
 ```{r Output }
 
 
+
+summary_data$SelectCountry<-as.character(summary_data$OMBtheater)
+#Countries, other than the U.S. with at least $5 billion in cumulative OCO
+country_list<-c("AFGHANISTAN",
+                "IRAQ",
+                "KUWAIT",
+                "SOUTH KOREA",
+                "UNITED ARAB EMIRATES",
+                "BAHRAIN",
+                "KYRGYZSTAN"
+                )
+summary_data$SelectCountry[summary_data$PlaceCountryText %in% country_list]<-
+  as.character(summary_data$PlaceCountryText[
+    summary_data$PlaceCountryText %in% country_list])
+summary_data$SelectCountry<-factor(summary_data$SelectCountry,
+                                   levels=c("AFGHANISTAN",
+                "IRAQ",
+                "KUWAIT",
+                "UNITED ARAB EMIRATES",
+                "BAHRAIN",
+                "KYRGYZSTAN",
+                "Other OMB OCO list",
+                "SOUTH KOREA",
+                "Rest of World"   ,
+                "Domestic"),
+                labels=c("Afghanistan",
+                "Iraq",
+                "Kuwait",
+                "United Arab Emirates",
+                "Bahrain",
+                "Kyrgzstan",
+                "Other OMB OCO list",
+                "South Korea",
+                "Rest of World"   ,
+                "Domestic"
+                ))
+
+
 summary_data<-replace_nas_with_unlabeled(summary_data,"UnmodifiedUltimateDurationCategory")
 summary_data<-replace_nas_with_unlabeled(summary_data,"isUndefinitizedAction")
 summary_data<-replace_nas_with_unlabeled(summary_data,"Theater")
@@ -409,12 +447,12 @@ CompAnnualShare<-build_plot(
 
 
 ggsave("Output//Figure16_CompAnnual.png", CompAnnual, 
-             width=2.5, height= 4.5, units="in"
+             width=2.75, height= 4.5, units="in"
              )
 
 
 ggsave("Output//Figure16_CompAnnual.eps", device=cairo_pdf, CompAnnual, 
-             width=2.5, height= 4.5, units="in"
+             width=2.75, height= 4.5, units="in"
              )
 
 
@@ -557,6 +595,38 @@ OMBtheater<-LatticePlotWrapper_csis360(
   geom_vline(xintercept=as.numeric(as.Date("2006-07-01")))+labs(caption="Note: Excludes Unlabeled Place of Performance\nSource: FPDS; CSIS analysis")
 )
 
+
+
+OMBtheater$data %>%  group_by(primary,x.variable) %>%
+  dplyr::summarise(obligations=sum(y.variable))
+
+OMBtheater$data %>%  group_by(primary,category) %>%
+  dplyr::summarise(obligations=sum(y.variable)) %>%
+  group_by(primary)%>%dplyr::mutate(offplace_share=round(obligations/sum(obligations),3))
+
+# ALl of the defense graphed data, percent breakdown.
+OMBtheater$data %>% filter(secondary=="Defense") %>% group_by(primary,category,x.variable) %>%
+  dplyr::summarise(obligations=sum(y.variable)) %>%
+  group_by(x.variable,primary)%>%dplyr::mutate(offplace_share=round(obligations/sum(obligations),3))
+
+
+OMBtheater$data %>%  group_by(primary,secondary,category) %>%
+  dplyr::summarise(obligations=sum(y.variable,secondary)) %>%
+  group_by(primary,secondary)%>%dplyr::mutate(offplace_share=round(obligations/sum(obligations),3)) %>%
+  filter(secondary=="Civilian")
+
+
+OMBtheater$data %>% filter(secondary=="Defense") %>% group_by(primary,secondary,category) %>%
+  dplyr::summarise(obligations=sum(y.variable)) %>%
+  group_by(primary,secondary)%>%dplyr::mutate(offplace_share=round(obligations/sum(obligations),3))
+  
+
+
+complete_summary_data %>% filter(Is.Defense ==FALSE & OMBtheater!="Domestic") %>%
+  group_by(Is.Defense,CrisisDisplay,OffPlace)%>%
+  dplyr::summarise(obligations=sum(Obligation.2017)) %>%
+  group_by(Is.Defense,CrisisDisplay)%>%dplyr::mutate(offplace_share=round(obligations/sum(obligations),3))
+  
   
 ggsave("Output//figure19_offplace.png", OMBtheater, width=6.5, height= 4, units="in")
 
@@ -710,44 +780,6 @@ Country<-ddply(summary_data,
 write.csv(Country,file.path("Output","Country.csv"))
 
 
-summary_data$SelectCountry<-as.character(summary_data$OMBtheater)
-#Countries, other than the U.S. with at least $5 billion in cumulative OCO
-country_list<-c("AFGHANISTAN",
-                "IRAQ",
-                "KUWAIT",
-                "SOUTH KOREA",
-                "UNITED ARAB EMIRATES",
-                "BAHRAIN",
-                "KYRGYZSTAN"
-                )
-summary_data$SelectCountry[summary_data$PlaceCountryText %in% country_list]<-
-  as.character(summary_data$PlaceCountryText[
-    summary_data$PlaceCountryText %in% country_list])
-summary_data$SelectCountry<-factor(summary_data$SelectCountry,
-                                   levels=c("AFGHANISTAN",
-                "IRAQ",
-                "KUWAIT",
-                "UNITED ARAB EMIRATES",
-                "BAHRAIN",
-                "KYRGYZSTAN",
-                "Other OMB OCO list",
-                "SOUTH KOREA",
-                "Rest of World"   ,
-                "Domestic"),
-                labels=c("Afghanistan",
-                "Iraq",
-                "Kuwait",
-                "United Arab Emirates",
-                "Bahrain",
-                "Kyrgzstan",
-                "Other OMB OCO list",
-                "South Korea",
-                "Rest of World"   ,
-                "Domestic"
-                ))
-
-
-
 (
 CountryOffPlace<-LatticePlotWrapper_csis360(
   VAR.color.legend.label=NULL,
@@ -755,7 +787,7 @@ CountryOffPlace<-LatticePlotWrapper_csis360(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2017 $ Billions, Variable Scale)",
   VAR.Coloration=labels_and_colors,
-  VAR.long.DF=summary_data%>% filter(SelectCountry != "Domestic")  ,
+  VAR.long.DF=complete_summary_data%>% filter(SelectCountry != "Domestic")  ,
   # NA, #VAR.ncol
   VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
