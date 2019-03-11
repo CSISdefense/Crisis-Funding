@@ -801,10 +801,20 @@ CountryOffPlace<-LatticePlotWrapper_csis360(
 )+theme(legend.position="bottom")+#facet_grid(primary#~secondary
                                    #          ,scales="fixed")+
     facet_grid(primary ~ secondary, scales="free_y")+ 
-    guides(fill = guide_legend(ncol = 2))
+    guides(fill = guide_legend(ncol = 2))+
+    scale_x_date("Fiscal Year",labels = date_format("'%y"), date_breaks="4 years")
 )
 
-ggsave("Output//CountryOffPlace.png", CountryOffPlace, width=4.5, height= 8, units="in")
+ggsave("Output//Figure20_CountryOffPlace.png", CountryOffPlace, width=4.5, height= 8, units="in")
+2413719774 -1262213240.3	
+1010956482.9	-1986585571.2	
+summary(CountryOffPlace$data$category)
+
+CountryOffPlace$data %>%  group_by(primary,category,x.variable) %>%
+  dplyr::summarise(obligations=sum(y.variable)) %>%
+  group_by(primary,x.variable)%>%dplyr::mutate(country_share=round(obligations/sum(obligations),3))%>% filter(category=="Mixed")
+
+
 
 ```
 
