@@ -24,9 +24,13 @@ library(reshape2)
 library(lubridate)
 library(showtext) #Not sure I actually need this.
 library(extrafont)
+library(extrafontdb)
 library(tidyverse)
+font_add_google("Open Sans")
+# postscriptFonts()
 # font_import()
-
+loadfonts(device="postscript")
+ 
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
 source("ContractCleanup.r")
 source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
@@ -68,20 +72,19 @@ full_data$isUndefinitizedAction<-factor(full_data$isUndefinitizedAction)
 # full_data$Competition.multisum<-factor(full_data$Competition.multisum)
 # full_data$SupplyServiceERS<-factor(full_data$SupplyServiceERS)
 
-```
 
-### Grouping for Display
+  
 
-
-
-```{r Summary}
+if(! "PlaceIntlPercent" %in% colnames(full_data) & !"CrisisPercent"  %in% colnames(full_data)){
+  colnames(full_data)[colnames(full_data)=="ContractingOfficeID"]<-"ContractingOfficeCode"
   full_data<-csis360::read_and_join( full_data,
-                                      "Office.ContractingOfficeCode.txt",
-                                      path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-                                      directory="office\\",
-                                      by="ContractingOfficeCode",
-                                      add_var=c("PlaceIntlPercent","CrisisPercent"),
-                                      new_var_checked=FALSE)
+                                        "Office.ContractingOfficeCode.txt",
+                                        path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                                        directory="office\\",
+                                        by="ContractingOfficeCode",
+                                        add_var=c("PlaceIntlPercent","CrisisPercent"),
+                                        new_var_checked=FALSE)
+}
 
 # CrisisProductOrServiceArea
 # SupplyServiceConstruction
@@ -91,12 +94,22 @@ full_data$isUndefinitizedAction<-factor(full_data$isUndefinitizedAction)
 # Ceiling
 #ContractingOfficeCode
 
-    colnames(full_data)[colnames(full_data)=="PlaceIntlPercent"]<-"OffIntl"
-    full_data$OffPlace<-Hmisc::cut2(full_data$OffIntl,c(0.01,0.50))
-    levels(full_data$OffPlace) <-
-      list("US99"=c("[0.00,0.01)"),
-           "Mixed"=c("[0.01,0.50)"),
-           "Intl"=c("[0.50,1.00]"))
+if(! "OffPlace" %in% colnames(full_data)){
+  full_data$OffPlace<-Hmisc::cut2(full_data$PlaceIntlPercent,c(0.01,0.50))
+  levels(full_data$OffPlace) <-
+    list("US99"=c("[0.00,0.01)"),
+         "Mixed"=c("[0.01,0.50)"),
+         "Intl"=c("[0.50,1.00]"))
+}
+
+```
+
+### Grouping for Display
+
+
+
+```{r Summary}
+  
 
 summary_data<-full_data%>%
   dplyr::group_by(Fiscal.Year,
@@ -104,7 +117,6 @@ summary_data<-full_data%>%
     CrisisDisplay,
     International,
     NoCompOffr,
-    Competition.multisum,
     Theater,
     OMBtheater,
     isUndefinitizedAction,
@@ -116,7 +128,9 @@ summary_data<-full_data%>%
     OMBtheater,
     UnmodifiedUltimateDurationCategory,
     dFYear,
-    PlaceCountryText)%>%
+    PlaceCountryText,
+    CrisisPercent,
+    OffPlace)%>%
   dplyr::summarise( Obligation.2017=sum(Obligation.2017))
 
 summary_data$isUCA<-factor(summary_data$isUndefinitizedAction,levels=c(1,0,NA),labels=c("UCA","Not UCA"))
@@ -180,6 +194,13 @@ summary_data<-summary_data %>% group_by(DecisionTreeDisplay,Fiscal.Year) %>%
                     pAnnualDatasetObligation=Obligation.2017/sum(Obligation.2017,na.rm=TRUE))
 
 
+summary_data<-summary_data %>% group_by(DecisionTreeDisplay,OffPlace) %>%
+                    dplyr::mutate(
+                    pDatasetOffPlaceObligation=Obligation.2017/sum(Obligation.2017,na.rm=TRUE))
+
+
+
+
 summary_data$IsAnyCrisis<-summary_data$CrisisDisplay
 levels(summary_data$IsAnyCrisis)<-list("All Other"="All Other",
                                        "Any Crisis"=c("OCO","ARRA","Disaster"))
@@ -199,7 +220,7 @@ summary(summary_data$NoCompOffr)
 ```
 
 
-#### Labels/Colors and Output to Shiny
+### Labels/Colors and Output to Shiny
 ```{r Output }
 
 
@@ -208,7 +229,7 @@ summary_data<-replace_nas_with_unlabeled(summary_data,"isUndefinitizedAction")
 summary_data<-replace_nas_with_unlabeled(summary_data,"Theater")
 summary_data<-replace_nas_with_unlabeled(summary_data,"International")
 # summary_data<-replace_nas_with_unlabeled(summary_data,"Reachback")
-
+# undebug(prepare_labels_and_colors)
 labels_and_colors<-prepare_labels_and_colors(summary_data,na_replaced=TRUE)
 column_key<-csis360::get_column_key(summary_data)
 
@@ -250,9 +271,23 @@ chapter4topline<-LatticePlotWrapper_csis360(
   geom_vline(xintercept=as.numeric(as.Date("2006-07-01")))
 )
 
-ggsave600dpi("Output//chapter4topline.png", chapter4topline, width=6.5, height= 4, units="in")
 
-ggsave("Output//chapter4topline.eps", chapter4topline, width=6.5, height= 4, units="in")
+
+disaster_summary<-full_data %>%  filter(CrisisDisplay=="Disaster") %>%
+  group_by(CrisisDisplay,nationalinterestactioncodeText,Fiscal.Year) %>%
+  dplyr::summarise(obligations=sum(Obligation.2017)) %>% group_by(Fiscal.Year) %>%
+  dplyr::mutate(annual_share=round(obligations/sum(obligations),3)) %>% group_by(nationalinterestactioncodeText) %>%
+  dplyr::mutate(disaster_share=round(obligations/sum(obligations),3)) 
+
+disaster_summary<-disaster_summary[order(disaster_summary$Fiscal.Year),]
+write.csv(disaster_summary,file="Output//disaster_summary.csv")
+chapter4topline$data %>%  group_by(primary,x.variable) %>%
+  dplyr::summarise(obligations=sum(y.variable))
+
+
+ggsave600dpi("Output//Figure14_topline.png", chapter4topline, width=6.5, height= 4, units="in")
+
+ggsave("Output//Figure14_topline.eps", device=cairo_pdf, chapter4topline, width=6.5, height= 4, units="in")
 
 ```
 
@@ -264,7 +299,7 @@ ggsave("Output//chapter4topline.eps", chapter4topline, width=6.5, height= 4, uni
 
 ```{r Competition}
 
-# debug(LatticePlotWrapper_csis360)
+# undebug(LatticePlotWrapper_csis360)
 (
 CompOverall<-  LatticePlotWrapper_csis360(
   VAR.color.legend.label="Competition",
@@ -290,8 +325,8 @@ CompOverall<-  LatticePlotWrapper_csis360(
   #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=0))+
   theme(axis.text.x = element_text(angle=90))+
-    scale_y_continuous( labels = percent_format(accuracy=1))+
-  facet_grid(primary ~ .#,scales="free_y", space="free_y"
+    scale_y_continuous( labels = percent_format())+
+      facet_grid(primary ~ .#,scales="free_y", space="free_y"
              )
     )
 
@@ -301,12 +336,14 @@ CompOverall$data %>%  group_by(primary,x.variable) %>%
   dplyr::summarise(obligations=sum(y.variable))
 
 
-ggsave600dpi("Output//CompOverall.png", CompOverall, 
+ggsave600dpi("Output//Figure15_CompOverall.png", CompOverall, 
              width=4.5, height= 6, units="in",size=11
              )
 
 
-ggsave("Output//CompOverall.eps", CompOverall, 
+
+
+ggsave("Output//Figure15_CompOverall.eps", device=cairo_pdf, CompOverall, 
              width=4.5, height= 6, units="in"
              )
 
@@ -331,17 +368,53 @@ CompAnnual<-build_plot(
   scale_x_date("Fiscal Year",labels = date_format("'%y"))+
   theme(strip.text.y = element_text(angle=270),
         legend.position = "bottom")+
+    guides(fill=guide_legend(ncol=2))+
+    facet_grid(DecisionTreeDisplay~ ., scales = "free_y")
+)
+
+comp_summary<-CompAnnual$data %>%  group_by(dFYear,DecisionTreeDisplay,NoCompOffr) %>%
+  dplyr::summarise(obligations=sum(Obligation.2017))%>%  
+  group_by(dFYear,DecisionTreeDisplay) %>%
+  dplyr::mutate(share=obligations/sum(obligations))
+write.csv(comp_summary,file="output/compsummary.csv")
+
+
+undebug(format_data_for_plot)
+(
+CompAnnualShare<-build_plot(
+  data=summary_data %>% filter(DecisionTreeDisplay %in% c("Disaster","ARRA","OCO")),
+  chart_geom = "Bar Chart",
+  share = TRUE,
+  labels_and_colors=labels_and_colors,
+  # NA, #VAR.ncol
+  x_var="dFYear", #x_var
+  y_var="Obligation.2017", #VAR.y.variable
+  color_var="NoCompOffr", #color_var
+  facet_var="DecisionTreeDisplay", #facet_var
+  column_key=column_key,
+  format=TRUE
+)+labs(line="Competition",
+  title=NULL,
+  xlab="Fiscal Year",
+  ylab="Percent of Obligations (Variable Scale")+
+  # +theme(legend.position = "bottom")+
+  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=270),
+        legend.position = "bottom")+
     guides(fill=guide_legend(ncol=6))+
     facet_grid(DecisionTreeDisplay~ ., scales = "free_y")
 )
 
-ggsave600dpi("Output//CompAnnual.png", CompAnnual, 
-             width=2.5, height= 4, units="in"
+
+
+
+ggsave("Output//Figure16_CompAnnual.png", CompAnnual, 
+             width=2.5, height= 4.5, units="in"
              )
 
 
-ggsave("Output//CompAnnual.eps", CompAnnual, 
-             width=2.5, height= 4, units="in"
+ggsave("Output//Figure16_CompAnnual.eps", device=cairo_pdf, CompAnnual, 
+             width=2.5, height= 4.5, units="in"
              )
 
 
@@ -464,71 +537,164 @@ OMBtheater<-LatticePlotWrapper_csis360(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2017 $ Billions)",
   VAR.Coloration=labels_and_colors,
-  VAR.long.DF=subset(complete_summary_data,!is.na(International) & International!="Unlabeled"),
+  VAR.long.DF=subset(complete_summary_data,!is.na(International) & International!="Unlabeled" &
+                       Is.Defense!="Unlabeled"),
   # NA, #VAR.ncol
   VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="CrisisDisplay", #VAR.y.series
+  VAR.y.series="OffPlace", #VAR.y.series
   VAR.facet.primary="OMBtheater", #VAR.facet.primary
-  # VAR.facet.secondary="OMBtheater", # VAR.facet.secondary=NA
+  VAR.facet.secondary="Is.Defense", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   # ,DataLabels=NA
   #                       ,VAR.override.coloration=NA
   DataLabels=FALSE
-)+  facet_grid(primary~ . #~ secondary
+)+  facet_grid(primary~ secondary
              , scales="free_y"#         , space="fixed"
-             )+theme(legend.position = 'bottom')+get_caption()+
+             )+theme(legend.position = 'bottom')+get_caption()+#+scale_fill_discrete(guide=guide_legend(ncol=2))
   scale_x_date("Fiscal Year",labels = date_format("'%y"), date_breaks="3 years")+
   geom_vline(xintercept=as.numeric(as.Date("2006-07-01")))+labs(caption="Note: Excludes Unlabeled Place of Performance\nSource: FPDS; CSIS analysis")
 )
 
-ggsave600dpi("Output//chapter4topline.png", chapter4topline, width=6.5, height= 4, units="in")
+  
+ggsave("Output//figure19_offplace.png", OMBtheater, width=6.5, height= 4, units="in")
 
-ggsave("Output//chapter4topline.eps", chapter4topline, width=6.5, height= 4, units="in")
+ggsave("Output//figure19_offplace.eps", device=cairo_pdf, OMBtheater, width=6.5, height= 4, units="in")
 
 
-
-geom.text.size<-2.5
-ReachbackComp<-  LatticePlotWrapper_csis360(
-  VAR.color.legend.label="Dataset",
+(
+ReachbackCrisisHistory<-LatticePlotWrapper_csis360(
+  VAR.color.legend.label="Customer",
   VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
+  VAR.Y.label="Obligations (2017 $ Billions)",
   VAR.Coloration=labels_and_colors,
-  VAR.long.DF=subset(summary_data,
-                     !DecisionTreeDisplay %in% c("Not in Sample",
-                       "Disaster ('07+)",
-                       "ARRA ('09-'13)") &
-      Is.Defense==TRUE &
-      !is.na(Reachback)),
+  VAR.long.DF=subset(complete_summary_data,!is.na(International) & International!="Unlabeled"&
+    DecisionTreeDisplay %in% c("Disaster","ARRA","OCO")),
   # NA, #VAR.ncol
-  VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
-  VAR.y.variable="pDatasetReachbackObligation", #VAR.y.variable
-  VAR.y.series="DecisionTreeDisplay", #VAR.y.series
-  VAR.facet.primary="NoCompOffr", #Competition.multisum", #VAR.facet.primary
-  VAR.facet.secondary="Reachback" # VAR.facet.secondary=NA
+  VAR.x.variable="dFYear", #VAR.x.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
+  VAR.y.series="OffPlace", #VAR.y.series
+  VAR.facet.primary="DecisionTreeDisplay", #VAR.facet.primary
+  # VAR.facet.secondary="OffPlace", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
-   ,DataLabels=TRUE
+  # ,DataLabels=NA
   #                       ,VAR.override.coloration=NA
-)+
-  # theme(legend.position = "bottom")+
-  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-  theme(strip.text.y = element_text(angle=0))+
-  theme(axis.text.x = element_text(angle=90))+
-    scale_y_continuous( labels = percent_format())+
-  facet_grid(primary ~ secondary)
-    # )
-ReachbackComp
-ggsave600dpi("Output//ReachbackComp.png", ReachbackComp, width=4.5, height= 8, units="in")
+  DataLabels=FALSE
+)+theme(legend.position = 'bottom')+get_caption()+
+  scale_x_date("Fiscal Year",labels = date_format("'%y"), date_breaks="3 years")+
+  geom_vline(xintercept=as.numeric(as.Date("2006-07-01")))+labs(caption="Note: Excludes Unlabeled Place of Performance\nSource: FPDS; CSIS analysis")
+
+)
+
+#   +labs(line="Competition",
+#   title=NULL,
+#   xlab="Fiscal Year",
+#   ylab="Percent of Obligations (Variable Scale")+
+#   # +theme(legend.position = "bottom")+
+#   scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+#   theme(strip.text.y = element_text(angle=270),
+#         legend.position = "bottom")+
+#     guides(fill=guide_legend(ncol=6))+
+#     facet_grid(DecisionTreeDisplay~ ., scales = "free_y")
+
+# 
+# (
+# ReachbackComp<-  LatticePlotWrapper_csis360(
+#   VAR.color.legend.label="Dataset",
+#   VAR.main.label=NULL,
+#   VAR.X.label="Fiscal Year",
+#   VAR.Y.label="Percent of Obligations",
+#   VAR.Coloration=labels_and_colors,
+#   VAR.long.DF=subset(summary_data,
+#                      !DecisionTreeDisplay %in% c("Not in Sample")&
+#       #                  "Disaster ('07+)",
+#       #                  "ARRA ('09-'13)") &
+#       # Is.Defense==TRUE &
+#       !is.na(OffPlace)),
+#   # NA, #VAR.ncol
+#   VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
+#   VAR.y.variable="pDatasetOffPlaceObligation", #VAR.y.variable
+#   VAR.y.series="DecisionTreeDisplay", #VAR.y.series
+#   VAR.facet.primary="NoCompOffr", #Competition.multisum", #VAR.facet.primary
+#   VAR.facet.secondary="OffPlace" # VAR.facet.secondary=NA
+#   # ,MovingAverage=0
+#   # ,MovingSides=1
+#    ,DataLabels=TRUE
+#   #                       ,VAR.override.coloration=NA
+# )+
+#   # theme(legend.position = "bottom")+
+#   #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+#   theme(strip.text.y = element_text(angle=0))+
+#   theme(axis.text.x = element_text(angle=90))+
+#     scale_y_continuous( labels = percent_format())+
+#   facet_grid(primary ~ secondary)
+# )
+# ReachbackComp
+
+ggsave("Output//ReachbackComp.png", ReachbackComp, width=4.5, height= 8, units="in")
 
 
 
 ```
 
-### Other Variables
-#### Country
+
+#### Contracting Office
+```{r Koff}
+full_data$ContractingOfficeCode
+office_data<-summary_data %>%
+  dplyr::group_by(CrisisDisplay,
+                  # SupplyServiceERS,     #Should switch this to CrisisProdServ
+                  # Reachback,            #Swap in OffPlace
+                  CrisisPercent,
+                  DecisionTreeDisplay,
+                  OffPlace)%>%
+  dplyr::summarise( Obligation.2017=sum(Obligation.2017)
+  )
+
+
+(
+  ggplot(
+    data=office_data %>% filter(CrisisDisplay=="OCO"),
+    aes(x=CrisisPercent,
+        y=Obligation.2017,
+        color=OffPlace)
+    
+  )+geom_point()
+)
+
+(
+#+facet_wrap( "CrisisDisplay" )
+CrisisPercent<-build_plot(
+  data=subset(summary_data,
+                     DecisionTreeDisplay!="Not in Sample"),
+  chart_geom = "Histogram",
+  share = FALSE,
+  labels_and_colors=labels_and_colors,
+  # NA, #VAR.ncol
+  x_var="CrisisPercent", #x_var
+  y_var="Obligation.2017", #VAR.y.variable
+  color_var="DecisionTreeDisplay", #color_var
+  facet_var="DecisionTreeDisplay", #facet_var
+  column_key=column_key,
+  format=TRUE
+)+theme(legend.position = "none")
+)
+str(office_data$CrisisPercent)
+
+  ggplot(data=office_data,
+         aes(x=CrisisPercent,
+             weight=Obligation.2017,
+             fill=OffPlace))+
+    geom_histogram(bins=100)+facet_grid(DecisionTreeDisplay ~., scales="free_y")
+  
+
+```
+
+
+#### Country : Office Place
 ```{r Country}
 
 Country<-ddply(summary_data,
@@ -583,29 +749,35 @@ summary_data$SelectCountry<-factor(summary_data$SelectCountry,
 
 
 (
-LatticePlotWrapper_csis360(
-  VAR.color.legend.label="Contracting Office Place of Performance",
+CountryOffPlace<-LatticePlotWrapper_csis360(
+  VAR.color.legend.label=NULL,
   VAR.main.label=NULL,
   VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligation (2017 $ Billions)",
+  VAR.Y.label="Obligations (2017 $ Billions, Variable Scale)",
   VAR.Coloration=labels_and_colors,
   VAR.long.DF=summary_data%>% filter(SelectCountry != "Domestic")  ,
   # NA, #VAR.ncol
-  VAR.x.variable="Fiscal.Year", #VAR.x.variable
+  VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="DecisionTreeDisplay", #VAR.y.series
+  VAR.y.series="OffPlace", #VAR.y.series
   VAR.facet.primary="SelectCountry", #VAR.facet.primary
-  VAR.facet.secondary= "IsAnyCrisis" # VAR.facet.secondary=NA
+  VAR.facet.secondary= "IsAnyCrisis", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
-  ,DataLabels=FALSE
+  DataLabels=FALSE
   #                       ,VAR.override.coloration=NA
-)+theme(legend.position="bottom")+facet_grid(primary~secondary,scales="fixed")
+)+theme(legend.position="bottom")+#facet_grid(primary#~secondary
+                                   #          ,scales="fixed")+
+    facet_grid(primary ~ secondary, scales="free_y")+ 
+    guides(fill = guide_legend(ncol = 2))
 )
 
-
+ggsave("Output//CountryOffPlace.png", CountryOffPlace, width=4.5, height= 8, units="in")
 
 ```
+
+### Other Variables
+
 
 
 #### Product Or Service Area
@@ -645,7 +817,7 @@ ProductOrServiceArea<-  LatticePlotWrapper_csis360(
 
  
 ggsave600dpi("Output//ProductService.png", UCAoverall, width=4, height= 5, units="in")
-ggsave("Output//ProductService.eps", UCAoverall, width=4, height= 5, units="in")
+ggsave("Output//ProductService.eps", device=cairo_pdf, UCAoverall, width=4, height= 5, units="in")
 ```
 
 
@@ -686,7 +858,7 @@ Customer<-  LatticePlotWrapper_csis360(
 
  
 ggsave600dpi("Output//Customer.png", Customer, width=4, height= 5, units="in")
-ggsave("Output//Customer.eps", Customer, width=4, height= 5, units="in")
+ggsave("Output//Customer.eps", device=cairo_pdf, Customer, width=4, height= 5, units="in")
 ```
 
 
@@ -724,7 +896,7 @@ Duration<-  LatticePlotWrapper_csis360(
     )
  
 ggsave600dpi("Output//Duration.png", Duration, width=4, height= 5, units="in")
-ggsave("Output//Duration.eps", Duration, width=4, height= 5, units="in")
+ggsave("Output//Duration.eps", device=cairo_pdf, Duration, width=4, height= 5, units="in")
 
 
 
@@ -957,7 +1129,7 @@ grouped_barplot("Intl", fed)
 
 ```{r c_OffCri}
 #The original variable for c_OffCri is OffCri
-debug(statsummary_continuous)
+# debug(statsummary_continuous)
 statsummary_continuous("OffCri", fed,log=FALSE)
 
 ```
@@ -1329,16 +1501,16 @@ summary(fed_1m)
 
 ## Output: Models
 
-###Federal-Wide 21B Term
+###Federal-Wide 21D Term
 ```{r Model21B}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
     
 
-load("Output//Model21B.rdata")
+load("Output//Model21D_Term.rdata")
 
-if(!exists("Term_21B"))
-  Term_21B <- glmer (data=fed_1m,
+if(!exists("Term_21D"))
+  Term_21D <- glmer (data=fed_1m,
                    b_Term ~ Crisis +NoCompOffr2+
                      b_UCA+
                      c_OffCri+
@@ -1353,29 +1525,29 @@ if(!exists("Term_21B"))
   
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office)+
-                     (1 + OffPlace| PlaceCountryISO3), 
+                     (0 + OffPlace| PlaceCountryISO3), 
                    family=binomial(link="logit"),
                    verbose=1,
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
-  glmer_examine(Term_21B)
+  glmer_examine(Term_21D)
   
-stargazer::stargazer(Term_21B,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(Term_21D,type="text",#Term_20A,#Term_20C
                         digits=2)
 
-summary_residual_compare(Term_21B,bins=50)
+summary_residual_compare(Term_21D,bins=50)
 
-  CBre_22F.all<-allFit_save(CBre_22F,filename="output/CBre_22F_allfit.rdata")
+  CBre_22H.all<-allFit_save(CBre_22H,filename="output/CBre_22H_allfit.rdata")
 ```
 
 
-### Federal-Wide 21C: CBre
-```{r Model21C}
+### Federal-Wide 21E: CBre
+```{r Model21E}
 
 
-load("Output//Model21C_CBre.rdata")
-if(!exists("CBre_21C"))
-  CBre_21C <- glmer (data=fed_1m,
+load("Output//Model21E_CBre.rdata")
+if(!exists("CBre_21E.restart"))
+  CBre_21E.restart <- glmer (data=fed_1m,
                    b_CBre ~ Crisis +NoCompOffr2 +
                      b_UCA+
                      
@@ -1387,7 +1559,7 @@ if(!exists("CBre_21C"))
                      #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
                      # Veh:cl_Ceil+
-                     b_UCA:NoCompOffr2+
+                     # b_UCA:NoCompOffr2+
                      cl_Ceil:NoCompOffr2+
                    #   capped_cl_Days:NoCompOffr+
                    # NoCompOffr:Veh,
@@ -1395,35 +1567,35 @@ if(!exists("CBre_21C"))
 
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office) + 
-                     (1 + OffPlace | PlaceCountryISO3) + 
+                     (0 + OffPlace | PlaceCountryISO3) + 
                      (1 | StartFY)
                , 
                    family=binomial(link="logit"),
                 verbose=1)
-  glmer_examine(CBre_21C)
+  glmer_examine(CBre_21E.restart)
 
   
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_21C,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(CBre_21E.restart,type="text",#Term_20A,#Term_20C
                         digits=2)
 
-summary_residual_compare(CBre_21C,bins=50)
+summary_residual_compare(CBre_21E.restart,bins=50)
 
 
-  CBre_21C.all<-allFit_save(CBre_21C,filename="output/CBre_21C_allfit.rdata")
+  CBre_21E.all<-allFit_save(CBre_21E.restart,filename="output/CBre_21E_allfit.rdata")
 ```
 
 
-### Crisis-Only 22E Term
-```{r Model22E}
+### Crisis-Only 22G Term
+```{r Model22G}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model22E.rdata")
+load("output/Model22G_CBre.RData")
 
   
-if(!exists("Term_22E"))
-  Term_22E <- glmer (data=crisis_all,
+if(!exists("Term_22G"))
+  Term_22G <- glmer (data=crisis_all,
                    b_Term ~ Crisis +NoCompOffr2+
                      b_UCA+
                      c_OffCri+
@@ -1437,18 +1609,18 @@ if(!exists("Term_22E"))
                      # b_UCA:NoCompOffr2+
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office)+
-                     (1 + OffPlace| PlaceCountryISO3), 
+                     (0 + OffPlace| PlaceCountryISO3), 
                    family=binomial(link="logit"),
                      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
-  glmer_examine(Term_22E)
+  glmer_examine(Term_22G)
   
   
   source(system.file("utils", "allFit.R", package="lme4"))
   
   
-  Term_22E.all<-allFit_save(Term_22E,filename="output/Term_22E_allfit.rdata")
-  Term_22E_ss_cons <- summary(Term_22E.all) 
+  Term_22G.all<-allFit_save(Term_22G,filename="output/Term_22G_allfit.rdata")
+  Term_22G_ss_cons <- summary(Term_22G.all) 
 
     structure(res, class = "allfit", fit = m, sessionInfo =  sessionInfo(),
               data = data # is dropped if NULL
@@ -1463,16 +1635,16 @@ if(!exists("Term_22E"))
     
       
 # Plot the model and Vehicle 
-stargazer::stargazer(Term_22E,type="text",#Term_20A,#Term_20C
+stargazer::stargazer(Term_22G,type="text",#Term_20A,#Term_20C
                         digits=2)
 
-summary_residual_compare(Term_22E,bins=50)
+summary_residual_compare(Term_22G,bins=50)
 ```
 
 ```{r Xinyi: Plot Countries with top20 frequencies and their multilevel intercept}
-load("Output//Model22E.rdata")
-coef(Term_22E)$PlaceCountryISO3[1]
-Country_Intercept <- as.data.frame(coef(Term_22E)$PlaceCountryISO3[1])
+load("Output//Model22G.rdata")
+coef(Term_22G)$PlaceCountryISO3[1]
+Country_Intercept <- as.data.frame(coef(Term_22G)$PlaceCountryISO3[1])
 Country_Intercept$Countries <- row.names(Country_Intercept)
 row.names(Country_Intercept) <- NULL
 colnames(Country_Intercept) <- c("Intercept", "Countries")
@@ -1512,12 +1684,12 @@ ggplot(data = Country_Intercept20,
 
 
 
-### Crisis-Only 22F CBre
-```{r Model22F}
+### Crisis-Only 22H CBre
+```{r Model22H}
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model22F_CBre.RData")
+load("Output//Model22H.RData")
 
 
 fed_1m$ProdServ<-factor(fed_1m$ProdServ)
@@ -1547,8 +1719,8 @@ summary(fed_1m[,colnames(fed_1m) %in%
                      "StartFY")])
 
 
-if(!exists("CBre_22F"))
-  CBre_22F <- glmer (data=crisis_all,
+if(!exists("CBre_22H"))
+  CBre_22H <- glmer (data=crisis_all,
                      b_CBre ~ Crisis +NoCompOffr2 +
                      b_UCA+
                      OffPlace+
@@ -1560,10 +1732,10 @@ if(!exists("CBre_22F"))
                      # b_UCA:Crisis+
                      # Veh:cl_Ceil+
                        NoCompOffr2:cl_Ceil+
-                     b_UCA:NoCompOffr2+
+                     # b_UCA:NoCompOffr2+
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office) + 
-                     (1 + OffPlace | PlaceCountryISO3) + 
+                     (0 + OffPlace | PlaceCountryISO3) + 
                      (1 | StartFY)
                , 
                    family=binomial(link="logit")
@@ -1571,11 +1743,11 @@ if(!exists("CBre_22F"))
      # optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE))
      )
 
-  glmer_examine(CBre_22F)
-  load("Output//CBre_22F_allfit.rdata")
+  glmer_examine(CBre_22H)
+  load("Output//CBre_22H_allfit.rdata")
 
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_22F,res[1],res[2],res[3],#res[4],
+stargazer::stargazer(CBre_22H,res[1],res[2],res[3],#res[4],
                      res[5],#res[6],res[7],
                      type="text",#Term_20A,#Term_20C
                         digits=2)
@@ -1583,24 +1755,27 @@ stargazer::stargazer(CBre_22F,res[1],res[2],res[3],#res[4],
 length(res[[6]])
 res[[5]]
 
-summary_residual_compare(CBre_22F,bins=50)
+summary_residual_compare(CBre_22H,bins=50)
 
 
-  CBre_22F.all<-allFit_save(CBre_22F,filename="output/CBre_22F_allfit.rdata")
+  CBre_22H.all<-allFit_save(CBre_22H,filename="output/CBre_22H_allfit.rdata")
 ```
 
 # Tables for Paper
 ## Moel Results Directly
 ```{r Output-Direct}
 # Plot the model and Vehicle 
-stargazer::stargazer(CBre_21C,CBre_22F,Term_21B,Term_22E,type="text",
+
+
+
+stargazer::stargazer(CBre_21E.restart,CBre_22H,Term_21D,Term_22G,type="text",
                        digits=2)
 
 
-summary_residual_compare(CBre_21C,CBre_22F,Term_21B,Term_22E,bins=50)
+summary_residual_compare(CBre_21E.restart,CBre_22H,Term_21D,Term_22G,bins=50)
 
 
-texreg::htmlreg(list(CBre_21C,CBre_22F,Term_21B,Term_22E),file="Output//Both_Model.html",
+texreg::htmlreg(list(CBre_21E.restart,CBre_22H,Term_21D,Term_22G),file="Output//Both_Model.html",
                 single.row = TRUE,
                 custom.model.name=c("Federal-Wide<br>Ceiling Breach",
                                     "Crisis-Only<br>Ceiling Breach",
@@ -1611,7 +1786,7 @@ texreg::htmlreg(list(CBre_21C,CBre_22F,Term_21B,Term_22E),file="Output//Both_Mod
                 groups = list("Study Variables" = 2:9,
                               "Crisis Category" = 10:12,
                               "Contract Characteristics"=13:23,
-"Interactions" = 24:31),
+"Interactions" = 24:27),
                 custom.coef.map=list("(Intercept)"="(Intercept)",
                                      "NoCompOffrUrgency"="No Comp, Urgency",
                                      "NoCompOffr2Urgency"="No Comp, Urgency",
@@ -1624,8 +1799,8 @@ texreg::htmlreg(list(CBre_21C,CBre_22F,Term_21B,Term_22E),file="Output//Both_Mod
 "NoCompOffr25+ offers"="Comp=5+ offers",
 "b_UCA"="UCA",
 "c_OffCri"="Cont. Office Crisis %",
-"OffPlaceMixed"="Cont. Office 50-99% Intl.",
-"OffPlaceIntl"="Cont. Office 99%+ Intl.",
+"OffPlaceMixed"="Cont. Office 1-50% Intl.",
+"OffPlaceIntl"="Cont. Office 50%+ Intl.",
 "CrisisOCO"="Crisis=OCO",
 "CrisisARRA"="Crisis=Recovery Act",
 "CrisisDis"="Crisis=Disaster Relief",
@@ -1682,6 +1857,8 @@ caption.above=TRUE)
 
 ## Model Odds Ratio
 ```{r Output-Odds Ratio}
+summary_residual_compare(CBre_21E.restart,CBre_22H,Term_21D,Term_22G,bins=50)
+
 or1<-odds_ratio(CBre_Cons_13B.restart,"CBre_Cons_13B","Concentration","Ceiling Breaches")
 or2<-odds_ratio(CBre_Comp_13C,"CBre_Comp_13C","Competition","Ceiling Breaches")
 or3<-odds_ratio(CBre_Cons_Comp_15A,"CBre_Cons_Comp_15A","Both","Ceiling Breaches")
