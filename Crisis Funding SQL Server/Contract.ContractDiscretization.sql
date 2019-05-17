@@ -1,13 +1,4 @@
-/****** Object:  View [Contract].[ContractDiscretization]    Script Date: 4/2/2019 4:50:50 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-
-Alter VIEW [Contract].[ContractDiscretization]
+ALTER VIEW [Contract].[ContractDiscretization]
 AS
 
 SELECT 
@@ -46,7 +37,7 @@ SELECT
 	when SumOfUnmodifiedbaseandalloptionsvalue is null or SumOfUnmodifiedbaseandalloptionsvalue  <=0
 	then null
 	--Spending exceeds 
-	when isnull(SumOfUnmodifiedobligatedAmount,0) >= SumOfUnmodifiedbaseandexercisedoptionsvalue  
+	when isnull(SumOfUnmodifiedobligatedAmount,0) > SumOfUnmodifiedbaseandexercisedoptionsvalue  
 	then null
 	--No gap
 	when SumOfUnmodifiedbaseandexercisedoptionsvalue >= SumOfUnmodifiedbaseandalloptionsvalue  
@@ -54,12 +45,32 @@ SELECT
 	when SumOfUnmodifiedbaseandexercisedoptionsvalue < SumOfUnmodifiedbaseandalloptionsvalue  
 	then 1
 	end as AnyUnmodifiedUnexercisedOptions
+	,case
+	--No exercised options data
+	when  SumOfUnmodifiedbaseandexercisedoptionsvalue is null or SumOfUnmodifiedbaseandexercisedoptionsvalue <=0
+	then 'No exercise' 
+	--No total ceiling data
+	when SumOfUnmodifiedbaseandalloptionsvalue is null or SumOfUnmodifiedbaseandalloptionsvalue  <=0
+	then 'No all'
+	--Spending exceeds 
+	when isnull(SumOfUnmodifiedobligatedAmount,0) > SumOfUnmodifiedbaseandexercisedoptionsvalue  
+	then 'Spending>exercise'
+	--No gap
+	when SumOfUnmodifiedbaseandexercisedoptionsvalue >= SumOfUnmodifiedbaseandalloptionsvalue  
+	then 'exercise >= all'
+	when SumOfUnmodifiedbaseandexercisedoptionsvalue < SumOfUnmodifiedbaseandalloptionsvalue  
+	then 'exercise < all'
+	else 'Else'
+	end as AnyUnmodifiedUnexercisedOptionsWhy
+
+	,ExercisedOptions
 	--Change Order
 	,total.SumOfisChangeOrder
 	,total.MaxOfisChangeOrder
 	,ChangeOrderObligatedAmount
 	,ChangeOrderBaseAndExercisedOptionsValue
 	,ChangeOrderBaseAndAllOptionsValue
+	,ChangeOrderCeilingGrowth
 	--New Work
 	,total.SumOfisNewWork
 	,total.MaxOfisNewWork
@@ -126,12 +137,22 @@ SELECT
 		, Sum(iif(rmod.isChangeOrder=1,C.obligatedAmount,0)) AS ChangeOrderObligatedAmount
 		, Sum(iif(rmod.isChangeOrder=1,C.baseandexercisedoptionsvalue,0)) AS ChangeOrderBaseAndExercisedOptionsValue
 		, Sum(iif(rmod.isChangeOrder=1,C.baseandalloptionsvalue,0)) AS ChangeOrderBaseAndAllOptionsValue
+		, sum(iif(rmod.isChangeOrder=1 and 
+			baseandalloptionsvalue>=0
+		,baseandalloptionsvalue,0)) as ChangeOrderCeilingGrowth
 		--New Work
 		, max(iif(rmod.isNewWork=1,1,0)) as MaxOfisNewWork
 		, sum(iif(rmod.isNewWork=1,1,0)) as SumOfisNewWork
 		, Sum(iif(rmod.isNewWork=1,C.obligatedAmount,0)) AS NewWorkObligatedAmount
 		, Sum(iif(rmod.isNewWork=1,C.baseandexercisedoptionsvalue,0)) AS NewWorkBaseAndExercisedOptionsValue
 		, Sum(iif(rmod.isNewWork=1,C.baseandalloptionsvalue,0)) AS NewWorkBaseAndAllOptionsValue
+
+		--Exercised Options
+		, sum(iif(rmod.MayBeExercisedOption=1 and 
+			baseandexercisedoptionsvalue>0 and
+			baseandalloptionsvalue<=0
+		,baseandexercisedoptionsvalue,0)) as ExercisedOptions
+
 		--Closed
 		, max(iif(rmod.isClosed=1,1,0)) as IsClosed
 		, Sum(iif(rmod.isClosed=1,C.obligatedAmount,0)) AS ClosedObligatedAmount
@@ -142,7 +163,9 @@ SELECT
 		, Min(iif(C.modnumber='0' or C.modnumber is null,C.numberofoffersreceived,0)) AS MinOfUnmodifiedNumberOfOffersReceived
 		, Max(iif(C.modnumber='0' or C.modnumber is null,C.numberofoffersreceived,0)) AS MaxOfUnmodifiedNumberOfOffersReceived
 		, max(iif(rmod.isTerminated=1,1,0)) as IsTerminated
+		, max(iif(rmod.isTerminated=1,SignedDate,NULL)) as MaxTerminatedDate
 		, max(iif(rmod.ismodified=1,1,0)) as IsModified
+		
 	
 		FROM Contract.FPDS as C
 		left outer join FPDStypetable.productorservicecode psc
@@ -166,5 +189,3 @@ inner join contract.CSISidvpiidID ciid
 
 
 GO
-
-
