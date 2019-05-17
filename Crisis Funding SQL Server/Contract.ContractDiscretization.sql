@@ -70,6 +70,7 @@ SELECT
 	,ChangeOrderObligatedAmount
 	,ChangeOrderBaseAndExercisedOptionsValue
 	,ChangeOrderBaseAndAllOptionsValue
+	,ChangeOrderCeilingGrowth
 	--New Work
 	,total.SumOfisNewWork
 	,total.MaxOfisNewWork

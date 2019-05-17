@@ -37,6 +37,7 @@ BEGIN
 ,cc.SumOfUnmodifiedbaseandexercisedoptionsvalue
 ,cc.SumOfUnmodifiedbaseandalloptionsvalue
 ,cc.ChangeOrderBaseAndAllOptionsValue
+,cc.ChangeOrderCeilingGrowth
 ,cc.UnmodifiedNumberOfOffersReceived
 ,cc.UnmodifiedCurrentCompletionDate
 ,cc.UnmodifiedUltimateCompletionDate
@@ -65,6 +66,7 @@ where a.customer=@IsDefense
 ,cc.SumOfUnmodifiedbaseandexercisedoptionsvalue
 ,cc.SumOfUnmodifiedbaseandalloptionsvalue
 ,cc.ChangeOrderBaseAndAllOptionsValue
+,cc.ChangeOrderCeilingGrowth
 ,cc.UnmodifiedNumberOfOffersReceived
 ,cc.UnmodifiedCurrentCompletionDate
 ,cc.UnmodifiedUltimateCompletionDate
