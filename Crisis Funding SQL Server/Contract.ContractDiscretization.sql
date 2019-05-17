@@ -136,6 +136,9 @@ SELECT
 		, Sum(iif(rmod.isChangeOrder=1,C.obligatedAmount,0)) AS ChangeOrderObligatedAmount
 		, Sum(iif(rmod.isChangeOrder=1,C.baseandexercisedoptionsvalue,0)) AS ChangeOrderBaseAndExercisedOptionsValue
 		, Sum(iif(rmod.isChangeOrder=1,C.baseandalloptionsvalue,0)) AS ChangeOrderBaseAndAllOptionsValue
+		, sum(iif(rmod.isChangeOrder=1 and 
+			baseandalloptionsvalue>=0
+		,baseandalloptionsvalue,0)) as ChangeOrderCeilingGrowth
 		--New Work
 		, max(iif(rmod.isNewWork=1,1,0)) as MaxOfisNewWork
 		, sum(iif(rmod.isNewWork=1,1,0)) as SumOfisNewWork
