@@ -163,7 +163,9 @@ SELECT
 		, Min(iif(C.modnumber='0' or C.modnumber is null,C.numberofoffersreceived,0)) AS MinOfUnmodifiedNumberOfOffersReceived
 		, Max(iif(C.modnumber='0' or C.modnumber is null,C.numberofoffersreceived,0)) AS MaxOfUnmodifiedNumberOfOffersReceived
 		, max(iif(rmod.isTerminated=1,1,0)) as IsTerminated
+		, max(iif(rmod.isTerminated=1,SignedDate,NULL)) as MaxTerminatedDate
 		, max(iif(rmod.ismodified=1,1,0)) as IsModified
+		
 	
 		FROM Contract.FPDS as C
 		left outer join FPDStypetable.productorservicecode psc
