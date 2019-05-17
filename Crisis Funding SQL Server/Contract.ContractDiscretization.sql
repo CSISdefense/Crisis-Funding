@@ -1,13 +1,3 @@
-/****** Object:  View [Contract].[ContractDiscretization]    Script Date: 4/2/2019 10:11:47 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-
-
 ALTER VIEW [Contract].[ContractDiscretization]
 AS
 
@@ -72,6 +62,8 @@ SELECT
 	then 'exercise < all'
 	else 'Else'
 	end as AnyUnmodifiedUnexercisedOptionsWhy
+
+	,ExercisedOptions
 	--Change Order
 	,total.SumOfisChangeOrder
 	,total.MaxOfisChangeOrder
@@ -150,6 +142,13 @@ SELECT
 		, Sum(iif(rmod.isNewWork=1,C.obligatedAmount,0)) AS NewWorkObligatedAmount
 		, Sum(iif(rmod.isNewWork=1,C.baseandexercisedoptionsvalue,0)) AS NewWorkBaseAndExercisedOptionsValue
 		, Sum(iif(rmod.isNewWork=1,C.baseandalloptionsvalue,0)) AS NewWorkBaseAndAllOptionsValue
+
+		--Exercised Options
+		, sum(iif(rmod.MayBeExercisedOption=1 and 
+			baseandexercisedoptionsvalue>0 and
+			baseandalloptionsvalue<=0
+		,baseandexercisedoptionsvalue,0)) as ExercisedOptions
+
 		--Closed
 		, max(iif(rmod.isClosed=1,1,0)) as IsClosed
 		, Sum(iif(rmod.isClosed=1,C.obligatedAmount,0)) AS ClosedObligatedAmount
@@ -184,5 +183,3 @@ inner join contract.CSISidvpiidID ciid
 
 
 GO
-
-
