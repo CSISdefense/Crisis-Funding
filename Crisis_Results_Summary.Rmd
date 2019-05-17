@@ -1384,6 +1384,18 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 
 ## Sample Creation
 ```{r Sample}
+
+# crisis_all$NoCompOffr2<-factor(crisis_all$NoCompOffr,
+#                                levels=c(  "2-4 offers" ,"Other No",   "Urgency" ,   "1 offer"  ,"5+ offers" ))
+# fed_1m$NoCompOffr2<-factor(fed_1m$NoCompOffr,
+#                            levels=c(  "2-4 offers" ,
+#                                       "Other No",  
+#                                       "Urgency" ,  
+#                                       "1 offer"  ,
+#                                       "5+ offers" ))
+# 
+
+
 load("Data\\crisis_smp.Rdata")
 
 # crisis_smp<-add_col_from_transformed(crisis_smp,fed)
@@ -1402,8 +1414,8 @@ load("Data\\crisis_smp.Rdata")
     
 # crisis_all<-rbind(oco,recovery,disaster)
 # crisis_all_with_na<-rbind(oco_with_na,recovery,disaster)
-summary(crisis_all$Crisis)
-crisis_all$Crisis<-factor(crisis_all$Crisis,c("Other","OCO" ,"ARRA",  "Dis"     ))
+# summary(crisis_all$Crisis)
+# crisis_all$Crisis<-factor(crisis_all$Crisis,c("Other","OCO" ,"ARRA",  "Dis"     ))
 
 # colnames(fed)[colnames(fed)=="PlaceCountryISO3"]<-"alpha.3"
 # fed<-csis360::read_and_join( fed, #contract,
@@ -1415,7 +1427,7 @@ crisis_all$Crisis<-factor(crisis_all$Crisis,c("Other","OCO" ,"ARRA",  "Dis"     
 #                                       new_var_checked=FALSE)
 # colnames(fed)[colnames(fed)=="alpha.3"]<-"PlaceCountryISO3"
 
-fed$ProdServ[fed$ProdServ==""]<-NA
+# fed$ProdServ[fed$ProdServ==""]<-NA
 
 
 # fed<-fed[get_complete_list(fed),]
@@ -1479,7 +1491,7 @@ nrow(large_crisis_with_na[!get_complete_list(large_crisis_with_na),])/
 save(crisis_smp,crisis_with_na,
      large_crisis_with_na,large_crisis_smp,
      crisis_all,crisis_all_with_na,file="Data\\crisis_smp.Rdata")
-
+# 
 
 
 #
@@ -1633,7 +1645,7 @@ summary_residual_compare(CBre_21E.restart,bins=50)
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("output/Model22G_CBre.RData")
+load("output/Model22G.RData")
 
   
 if(!exists("Term_22G"))
@@ -1900,10 +1912,12 @@ caption.above=TRUE)
 ## Model Odds Ratio
 ```{r Output-Odds Ratio}
 summary_residual_compare(CBre_21E.restart,CBre_22H,Term_21D,Term_22G,bins=50)
-
-or1<-odds_ratio(CBre_Cons_13B.restart,"CBre_Cons_13B","Concentration","Ceiling Breaches")
-or2<-odds_ratio(CBre_Comp_13C,"CBre_Comp_13C","Competition","Ceiling Breaches")
-or3<-odds_ratio(CBre_Cons_Comp_15A,"CBre_Cons_Comp_15A","Both","Ceiling Breaches")
+debug(odds_ratio)
+#Note, must have datasets loaded.
+or1<-odds_ratio(CBre_21E.restart,"CBre_21E.restart","Federal","Ceiling Breaches")
+or2<-odds_ratio(CBre_22H,"CBre_22H","Crisis","Ceiling Breaches")
+or3<-odds_ratio(Term_21D,"Term_21D","Federal","Terminations")
+or4<-odds_ratio(Term_21D,"Term_22G","Crisis","Terminations")
 comp.or<-rbind(or1,or2,or3)
 
 write.csv(get_study_variables_odds_ratio(comp.or),file="Output//ceiling_breach_study_odds_ratio.csv",row.names=FALSE)
