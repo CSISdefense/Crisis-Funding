@@ -40,6 +40,7 @@ inner join contract.ContractDiscretization cc
 on ct.CSIScontractID=cc.CSIScontractID
 --Terminated Contracts Only
 where cc.IsTerminated=1
+group by cc.CSIScontractID
 	END
 	
 

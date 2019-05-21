@@ -15,6 +15,7 @@ SELECT
 	,Total.SumofObligatedAmount
 	,total.IsModified
 	,total.IsTerminated
+	,total.MaxTerminatedDate
 	--Dates
 	,total.MaxOfSignedDate
 	,total.MinOfSignedDate
