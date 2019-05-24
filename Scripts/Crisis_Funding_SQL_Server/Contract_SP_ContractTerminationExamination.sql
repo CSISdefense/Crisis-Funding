@@ -15,7 +15,7 @@ GO
 -- Create date: 2/01/2013
 -- Description:	Break down contracts by size.
 -- =============================================
-CREATE PROCEDURE [Contract].[SP_ContractTerminationExamination]
+ALTER PROCEDURE [Contract].[SP_ContractTerminationExamination]
 	-- Add the parameters for the stored procedure here
 	--@IsDefense varchar(255)
 	--@ServicesOnly Bit
@@ -30,9 +30,10 @@ BEGIN
 
 	 
 		select  cc.CSIScontractID
-,sum(iif(f.SignedDate<cc.MaxTerminatedDate,ObligatedAmount,NULL)) as ObligatedBeforeMaxTerminatedDate
-,sum(iif(f.SignedDate=cc.MaxTerminatedDate,ObligatedAmount,NULL)) as ObligatedOnMaxTerminatedDate
-,sum(iif(f.SignedDate>cc.MaxTerminatedDate,ObligatedAmount,NULL)) as ObligatedAfterMaxTerminatedDate
+,sum(iif(f.SignedDate<cc.MaxTerminatedDate,ObligatedAmount,0)) as ObligatedBeforeMaxTerminatedDate
+,sum(iif(f.SignedDate=cc.MaxTerminatedDate,ObligatedAmount,0)) as ObligatedOnMaxTerminatedDate
+,sum(iif(f.SignedDate>cc.MaxTerminatedDate,ObligatedAmount,0)) as ObligatedAfterMaxTerminatedDate
+,max(cc.MaxTerminatedDate) as MaxTerminatedDate
 from contract.fpds f
 inner join contract.CSIStransactionID ct
 on ct.CSIStransactionID=f.CSIStransactionID
