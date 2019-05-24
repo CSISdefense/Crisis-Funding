@@ -42,6 +42,7 @@ BEGIN
 		, max(iif(cc.maxofsigneddate=f.signeddate,f.ultimatecompletiondate,NULL)) as LastUltimateCompletionDate
 		, max(iif(cc.maxofsigneddate=f.signeddate,f.CurrentCompletionDate,NULL)) as LastCurrentCompletionDate
 		, MinOfSignedDate
+		, MaxOfSignedDate
 		, MinOfEffectiveDate
 from contract.fpds f
 inner join contract.CSIStransactionID ct
@@ -59,6 +60,7 @@ cc.CSIScontractID
 --,cc.Sumofbaseandexercisedoptionsvalue
 , cc.IsClosed
 , MinOfSignedDate
+,MaxOfSignedDate
 		, MinOfEffectiveDate
 	END
 	ELSE --Begin sub path wall Customers will be returned
@@ -91,6 +93,7 @@ cc.CSIScontractID
 --,cc.Sumofbaseandexercisedoptionsvalue
 , cc.IsClosed
 , MinOfSignedDate
+, MaxOfSignedDate
 		, MinOfEffectiveDate
 		--End of your query
 		END
