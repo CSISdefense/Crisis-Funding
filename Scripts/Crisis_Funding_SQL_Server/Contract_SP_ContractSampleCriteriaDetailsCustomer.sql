@@ -1,12 +1,10 @@
-USE [CSIS360]
-GO
-
-/****** Object:  StoredProcedure [Contract].[SP_ContractSampleCriteriaDetailsCustomer]    Script Date: 9/14/2017 4:10:46 PM ******/
+/****** Object:  StoredProcedure [Contract].[SP_ContractSampleCriteriaDetailsCustomer]    Script Date: 5/23/2019 11:52:21 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 

@@ -1,3 +1,10 @@
+/****** Object:  View [Contract].[ContractDiscretization]    Script Date: 5/23/2019 11:08:32 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
 ALTER VIEW [Contract].[ContractDiscretization]
 AS
 
@@ -80,6 +87,9 @@ SELECT
 	,NewWorkBaseAndAllOptionsValue
 	--Closed
 	,total.IsClosed
+	,total.IsDefaultOrCause
+	,total.MaxClosedDate
+
 	,ClosedObligatedAmount
 	,ClosedBaseAndExercisedOptionsValue
 	,ClosedBaseAndAllOptionsValue
@@ -154,18 +164,22 @@ SELECT
 			baseandalloptionsvalue<=0
 		,baseandexercisedoptionsvalue,0)) as ExercisedOptions
 
-		--Closed
+		--Modifications, Closures, and Terminations
 		, max(iif(rmod.isClosed=1,1,0)) as IsClosed
 		, Sum(iif(rmod.isClosed=1,C.obligatedAmount,0)) AS ClosedObligatedAmount
 		, Sum(iif(rmod.isClosed=1,C.baseandexercisedoptionsvalue,0)) AS ClosedBaseAndExercisedOptionsValue
 		, Sum(iif(rmod.isClosed=1,C.baseandalloptionsvalue,0)) AS ClosedBaseAndAllOptionsValue
-	
+		, max(iif(rmod.isClosed=1,SignedDate,NULL)) as MaxClosedDate
+		, max(iif(rmod.isTerminated=1,1,0)) as IsTerminated
+		, max(iif(rmod.isDefaultOrCause=1,1,0)) as IsDefaultOrCause
+		, max(iif(rmod.isTerminated=1,SignedDate,NULL)) as MaxTerminatedDate
+		, max(iif(rmod.ismodified=1,1,0)) as IsModified
+
+
 		--Number Of Offers
 		, Min(iif(C.modnumber='0' or C.modnumber is null,C.numberofoffersreceived,0)) AS MinOfUnmodifiedNumberOfOffersReceived
 		, Max(iif(C.modnumber='0' or C.modnumber is null,C.numberofoffersreceived,0)) AS MaxOfUnmodifiedNumberOfOffersReceived
-		, max(iif(rmod.isTerminated=1,1,0)) as IsTerminated
-		, max(iif(rmod.isTerminated=1,SignedDate,NULL)) as MaxTerminatedDate
-		, max(iif(rmod.ismodified=1,1,0)) as IsModified
+
 		
 	
 		FROM Contract.FPDS as C
@@ -190,3 +204,5 @@ inner join contract.CSISidvpiidID ciid
 
 
 GO
+
+
