@@ -25,23 +25,26 @@ BEGIN
 	SET NOCOUNT ON;
 
 	-- Insert statements for procedure here
-
-	IF (@IsDefense is not null) --Begin sub path where only services only one Customer will be returned
 	BEGIN
 		--Copy the start of your query here
 	 
 		select  cc.CSIScontractID
-		,cc.StartFiscal_Year
+		--,cc.StartFiscal_Year
 		,cc.SumofObligatedAmount
 --,cc.SumOfbaseandalloptionsvalue
 --,cc.Sumofbaseandexercisedoptionsvalue
 , cc.IsClosed
-		, max(iif(cc.maxofsigneddate=f.signeddate,f.lastdatetoorder,NULL)) as LastSignedLastDateToOrder
-		, max(iif(cc.maxofsigneddate=f.signeddate,f.ultimatecompletiondate,NULL)) as LastUltimateCompletionDate
+		--, max(iif(cc.maxofsigneddate=f.signeddate,f.lastdatetoorder,NULL)) as LastSignedLastDateToOrder
+		--, max(iif(cc.maxofsigneddate=f.signeddate,f.ultimatecompletiondate,NULL)) as LastUltimateCompletionDate
 		, max(iif(cc.maxofsigneddate=f.signeddate,f.CurrentCompletionDate,NULL)) as LastCurrentCompletionDate
 		, MinOfSignedDate
 		, MaxOfSignedDate
 		, MinOfEffectiveDate
+		--, case 
+		----If not closed or terminated, then 
+		--when (IsClosed=0 or IsClosed is null) and (IsTerminated=0 or IsTerminated is null)
+		--then max(iif(cc.maxofsigneddate=f.signeddate,f.CurrentCompletionDate,NULL))
+		--end 
 from contract.fpds f
 inner join contract.CSIStransactionID ct
 on ct.CSIStransactionID=f.CSIStransactionID
@@ -49,7 +52,7 @@ inner join contract.ContractDiscretization cc
 on ct.CSIScontractID=cc.CSIScontractID
 inner join FPDSTypeTable.agencyid a
 on f.contractingofficeagencyid=a.AgencyID
-where a.customer='Defense'
+where @IsDefense=0 or @IsDefense is null or a.customer='Defense'
 group by
 cc.CSIScontractID
 ,cc.StartFiscal_Year
@@ -60,41 +63,7 @@ cc.CSIScontractID
 , MinOfSignedDate
 ,MaxOfSignedDate
 		, MinOfEffectiveDate
-	END
-	ELSE --Begin sub path wall Customers will be returned
-		BEGIN
-		--Copy the start of your query here
-		select
-		cc.CSIScontractID
-		,cc.StartFiscal_Year
-		,cc.SumofObligatedAmount
---,cc.SumOfbaseandalloptionsvalue
---,cc.Sumofbaseandexercisedoptionsvalue
-, cc.IsClosed
-		, max(iif(cc.maxofsigneddate=f.signeddate,f.lastdatetoorder,NULL)) as LastSignedLastDateToOrder
-		, max(iif(cc.maxofsigneddate=f.signeddate,f.ultimatecompletiondate,NULL)) as LastUltimateCompletionDate
-		, max(iif(cc.maxofsigneddate=f.signeddate,f.CurrentCompletionDate,NULL)) as LastCurrentCompletionDate
-		, MinOfSignedDate
-		, MinOfEffectiveDate
-from contract.fpds f
-inner join contract.CSIStransactionID ct
-on ct.CSIStransactionID=f.CSIStransactionID
-inner join contract.ContractDiscretization cc
-on ct.CSIScontractID=cc.CSIScontractID
-inner join FPDSTypeTable.agencyid a
-on f.contractingofficeagencyid=a.AgencyID
-group by
-cc.CSIScontractID
-,cc.StartFiscal_Year
-		,cc.SumofObligatedAmount
---,cc.SumOfbaseandalloptionsvalue
---,cc.Sumofbaseandexercisedoptionsvalue
-, cc.IsClosed
-, MinOfSignedDate
-, MaxOfSignedDate
-		, MinOfEffectiveDate
-		--End of your query
-		END
+	
 	END
 
 

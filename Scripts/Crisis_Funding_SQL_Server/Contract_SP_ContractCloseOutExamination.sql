@@ -13,7 +13,7 @@ GO
 -- Create date: 2/01/2013
 -- Description:	Break down contracts by size.
 -- =============================================
-CREATE PROCEDURE [Contract].[SP_ContractCloseOutExamination]
+ALTER PROCEDURE [Contract].[SP_ContractCloseOutExamination]
 	-- Add the parameters for the stored procedure here
 	--@IsDefense varchar(255)
 	--@ServicesOnly Bit
@@ -31,6 +31,7 @@ BEGIN
 		,max(cc.IsClosed) as IsClosed
 ,max(cc.MaxClosedDate) as MaxClosedDate
 ,sum(iif(f.SignedDate>cc.MaxClosedDate,ObligatedAmount,0)) as ObligatedAfterMaxClosedDate
+,sum(iif(f.SignedDate<=cc.MaxClosedDate,ObligatedAmount,0)) as ObligatedThroughMaxClosedDate
 from contract.fpds f
 inner join contract.CSIStransactionID ct
 on ct.CSIStransactionID=f.CSIStransactionID
