@@ -25,8 +25,6 @@ BEGIN
 	SET NOCOUNT ON;
 
 	-- Insert statements for procedure here
-	BEGIN
-		--Copy the start of your query here
 	 
 		select  cc.CSIScontractID
 		--,cc.StartFiscal_Year
