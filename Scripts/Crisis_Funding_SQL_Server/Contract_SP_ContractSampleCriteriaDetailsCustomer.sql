@@ -32,11 +32,12 @@ BEGIN
 --,cc.SumOfbaseandalloptionsvalue
 --,cc.Sumofbaseandexercisedoptionsvalue
 , cc.IsClosed
+, cc.IsTerminated
 		--, max(iif(cc.maxofsigneddate=f.signeddate,f.lastdatetoorder,NULL)) as LastSignedLastDateToOrder
 		--, max(iif(cc.maxofsigneddate=f.signeddate,f.ultimatecompletiondate,NULL)) as LastUltimateCompletionDate
 		, max(iif(cc.maxofsigneddate=f.signeddate,f.CurrentCompletionDate,NULL)) as LastCurrentCompletionDate
 		, MinOfSignedDate
-		, MaxOfSignedDate
+		, MaxBoostDate
 		, MinOfEffectiveDate
 		--, case 
 		----If not closed or terminated, then 
@@ -48,9 +49,13 @@ inner join contract.CSIStransactionID ct
 on ct.CSIStransactionID=f.CSIStransactionID
 inner join contract.ContractDiscretization cc
 on ct.CSIScontractID=cc.CSIScontractID
-inner join FPDSTypeTable.agencyid a
-on f.contractingofficeagencyid=a.AgencyID
-where @IsDefense=0 or @IsDefense is null or a.customer='Defense'
+where @IsDefense=0 or @IsDefense is null or cc.CSIScontractID in 
+	(select CSIScontractID
+	from contract.CSIStransactionID ctid
+	inner join FPDSTypeTable.agencyid a
+	on ctid.contractingofficeagencyid=a.AgencyID
+	where a.Customer='Defense'
+	group by CSIScontractID)
 group by
 cc.CSIScontractID
 ,cc.StartFiscal_Year
@@ -58,8 +63,9 @@ cc.CSIScontractID
 --,cc.SumOfbaseandalloptionsvalue
 --,cc.Sumofbaseandexercisedoptionsvalue
 , cc.IsClosed
+, cc.IsTerminated
 , MinOfSignedDate
-,MaxOfSignedDate
+, MaxBoostDate
 		, MinOfEffectiveDate
 	
 	END

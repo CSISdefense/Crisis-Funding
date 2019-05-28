@@ -89,6 +89,7 @@ SELECT
 	,total.IsClosed
 	,total.IsDefaultOrCause
 	,total.MaxClosedDate
+	,total.MaxBoostDate
 
 	,ClosedObligatedAmount
 	,ClosedBaseAndExercisedOptionsValue
@@ -174,6 +175,10 @@ SELECT
 		, max(iif(rmod.isDefaultOrCause=1,1,0)) as IsDefaultOrCause
 		, max(iif(rmod.isTerminated=1,SignedDate,NULL)) as MaxTerminatedDate
 		, max(iif(rmod.ismodified=1,1,0)) as IsModified
+		, max(iif(isnull(rmod.isClosed,0)=0 and isnull(rmod.isTerminated,0)=0 and
+			(c.ObligatedAmount>0 or c.baseandexercisedoptionsvalue >0 or baseandalloptionsvalue>0)
+			,SignedDate,NULL)) as MaxBoostDate
+
 
 
 		--Number Of Offers
