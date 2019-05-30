@@ -1,7 +1,7 @@
 library(lubridate)
 library(csis360)
 library(Hmisc)
-
+library(readr)
 
 rename_dataset<-function(contract){
   
@@ -453,18 +453,18 @@ impute_unmodified<-function(unmodified,
 
 input_sample_criteria<-function(contract=NULL,
                                 file="contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
-                                dir="Data\\",
+                                dir="..\\data\\semi_clean\\",
                                 drop_incomplete=TRUE,
-                                last_year=2015,
+                                last_date="2016-12-31",
                                 retain_all=FALSE
 ){
   
   
   
   if(!exists("contract") | is.null(contract)){
-    input<-swap_in_zip(file,"",dir)
+    # swap_in_zip(file,"",dir)
     contract <-readr::read_delim(
-      input,
+      paste(dir,file,sep=""),
       col_names=TRUE, 
       delim=get_delim(file),
       # , dec=".",
@@ -489,15 +489,25 @@ input_sample_criteria<-function(contract=NULL,
   }
   contract$MinOfSignedDate<-na_nonsense_dates(contract$MinOfSignedDate)
   contract$LastCurrentCompletionDate<-na_nonsense_dates(contract$LastCurrentCompletionDate) 
-  
-  if(drop_incomplete==TRUE){
-    #Limit to completed contracts that start in 2007 or later
-    contract$LastCurrentCompletionDate<-strptime(contract$LastCurrentCompletionDate,"%Y-%m-%d") 
-    #Drop contracts starting before the study period and not clearly end within it
-    contract<-subset(contract, StartFiscal_Year>=2007   &
-                       (LastCurrentCompletionDate<=paste(last_year,"09-30",sep="-") | IsClosed==1)
-    )
+
+  if(!"StartFiscal_Year" %in% colnames(contract)){
+    contract$StartFiscal_Year<-year(contract$MinOfSignedDate)+ifelse(month(contract$MinOfSignedDate)>=10,1,0)
   }
+  
+  
+  contract$IsComplete<-0
+    #Limit to completed contracts that start in 2007 or later
+    contract$IsComplete[contract$StartFiscal_Year>=2007 & 
+                       #For unclosed out contracts both current completion and last signed should before  2016
+                       (contract$MaxBoostDate<=as.Date(last_date)| is.na(contract$MaxBoostDate))&
+                       (contract$LastCurrentCompletionDate<=as.Date(last_date)
+                        #For closed out it's enough that the boost date is within the range.
+                        | (contract$IsClosed==1 | contract$IsTerminated=="Terminated"))
+                     ]<-1
+  
+  if(drop_incomplete==TRUE)
+    contract<-contract %>% filter(IsComplete==1)
+
   
   # if(is.numeric(contract$Term)){
   #   contract$Term<-factor(contract$Term,
@@ -534,7 +544,7 @@ input_sample_criteria<-function(contract=NULL,
 
 input_initial_scope<-function(contract,
                               file="Contract.SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt",
-                              dir="Data\\",
+                              dir="..\\data\\semi_clean\\",
                               retain_all=FALSE
 ){
   
@@ -650,22 +660,6 @@ input_initial_scope<-function(contract,
   }
   
   
-  
-  
-  summary(subset(contract$qCRais,contract$SumOfisChangeOrder>0    ))
-  
-  
-  
-  #Boolean value for ceiling breaches
-  #Safety measure to make sure we don't assume it's never NA.
-  contract$CBre <- NA
-  contract$CBre[!is.na(contract$SumOfisChangeOrder)] <- "None"
-  contract$CBre[contract$ChangeOrderBaseAndAllOptionsValue > 0
-                & contract$SumOfisChangeOrder>0] <- "Ceiling Breach"
-  contract$CBre<-ordered(contract$CBre,levels=c("None","Ceiling Breach"))
-  
-  
-  
   #ContractWeighted <- apply_lookups(Path,ContractWeighted)
   
   
@@ -687,11 +681,11 @@ input_initial_scope<-function(contract,
 
 input_contract_delta<-function(contract,
                                file="contract_SP_ContractModificationDeltaCustomer.csv",
-                               dir="Data\\",
+                               dir="..\\data\\semi_clean\\",
                                retain_all=FALSE
 ){
   
-  # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+  # load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
   
   contract<-csis360::read_and_join_experiment(contract,
                                               file,
@@ -706,7 +700,7 @@ input_contract_delta<-function(contract,
   contract$ChangeOrderObligatedAmount<-FactorToNumber(contract$ChangeOrderObligatedAmount)
   contract$ChangeOrderBaseAndAllOptionsValue<-FactorToNumber(contract$ChangeOrderBaseAndAllOptionsValue)
   
-  
+  summary(subset(contract$qCRais,contract$SumOfisChangeOrder>0    ))
   
   contract$qNChg <- cut2(contract$SumOfisChangeOrder,c(1,2,3))
   
@@ -719,6 +713,16 @@ input_contract_delta<-function(contract,
     contract$UnmodifiedContractBaseAndAllOptionsValue
   contract$pChangeOrderUnmodifiedBaseAndAll[
     is.na(contract$pChangeOrderUnmodifiedBaseAndAll) & contract$SumOfisChangeOrder==0]<-0
+  
+  #Boolean value for ceiling breaches
+  #Safety measure to make sure we don't assume it's never NA.
+  contract$CBre <- NA
+  contract$CBre[!is.na(contract$SumOfisChangeOrder)] <- "None"
+  contract$CBre[contract$ChangeOrderBaseAndAllOptionsValue > 0
+                & contract$SumOfisChangeOrder>0] <- "Ceiling Breach"
+  contract$CBre<-ordered(contract$CBre,levels=c("None","Ceiling Breach"))
+
+  
   
   #Boolean value for ceiling breaches
   #Safety measure to make sure we don't assume it's never NA.
@@ -760,13 +764,13 @@ input_contract_delta<-function(contract,
 }
 
 input_contract_psc_office_naics<-function(contract,
-                                          file="Data\\Contract.SP_ContractTopPSCofficeNAICS.txt",
-                                          dir="Data\\",
+                                          file="Contract.SP_ContractTopPSCofficeNAICS.txt",
+                                          dir="..\\data\\semi_clean\\",
                                           retain_all=FALSE
                                           ){
   
   # contract<-plyr::join(contract,test)
-  # test<-read_delim("Data\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
+  # test<-read_delim("..\\data\\semi_clean\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
   #                  na=c("NA","NULL"),
   #                  col_types="icdcdcdcd")
   # c(col_integer(),
@@ -813,7 +817,7 @@ input_contract_psc_office_naics<-function(contract,
                        "topProductOrServiceAmount"               ,
                        # "topPrincipalNAICScode",
                        "topPrincipalNAICSamount")]
-  # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+  # load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
   
 }
 

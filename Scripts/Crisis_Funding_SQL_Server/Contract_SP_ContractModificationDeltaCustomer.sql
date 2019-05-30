@@ -32,49 +32,18 @@ BEGIN
 	BEGIN
 		--Copy the start of your query here
 	 
-		select distinct
-		ct.CSIScontractID
---, total.IsTerminated
-		--Change Order
-		--,total.SumOfisChangeOrder
-		--,total.MaxOfisChangeOrder
-		, ChangeOrderObligatedAmount
-		, ChangeOrderBaseAndExercisedOptionsValue
-		,ChangeOrderBaseAndAllOptionsValue
---New Work
-		--,total.SumOfisNewWork
-		--,total.MaxOfisNewWork
-, NewWorkObligatedAmount
-, NewWorkBaseAndExercisedOptionsValue
-, NewWorkBaseAndAllOptionsValue
---Closed
---, total.IsClosed
---, ClosedObligatedAmount
---, ClosedBaseAndExercisedOptionsValue
---, ClosedBaseAndAllOptionsValue
-from contract.fpds f
-inner join contract.CSIStransactionID ct
-on ct.CSIStransactionID=f.CSIStransactionID
-inner join contract.ContractDiscretization Total
-on ct.CSIScontractID=Total.CSIScontractID
-inner join FPDSTypeTable.agencyid a
-on f.contractingofficeagencyid=a.AgencyID
-where a.customer=@Customer
-	END
-	ELSE --Begin sub path wall Customers will be returned
-		BEGIN
-		--Copy the start of your query here
 		select 
-			total.CSIScontractID
+		CSIScontractID
 --, total.IsTerminated
 		--Change Order
-		--,total.SumOfisChangeOrder
+		,SumOfisChangeOrder
 		--,total.MaxOfisChangeOrder
 		, ChangeOrderObligatedAmount
 		, ChangeOrderBaseAndExercisedOptionsValue
 		,ChangeOrderBaseAndAllOptionsValue
+		,ChangeOrderCeilingGrowth
 --New Work
-		--,total.SumOfisNewWork
+		,SumOfisNewWork
 		--,total.MaxOfisNewWork
 , NewWorkObligatedAmount
 , NewWorkBaseAndExercisedOptionsValue
@@ -84,7 +53,15 @@ where a.customer=@Customer
 --, ClosedObligatedAmount
 --, ClosedBaseAndExercisedOptionsValue
 --, ClosedBaseAndAllOptionsValue
-from contract.ContractDiscretization Total
+from contract.ContractDiscretization cc
+where @Customer is null or cc.CSIScontractID in 
+	(select CSIScontractID
+	from contract.CSIStransactionID ctid
+	inner join FPDSTypeTable.agencyid a
+	on ctid.contractingofficeagencyid=a.AgencyID
+	where a.Customer=@Customer 
+	group by CSIScontractID)
+	
 
 		--End of your query
 		END
