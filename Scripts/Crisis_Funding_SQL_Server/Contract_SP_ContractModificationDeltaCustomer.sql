@@ -28,8 +28,6 @@ BEGIN
 
 	-- Insert statements for procedure here
 
-	IF (@Customer is not null) --Begin sub path where only services only one Customer will be returned
-	BEGIN
 		--Copy the start of your query here
 	 
 		select 
@@ -64,7 +62,6 @@ where @Customer is null or cc.CSIScontractID in
 	
 
 		--End of your query
-		END
 	END
 
 
