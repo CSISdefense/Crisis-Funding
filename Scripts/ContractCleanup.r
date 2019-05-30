@@ -545,7 +545,8 @@ input_sample_criteria<-function(contract=NULL,
 input_initial_scope<-function(contract,
                               file="Contract.SP_ContractUnmodifiedScope.txt",
                               dir="..\\data\\semi_clean\\",
-                              retain_all=FALSE
+                              retain_all=FALSE,
+                              col_types="idddDDDl"
 ){
   
   contract<-csis360::read_and_join_experiment(data=contract
@@ -554,6 +555,7 @@ input_initial_scope<-function(contract,
                                               ,dir
                                               ,by="CSIScontractID"
                                               ,new_var_checked=FALSE
+                                              ,col_types = col_types
   )
   
   contract<-csis360::standardize_variable_names(contract)
