@@ -543,7 +543,7 @@ input_sample_criteria<-function(contract=NULL,
 
 
 input_initial_scope<-function(contract,
-                              file="Contract.SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt",
+                              file="Contract.SP_ContractUnmodifiedScope.txt",
                               dir="..\\data\\semi_clean\\",
                               retain_all=FALSE
 ){
