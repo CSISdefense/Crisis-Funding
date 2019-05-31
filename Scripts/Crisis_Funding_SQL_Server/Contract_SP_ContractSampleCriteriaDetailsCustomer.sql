@@ -49,12 +49,12 @@ inner join contract.CSIStransactionID ct
 on ct.CSIStransactionID=f.CSIStransactionID
 inner join contract.ContractDiscretization cc
 on ct.CSIScontractID=cc.CSIScontractID
-where @IsDefense=0 or @IsDefense is null or cc.CSIScontractID in 
+where @IsDefense is null or cc.CSIScontractID in 
 	(select CSIScontractID
 	from contract.CSIStransactionID ctid
 	inner join FPDSTypeTable.agencyid a
 	on ctid.contractingofficeagencyid=a.AgencyID
-	where a.Customer='Defense'
+	where (a.Customer='Defense' and @IsDefense=1) or (a.Customer<>'Defense' and @IsDefense=0)
 	group by CSIScontractID)
 group by
 cc.CSIScontractID
