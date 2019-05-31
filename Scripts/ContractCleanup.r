@@ -73,7 +73,7 @@ trim_dataset<-function(contract){
     # "MinOfEffectiveDate",
     "StartFY",
     "StartCY",
-    "Action.Obligation",
+    "Action_Obligation",
     "Agency",
     "Office",
     "ProdServ",
@@ -682,14 +682,14 @@ input_initial_scope<-function(contract,
 }
 
 input_contract_delta<-function(contract,
-                               file="contract_SP_ContractModificationDeltaCustomer.csv",
+                               file="contract_SP_ContractModificationDeltaCustomer.txt",
                                dir="..\\data\\semi_clean\\",
                                retain_all=FALSE
 ){
   
   # load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
   
-  contract<-csis360::read_and_join_experiment(contract,
+  contract<-read_and_join_experiment(contract,
                                               file,
                                               "",
                                               dir,
@@ -708,7 +708,7 @@ input_contract_delta<-function(contract,
   
   
   # contract$pChangeOrderObligated<-contract$ChangeOrderObligatedAmount/
-  #   contract$Action.Obligation
+  #   contract$Action_Obligation
   # contract$pChangeOrderObligated[is.na(contract$pChangeOrderObligated)&
   #     contract$SumOfisChangeOrder==0]<-0
   contract$pChangeOrderUnmodifiedBaseAndAll<-contract$ChangeOrderBaseAndAllOptionsValue/
