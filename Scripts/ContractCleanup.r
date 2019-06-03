@@ -3,6 +3,91 @@ library(csis360)
 library(Hmisc)
 library(readr)
 
+
+#This function generates some derived figures for a contrat sample that's been augmented
+#by extra column on closed out and/or terminated contracts.
+transform_endings<-function(contract){
+  if("MaxClosedDate" %in% colnames(contract)){
+    contract$PreCloseLength<-contract$MaxClosedDate-contract$MinOfSignedDate
+    contract$PostCloseSignedLength<-contract$MaxBoostDate-contract$MaxClosedDate
+    contract$PostCloseCurrentLength<-contract$LastCurrentCompletionDate-contract$MaxClosedDate
+  }
+  
+  if("MaxTerminatedDate" %in% colnames(contract)){
+    contract$EndType<-as.character(NA)
+    contract$EndType[contract$IsClosed==1 & contract$Term==0]<-"Close Out"
+    contract$EndType[contract$IsClosed==1 & contract$Term==1 & contract$isDefaultOrCause==1]<-"Term: ~Default"
+    contract$EndType[contract$IsClosed==1 & contract$Term==1 & contract$isDefaultOrCause==0]<-"Term: Canceled"
+    contract$EndType[(contract$IsClosed==0|is.na(contract$IsClosed)) & contract$Term==1 & contract$isDefaultOrCause==0]<-"Term: Convenience"
+    contract$EndType[(contract$IsClosed==0|is.na(contract$IsClosed)) & contract$Term==1 & contract$isDefaultOrCause==1]<-"Term: Cause"
+    contract$EndType<-factor(contract$EndType,levels=c("Close Out","Term: ~Default","Term: Canceled",
+                                                       "Term: Convenience","Term: Cause"))
+    
+    contract$ThroughTerm<-contract$ObligatedBeforeMaxTerminatedDate+
+      contract$ObligatedOnMaxTerminatedDate
+    contract$PostTermFloor0<-contract$ObligatedAfterMaxTerminatedDate
+    contract$PostTermFloor0[contract$PostTermFloor0<0]<-0
+    contract$PreTermFloor1<-contract$ThroughTerm
+    contract$PreTermFloor1[contract$ThroughTerm<1]<-1
+    contract$TermPct<-contract$PostTermFloor0/(contract$PostTermFloor0+contract$PreTermFloor1)
+    summary(contract$TermPct)
+    
+    contract$NoPreTermObl<-"Some Net $s Pre-contract."
+    contract$NoPreTermObl[contract$ObligatedBeforeMaxTerminatedDate<=0]<-"0 Pre-contract"
+    contract$NoPreTermObl<-factor(contract$NoPreTermObl)
+    
+    contract$TermPctCat<-Hmisc::cut2(contract$TermPct,c(0.25,0.5))
+    summary(contract$TermPctCat)
+    # levels(contract$TermPctCat)[3]<-"[50%+]"
+    contract$TermPctCat<-as.character(contract$TermPctCat)
+    contract$TermPctCat[contract$TermPct==0]<-"[0]"
+    contract$TermPctCat[contract$TermPct==0 & contract$ObligatedOnMaxTerminatedDate>0]<-"[0]+Last Day Spend"
+    # contract$TermPctCat[contract$TermPct==0 & contract$ObligatedOnMaxTerminatedDate>0 & contract$MaxTerminatedDate<=contract$MinOfSignedDate]<-"[0]+One Day Spend"
+    contract$TermPctCat<-factor(contract$TermPctCat)
+    
+    
+    contract$TermPartial<-contract$TermPctCat
+    levels(contract$TermPartial)<-list(
+      "Complete Termination"=c("[0]+No Last Day Spend","[0]+Last Day Spend","(0%,25%)"),
+      "Partial Termination"=c("[25%,50%)","[50%+]")
+    )
+    
+    contract$TermPctCat3<-contract$TermPctCat
+    levels(contract$TermPctCat3)<-list(
+      "Term Ends Spend"="[0]+No Last Day Spend",
+      "Last Day Spend"="[0]+Last Day Spend",
+      "Any After"=c("(0%,10%)","[10%,100%)","[100%+]")
+    )
+    
+    contract$FirstDayTerm<-"No"
+    contract$FirstDayTerm[contract$MaxTerminatedDate==contract$MinOfSignedDate]<-"Yes"
+    
+    contract$LastCurrentCompletionDate<-na_nonsense_dates(contract$LastCurrentCompletionDate)
+    contract$PreTermLength<-contract$MaxTerminatedDate-contract$MinOfSignedDate
+    contract$PostTermSignedLength<-contract$MaxBoostDate-contract$MaxTerminatedDate
+    contract$LastCurrentCompletionDate<-as.Date(contract$LastCurrentCompletionDate)
+    contract$PostTermCurrentLength<-contract$LastCurrentCompletionDate-contract$MaxTerminatedDate
+    
+    if("PreTermLength" %in% colnames(contract)){
+      #Imput close out lengths for unterminated  contracts
+      contract$PreTermCloseLength<-contract$PreTermLength
+      contract$PreTermCloseLength[is.na(contract$PreTermCloseLength)]<-
+        contract$PreCloseLength[is.na(contract$PreTermCloseLength)]
+      
+      contract$PostTermCloseSignedLength<-contract$PostTermSignedLength
+      contract$PostTermCloseSignedLength[is.na(contract$PostTermCloseSignedLength)]<-
+        contract$PostCloseSignedLength[is.na(contract$PostTermCloseSignedLength)]
+      
+      
+      contract$PostTermCloseCurrentLength<-contract$PostTermCurrentLength
+      contract$PostTermCloseCurrentLength[is.na(contract$PostTermCloseCurrentLength)]<-
+        contract$PostCloseCurrentLength[is.na(contract$PostTermCloseCurrentLength)]
+    }
+    
+  }
+  contract
+}
+
 rename_dataset<-function(contract){
   
   colnames(contract)[colnames(contract)=="SubCustomer.sum"]<-"Who"
@@ -85,7 +170,8 @@ trim_dataset<-function(contract){
     "LastCurrentCompletionDate",
     "UnmodifiedCurrentCompletionDate",
     "IsClosed",
-    "MinOfSignedDate"
+    "MinOfSignedDate",
+    "MaxBoostDate"
   )]
   # 
   
