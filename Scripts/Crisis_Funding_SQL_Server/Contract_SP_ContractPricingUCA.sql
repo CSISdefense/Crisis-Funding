@@ -19,7 +19,7 @@ GO
 -- Create date: 2/01/2013
 -- Description:	Break down contracts by size.
 -- =============================================
-ALTER PROCEDURE [Contract].[SP_ContractPricingCustomer]
+CREATE PROCEDURE [Contract].[SP_ContractPricingUCA]
 	-- Add the parameters for the stored procedure here
 	@Customer varchar(255)
 	--@ServicesOnly Bit
@@ -33,34 +33,12 @@ BEGIN
 	-- Insert statements for procedure here
  
 		select cc.[CSIScontractID]
-      ,cc.[TypeOfContractPricing]
+		,cc.[TypeOfContractPricing]
       ,[UnmodifiedTypeOfContractPricing]
 	  ,IsLabeledPricing
-      ,[ObligatedAmountIsFixedPrice]
-      ,[IsFixedPrice]
-      ,[UnmodifiedIsFixedPrice]
-      ,[ObligatedAmountIsCostBased]
-      ,[IsCostBased]
-      ,[UnmodifiedIsCostBased]
-      ,[ObligatedAmountIsCombination]
-      ,[IsCombination]
-      ,[UnmodifiedIsCombination]
-      ,[ObligatedAmountIsIncentive]
-      ,[IsIncentive]
-      ,[UnmodifiedIsIncentive]
-      ,[ObligatedAmountIsAwardFee]
-      ,[IsAwardFee]
-      ,[UnmodifiedIsAwardFee]
-      ,[ObligatedAmountIsFFPorNoFee]
-      ,[IsFFPorNoFee]
-      ,[UnmodifiedIsFFPorNoFee]
-      ,[ObligatedAmountIsFixedFee]
-      ,[IsFixedFee]
-      ,[UnmodifiedIsFixedFee]
-      ,[ObligatedAmountIsOtherFee]
-      ,[IsOtherFee]
-      ,[UnmodifiedIsOtherFee]
-	  
+		,[ObligatedAmountIsUCA]
+      ,[IsUCA]
+      ,[UnmodifiedIsUCA]
 from contract.ContractPricing cc
 where @Customer is null or cc.CSIScontractID in 
 	(select CSIScontractID
