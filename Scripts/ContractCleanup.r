@@ -151,6 +151,7 @@ trim_dataset<-function(contract){
     "UnmodifiedNumberOfOffersReceived",
     "UnmodifiedContractBaseAndAllOptionsValue",
     "SumOfisChangeOrder",
+    "ChangeOrderCeilingGrowth",
     "ChangeOrderBaseAndAllOptionsValue",
     "NewWorkUnmodifiedBaseAndAll",
     # pChangeOrderObligated,
@@ -1101,50 +1102,10 @@ place_compare<-function(contract,comparecol,newcol,comparename,placecol="PlaceCo
 
 
 
-update_sample_col_CSIScontractID<-function(smp,
-                                           full,
-                                           col=NULL, 
-                                           drop_and_replace=FALSE){
-  #If column(s) are specified
-  if(!is.null(col)){
-    toadd<-full[,colnames(full) %in% c("CSIScontractID",col)]
-    smp<-smp[,!colnames(smp) %in% col]
-  } 
-  #If no column(s) specified, add all missing columns.
-  else{
-    full<-full %>% group_by()
-    toadd<-full[,!colnames(full) %in% colnames(smp) | colnames(full)=="CSIScontractID"]
-  }
-  
-  if(drop_and_replace==FALSE)
-    smp<-left_join(smp,toadd)
-  else{
-    original_l<-nrow(smp)
-    smp<-inner_join(smp,toadd)
-    rm(toadd)
-    missing_l<-original_l-nrow(smp)
-    if(missing_l>0){
-      full<-full[,colnames(full) %in% colnames(smp)]
-      if(ncol(full)<ncol(smp)){ 
-        print(paste(colnames(smp)[!colnames(smp) %in% colnames(full)]))
-        stop("Full is missing columns present in sample")
-      }
-      full<-full[!full$CSIScontractID %in% smp$CSIScontractID,]
-      smp<-dplyr::bind_rows(smp,full[sample(nrow(full),missing_l),])
-      if(nrow(smp)!=original_l) stop("Mismatched rowcount. Too few in full? This shouldn't happen.")
-      # 
-      warning(paste(missing_l, "rows removed and replaced due to absence from full"))
-    }
-  }
-  
-  smp
-}
-
 add_col_from_transformed<-function(sample,transformed,col=NULL){
-  if(is.null(col)){
-    col<-colnames(transformed)[!colnames(transformed) %in%
-                                 colnames(sample)]
-  }
-  transformed<-subset(transformed,select = c("CSIScontractID",col))
-  left_join(sample,transformed,by="CSIScontractID")
+  warning("add_col_from_transformed is deprecated, use csis360::update_sample_col_CSIScontractID isntead")
+  update_sample_col_CSIScontractID(sample,
+                                             transformed,
+                                             col=cik, 
+                                             drop_and_replace=FALSE)
 }
