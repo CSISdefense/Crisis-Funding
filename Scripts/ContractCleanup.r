@@ -153,6 +153,7 @@ trim_dataset<-function(contract){
     "SumOfisChangeOrder",
     "ChangeOrderCeilingGrowth",
     "ChangeOrderBaseAndAllOptionsValue",
+    "ChangeOrderCeilingGrowth",
     "NewWorkUnmodifiedBaseAndAll",
     # pChangeOrderObligated,
     "UnmodifiedDays",
