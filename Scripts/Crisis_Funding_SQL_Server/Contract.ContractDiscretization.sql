@@ -72,6 +72,7 @@ SELECT
 	end as AnyUnmodifiedUnexercisedOptionsWhy
 
 	,ExercisedOptions
+	,RescindedOptions
 	--Change Order
 	,total.SumOfisChangeOrder
 	,total.MaxOfisChangeOrder
@@ -164,6 +165,10 @@ SELECT
 			baseandexercisedoptionsvalue>0 and
 			baseandalloptionsvalue<=0
 		,baseandexercisedoptionsvalue,0)) as ExercisedOptions
+		, sum(iif(rmod.MayBeExercisedOption=1 and 
+			baseandexercisedoptionsvalue>0 and
+			baseandalloptionsvalue<=0
+		,baseandexercisedoptionsvalue,0)) as RescindedOptions
 
 		--Modifications, Closures, and Terminations
 		, max(iif(rmod.isClosed=1,1,0)) as IsClosed
