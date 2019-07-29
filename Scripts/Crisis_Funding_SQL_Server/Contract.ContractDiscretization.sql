@@ -71,20 +71,31 @@ SELECT
 	else 'Else'
 	end as AnyUnmodifiedUnexercisedOptionsWhy
 
-	,ExercisedOptions
-	,RescindedOptions
+
+	--Options
+	,SteadyScopeOptionGrowthAlone
+		,SteadyScopeOptionGrowthMixed
+		,SteadyScopeOptionRescision
+		,AdminOptionModification
+		,ChangeOrderOptionModification
+		,EndingOptionModification
+		,OtherOptionModification
 	--Change Order
 	,total.SumOfisChangeOrder
 	,total.MaxOfisChangeOrder
 	,ChangeOrderObligatedAmount
-	,ChangeOrderBaseAndExercisedOptionsValue
-	,ChangeOrderBaseAndAllOptionsValue
+	
 	,ChangeOrderCeilingGrowth
+	,ChangeOrderCeilingRescision
+	,SteadyScopeCeilingModification
+	,AdminCeilingModification
+	,EndingCeilingModification
+	,OtherCeilingModification
+
 	--New Work
 	,total.SumOfisNewWork
 	,total.MaxOfisNewWork
 	,NewWorkObligatedAmount
-	,NewWorkBaseAndExercisedOptionsValue
 	,NewWorkBaseAndAllOptionsValue
 	--Closed
 	,total.IsClosed
@@ -93,8 +104,7 @@ SELECT
 	,total.MaxBoostDate
 
 	,ClosedObligatedAmount
-	,ClosedBaseAndExercisedOptionsValue
-	,ClosedBaseAndAllOptionsValue
+	
 	--OffersReceive
 		,iif(total.MinOfUnmodifiedNumberOfOffersReceived=total.MaxOfUnmodifiedNumberOfOffersReceived,
 			total.MinOfUnmodifiedNumberOfOffersReceived,
@@ -107,9 +117,9 @@ SELECT
 		,(SELECT size from contract.ClassifyContractSize(Total.SumOfbaseandalloptionsvalue)) as SizeofSumOfbaseandalloptionsvalue
 		, Total.SumofUnmodifiedObligatedAmount
 		,(SELECT size from contract.ClassifyContractSize(Total.SumofUnmodifiedObligatedAmount)) as SizeOfUnmodifiedObligatedAmount
-		,Total.SumOfUnmodifiedbaseandexercisedoptionsvalue
+		,Total.SumOfUnmodifiedbaseandexercisedoptionsvalue as UnmodifiedBase
 		,(SELECT size from contract.ClassifyContractSize(Total.SumOfUnmodifiedbaseandexercisedoptionsvalue)) as SizeOfUnmodifiedSumOfbaseandexercisedoptionsvalue
-		,Total.SumOfUnmodifiedbaseandalloptionsvalue
+		,Total.SumOfUnmodifiedbaseandalloptionsvalue as UnmodifiedCeiling
 		,(SELECT size from contract.ClassifyContractSize(Total.SumOfUnmodifiedbaseandalloptionsvalue)) as SizeOfUnmodifiedSumOfbaseandalloptionsvalue
 	FROM (
 	SELECT 
@@ -149,10 +159,22 @@ SELECT
 		, sum(iif(rmod.isChangeOrder=1,1,0)) as SumOfisChangeOrder
 		, Sum(iif(rmod.isChangeOrder=1,C.obligatedAmount,0)) AS ChangeOrderObligatedAmount
 		, Sum(iif(rmod.isChangeOrder=1,C.baseandexercisedoptionsvalue,0)) AS ChangeOrderBaseAndExercisedOptionsValue
-		, Sum(iif(rmod.isChangeOrder=1,C.baseandalloptionsvalue,0)) AS ChangeOrderBaseAndAllOptionsValue
 		, sum(iif(rmod.isChangeOrder=1 and 
 			baseandalloptionsvalue>=0
-		,baseandalloptionsvalue,0)) as ChangeOrderCeilingGrowth
+			,baseandalloptionsvalue,0)) as ChangeOrderCeilingGrowth
+		, sum(iif(rmod.isChangeOrder=1 and 
+			baseandalloptionsvalue<0
+			,baseandalloptionsvalue,0)) as ChangeOrderCeilingRescision
+		, sum(iif(rmod.isSteadyScope=1  
+			,baseandalloptionsvalue,0)) as SteadyScopeCeilingModification
+		, sum(iif(rmod.isAdmin=1,
+			baseandalloptionsvalue,0)) as AdminCeilingModification
+		, sum(iif(rmod.isClosed=1 or rmod.isTerminated=1,
+			baseandalloptionsvalue,0)) as EndingCeilingModification
+		, sum(iif(rmod.isOther=1,
+			baseandalloptionsvalue,0)) as OtherCeilingModification
+
+
 		--New Work
 		, max(iif(rmod.isNewWork=1,1,0)) as MaxOfisNewWork
 		, sum(iif(rmod.isNewWork=1,1,0)) as SumOfisNewWork
@@ -161,19 +183,30 @@ SELECT
 		, Sum(iif(rmod.isNewWork=1,C.baseandalloptionsvalue,0)) AS NewWorkBaseAndAllOptionsValue
 
 		--Exercised Options
-		, sum(iif(rmod.MayBeExercisedOption=1 and 
+		, sum(iif(rmod.isSteadyScope=1 and 
 			baseandexercisedoptionsvalue>0 and
 			baseandalloptionsvalue<=0
-		,baseandexercisedoptionsvalue,0)) as ExercisedOptions
-		, sum(iif(rmod.MayBeExercisedOption=1 and 
+			,baseandexercisedoptionsvalue,0)) as SteadyScopeOptionGrowthAlone
+		, sum(iif(rmod.isSteadyScope=1 and 
+			baseandexercisedoptionsvalue>0 and
+			baseandalloptionsvalue>0
+			,baseandexercisedoptionsvalue,0)) as SteadyScopeOptionGrowthMixed
+		, sum(iif(rmod.isSteadyScope=1 and 
 			baseandexercisedoptionsvalue>0 and
 			baseandalloptionsvalue<=0
-		,baseandexercisedoptionsvalue,0)) as RescindedOptions
+			,baseandexercisedoptionsvalue,0)) as SteadyScopeOptionRescision
+		, sum(iif(rmod.isChangeOrder=1,
+			baseandexercisedoptionsvalue,0)) as ChangeOrderOptionModification
+		, sum(iif(rmod.isAdmin=1,
+			baseandexercisedoptionsvalue,0)) as AdminOptionModification
+		, sum(iif(rmod.isClosed=1 or rmod.isTerminated=1,
+			baseandexercisedoptionsvalue,0)) as EndingOptionModification
+		, sum(iif(rmod.isOther=1,
+			baseandexercisedoptionsvalue,0)) as OtherOptionModification
 
 		--Modifications, Closures, and Terminations
 		, max(iif(rmod.isClosed=1,1,0)) as IsClosed
 		, Sum(iif(rmod.isClosed=1,C.obligatedAmount,0)) AS ClosedObligatedAmount
-		, Sum(iif(rmod.isClosed=1,C.baseandexercisedoptionsvalue,0)) AS ClosedBaseAndExercisedOptionsValue
 		, Sum(iif(rmod.isClosed=1,C.baseandalloptionsvalue,0)) AS ClosedBaseAndAllOptionsValue
 		, max(iif(rmod.isClosed=1,SignedDate,NULL)) as MaxClosedDate
 		, max(iif(rmod.isTerminated=1,1,0)) as IsTerminated

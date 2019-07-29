@@ -37,15 +37,21 @@ BEGIN
 		,SumOfisChangeOrder
 		--,total.MaxOfisChangeOrder
 		, ChangeOrderObligatedAmount
-		, ChangeOrderBaseAndExercisedOptionsValue
-		,ChangeOrderBaseAndAllOptionsValue
+		--, ChangeOrderBaseAndExercisedOptionsValue
+		--,ChangeOrderBaseAndAllOptionsValue
 		,ChangeOrderCeilingGrowth
+		,ChangeOrderCeilingGrowth
+	,ChangeOrderCeilingRescision
+	,SteadyScopeCeilingModification
+	,AdminCeilingModification
+	,EndingCeilingModification
+	,OtherCeilingModification
 --New Work
-		,SumOfisNewWork
+		--,SumOfisNewWork
 		--,total.MaxOfisNewWork
-, NewWorkObligatedAmount
-, NewWorkBaseAndExercisedOptionsValue
-, NewWorkBaseAndAllOptionsValue
+--, NewWorkObligatedAmount
+--, NewWorkBaseAndExercisedOptionsValue
+--, NewWorkBaseAndAllOptionsValue
 --Closed
 --, total.IsClosed
 --, ClosedObligatedAmount

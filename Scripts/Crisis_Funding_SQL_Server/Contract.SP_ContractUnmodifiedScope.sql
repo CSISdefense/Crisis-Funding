@@ -32,8 +32,8 @@ BEGIN
 	 
 		select cc.CSIScontractID
 ,cc.SumOfUnmodifiedobligatedAmount
-,cc.SumOfUnmodifiedbaseandexercisedoptionsvalue
-,cc.SumOfUnmodifiedbaseandalloptionsvalue
+,cc.UnmodifiedBase
+,cc.UnmodifiedCeiling
 --,cc.ChangeOrderBaseAndAllOptionsValue
 --,cc.ChangeOrderCeilingGrowth
 --,cc.UnmodifiedNumberOfOffersReceived
