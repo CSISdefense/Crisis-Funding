@@ -40,7 +40,6 @@ BEGIN
 		--, ChangeOrderBaseAndExercisedOptionsValue
 		--,ChangeOrderBaseAndAllOptionsValue
 		,ChangeOrderCeilingGrowth
-		,ChangeOrderCeilingGrowth
 	,ChangeOrderCeilingRescision
 	,SteadyScopeCeilingModification
 	,AdminCeilingModification
