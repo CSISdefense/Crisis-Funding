@@ -150,9 +150,9 @@ trim_dataset<-function(contract){
     # "qNChg",
     "Term",
     "UnmodifiedNumberOfOffersReceived",
-    "UnmodifiedContractBaseAndExercisedOptionsValue",
-    "ExercisedOptions",
-    "UnmodifiedContractBaseAndAllOptionsValue",
+    "UnmodifiedBase",
+    "SteadyScopeOptionGrowthAlone",
+    "UnmodifiedCeiling",
     "SumOfisChangeOrder",
     "ChangeOrderCeilingGrowth",
     "ChangeOrderBaseAndAllOptionsValue",
@@ -187,11 +187,11 @@ FormatContractModel<-function(dfContract){
   
   if(is.null(dfContract$Ceil) &
      is.null(dfContract$LowCeil) &
-     "UnmodifiedContractBaseAndAllOptionsValue" %in% colnames(dfContract)){
+     "UnmodifiedCeiling" %in% colnames(dfContract)){
     lowroundedcutoffs<-c(15000,100000,1000000,30000000)
     highroundedcutoffs<-c(15000,100000,1000000,10000000,75000000)
-    dfContract$qLowCeiling <- cut2(dfContract$UnmodifiedContractBaseAndAllOptionsValue,cuts=lowroundedcutoffs)
-    dfContract$qHighCeiling <- cut2(dfContract$UnmodifiedContractBaseAndAllOptionsValue,cuts=highroundedcutoffs)
+    dfContract$qLowCeiling <- cut2(dfContract$UnmodifiedCeiling,cuts=lowroundedcutoffs)
+    dfContract$qHighCeiling <- cut2(dfContract$UnmodifiedCeiling,cuts=highroundedcutoffs)
     rm(lowroundedcutoffs,highroundedcutoffs)
     
     colnames(dfContract)[colnames(dfContract)=="qLowCeiling"]<-"LowCeil"
@@ -624,8 +624,8 @@ input_sample_criteria<-function(contract=NULL,
                            # "MinOfSignedDate",
                            # "MinOfEffectiveDate",
                            "UnmodifiedContractObligatedAmount.1",
-                           "UnmodifiedContractBaseAndExercisedOptionsValue.1",
-                           "UnmodifiedContractBaseAndAllOptionsValue.2"
+                           "UnmodifiedBase.1",
+                           "UnmodifiedCeiling.2"
                          )]
   }
   contract
@@ -711,8 +711,8 @@ input_initial_scope<-function(contract,
   
   lowroundedcutoffs<-c(15000,100000,1000000,30000000)
   highroundedcutoffs<-c(15000,100000,1000000,10000000,75000000)
-  contract$qLowCeiling <- cut2(contract$UnmodifiedContractBaseAndAllOptionsValue,cuts=lowroundedcutoffs)
-  contract$qHighCeiling <- cut2(contract$UnmodifiedContractBaseAndAllOptionsValue,cuts=highroundedcutoffs)
+  contract$qLowCeiling <- cut2(contract$UnmodifiedCeiling,cuts=lowroundedcutoffs)
+  contract$qHighCeiling <- cut2(contract$UnmodifiedCeiling,cuts=highroundedcutoffs)
   rm(lowroundedcutoffs,highroundedcutoffs)
   
   
@@ -784,7 +784,8 @@ input_contract_delta<-function(contract,
                                               "",
                                               dir,
                                               by="CSIScontractID",
-                                              new_var_checked=FALSE
+                                              new_var_checked=FALSE,
+                                     create_lookup_rdata=FALSE
   )
   
   contract<-csis360::standardize_variable_names(contract)
@@ -802,7 +803,7 @@ input_contract_delta<-function(contract,
   # contract$pChangeOrderObligated[is.na(contract$pChangeOrderObligated)&
   #     contract$SumOfisChangeOrder==0]<-0
   contract$pChangeOrderUnmodifiedBaseAndAll<-contract$ChangeOrderBaseAndAllOptionsValue/
-    contract$UnmodifiedContractBaseAndAllOptionsValue
+    contract$UnmodifiedCeiling
   contract$pChangeOrderUnmodifiedBaseAndAll[
     is.na(contract$pChangeOrderUnmodifiedBaseAndAll) & contract$SumOfisChangeOrder==0]<-0
   
