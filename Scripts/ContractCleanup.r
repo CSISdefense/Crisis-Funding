@@ -777,7 +777,7 @@ input_contract_delta<-function(contract,
 ){
   
   # load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
-  
+  if(!"UnmodifiedCeiling" %in% colnames(contract)) stop("UnmodifiedCeiling is missing from the data frame.")
   contract<-read_and_join_experiment(contract,
                                               file,
                                               "",
@@ -798,7 +798,7 @@ input_contract_delta<-function(contract,
   
   contract$qNChg <- cut2(contract$SumOfisChangeOrder,c(1,2,3))
   
-  if(!"UnmodifiedCeiling" %in% colnames(contract)) stop("UnmodifiedCeiling is missing from the data frame.")
+  
   # contract$pChangeOrderObligated<-contract$ChangeOrderObligatedAmount/
   #   contract$Action_Obligation
   # contract$pChangeOrderObligated[is.na(contract$pChangeOrderObligated)&
