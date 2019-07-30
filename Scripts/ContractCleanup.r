@@ -155,7 +155,6 @@ trim_dataset<-function(contract){
     "UnmodifiedCeiling",
     "SumOfisChangeOrder",
     "ChangeOrderCeilingGrowth",
-    "ChangeOrderBaseAndAllOptionsValue",
     "NewWorkUnmodifiedBaseAndAll",
     # pChangeOrderObligated,
     "UnmodifiedDays",
@@ -790,8 +789,10 @@ input_contract_delta<-function(contract,
   
   contract<-csis360::standardize_variable_names(contract)
   
-  contract$ChangeOrderObligatedAmount<-FactorToNumber(contract$ChangeOrderObligatedAmount)
-  contract$ChangeOrderBaseAndAllOptionsValue<-FactorToNumber(contract$ChangeOrderBaseAndAllOptionsValue)
+  # contract$ChangeOrderObligatedAmount<-FactorToNumber(contract$ChangeOrderObligatedAmount)
+  contract$ChangeOrderCeilingGrowth<-FactorToNumber(contract$ChangeOrderCeilingGrowth)
+  contract$ChangeOrderCeilingRescision<-FactorToNumber(contract$ChangeOrderCeilingRescision)
+  contract$AdminCeilingModification<-FactorToNumber(contract$AdminCeilingModification)
   
   summary(subset(contract$qCRais,contract$SumOfisChangeOrder>0    ))
   
@@ -802,7 +803,8 @@ input_contract_delta<-function(contract,
   #   contract$Action_Obligation
   # contract$pChangeOrderObligated[is.na(contract$pChangeOrderObligated)&
   #     contract$SumOfisChangeOrder==0]<-0
-  contract$pChangeOrderUnmodifiedBaseAndAll<-contract$ChangeOrderBaseAndAllOptionsValue/
+  contract$pChangeOrderUnmodifiedBaseAndAll<-(contract$ChangeOrderCeilingGrowth+
+                                                contract$ChangeOrderCeilingRescision)/
     contract$UnmodifiedCeiling
   contract$pChangeOrderUnmodifiedBaseAndAll[
     is.na(contract$pChangeOrderUnmodifiedBaseAndAll) & contract$SumOfisChangeOrder==0]<-0
@@ -811,7 +813,7 @@ input_contract_delta<-function(contract,
   #Safety measure to make sure we don't assume it's never NA.
   contract$CBre <- NA
   contract$CBre[!is.na(contract$SumOfisChangeOrder)] <- "None"
-  contract$CBre[contract$ChangeOrderBaseAndAllOptionsValue > 0
+  contract$CBre[contract$ChangeOrderCeilingGrowth > 0
                 & contract$SumOfisChangeOrder>0] <- "Ceiling Breach"
   contract$CBre<-ordered(contract$CBre,levels=c("None","Ceiling Breach"))
 
@@ -821,7 +823,7 @@ input_contract_delta<-function(contract,
   #Safety measure to make sure we don't assume it's never NA.
   contract$CBre <- NA
   contract$CBre[!is.na(contract$SumOfisChangeOrder)] <- "None"
-  contract$CBre[contract$ChangeOrderBaseAndAllOptionsValue > 0
+  contract$CBre[contract$ChangeOrderCeilingGrowth > 0
                 & contract$SumOfisChangeOrder>0] <- "Ceiling Breach"
   contract$CBre<-ordered(contract$CBre,levels=c("None","Ceiling Breach"))
   
@@ -841,7 +843,7 @@ input_contract_delta<-function(contract,
                          c(
                            "ChangeOrderObligatedAmount"             ,
                            "ChangeOrderBaseAndExercisedOptionsValue",
-                           #     ChangeOrderBaseAndAllOptionsValue      ,
+                           #     ChangeOrderCeilingGrowth      ,
                            "NewWorkObligatedAmount",
                            "NewWorkBaseAndExercisedOptionsValue"    ,
                            # "NewWorkBaseAndAllOptionsValue",
