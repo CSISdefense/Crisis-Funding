@@ -15,7 +15,7 @@ GO
 -- Create date: 2/01/2013
 -- Description:	Break down contracts by size.
 -- =============================================
-ALTER PROCEDURE [Contract].[SP_ContractModificationDeltaCustomer]
+ALTER PROCEDURE [Contract].[SP_ContractCeilingBreachCustomer]
 	-- Add the parameters for the stored procedure here
 	@Customer varchar(255)
 	--@ServicesOnly Bit
