@@ -772,8 +772,8 @@ input_initial_scope<-function(contract,
   
 }
 
-input_contract_delta<-function(contract,
-                               file="contract_SP_ContractModificationDeltaCustomer.txt",
+input_contract_ceiling_breach<-function(contract,
+                               file="contract_SP_ContractCeilingBreachCustomer.txt",
                                dir="..\\data\\semi_clean\\",
                                retain_all=FALSE
 ){
