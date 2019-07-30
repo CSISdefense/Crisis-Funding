@@ -798,14 +798,14 @@ input_contract_delta<-function(contract,
   
   contract$qNChg <- cut2(contract$SumOfisChangeOrder,c(1,2,3))
   
-  
+  if(!"UnmodifiedCeiling" %in% colnames(contract)) stop("UnmodifiedCeiling is missing from the data frame.")
   # contract$pChangeOrderObligated<-contract$ChangeOrderObligatedAmount/
   #   contract$Action_Obligation
   # contract$pChangeOrderObligated[is.na(contract$pChangeOrderObligated)&
   #     contract$SumOfisChangeOrder==0]<-0
-  contract$pChangeOrderUnmodifiedBaseAndAll<-(contract$ChangeOrderCeilingGrowth+
-                                                contract$ChangeOrderCeilingRescision)/
-    contract$UnmodifiedCeiling
+    contract$pChangeOrderUnmodifiedBaseAndAll<-(
+      contract$ChangeOrderCeilingGrowth+
+        contract$ChangeOrderCeilingRescision)/contract$UnmodifiedCeiling
   contract$pChangeOrderUnmodifiedBaseAndAll[
     is.na(contract$pChangeOrderUnmodifiedBaseAndAll) & contract$SumOfisChangeOrder==0]<-0
   
