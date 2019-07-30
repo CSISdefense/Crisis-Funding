@@ -36,7 +36,7 @@ BEGIN
 		--Change Order
 		,SumOfisChangeOrder
 		--,total.MaxOfisChangeOrder
-		, ChangeOrderObligatedAmount
+		--, ChangeOrderObligatedAmount
 		--, ChangeOrderBaseAndExercisedOptionsValue
 		--,ChangeOrderBaseAndAllOptionsValue
 		,ChangeOrderCeilingGrowth
@@ -45,6 +45,7 @@ BEGIN
 	,AdminCeilingModification
 	,EndingCeilingModification
 	,OtherCeilingModification
+	,SumOfbaseandalloptionsvalue
 --New Work
 		--,SumOfisNewWork
 		--,total.MaxOfisNewWork

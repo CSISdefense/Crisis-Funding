@@ -155,7 +155,9 @@ trim_dataset<-function(contract){
     "UnmodifiedCeiling",
     "SumOfisChangeOrder",
     "ChangeOrderCeilingGrowth",
-    "NewWorkUnmodifiedBaseAndAll",
+    "ChangeOrderCeilingRescision",
+    "AdminCeilingModification",
+    # "NewWorkUnmodifiedBaseAndAll",
     # pChangeOrderObligated,
     "UnmodifiedDays",
     # "MinOfEffectiveDate",
@@ -784,7 +786,7 @@ input_contract_delta<-function(contract,
                                               dir,
                                               by="CSIScontractID",
                                               new_var_checked=FALSE,
-                                     create_lookup_rdata=FALSE
+                                     create_lookup_rdata=TRUE
   )
   
   contract<-csis360::standardize_variable_names(contract)
