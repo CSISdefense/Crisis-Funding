@@ -647,6 +647,7 @@ input_initial_scope<-function(contract,
                                               ,by="CSIScontractID"
                                               ,new_var_checked=FALSE
                                               ,col_types = col_types
+                                              ,create_lookup_rdata=TRUE
   )
   
   contract<-csis360::standardize_variable_names(contract)
