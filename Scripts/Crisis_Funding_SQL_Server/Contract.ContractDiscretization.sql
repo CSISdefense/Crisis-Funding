@@ -146,68 +146,72 @@ SELECT
 		, min(iif(psc.isRnD1to5=1,C.signeddate,null)) as firstSignedDateRnD1to5
 		, max(iif((C.modnumber='0' or C.modnumber is null),iif(psc.isRnD1to5=1,1,iif(psc.isRnD1to5=0,0,null)),null)) AS UnmodifiedRnD1to5
 
-		--Unmodified
-		, Sum(iif(C.modnumber='0' or C.modnumber is null,C.obligatedAmount,0)) AS SumOfUnmodifiedobligatedAmount
-		, Sum(iif(C.modnumber='0' or C.modnumber is null,C.baseandexercisedoptionsvalue,0)) AS SumOfUnmodifiedbaseandexercisedoptionsvalue
-		, Sum(iif(C.modnumber='0' or C.modnumber is null,C.baseandalloptionsvalue,0)) AS SumOfUnmodifiedbaseandalloptionsvalue
+		--Unmodified Amounts. Rmod.isunmodified check is there to prevent double county
+		, Sum(iif(C.modnumber='0' or C.modnumber is null and rmod.ismodified=0,C.obligatedAmount,0)) AS SumOfUnmodifiedobligatedAmount
+		, Sum(iif(C.modnumber='0' or C.modnumber is null and rmod.ismodified=0,C.baseandexercisedoptionsvalue,0)) AS SumOfUnmodifiedbaseandexercisedoptionsvalue
+		, Sum(iif(C.modnumber='0' or C.modnumber is null and rmod.ismodified=0,C.baseandalloptionsvalue,0)) AS SumOfUnmodifiedbaseandalloptionsvalue
+
+		--Unmodified dates. There isn't a risk of double county, so we don't need the rmodified check.
 		, min(iif(C.modnumber='0' or C.modnumber is null,C.currentcompletiondate,NULL)) AS UnmodifiedCurrentCompletionDate
 		, min(iif(C.modnumber='0' or C.modnumber is null,C.ultimatecompletiondate,NULL)) AS UnmodifiedUltimateCompletionDate
 		, min(iif(C.modnumber='0' or C.modnumber is null,C.lastdatetoorder,NULL)) AS UnmodifiedLastDateToOrder
 
 		--Change Orders
-		, max(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isChangeOrder=1,1,0)) as MaxOfisChangeOrder
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isChangeOrder=1,1,0)) as SumOfisChangeOrder
-		, Sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isChangeOrder=1,C.obligatedAmount,0)) AS ChangeOrderObligatedAmount
-		, Sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isChangeOrder=1,C.baseandexercisedoptionsvalue,0)) AS ChangeOrderBaseAndExercisedOptionsValue
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isChangeOrder=1 and 
+		, max(iif(rmod.isChangeOrder=1,1,0)) as MaxOfisChangeOrder
+		, sum(iif(rmod.isChangeOrder=1,1,0)) as SumOfisChangeOrder
+		, Sum(iif(rmod.isChangeOrder=1,C.obligatedAmount,0)) AS ChangeOrderObligatedAmount
+		, Sum(iif(rmod.isChangeOrder=1,C.baseandexercisedoptionsvalue,0)) AS ChangeOrderBaseAndExercisedOptionsValue
+		, sum(iif(rmod.isChangeOrder=1 and 
 			baseandalloptionsvalue>=0
 			,baseandalloptionsvalue,0)) as ChangeOrderCeilingGrowth
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isChangeOrder=1 and 
+		, sum(iif(rmod.isChangeOrder=1 and 
 			baseandalloptionsvalue<0
 			,baseandalloptionsvalue,0)) as ChangeOrderCeilingRescision
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isSteadyScope=1  
+		, sum(iif(rmod.isSteadyScope=1  
 			,baseandalloptionsvalue,0)) as SteadyScopeCeilingModification
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isAdmin=1,
+		, sum(iif(rmod.isAdmin=1,
 			baseandalloptionsvalue,0)) as AdminCeilingModification
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isClosed=1 or rmod.isTerminated=1,
+		, sum(iif(rmod.isClosed=1 or rmod.isTerminated=1,
 			baseandalloptionsvalue,0)) as EndingCeilingModification
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isOther=1,
+		--Other also includes oddballs such as no reason for modification but not mod 0
+		, sum(iif(rmod.isOther=1 or (rmod.ismodified=0 and C.modnumber<>'0'),
 			baseandalloptionsvalue,0)) as OtherCeilingModification
 
 
 		--New Work
-		, max(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isNewWork=1,1,0)) as MaxOfisNewWork
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isNewWork=1,1,0)) as SumOfisNewWork
-		, Sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isNewWork=1,C.obligatedAmount,0)) AS NewWorkObligatedAmount
-		, Sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isNewWork=1,C.baseandexercisedoptionsvalue,0)) AS NewWorkBaseAndExercisedOptionsValue
-		, Sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isNewWork=1,C.baseandalloptionsvalue,0)) AS NewWorkBaseAndAllOptionsValue
+		, max(iif(rmod.isNewWork=1,1,0)) as MaxOfisNewWork
+		, sum(iif(rmod.isNewWork=1,1,0)) as SumOfisNewWork
+		, Sum(iif(rmod.isNewWork=1,C.obligatedAmount,0)) AS NewWorkObligatedAmount
+		, Sum(iif(rmod.isNewWork=1,C.baseandexercisedoptionsvalue,0)) AS NewWorkBaseAndExercisedOptionsValue
+		, Sum(iif(rmod.isNewWork=1,C.baseandalloptionsvalue,0)) AS NewWorkBaseAndAllOptionsValue
 
 		--Exercised Options
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isSteadyScope=1 and 
+		, sum(iif(rmod.isSteadyScope=1 and 
 			baseandexercisedoptionsvalue>0 and
 			baseandalloptionsvalue<=0
 			,baseandexercisedoptionsvalue,0)) as SteadyScopeOptionGrowthAlone
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isSteadyScope=1 and 
+		, sum(iif(rmod.isSteadyScope=1 and 
 			baseandexercisedoptionsvalue>0 and
 			baseandalloptionsvalue>0
 			,baseandexercisedoptionsvalue,0)) as SteadyScopeOptionGrowthMixed
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isSteadyScope=1 and 
+		, sum(iif(rmod.isSteadyScope=1 and 
 			baseandexercisedoptionsvalue>0 and
 			baseandalloptionsvalue<=0
 			,baseandexercisedoptionsvalue,0)) as SteadyScopeOptionRescision
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isChangeOrder=1,
+		, sum(iif(rmod.isChangeOrder=1,
 			baseandexercisedoptionsvalue,0)) as ChangeOrderOptionModification
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isAdmin=1,
+		, sum(iif(rmod.isAdmin=1,
 			baseandexercisedoptionsvalue,0)) as AdminOptionModification
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isClosed=1 or rmod.isTerminated=1,
+		, sum(iif(rmod.isClosed=1 or rmod.isTerminated=1,
 			baseandexercisedoptionsvalue,0)) as EndingOptionModification
-		, sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isOther=1,
+		--Other also includes oddballs such as no reason for modification but not mod 0
+		, sum(iif(rmod.isOther=1 or (rmod.ismodified=0 and C.modnumber<>'0'),
 			baseandexercisedoptionsvalue,0)) as OtherOptionModification
 
 		--Modifications, Closures, and Terminations
 		, max(iif(rmod.isClosed=1,1,0)) as IsClosed
-		, Sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isClosed=1,C.obligatedAmount,0)) AS ClosedObligatedAmount
-		, Sum(iif(coalesce(C.modnumber,'0')<>'0' and rmod.isClosed=1,C.baseandalloptionsvalue,0)) AS ClosedBaseAndAllOptionsValue
+		, Sum(iif(rmod.isClosed=1,C.obligatedAmount,0)) AS ClosedObligatedAmount
+		, Sum(iif(rmod.isClosed=1,C.baseandalloptionsvalue,0)) AS ClosedBaseAndAllOptionsValue
 		, max(iif(rmod.isClosed=1,SignedDate,NULL)) as MaxClosedDate
 		, max(iif(rmod.isTerminated=1,1,0)) as IsTerminated
 		, max(iif(rmod.isDefaultOrCause=1,1,0)) as IsDefaultOrCause
