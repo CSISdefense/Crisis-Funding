@@ -1,9 +1,10 @@
-/****** Object:  View [Contract].[ContractDiscretization]    Script Date: 5/23/2019 11:08:32 PM ******/
+/****** Object:  View [Contract].[ContractDiscretization]    Script Date: 7/31/2019 6:59:43 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 ALTER VIEW [Contract].[ContractDiscretization]
 AS
@@ -147,9 +148,9 @@ SELECT
 		, max(iif((C.modnumber='0' or C.modnumber is null),iif(psc.isRnD1to5=1,1,iif(psc.isRnD1to5=0,0,null)),null)) AS UnmodifiedRnD1to5
 
 		--Unmodified Amounts. Rmod.isunmodified check is there to prevent double county
-		, Sum(iif(C.modnumber='0' or C.modnumber is null and rmod.ismodified=0,C.obligatedAmount,0)) AS SumOfUnmodifiedobligatedAmount
-		, Sum(iif(C.modnumber='0' or C.modnumber is null and rmod.ismodified=0,C.baseandexercisedoptionsvalue,0)) AS SumOfUnmodifiedbaseandexercisedoptionsvalue
-		, Sum(iif(C.modnumber='0' or C.modnumber is null and rmod.ismodified=0,C.baseandalloptionsvalue,0)) AS SumOfUnmodifiedbaseandalloptionsvalue
+		, Sum(iif((C.modnumber='0' or C.modnumber is null) and rmod.ismodified=0,C.obligatedAmount,0)) AS SumOfUnmodifiedobligatedAmount
+		, Sum(iif((C.modnumber='0' or C.modnumber is null) and rmod.ismodified=0,C.baseandexercisedoptionsvalue,0)) AS SumOfUnmodifiedbaseandexercisedoptionsvalue
+		, Sum(iif((C.modnumber='0' or C.modnumber is null) and rmod.ismodified=0,C.baseandalloptionsvalue,0)) AS SumOfUnmodifiedbaseandalloptionsvalue
 
 		--Unmodified dates. There isn't a risk of double county, so we don't need the rmodified check.
 		, min(iif(C.modnumber='0' or C.modnumber is null,C.currentcompletiondate,NULL)) AS UnmodifiedCurrentCompletionDate
