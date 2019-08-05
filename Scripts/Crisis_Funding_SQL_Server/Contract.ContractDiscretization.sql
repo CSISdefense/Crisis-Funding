@@ -23,6 +23,7 @@ SELECT
 	,Total.SumofObligatedAmount
 	,total.IsModified
 	,total.IsTerminated
+	,total.IsParentCSIScontractID
 	,total.MaxTerminatedDate
 	--Dates
 	,total.MaxOfSignedDate
@@ -172,6 +173,7 @@ SELECT
 			,baseandalloptionsvalue,0)) as SteadyScopeCeilingModification
 		, sum(iif(rmod.isAdmin=1,
 			baseandalloptionsvalue,0)) as AdminCeilingModification
+		,max(cast(ccid.IsParentCSIScontractID as int)) as IsParentCSIScontractID
 		, sum(iif(rmod.isClosed=1 or rmod.isTerminated=1,
 			baseandalloptionsvalue,0)) as EndingCeilingModification
 		--Other also includes oddballs such as no reason for modification but not mod 0
@@ -196,8 +198,7 @@ SELECT
 			baseandalloptionsvalue>0
 			,baseandexercisedoptionsvalue,0)) as SteadyScopeOptionGrowthMixed
 		, sum(iif(rmod.isSteadyScope=1 and 
-			baseandexercisedoptionsvalue>0 and
-			baseandalloptionsvalue<=0
+			baseandexercisedoptionsvalue<0
 			,baseandexercisedoptionsvalue,0)) as SteadyScopeOptionRescision
 		, sum(iif(rmod.isChangeOrder=1,
 			baseandexercisedoptionsvalue,0)) as ChangeOrderOptionModification
@@ -223,7 +224,7 @@ SELECT
 			,SignedDate,NULL)) as MaxBoostDate
 
 
-
+	
 		--Number Of Offers
 		, Min(iif(C.modnumber='0' or C.modnumber is null,C.numberofoffersreceived,0)) AS MinOfUnmodifiedNumberOfOffersReceived
 		, Max(iif(C.modnumber='0' or C.modnumber is null,C.numberofoffersreceived,0)) AS MaxOfUnmodifiedNumberOfOffersReceived

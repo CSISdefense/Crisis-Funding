@@ -39,6 +39,7 @@ BEGIN
 		, MinOfSignedDate
 		, MaxBoostDate
 		, MinOfEffectiveDate
+		, IsParentCSIScontractID
 		--, case 
 		----If not closed or terminated, then 
 		--when (IsClosed=0 or IsClosed is null) and (IsTerminated=0 or IsTerminated is null)
@@ -67,7 +68,7 @@ cc.CSIScontractID
 , MinOfSignedDate
 , MaxBoostDate
 		, MinOfEffectiveDate
-	
+	,IsParentCSIScontractID
 	END
 
 

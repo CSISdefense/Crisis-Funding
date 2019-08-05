@@ -155,8 +155,8 @@ trim_dataset<-function(contract){
     "UnmodifiedCeiling",
     "SumOfisChangeOrder",
     "ChangeOrderCeilingGrowth",
-    "ChangeOrderCeilingRescision",
-    "AdminCeilingModification",
+    "n_CBre",
+    # "AdminCeilingModification",
     # "NewWorkUnmodifiedBaseAndAll",
     # pChangeOrderObligated,
     "UnmodifiedDays",
@@ -840,6 +840,10 @@ input_contract_ceiling_breach<-function(contract,
   #                                               min(subset(
   #                                                   contract$pChangeOrderObligated,
   #                                                   contract$pChangeOrderObligated>0)),
+  
+  
+  
+  
   if(retain_all==FALSE){
     
     contract<-contract[,!colnames(contract) %in% 

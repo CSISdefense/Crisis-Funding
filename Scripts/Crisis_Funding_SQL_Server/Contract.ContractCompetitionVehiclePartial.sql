@@ -56,7 +56,7 @@ SELECT ctid.CSIScontractID
 		,CType.Award_Type_Code
 		,IDVtype.idv_type_code
 		,iif(ctid.IsIDV=1 or ctid.CSISidvmodificationID is not null,1,0) as IsIDV
-
+		,ccid.IsParentCSIScontractID
 
 		,ObligatedAmount
 
@@ -78,6 +78,8 @@ SELECT ctid.CSIScontractID
 	--Block of CSISIDjoins
 	left join contract.csistransactionid as CTID
 		on c.CSIStransactionID=ctid.CSIStransactionID
+	left join contract.CSIScontractID as CCID
+		on ctid.CSIScontractID = ccid.CSIScontractID
 	left join contract.CSISidvmodificationID as idvmod
 		on ctid.CSISidvmodificationID=idvmod.CSISidvmodificationID
 	left join contract.CSISidvpiidID as idv
