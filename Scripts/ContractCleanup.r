@@ -504,8 +504,8 @@ percent_obligated<-function(data,
                             denom_col,
                             unmodified_col=NA,
                             overall_col=NA){
-  data$p_obligated<-as.double(unlist(FactorToNumber(data[,num_col])))/
-    as.double(unlist(FactorToNumber(data[,denom_col])))
+  data$p_obligated<-as.double(unlist(csis360::text_to_number(data[,num_col])))/
+    as.double(unlist(csis360::text_to_number(data[,denom_col])))
   data$p_obligated[data$p_obligated>1]<-1
   data$p_obligated[data$p_obligated<0]<-NA
   if(!is.na(overall_col)&is.na(unmodified_col)){
@@ -792,10 +792,10 @@ input_contract_ceiling_breach<-function(contract,
   
   contract<-csis360::standardize_variable_names(contract)
   
-  # contract$ChangeOrderObligatedAmount<-FactorToNumber(contract$ChangeOrderObligatedAmount)
-  contract$ChangeOrderCeilingGrowth<-FactorToNumber(contract$ChangeOrderCeilingGrowth)
-  contract$ChangeOrderCeilingRescision<-FactorToNumber(contract$ChangeOrderCeilingRescision)
-  contract$AdminCeilingModification<-FactorToNumber(contract$AdminCeilingModification)
+  # contract$ChangeOrderObligatedAmount<-csis360::text_to_number(contract$ChangeOrderObligatedAmount)
+  contract$ChangeOrderCeilingGrowth<-csis360::text_to_number(contract$ChangeOrderCeilingGrowth)
+  contract$ChangeOrderCeilingRescision<-csis360::text_to_number(contract$ChangeOrderCeilingRescision)
+  contract$AdminCeilingModification<-csis360::text_to_number(contract$AdminCeilingModification)
   
   summary(subset(contract$qCRais,contract$SumOfisChangeOrder>0    ))
   
