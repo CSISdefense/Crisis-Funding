@@ -781,6 +781,9 @@ input_contract_ceiling_breach<-function(contract,
   
   # load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
   if(!"UnmodifiedCeiling" %in% colnames(contract)) stop("UnmodifiedCeiling is missing from the data frame.")
+  
+  #Drop ContractBaseAndAllOptionsValue as it ends up duplicated after  being incorporated by a different name then standardized.
+  if("ContractBaseAndAllOptionsValue" %in% colnames(contract)) contract <- contract %>% dplyr::select(-ContractBaseAndAllOptionsValue)
   contract<-read_and_join_experiment(contract,
                                               file,
                                               "",
