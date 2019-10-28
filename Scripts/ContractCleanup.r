@@ -92,7 +92,7 @@ rename_dataset<-function(contract){
   
   colnames(contract)[colnames(contract)=="SubCustomer.sum"]<-"Who"
   # colnames(contract)[colnames(contract)=="UnmodifiedIsSomeCompetition"]<-"Comp"
-  colnames(contract)[colnames(contract)=="PlatformPortfolio.sum"]<-"What"
+  colnames(contract)[colnames(contract)=="UnmodifiedPlatformPortfolio"]<-"What"
   colnames(contract)[colnames(contract)=="IsIDV"]<-"IDV"
   colnames(contract)[colnames(contract)=="FixedOrCost"]<-"FxCb"
   colnames(contract)[colnames(contract)=="AnyPlaceInternational"]<-"Intl"
