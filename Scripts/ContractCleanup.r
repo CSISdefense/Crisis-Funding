@@ -116,6 +116,7 @@ rename_dataset<-function(contract){
   colnames(contract)[colnames(contract)=="GrossObligatedAmount"]<-"Gross"
   
   
+  if(any(duplicated(colnames(contract)))) stop("Duplicate Contract Name")
   contract
 }
 
