@@ -98,7 +98,8 @@ rename_dataset<-function(contract){
   colnames(contract)[colnames(contract)=="AnyPlaceInternational"]<-"Intl"
   colnames(contract)[colnames(contract)=="SimpleArea"]<-"PSR"
   colnames(contract)[colnames(contract)=="qLowCeiling"]<-"LowCeil"
-  colnames(contract)[colnames(contract)=="qHighCeiling"]<-"Ceil"
+  if(!"Ceil" %in% colnames(contract))
+    colnames(contract)[colnames(contract)=="qHighCeiling"]<-"Ceil"
   colnames(contract)[colnames(contract)=="Dur"]<-"qDuration"
   # colnames(contract)[colnames(contract)=="SingleOffer"]<-"One"
   colnames(contract)[colnames(contract)=="qOffers"]<-"Offr"
@@ -110,12 +111,14 @@ rename_dataset<-function(contract){
   colnames(contract)[colnames(contract) %in% c("StartFiscal_Year","StartFiscalYear")]<-"StartFY"
   colnames(contract)[colnames(contract)=="topContractingOfficeAgencyID"]<-"Agency"
   colnames(contract)[colnames(contract)=="topContractingOfficeID"]<-"Office"
-  colnames(contract)[colnames(contract) %in% c("topProductOrServiceCode","ProductOrServiceCode")]<-"ProdServ"
+  if(!"ProdServ" %in% colnames(contract))
+    colnames(contract)[colnames(contract) %in% c("topProductOrServiceCode","ProductOrServiceCode")]<-"ProdServ"
   colnames(contract)[colnames(contract)=="topPrincipalNAICScode"]<-"NAICS"
   colnames(contract)[colnames(contract)=="UnmodifiedPlaceCountryISO3"]<-"Where"
   colnames(contract)[colnames(contract)=="GrossObligatedAmount"]<-"Gross"
   
   
+  if(any(duplicated(colnames(contract)))) stop("Duplicate Contract Name")
   contract
 }
 
