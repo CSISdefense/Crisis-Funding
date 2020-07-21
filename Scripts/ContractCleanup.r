@@ -1122,6 +1122,6 @@ add_col_from_transformed<-function(sample,transformed,col=NULL){
   warning("add_col_from_transformed is deprecated, use csis360::update_sample_col_CSIScontractID isntead")
   update_sample_col_CSIScontractID(sample,
                                              transformed,
-                                             col=cik, 
+                                             col=col, 
                                              drop_and_replace=FALSE)
 }
