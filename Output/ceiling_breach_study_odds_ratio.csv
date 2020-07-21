@@ -1,0 +1,20 @@
+"Output","Model","Variable","Odds Ratio","Lower Bound","Upper Bound"
+"Ceiling Breaches","Federal","No Comp., Urgency",1.16,0.94,1.43
+"Ceiling Breaches","Federal","No Comp., Other",1.01,0.95,1.08
+"Ceiling Breaches","Federal","Comp. w/ 1 Offer",0.94,0.87,1.01
+"Ceiling Breaches","Federal","Comp. w/ 5+ Offers",1.12,1.04,1.21
+"Ceiling Breaches","Federal","Cont. Office 1-50% Intl",1.04,0.9,1.2
+"Ceiling Breaches","Federal","Cont. Office 50%+ Intl.",1.18,0.87,1.58
+"Ceiling Breaches","Federal","UCA",1.73,1.52,1.97
+"Ceiling Breaches","Federal","Crisis=Recovery Act",2.18,1.85,2.57
+"Ceiling Breaches","Federal","Crisis=Disaster",1.41,1.05,1.89
+"Ceiling Breaches","Federal","Crisis=OCO",1.12,0.93,1.36
+"Ceiling Breaches","Crisis","No Comp., Urgency",1.44,1.17,1.77
+"Ceiling Breaches","Crisis","No Comp., Other",0.89,0.81,0.98
+"Ceiling Breaches","Crisis","Comp. w/ 1 Offer",0.78,0.7,0.87
+"Ceiling Breaches","Crisis","Comp. w/ 5+ Offers",0.71,0.62,0.8
+"Ceiling Breaches","Crisis","Cont. Office 1-50% Intl",1.31,0.95,1.82
+"Ceiling Breaches","Crisis","Cont. Office 50%+ Intl.",1.13,0.71,1.78
+"Ceiling Breaches","Crisis","UCA",1.02,0.88,1.19
+"Ceiling Breaches","Crisis","Crisis=Recovery Act",1.43,1.25,1.64
+"Ceiling Breaches","Crisis","Crisis=Disaster",1.26,1.08,1.46

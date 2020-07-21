@@ -31,10 +31,14 @@ font_add_google("Open Sans")
 # font_import()
 loadfonts(device="postscript")
  
-source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
-source("ContractCleanup.r")
+
+source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/Scripts/DIIGstat.r")
+source(file.path("..","scripts","ContractCleanup.r"))
 source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
 source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
+
+source(system.file("utils", "allFit.R", package="lme4"))
+
 
 axis.text.size<-10
 strip.text.size<-10
@@ -992,7 +996,7 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 # fed<-transform_contract(fed)
 
 # save(fed,file="Data/fed_transformed.Rdata")
-load(file="Data/fed_transformed.Rdata")
+load(file=file.path("..","Data","fed_transformed.Rdata"))
 
 ```
 
@@ -1396,7 +1400,7 @@ Next, we eliminate missing data entries and then draw a sample. The final comput
 # 
 
 
-load("Data\\crisis_smp.Rdata")
+load(file.path("..","Data","crisis_smp.Rdata"))
 
 # crisis_smp<-add_col_from_transformed(crisis_smp,fed)
 # crisis_with_na<-add_col_from_transformed(crisis_with_na,fed)
@@ -1561,37 +1565,37 @@ summary(fed_1m)
 # summary(large_crisis_smp$CPSA)
     
 
-load("Output//Model21D_Term.rdata")
+load(file.path("..","Output","Model21D_Term.rdata"))
 
-if(!exists("Term_21D"))
-  Term_21D <- glmer (data=fed_1m,
-                   b_Term ~ Crisis +NoCompOffr2+
-                     b_UCA+
-                     c_OffCri+
-                     OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
-                     Veh+
-                     PricingFee+
-                          #Crisis:NoCompOffr+
-                     # b_UCA:Crisis+
-                     # b_UCA:NoCompOffr2,
-  
-                     (1 | CrisisProductOrServiceArea/ProdServ) + 
-                     (1 | Customer/Office)+
-                     (0 + OffPlace| PlaceCountryISO3), 
-                   family=binomial(link="logit"),
-                   verbose=1,
-     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
-     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
-  glmer_examine(Term_21D)
+# if(!exists("Term_21D"))
+#   Term_21D <- glmer (data=fed_1m,
+#                    b_Term ~ Crisis +NoCompOffr2+
+#                      b_UCA+
+#                      c_OffCri+
+#                      OffPlace+
+#                     cl_Ceil+
+#                      capped_cl_Days+
+#                      Veh+
+#                      PricingFee+
+#                           #Crisis:NoCompOffr+
+#                      # b_UCA:Crisis+
+#                      # b_UCA:NoCompOffr2,
+#   
+#                      (1 | CrisisProductOrServiceArea/ProdServ) + 
+#                      (1 | Customer/Office)+
+#                      (0 + OffPlace| PlaceCountryISO3), 
+#                    family=binomial(link="logit"),
+#                    verbose=1,
+#      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+#      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+#   glmer_examine(Term_21D)
   
 stargazer::stargazer(Term_21D,type="text",#Term_20A,#Term_20C
                         digits=2)
 
 summary_residual_compare(Term_21D,bins=50)
 
-  CBre_22H.all<-allFit_save(CBre_22H,filename="output/CBre_22H_allfit.rdata")
+  # CBre_22H.all<-allFit_save(CBre_22H,filename="output/CBre_22H_allfit.rdata")
 ```
 
 
@@ -1599,33 +1603,8 @@ summary_residual_compare(Term_21D,bins=50)
 ```{r Model21E}
 
 
-load("Output//Model21E_CBre.rdata")
-if(!exists("CBre_21E.restart"))
-  CBre_21E.restart <- glmer (data=fed_1m,
-                   b_CBre ~ Crisis +NoCompOffr2 +
-                     b_UCA+
-                     
-                     OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
-                     Veh+
-                     PricingFee+
-                     #Crisis:NoCompOffr+
-                     # b_UCA:Crisis+
-                     # Veh:cl_Ceil+
-                     # b_UCA:NoCompOffr2+
-                     cl_Ceil:NoCompOffr2+
-                   #   capped_cl_Days:NoCompOffr+
-                   # NoCompOffr:Veh,
-    
+load(file.path("..","Output","Model21E_CBre.rdata"))
 
-                     (1 | CrisisProductOrServiceArea/ProdServ) + 
-                     (1 | Customer/Office) + 
-                     (0 + OffPlace | PlaceCountryISO3) + 
-                     (1 | StartFY)
-               , 
-                   family=binomial(link="logit"),
-                verbose=1)
   glmer_examine(CBre_21E.restart)
 
   
@@ -1636,7 +1615,7 @@ stargazer::stargazer(CBre_21E.restart,type="text",#Term_20A,#Term_20C
 summary_residual_compare(CBre_21E.restart,bins=50)
 
 
-  CBre_21E.all<-allFit_save(CBre_21E.restart,filename="output/CBre_21E_allfit.rdata")
+  # CBre_21E.all<-allFit_save(CBre_21E.restart,filename="output/CBre_21E_allfit.rdata")
 ```
 
 
@@ -1645,40 +1624,19 @@ summary_residual_compare(CBre_21E.restart,bins=50)
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("output/Model22G.RData")
+load(file.path("..","output","Model22G.RData"))
 
-  
-if(!exists("Term_22G"))
-  Term_22G <- glmer (data=crisis_all,
-                   b_Term ~ Crisis +NoCompOffr2+
-                     b_UCA+
-                     c_OffCri+
-                     OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
-                     Veh+
-                     PricingFee+
-                          #Crisis:NoCompOffr+
-                     # b_UCA:Crisis+
-                     # b_UCA:NoCompOffr2+
-                     (1 | CrisisProductOrServiceArea/ProdServ) + 
-                     (1 | Customer/Office)+
-                     (0 + OffPlace| PlaceCountryISO3), 
-                   family=binomial(link="logit"),
-                     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
-     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_22G)
   
   
-  source(system.file("utils", "allFit.R", package="lme4"))
   
   
-  Term_22G.all<-allFit_save(Term_22G,filename="output/Term_22G_allfit.rdata")
-  Term_22G_ss_cons <- summary(Term_22G.all) 
-
-    structure(res, class = "allfit", fit = m, sessionInfo =  sessionInfo(),
-              data = data # is dropped if NULL
-              )
+  # Term_22G.all<-allFit_save(Term_22G,filename="output/Term_22G_allfit.rdata")
+  # Term_22G_ss_cons <- summary(Term_22G.all) 
+  # 
+  #   structure(res, class = "allfit", fit = m, sessionInfo =  sessionInfo(),
+  #             data = data # is dropped if NULL
+  #             )
   
   # odds_ratio(CBre_Cons_13B.restart,"CBre_Cons_13B")
 # if(!exists("CBre_Cons_13B_1m_restart")){
@@ -1695,8 +1653,67 @@ stargazer::stargazer(Term_22G,type="text",#Term_20A,#Term_20C
 summary_residual_compare(Term_22G,bins=50)
 ```
 
+
+
+
+
+### Crisis-Only 22H CBre
+```{r Model22H}
+# summary(large_crisis_smp$ServCommCons)
+# summary(large_crisis_smp$CPSA)
+
+load(file.path("..","Output","Model22H.RData"))
+
+
+fed_1m$ProdServ<-factor(fed_1m$ProdServ)
+fed_1m$Customer<-factor(fed_1m$Customer)
+summary(fed_1m[,colnames(fed_1m) %in% 
+                 c("Crisis",
+                   "NoCompOffr2", 
+                     "b_UCA",
+                     "OffPlace",
+                     "cl_Ceil",
+                     "capped_cl_Days",
+                     "Veh",
+                     "PricingFee",
+                     #Crisis:NoCompOffr+
+                     # b_UCA:Crisis+
+                     # Veh:cl_Ceil+
+                       "NoCompOffr2",
+                     "cl_Ceil",
+                     "b_UCA",
+                     "NoCompOffr2",
+                     "CrisisProductOrServiceArea",
+                     "ProdServ",
+                     "Customer",
+                     "Office",
+                     "OffPlace",
+                     "PlaceCountryISO3",
+                     "StartFY")])
+
+
+  glmer_examine(CBre_22H)
+  load("Output//CBre_22H_allfit.rdata")
+
+# Plot the model and Vehicle 
+stargazer::stargazer(CBre_22H,res[1],res[2],res[3],#res[4],
+                     res[5],#res[6],res[7],
+                     type="text",#Term_20A,#Term_20C
+                        digits=2)
+
+length(res[[6]])
+res[[5]]
+
+summary_residual_compare(CBre_22H,bins=50)
+
+
+  # CBre_22H.all<-allFit_save(CBre_22H,filename="output/CBre_22H_allfit.rdata")
+```
+
+# Figures for Paper
+### Chart Reachback
 ```{r Xinyi: Plot Countries with top20 frequencies and their multilevel intercept}
-load("Output//Model22G.rdata")
+
 coef(Term_22G)$PlaceCountryISO3[1]
 Country_Intercept <- as.data.frame(coef(Term_22G)$PlaceCountryISO3[1])
 Country_Intercept$Countries <- row.names(Country_Intercept)
@@ -1736,87 +1753,19 @@ ggplot(data = Country_Intercept20,
 ```
 
 
+### Agency dot plot
+```{r AgencyDotPlot}
+#This doesn't actually work
+#https://www.lcampanelli.org/mixed-effects-modeling-lme4/
+gridExtra::grid.arrange(dotplot(ranef(CBre_21E.restart, condVar = T), strip = T, scales=list(relation='free'))$Agency,
+             dotplot(ranef(CBre_22H, condVar = T), strip = T, scales=list(relation='free'))$Agency,
+             nrow=1)
 
-
-### Crisis-Only 22H CBre
-```{r Model22H}
-# summary(large_crisis_smp$ServCommCons)
-# summary(large_crisis_smp$CPSA)
-
-load("Output//Model22H.RData")
-
-
-fed_1m$ProdServ<-factor(fed_1m$ProdServ)
-fed_1m$Customer<-factor(fed_1m$Customer)
-summary(fed_1m[,colnames(fed_1m) %in% 
-                 c("Crisis",
-                   "NoCompOffr2", 
-                     "b_UCA",
-                     "OffPlace",
-                     "cl_Ceil",
-                     "capped_cl_Days",
-                     "Veh",
-                     "PricingFee",
-                     #Crisis:NoCompOffr+
-                     # b_UCA:Crisis+
-                     # Veh:cl_Ceil+
-                       "NoCompOffr2",
-                     "cl_Ceil",
-                     "b_UCA",
-                     "NoCompOffr2",
-                     "CrisisProductOrServiceArea",
-                     "ProdServ",
-                     "Customer",
-                     "Office",
-                     "OffPlace",
-                     "PlaceCountryISO3",
-                     "StartFY")])
-
-
-if(!exists("CBre_22H"))
-  CBre_22H <- glmer (data=crisis_all,
-                     b_CBre ~ Crisis +NoCompOffr2 +
-                     b_UCA+
-                     OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
-                     Veh+
-                     PricingFee+
-                     #Crisis:NoCompOffr+
-                     # b_UCA:Crisis+
-                     # Veh:cl_Ceil+
-                       NoCompOffr2:cl_Ceil+
-                     # b_UCA:NoCompOffr2+
-                     (1 | CrisisProductOrServiceArea/ProdServ) + 
-                     (1 | Customer/Office) + 
-                     (0 + OffPlace | PlaceCountryISO3) + 
-                     (1 | StartFY)
-               , 
-                   family=binomial(link="logit")
-     # control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
-     # optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE))
-     )
-
-  glmer_examine(CBre_22H)
-  load("Output//CBre_22H_allfit.rdata")
-
-# Plot the model and Vehicle 
-stargazer::stargazer(CBre_22H,res[1],res[2],res[3],#res[4],
-                     res[5],#res[6],res[7],
-                     type="text",#Term_20A,#Term_20C
-                        digits=2)
-
-length(res[[6]])
-res[[5]]
-
-summary_residual_compare(CBre_22H,bins=50)
-
-
-  CBre_22H.all<-allFit_save(CBre_22H,filename="output/CBre_22H_allfit.rdata")
 ```
 
+
 # Tables for Paper
-## Moel Results Directly
+## Model Results Directly
 ```{r Output-Direct}
 # Plot the model and Vehicle 
 
@@ -1829,7 +1778,7 @@ stargazer::stargazer(CBre_21E.restart,CBre_22H,Term_21D,Term_22G,type="text",
 summary_residual_compare(CBre_21E.restart,CBre_22H,Term_21D,Term_22G,bins=50)
 
 
-texreg::htmlreg(list(CBre_21E.restart,CBre_22H,Term_21D,Term_22G),file="Output//Both_Model.html",
+texreg::htmlreg(list(CBre_21E.restart,CBre_22H,Term_21D,Term_22G),file=file.path("..","Output","Both_Model.html"),
                 single.row = TRUE,
                 custom.model.name=c("Federal-Wide<br>Ceiling Breach",
                                     "Crisis-Only<br>Ceiling Breach",
@@ -1911,26 +1860,74 @@ caption.above=TRUE)
 
 ## Model Odds Ratio
 ```{r Output-Odds Ratio}
-summary_residual_compare(CBre_21E.restart,CBre_22H,Term_21D,Term_22G,bins=50)
-debug(odds_ratio)
+all_coef_list<-get_coef_list()
+
 #Note, must have datasets loaded.
-or1<-odds_ratio(CBre_21E.restart,"CBre_21E.restart","Federal","Ceiling Breaches")
-or2<-odds_ratio(CBre_22H,"CBre_22H","Crisis","Ceiling Breaches")
-or3<-odds_ratio(Term_21D,"Term_21D","Federal","Terminations")
-or4<-odds_ratio(Term_21D,"Term_22G","Crisis","Terminations")
-comp.or<-rbind(or1,or2,or3)
-
-write.csv(get_study_variables_odds_ratio(comp.or),file="Output//ceiling_breach_study_odds_ratio.csv",row.names=FALSE)
+or_cbre_overall<-odds_ratio(CBre_21E.restart,"CBre_21E.restart","Federal","Ceiling Breaches",
+                            walds = TRUE,rename_list=all_coef_list)
+or_cbre_crisis<-odds_ratio(CBre_22H,"CBre_22H","Crisis","Ceiling Breaches",
+                           walds = TRUE,rename_list=all_coef_list)
+comp.or<-rbind(or_cbre_overall,or_cbre_crisis)
 
 
-write.csv(get_study_variables_odds_ratio(comp.or),file="Output//ceiling_breach_study_odds_ratio_1m.csv",row.names=FALSE)
-get_icc(CBre_Cons_Comp_15A_1m)
+write.csv(get_study_variables_odds_ratio(comp.or,study="crisis"),file=
+            file.path("..","Output","ceiling_breach_study_odds_ratio.csv"),row.names=FALSE)
 
-#https://www.lcampanelli.org/mixed-effects-modeling-lme4/
-gridExtra::grid.arrange(dotplot(ranef(CBre_Cons_13B.restart, condVar = T), strip = T, scales=list(relation='free'))$Agency,
-             dotplot(ranef(CBre_Comp_13C, condVar = T), strip = T, scales=list(relation='free'))$Agency,
-             dotplot(ranef(CBre_Cons_Comp_15A, condVar = T), strip = T, scales=list(relation='free'))$Agency,
-             nrow=1)
+
+
+or_term_overall<-odds_ratio(Term_21D,"Term_21D","Federal","Terminations",
+                            walds = TRUE,rename_list=all_coef_list)
+or_term_crisis<-odds_ratio(Term_22G,"Term_22G","Crisis","Terminations",
+                           walds = TRUE,rename_list=all_coef_list)
+term.or<-rbind(or_term_overall,or_term_crisis)
+
+write.csv(get_study_variables_odds_ratio(term.or,study="crisis"),file=
+            file.path("..","Output","terminations_study_odds_ratio.csv"),row.names=FALSE)
+
+
 
 
 ```
+
+
+
+
+## Residuals Plot
+
+```{r Residuals, fig.width=7.5 , fig.height=8.5}
+(
+  ceiling_breach_residual<-gridExtra::grid.arrange(
+    binned_fitted_versus_residuals(CBre_21E.restart,bins=50)+
+      labs(title="Overall Ceiling Breach Binned Actuals",caption=NULL,
+           x="Estimated Pr(Breach)",y="Actual Pr(Breach)"),
+    residuals_binned(CBre_21E.restart, bins=50)+labs(title="Overall Ceiling Breach Binned Residuals",
+                                              x="Estimated Pr(Breach)",y="Residuals"),
+    binned_fitted_versus_residuals(CBre_22H,bins=50)+
+      labs(title="Crisis Ceiling Breach Binned Actuals",caption=NULL,
+           x="Estimated Pr(Breach)",y="Actual Pr(Breach)"),
+    residuals_binned(CBre_22H, bins=50)+labs(title="Crisis Ceiling Breach Binned Residuals",
+                                              x="Estimated Pr(Breach)",y="Residuals")
+  )
+)
+ggsave(ceiling_breach_residual,file=file.path("..","output","cbre_residual.png"),width=6.5*1.2, height=8*1.2)
+
+
+
+(
+  terminations_residual<-gridExtra::grid.arrange(
+    binned_fitted_versus_residuals(Term_21D,bins=50)+
+      labs(title="Overall Terminations Binned Actuals",caption=NULL,
+           x="Estimated Pr(Terminations)",y="Actual Pr(Terminations)"),
+    residuals_binned(Term_21D, bins=50)+labs(title="Overall Terminations Binned Residuals"),
+    binned_fitted_versus_residuals(Term_22G,bins=50)+
+      labs(title="Crisis Terminations Binned Actuals",caption=NULL,
+           x="Estimated Pr(Terminations)",y="Actual Pr(Terminations)"),
+    residuals_binned(Term_22G, bins=50)+labs(title="Crisis Terminations Binned Residuals"),
+    ncol=2
+    )
+)
+  ggsave(terminations_residual,file=file.path("..","output","term_residual.png"),width=6.5*1.2, height=8*1.2)
+
+ 
+
+``` 
