@@ -62,7 +62,7 @@ note.text.size<-1.40
 ```{r Import}
 # read in data    
 
-load(file="Data//full_data_after_step_6.Rdata")
+load(file="..//Data//semi_clean//full_data_after_step_6.Rdata")
 full_data$CrisisDisplay<-as.character(full_data$CrisisFunding)
 full_data$CrisisDisplay[full_data$CrisisDisplay  %in% c("Unlabeled","Excluded")]<-"All Other"
 full_data$CrisisDisplay<-factor(full_data$CrisisDisplay)
