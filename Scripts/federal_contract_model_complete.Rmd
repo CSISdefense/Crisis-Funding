@@ -35,7 +35,7 @@ source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/
 ```{r DetailCustomer}
 if(!is.null(fed_full)){
 fed_full <-readr::read_delim(
-  "Data\\contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
+  "..\\data\\semi_clean\\contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
   col_names=TRUE, 
   delim="\t",
   # , dec=".",
@@ -47,7 +47,7 @@ fed_full <-readr::read_delim(
   fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"contract_SP_ContractSampleCriteriaDetailsCustomer.txt"
   ,path=""
-  ,"Data\\"
+  ,"..\\data\\semi_clean\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -89,7 +89,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
 "UnmodifiedContractBaseAndExercisedOptionsValue.1",
 "UnmodifiedContractBaseAndAllOptionsValue.2"
     )]
-save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 
 ```
@@ -97,12 +97,12 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 ##Initial Scope
 ```{r Scope}
-# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"Contract.SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt"
   ,path=""
-  ,"Data\\"
+  ,"..\\data\\semi_clean\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -151,25 +151,25 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
   "LastUltimateCompletionDate"
     )]
 
-save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ```
 
 ## ContractingDelta
 ```{r ContractingDelta}
-# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(fed_full,
   "contract_SP_ContractModificationDeltaCustomer.txt",
   "",
-  "Data\\",
+  "..\\data\\semi_clean\\",
   by="CSIScontractID",
   new_var_checked=FALSE
 )
 
 fed_full<-csis360::standardize_variable_names(fed_full)
 
-fed_full$ChangeOrderObligatedAmount<-FactorToNumber(fed_full$ChangeOrderObligatedAmount)
-fed_full$ChangeOrderBaseAndAllOptionsValue<-FactorToNumber(fed_full$ChangeOrderBaseAndAllOptionsValue)
+fed_full$ChangeOrderObligatedAmount<-text_to_number(fed_full$ChangeOrderObligatedAmount)
+fed_full$ChangeOrderBaseAndAllOptionsValue<-text_to_number(fed_full$ChangeOrderBaseAndAllOptionsValue)
 
 
 
@@ -200,16 +200,16 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
 "MaxOfisNewWork"
     )]
 
-save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ```
 ##Location
 ```{r Location}
-# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(fed_full,
     "Contract.SP_ContractLocationCustomer.txt"
   ,path=""
-  ,dir="Data\\"
+  ,dir="..\\data\\semi_clean\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
   # ,zip_file="Contract.SP_ContractLocationCustomer.zip"
@@ -257,6 +257,7 @@ summary(fed_full$AnyPlaceInternational)
 fed_full$UnmodifiedPlaceCountryISO3[is.na(fed_full$UnmodifiedPlaceCountryISO3)]<-
   fed_full$PlaceCountryISO3[is.na(fed_full$UnmodifiedPlaceCountryISO3)]
 fed_full$UnmodifiedPlaceCountryISO3<-factor(fed_full$UnmodifiedPlaceCountryISO3)
+
 
 fed_full$PlaceCountryISO3<-as.character(fed_full$PlaceCountryISO3)
 fed_full$VendorCountryISO3<-as.character(fed_full$VendorCountryISO3)
@@ -312,19 +313,19 @@ fed_full$PlaceCountryISO3[is.na(fed_full$PlaceCountryISO3)&
     )]
 
 fed_full$AnyPlaceInternational<-droplevels(fed_full$AnyPlaceInternational)
-save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 
 ```
 
 ##FundingAccount
 ```{r Location}
-# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(fed_full,
     "Contract.SP_ContractFundingAccount.txt"
   ,path=""
-  ,dir="Data\\"
+  ,dir="..\\data\\semi_clean\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
   # ,zip_file="Contract.SP_ContractFundingAccount.zip"
@@ -394,7 +395,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
   "AnyUnmodifiedTreasuryAgencyCode"
     )]
 
-save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 
 ```
@@ -403,21 +404,21 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ##BucketPlatform
 ```{r BucketPlatform}
 #Not used in crisis
-# # load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+# # load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
 # #Note to identify is.defense here.
 # fed_full<-csis360::read_and_join_experiment(data=fed_full
 #   ,"Contract.SP_ContractBucketPlatformCustomer.txt"
 #   ,path=""
-#   ,"Data\\"
+#   ,"..\\data\\semi_clean\\"
 #   ,by="CSIScontractID"
 #   ,new_var_checked=FALSE
 # )
 # # 
-# # fed_full$ObligatedAmountIsProducts<-FactorToNumber(fed_full$ObligatedAmountIsProducts)
+# # fed_full$ObligatedAmountIsProducts<-text_to_number(fed_full$ObligatedAmountIsProducts)
 # # 
-# # fed_full$ObligatedAmountIsServices<-FactorToNumber(fed_full$ObligatedAmountIsServices)
+# # fed_full$ObligatedAmountIsServices<-text_to_number(fed_full$ObligatedAmountIsServices)
 # # 
-# # fed_full$ObligatedAmountIsRnD<-FactorToNumber(fed_full$ObligatedAmountIsRnD)
+# # fed_full$ObligatedAmountIsRnD<-text_to_number(fed_full$ObligatedAmountIsRnD)
 # # 
 # # fed_full$pIsProducts <- fed_full$ObligatedAmountIsProducts/fed_full$Action.Obligation
 # # fed_full$pIsProducts[is.na(fed_full$ObligatedAmountIsProducts)] <- 0
@@ -431,22 +432,22 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 # #Need to update these to the new platform portfolios
 # # 
 # # 
-# # fed_full$ObligatedAmountIsLand<-FactorToNumber(fed_full$ObligatedAmountIsLand)
+# # fed_full$ObligatedAmountIsLand<-text_to_number(fed_full$ObligatedAmountIsLand)
 # # 
-# # fed_full$ObligatedAmountIsVessel<-FactorToNumber(fed_full$ObligatedAmountIsVessel)
+# # fed_full$ObligatedAmountIsVessel<-text_to_number(fed_full$ObligatedAmountIsVessel)
 # # 
 # # 
-# # fed_full$ObligatedAmountIsVessel<-FactorToNumber(fed_full$ObligatedAmountIsAir)
+# # fed_full$ObligatedAmountIsVessel<-text_to_number(fed_full$ObligatedAmountIsAir)
 # # 
-# # fed_full$ObligatedAmountIsVessel<-FactorToNumber(fed_full$ObligatedAmountIsOtherPP)
+# # fed_full$ObligatedAmountIsVessel<-text_to_number(fed_full$ObligatedAmountIsOtherPP)
 # # 
-# # fed_full$ObligatedAmountIsWnA<-FactorToNumber(fed_full$ObligatedAmountIsWnA)
+# # fed_full$ObligatedAmountIsWnA<-text_to_number(fed_full$ObligatedAmountIsWnA)
 # # 
-# # fed_full$ObligatedAmountIsMnS<-FactorToNumber(fed_full$ObligatedAmountIsMnS)
+# # fed_full$ObligatedAmountIsMnS<-text_to_number(fed_full$ObligatedAmountIsMnS)
 # # 
-# # fed_full$ObligatedAmountIsEnC<-FactorToNumber(fed_full$ObligatedAmountIsEnC)
+# # fed_full$ObligatedAmountIsEnC<-text_to_number(fed_full$ObligatedAmountIsEnC)
 # # 
-# # fed_full$ObligatedAmountIsFRSnC<-FactorToNumber(fed_full$ObligatedAmountIsFRSnC)
+# # fed_full$ObligatedAmountIsFRSnC<-text_to_number(fed_full$ObligatedAmountIsFRSnC)
 # # 
 # # 
 # # fed_full$pIsLand <- fed_full$ObligatedAmountIsLand/fed_full$Action.Obligation
@@ -551,20 +552,20 @@ save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 # fed_full$SimpleArea<-droplevels(fed_full$SimpleArea)
 # 
 # 
-# save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+# save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 ```
 
 ##Competition Vehicle
 ```{r CompetitionVehicle}
-# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
 
 
 ##Contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.txt
 fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"Contract.SP_ContractUnmodifiedCompetitionvehicleCustomer.txt"
   ,path=""
-  ,"Data\\"
+  ,"..\\data\\semi_clean\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -573,7 +574,7 @@ fed_full<-csis360::read_and_join_experiment(data=fed_full
 fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"Contract.SP_ContractCompetitionVehicleCustomer.txt"
   ,path=""
-  ,"Data\\"
+  ,"..\\data\\semi_clean\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
 )
@@ -582,8 +583,8 @@ fed_full<-csis360::read_and_join_experiment(data=fed_full
 #Number of Offers
 fed_full$UnmodifiedNumberOfOffersReceived[fed_full$UnmodifiedNumberOfOffersReceived==0]<-NA
 fed_full$NumberOfOffersReceived[fed_full$NumberOfOffersReceived==0]<-NA
-fed_full$UnmodifiedNumberOfOffersReceived<-FactorToNumber(fed_full$UnmodifiedNumberOfOffersReceived)
-fed_full$NumberOfOffersReceived<-FactorToNumber(fed_full$NumberOfOffersReceived)
+fed_full$UnmodifiedNumberOfOffersReceived<-text_to_number(fed_full$UnmodifiedNumberOfOffersReceived)
+fed_full$NumberOfOffersReceived<-text_to_number(fed_full$NumberOfOffersReceived)
 fed_full$UnmodifiedNumberOfOffersReceived[is.null(fed_full$UnmodifiedNumberOfOffersReceived)]<-NA
 fed_full$NumberOfOffersReceived[is.null(fed_full$NumberOfOffersReceived)]<-NA
 
@@ -775,21 +776,22 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
 )]
 str(fed_full)
   
-save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 ```
 
 
 ##Pricing
 ```{r Pricing}
-# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"Contract.SP_ContractPricingCustomer.txt"
   ,path=""
-  ,"Data\\"
+  ,"..\\data\\semi_clean\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
+  ,create_lookup_rdata = TRUE
 )
 
 #Process Fixed Or Cost
@@ -902,6 +904,17 @@ summary(fed_full$FxCb)
 #         "Delivery Order")])
 
 
+fed_full<-csis360::read_and_join_experiment(data=fed_full
+  ,"Contract.SP_ContractPricingUCA.txt"
+  ,path=""
+  ,"..\\data\\semi_clean\\"
+  ,by="CSIScontractID"
+  ,new_var_checked=FALSE
+  ,create_lookup_rdata = TRUE
+)
+
+
+
 #Imput UCA unmodified values when consistent for the remainder of the vehicle
 fed_full$UnmodifiedIsUCA[is.na(fed_full$UnmodifiedIsUCA)&
   !is.na(fed_full$IsUCA)]<-
@@ -909,68 +922,86 @@ fed_full$UnmodifiedIsUCA[is.na(fed_full$UnmodifiedIsUCA)&
   !is.na(fed_full$IsUCA)]
 
 
-
 fed_full$UCA<-factor(fed_full$UnmodifiedIsUCA,
   levels=c(0,1),
   labels=c("Not UCA","UCA")
 )
 
+summary(fed_full$UCA)
+
 #Imputing to make up for absence of 
 #There's no obligations in the dataset to UCAs using the regulated vehicle of FSS/GWAC
-fed_full$IsUCA[is.na(fed_full$UCA)&
+fed_full$UCA[is.na(fed_full$UCA)&
                fed_full$Veh=="FSS/GWAC"]<-"Not UCA"
+
+summary(fed_full$UCA)
+
+summary(factor(fed_full$UnmodifiedTypeOfContractPricing))
+
+
+fed_full$UnmodifiedTypeOfContractPricing[is.na(fed_full$UnmodifiedTypeOfContractPricing)&
+  !is.na(fed_full$TypeOfContractPricing)]<-
+  fed_full$TypeOfContractPricing[is.na(fed_full$UnmodifiedTypeOfContractPricing)&
+  !is.na(fed_full$TypeOfContractPricing)]
+
+fed_full$UnmodifiedTypeOfContractPricing   <-factor(fed_full$UnmodifiedTypeOfContractPricing)
+
 summary(fed_full$UCA)
 fed_full<-fed_full[,!colnames(fed_full) %in% 
     c(
-  # Pricing.Mechanism.Code,
+  'Pricing.Mechanism.Code',
   "UnmodifiedTypeOfContractPricing",
   "IsLabeledPricing",
   "ObligatedAmountIsFixedPrice",
-  # IsFixedPrice,
+  "IsFixedPrice",
   "UnmodifiedIsFixedPrice",
   "ObligatedAmountIsCostBased",
-  # IsCostBased,
+  "IsCostBased",
   "UnmodifiedIsCostBased",
   "ObligatedAmountIsCombination",
-  # IsCombination,
+  "IsCombination",
   "UnmodifiedIsCombination",
   "ObligatedAmountIsIncentive",
-  # IsIncentive,
+  "IsIncentive",
   "UnmodifiedIsIncentive",
   "ObligatedAmountIsAwardFee",
-  # IsAwardFee,
+  "IsAwardFee",
   "UnmodifiedIsAwardFee",
   "ObligatedAmountIsFFPorNoFee",
-  # IsFFPorNoFee,
+  "IsFFPorNoFee",
   "UnmodifiedIsFFPorNoFee",
   "ObligatedAmountIsFixedFee",
-  # IsFixedFee,
+  "IsFixedFee",
   "UnmodifiedIsFixedFee",
   "ObligatedAmountIsOtherFee",
-  # IsOtherFee,
-  "UnmodifiedIsOtherFee"
-  # pIsFixedPrice,
-  # pIsCostBased,
-  # pIsCombination,
-  # pIsIncentive,
-  # pIsAwardFee,
-  # pIsFFPorNoFee,
-  # pIsFixedFee,
-  # pIsOtherFee,
+  "IsOtherFee",
+  "UnmodifiedIsOtherFee",
+  "pIsFixedPrice",
+  "pIsCostBased",
+  "pIsCombination",
+  "pIsIncentive",
+  "pIsAwardFee",
+  "pIsFFPorNoFee",
+  "pIsFixedFee",
+  "pIsOtherFee",
   # FxCb,
   # Fee,
+  "UnmodifiedIsUCA",
+  "IsUCA",
+  # "UnmodifiedTypeOfContractPricing",
+  "TypeOfContractPricing"
     )]
 
 str(fed_full)
 
-save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 ```
 
 ## Top PSC Office NAICS
 ```{r TopPSCofficeNAICS}
-# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
 fed_full<-plyr::join(fed_full,test)
-test<-read_delim("Data\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
+test<-read_delim("..\\data\\semi_clean\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
                  na=c("NA","NULL"),
                  col_types="icdcdcdcd")
                    # c(col_integer(),
@@ -985,7 +1016,7 @@ test<-read_delim("Data\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
 fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"Contract.SP_ContractTopPSCofficeNAICS.txt"
   ,path=""
-  ,"Data\\"
+  ,"..\\data\\semi_clean\\"
   ,by="CSIScontractID"
   ,col_types="icdcdcdcd"
   ,new_var_checked=FALSE
@@ -1015,14 +1046,14 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
       "topProductOrServiceAmount"               ,
       # "topPrincipalNAICScode",
       "topPrincipalNAICSamount")]
-# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
-save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
+save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 ```
 
 ## Decision Tree
 ```{r DecisionTree}
-# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(data=fed_full,
     lookup_file="Contract.SP_ContractBudgetDecisionTree.txt",
@@ -1151,20 +1182,19 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
 "MaxOfDecisionTreeStep4"
 )]
 
-save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 
 ```
 
 #Final Cleanup and Output
 ##Applying lookups
 ```{r PostApply}
-# load(file="Data\\Federal_contract_CSIScontractID_complete.Rdata")
+load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
+fed_full<-transition_variable_names_common(fed_full)
 # debug(apply_lookups)
 
 
 fed_full<-apply_lookups(Path,fed_full)
-
-
 
 
 # fed_full<-csis360::read_and_join(
@@ -1197,7 +1227,7 @@ fed_full<-apply_lookups(Path,fed_full)
 
 
 
-save(file="Data\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
 # fed_full<-rename_dataset(fed_full)
 
 ```
@@ -1255,7 +1285,7 @@ fed<-fed[,colnames(fed) %in% c(
 
 #    
 # write.table(fed
-#   ,file=paste("data\\Federal_contract_CSIScontractID_detail.csv"
+#   ,file=paste("..\\data\\Federal_contract_CSIScontractID_detail.csv"
 #     ,sep=""
 #   )
 #   #   ,header=TRUE
@@ -1269,9 +1299,9 @@ fed<-fed[,colnames(fed) %in% c(
 
 # summary(fed$Agency[fed$Who=="Uncategorized"])
 # def<-fed[fed$Who!="Civilian",]
-# save(def,file="Data\\Defense_contract_CSIScontractID_detail.Rdata")
- save(fed,file="Data\\Federal_contract_CSIScontractID_detail.Rdata")
-  # load("Data\\Federal_contract_CSIScontractID_detail.Rdata")
+# save(def,file="..\\data\\semi_clean\\Defense_contract_CSIScontractID_detail.Rdata")
+ save(fed,file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_detail.Rdata")
+  # load("..\\data\\semi_clean\\Federal_contract_CSIScontractID_detail.Rdata")
 #Strip out the cuts
 
 
