@@ -79,3 +79,9 @@ data/semi_clean/Contract.SP_ContractSampleCriteriaDetailsCustomer.txt
 data/semi_clean/Contract.SP_ContractTopPSCofficeNAICS.txt
 
 data/semi_clean/Contract.SP_ContractUnmodifiedandOutcomeDetailsCustomer.txt
+
+data/semi_clean/overall_budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata
+
+data/semi_clean/Contract.SP_ContractPricingUCA.rda
+
+data/semi_clean/Contract.SP_ContractPricingCustomer.rda
