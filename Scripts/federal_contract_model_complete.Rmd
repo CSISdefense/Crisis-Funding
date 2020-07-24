@@ -9,7 +9,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r}
+```{r setup}
 #*************************************Required Libraries******************************************
 require(dplyr)
 require(grid)
@@ -1300,7 +1300,7 @@ fed<-fed[,colnames(fed) %in% c(
 
 # summary(fed$Agency[fed$Who=="Uncategorized"])
 # def<-fed[fed$Who!="Civilian",]
- save(fed,file="..\\data\\semi_clean\\federal_contract_complete.rdata")
+ save(fed,file="..\\data\\clean\\federal_contract_complete.rdata")
   # load("..\\data\\semi_clean\\federal_contract_complete")
 #Strip out the cuts
 
@@ -1312,11 +1312,12 @@ fed<-fed[,colnames(fed) %in% c(
 ```{r transform}
 load(file="..\\data\\clean\\federal_contract_complete.rdata")
 # undebug(transform_contract)
-debug(transform_contract)
+# debug(transform_contract)
 fed<-transform_contract(fed)
 
 
 contract_transform_verify(def,dollars_suffix="Then_Year")
 
 
+ save(fed,file="..\\data\\clean\\transformed_fed.rdata")
 ```
