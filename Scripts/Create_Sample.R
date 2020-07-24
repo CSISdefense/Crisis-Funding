@@ -21,9 +21,37 @@ library(reshape2)
 library(tidyverse)
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/Scripts/DIIGstat.r")
 
-if(!exists("def")) load("data/clean/transformed_def.Rdata")
-## Computational Sample Creation
-contract_transform_verify(def,dollars_suffix="Then_Year")
+
+##Prepare Data
+##First we load the data. The dataset used is a U.S. Federal Contracting dataset derived from   FPDS.
+
+###Data Transformations and Summary
+#### ReadInData 
+
+if(!exists("fed")) load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
+
+head(fed)
+## Functional transformations on data
+
+
+
+
+
+
+
+
+
+
+#b_CBre
+summary(fed_smp$b_Urg)
+
+fed_smp$b_Urg<-ifelse(fed_smp$Urg=="Urgency Except.",1,NA)
+fed_smp$b_Urg[fed_smp$Urg=="Not Urgency"]<-0
+
+# fed<-decision_tree(fed)
+
+
+```
 
 
 # load(file="Data/Clean//def_sample.Rdata")
@@ -63,6 +91,8 @@ summary(def$cl_def6_obl_lag1)
 summary(def$cl_def6_ratio_lag1)
 summary(def$cl_US6_avg_sal_lag1)
 
+## Next, we eliminate missing data entries 
+
 #New Controls
 complete<-
   #Dependent Variables
@@ -91,7 +121,6 @@ complete<-
   !is.na(def$cl_US6_avg_sal_lag1)
 
 
-
 summary(complete)
 summary(def$Action_Obligation_Then_Year)
 money<-def$Action_Obligation_Then_Year
@@ -100,8 +129,10 @@ money[def$Action_Obligation_Then_Year<0]<-0
 sum(def$Action_Obligation_Then_Year[def$Action_Obligation_Then_Year<0])
 
 
-
-
+## Once the missing entries have been removed, we draw a sample
+## The final computation uses a 1 million row  dataset , but as a computation shortcut, only a 250k subset of the data is needed to
+## allow for processing of models in minutes rather than hours.
+  
 
 
 

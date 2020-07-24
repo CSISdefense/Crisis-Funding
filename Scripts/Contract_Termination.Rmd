@@ -45,11 +45,6 @@ Contract terminations and the number of change orders can be calculated for the 
 These four catetegories and the "Close Out" category are used to mark a contract as closed.  Many contracts in FPDS and in the sample are never marked closed.  
 
 
-##Prepare Data
-First we load the data. The dataset used is a U.S. Defense Contracting dataset derived from   FPDS.
-
-
-###Data Transformations and Summary
 
 
 

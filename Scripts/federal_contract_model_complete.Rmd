@@ -89,7 +89,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
 "UnmodifiedContractBaseAndExercisedOptionsValue.1",
 "UnmodifiedContractBaseAndAllOptionsValue.2"
     )]
-save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 
 
 ```
@@ -97,7 +97,7 @@ save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata"
 
 ##Initial Scope
 ```{r Scope}
-# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"Contract.SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt"
@@ -151,12 +151,12 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
   "LastUltimateCompletionDate"
     )]
 
-save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 ```
 
 ## ContractingDelta
 ```{r ContractingDelta}
-# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(fed_full,
   "contract_SP_ContractModificationDeltaCustomer.txt",
@@ -200,11 +200,11 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
 "MaxOfisNewWork"
     )]
 
-save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 ```
 ##Location
 ```{r Location}
-# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(fed_full,
     "Contract.SP_ContractLocationCustomer.txt"
@@ -313,14 +313,14 @@ fed_full$PlaceCountryISO3[is.na(fed_full$PlaceCountryISO3)&
     )]
 
 fed_full$AnyPlaceInternational<-droplevels(fed_full$AnyPlaceInternational)
-save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 
 
 ```
 
 ##FundingAccount
 ```{r Location}
-# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(fed_full,
     "Contract.SP_ContractFundingAccount.txt"
@@ -395,7 +395,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
   "AnyUnmodifiedTreasuryAgencyCode"
     )]
 
-save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 
 
 ```
@@ -404,7 +404,7 @@ save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata"
 ##BucketPlatform
 ```{r BucketPlatform}
 #Not used in crisis
-# # load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
+# # load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 # #Note to identify is.defense here.
 # fed_full<-csis360::read_and_join_experiment(data=fed_full
 #   ,"Contract.SP_ContractBucketPlatformCustomer.txt"
@@ -552,13 +552,13 @@ save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata"
 # fed_full$SimpleArea<-droplevels(fed_full$SimpleArea)
 # 
 # 
-# save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+# save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 
 ```
 
 ##Competition Vehicle
 ```{r CompetitionVehicle}
-# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 
 ##Contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.txt
@@ -776,14 +776,14 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
 )]
 str(fed_full)
   
-save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 
 ```
 
 
 ##Pricing
 ```{r Pricing}
-# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"Contract.SP_ContractPricingCustomer.txt"
@@ -994,12 +994,12 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
 
 str(fed_full)
 
-save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 ```
 
 ## Top PSC Office NAICS
 ```{r TopPSCofficeNAICS}
-# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 fed_full<-plyr::join(fed_full,test)
 test<-read_delim("..\\data\\semi_clean\\Contract.SP_ContractTopPSCofficeNAICS.txt",delim="\t",
                  na=c("NA","NULL"),
@@ -1046,14 +1046,14 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
       "topProductOrServiceAmount"               ,
       # "topPrincipalNAICScode",
       "topPrincipalNAICSamount")]
-# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
-save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+# load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
+save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 
 ```
 
 ## Decision Tree
 ```{r DecisionTree}
-# load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
+# load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(data=fed_full,
     lookup_file="Contract.SP_ContractBudgetDecisionTree.txt",
@@ -1182,14 +1182,14 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
 "MaxOfDecisionTreeStep4"
 )]
 
-save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 
 ```
 
 #Final Cleanup and Output
 ##Applying lookups
 ```{r PostApply}
-load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
+load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 fed_full<-transition_variable_names_common(fed_full)
 # debug(apply_lookups)
 
@@ -1227,13 +1227,14 @@ fed_full<-apply_lookups(Path,fed_full)
 
 
 
-save(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata",fed_full)
+save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 # fed_full<-rename_dataset(fed_full)
 
 ```
-##Dataset Output
+##Minimal Dataset Output
 
 ```{r DatasetOutput}
+load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 fed<-rename_dataset(fed_full)
 fed<-fed[,colnames(fed) %in% c(
   "CSIScontractID",
@@ -1299,12 +1300,23 @@ fed<-fed[,colnames(fed) %in% c(
 
 # summary(fed$Agency[fed$Who=="Uncategorized"])
 # def<-fed[fed$Who!="Civilian",]
-# save(def,file="..\\data\\semi_clean\\Defense_contract_CSIScontractID_detail.Rdata")
- save(fed,file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_detail.Rdata")
-  # load("..\\data\\semi_clean\\Federal_contract_CSIScontractID_detail.Rdata")
+ save(fed,file="..\\data\\semi_clean\\federal_contract_complete.rdata")
+  # load("..\\data\\semi_clean\\federal_contract_complete")
 #Strip out the cuts
 
 
 
 ```
 
+##Transformed Dataset Output 
+```{r transform}
+load(file="..\\data\\clean\\federal_contract_complete.rdata")
+# undebug(transform_contract)
+debug(transform_contract)
+fed<-transform_contract(fed)
+
+
+contract_transform_verify(def,dollars_suffix="Then_Year")
+
+
+```
