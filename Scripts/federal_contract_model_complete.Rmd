@@ -27,6 +27,7 @@ options(warn=1)
 source("ContractCleanup.r")
 source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
 source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
+source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/Scripts/DIIGstat.r")
 
 ```
 
@@ -1062,6 +1063,10 @@ fed_full<-csis360::read_and_join_experiment(data=fed_full,
   by="CSIScontractID",
   new_var_checked=FALSE
 )
+
+# fed<-decision_tree(fed)
+
+
 fed_full$DisastertransactionGrossObligated<-as.numeric(fed_full$DisastertransactionGrossObligated)
   # fed_full$DisastertransactionGrossObligated[!is.na(fed_full$DisastertransactionGrossObligated) &
   #                                        is.na(as.numeric(fed_full$DisastertransactionGrossObligated))]
@@ -1315,8 +1320,8 @@ load(file="..\\data\\clean\\federal_contract_complete.rdata")
 # debug(transform_contract)
 fed<-transform_contract(fed)
 
-
-contract_transform_verify(def,dollars_suffix="Then_Year")
+debug(contract_transform_verify)
+contract_transform_verify(fed,dollars_suffix="Then_Year")
 
 
  save(fed,file="..\\data\\clean\\transformed_fed.rdata")

@@ -335,9 +335,92 @@ ggsave("Output//Figure14_topline.eps", device=cairo_pdf, chapter4topline, width=
 
 
 
+### Output Variables
+
+Contract terminations and the number of change orders can be calculated for the entire sample.  Contract termination is determined using the *Reason for Modification* field in FPDS.  A contract is considered to be terminated if it has at least one modification with the following values:
+
+* "Terminate for Default (complete or partial)"
+* "Terminate for Convenience (complete or partial)"
+* "Terminate for Cause"
+* "Legal Contract Cancellation"
+
+These four catetegories and the "Close Out" category are used to mark a contract as closed.  Many contracts in FPDS and in the sample are never marked closed.  
+
+
+* b_CBre is a binary variable that has a value of 1 for any contracts that have experienced a partial or complete termination, 0 otherwise. ('r summary(fed$b_CBre)
+NA_stats(fed,"b_CBre")')     "the original variable is CBre(None/Ceiling Breach"
+
+```{r grouped barplot for variable: b_CBre}
+#the original variable for b_CBre is CBre(None/Ceiling Breach)
+
+statsummary_discrete("CBre", fed)
+grouped_barplot("CBre", fed)
+
+```
+
+```{r grouped barplot for variable: b_Term}
+#The original variable for b_Term is Term
+
+statsummary_discrete("Term", fed)
+grouped_barplot("Term", fed)
+
+```
+
+
 
 ### Study Variables
 #### Competition
+
+* b_Comp is a binary variable based on competition. It has a value of 0 for uncompeted contracts and a value of 1 for competition, regardless of number of offers. 'r  summary(fed$b_Comp);         "the original variable is Comp(No Comp./Comp.)"
+NA_stats(fed,"b_Comp")'
+
+```{r grouped barplot for variable: b_Comp}
+#the original variable for b_Comp is Comp(No Comp./Comp.)
+
+statsummary_discrete("Comp", fed)
+grouped_barplot("Comp", fed)
+
+```
+
+* n_Comp is a numeric variable based on competition and number of offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for multi-offer competition. 'r summary(fed$EffComp);
+NA_stats(fed,"n_Comp")' "the original variable is EffComp(No Comp./1 Offer/2+ offers)"    
+```{r grouped barplot for variable: n_Comp}
+#the original variable for n_Comp is EffComp(No Comp./1 offer/2+ offers)
+
+statsummary_discrete("EffComp", fed)
+grouped_barplot("EffComp", fed)
+
+```
+
+
+* n_Offr is a numeric variable based on competition and with more granularity on number offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for 2-offers, 3 for 3-4 offers, and 4 for 5+ offers. 'r summary(fed$n_Offr);
+NA_stats(fed,"n_Offr")' 
+
+
+
+* b_Urg is a categorical variable.
+It has a value of 0, stands for "Not Urgency", and 1 stands for "Urgency Except." 
+summary(fed$Urg);
+NA_stats(fed,"b_Urg")' 
+
+```{r grouped barplot for variable: b_Urg}
+#The original variable for b_Urg is Urg(Not Urgency/Urgency Except.)
+
+statsummary_discrete("Urg", fed)
+grouped_barplot("Urg", fed)
+
+```
+
+
+* cl_Offr is the natural log of the number of offers received. Uncompeted contracts are classified as having received one offer. 'r summary(fed$l_Offr)
+NA_stats(fed,"l_Offr")'
+
+```{r statistical summary table for variable cl_Offer}
+#The original variable for cl_Offer is UnmodifiedNumberOfOffersReceived
+ 
+statsummary_continuous(("UnmodifiedNumberOfOffersReceived"), fed)
+
+```
 
 ```{r Competition}
 
@@ -464,6 +547,20 @@ ggsave("Output//Figure16_CompAnnual.eps", device=cairo_pdf, CompAnnual,
 
 
 #### Undefinitized Contract Actions
+
+
+* b_UCA is a binary variable with a value of 1 for contracts/task orders that begin as letter contracts or undefinitized contract awards (UCA) and a value of 0 otherwise. 'r
+summary(fed$b_UCA);
+NA_stats(fed,"b_UCA")'
+
+```{r grouped bar plot for variable b_UCA}
+#The original variable for b_UCA is UCA
+
+statsummary_discrete("UCA", fed)
+grouped_barplot("UCA", fed)
+
+```
+
 ```{r UCA}
  # summary_data$isUCA<-"Not UCA" 
 
@@ -569,6 +666,77 @@ UCAoverall<-  LatticePlotWrapper_csis360(
 
 
 #### Reachback
+
+##### Place
+```{r Place}
+
+
+#######################################################
+#Group bar plot for discrete variable: PlaceCountryISO3
+#######################################################
+
+Place_Freq <- freq_table("PlaceCountryISO3", fed)
+Place_Freq <- Place_Freq[order(-Place_Freq$Percent_Obli),]
+Place_Freq <- Place_Freq[1:10, ]
+
+#Add a row representing all other PlaceCountry categories
+percent_freq_rest <- 100 - sum(Place_Freq$Percent_Freq, na.rm = TRUE)
+percent_obli_rest <- 100 - sum(Place_Freq$Percent_Obli, na.rm = TRUE)
+Place_Freq$PlaceCountryISO3 <- as.character(Place_Freq$PlaceCountryISO3)
+Place_Freq[11,] <- c("All other", "NA", percent_freq_rest, percent_obli_rest)
+Place_Freq[, c(3,4)] <- lapply(Place_Freq[, c(3,4)], function(x) as.numeric(x))
+Place_Freq$PlaceCountryISO3 <- factor(Place_Freq$PlaceCountryISO3, levels = rev(Place_Freq$PlaceCountryISO3))
+
+#Reshape the dataframe to long format for plot
+Place_Freq <- melt(Place_Freq, id <- c("PlaceCountryISO3", "Count_Freq"))
+
+#Generate the plot and add title manually
+part_barplot <- ggplot(data = Place_Freq, 
+                       aes(x = PlaceCountryISO3, 
+                           y = value, 
+                           fill=factor(variable))) + 
+                geom_bar(stat = "identity", 
+                         position= "dodge", 
+                         width = 0.8) + 
+                xlab("") + 
+                ylab("") + 
+                coord_flip() + 
+                theme_grey() +
+                scale_fill_grey(labels = c("% of records", "% of obligation"),
+                                guide = guide_legend(reverse = TRUE)) +
+                theme(legend.title = element_blank(),
+                      legend.position = "bottom",
+                      legend.margin = margin(t=-0.8, r=0, b=0.5, l=0, unit = "cm"),
+                      legend.text = element_text(margin = margin(r=0.5, unit = "cm")),
+                      plot.margin = margin(t=0.3, r=0.5, b=0, l=0.5, unit = "cm")) +
+                ggtitle("Top 10 of the most frequently appeared PlaceCountry")
+part_barplot 
+```
+
+
+
+
+
+* b_Intl is a binary variable with a value of 1 for contracts/task orders with any transactions performed internationally and a value of 0 otherwise. 'r
+summary(fed$b_Intl);
+NA_stats(fed,"b_Intl")'
+
+
+```{r grouped bar plot for variable b_Intl}
+#The original variable for b_Intl is Intl
+
+statsummary_discrete("Intl", fed)
+grouped_barplot("Intl", fed)
+
+```
+
+```{r c_OffCri}
+#The original variable for c_OffCri is OffCri
+# debug(statsummary_continuous)
+statsummary_continuous("OffCri", fed,log=FALSE)
+
+```
+
 ```{r Reachback}
 
 
@@ -715,7 +883,7 @@ ggsave("Output//ReachbackComp.png", ReachbackComp, width=4.5, height= 8, units="
 ```
 
 
-#### Contracting Office
+##### Contracting Office
 ```{r Koff}
 full_data$ContractingOfficeCode
 office_data<-summary_data %>%
@@ -768,7 +936,7 @@ str(office_data$CrisisPercent)
 ```
 
 
-#### Country : Office Place
+##### Country : Office Place
 ```{r Country}
 
 Country<-ddply(summary_data,
@@ -826,48 +994,9 @@ CountryOffPlace$data %>%  group_by(primary,category,x.variable) %>%
 
 
 
-#### Product Or Service Area
-```{r ProductOrService}
- # summary_data$isUCA<-"Not UCA" 
 
-geom.text.size<-3
-ProductOrServiceArea
-summary_data$ProductOrServiceArea
-(
-ProductOrServiceArea<-  LatticePlotWrapper_csis360(
-  VAR.color.legend.label="Dataset",
-  VAR.main.label=NULL,
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligations (2017 $, Variable Scale)",
-  VAR.Coloration=labels_and_colors,
-  VAR.long.DF=summary_data %>% filter(DecisionTreeDisplay %in% c("Disaster","ARRA","OCO")),
-  # NA, #VAR.ncol
-  VAR.x.variable="ProductOrServiceArea", #VAR.x.variable
-  VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="ProductOrServiceArea", #VAR.y.series
-  VAR.facet.primary="DecisionTreeDisplay" #VAR.facet.primary
-  # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-   ,DataLabels=FALSE
-  #                       ,VAR.override.coloration=NA
-)+
-# +theme(legend.position = "bottom")+
-  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-  theme(strip.text.y = element_text(angle=0))+
-  theme(axis.text.x = element_text(angle=90))+
-  facet_grid(primary ~ ., scales="free_y")
-    # )
-)
- 
-
- 
-ggsave600dpi("Output//ProductService.png", UCAoverall, width=4, height= 5, units="in")
-ggsave("Output//ProductService.eps", device=cairo_pdf, UCAoverall, width=4, height= 5, units="in")
-```
-
-
-#### Customer
+#### Who
+##### Customer
 ```{r Customer}
  # summary_data$isUCA<-"Not UCA" 
 
@@ -907,10 +1036,126 @@ ggsave600dpi("Output//Customer.png", Customer, width=4, height= 5, units="in")
 ggsave("Output//Customer.eps", device=cairo_pdf, Customer, width=4, height= 5, units="in")
 ```
 
+##### Agency
 
-#### Duration
+```{r Agency}
+
+#############################################
+#Group bar plot for discrete variable: Agency
+#############################################
+
+Agency_Freq <- freq_table("Agency", fed)
+#Add detail description to unique Agency code
+Agency_Lookup <- read.csv("https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/Agency_AgencyID.csv")
+Agency_Lookup <- Agency_Lookup[,1:2]
+colnames(Agency_Lookup) <- c("Agency","Description")
+Agency_Freq <- left_join(Agency_Freq, Agency_Lookup, by = "Agency")
+Agency_Freq$Description <- as.character(Agency_Freq$Description)
+
+#Get the top 10 most frequently appeared Agencies
+Agency_Freq <- Agency_Freq[order(-Agency_Freq$Percent_Freq),]
+Agency_Freq <- Agency_Freq[1:10,]
+Agency_Freq$Description <- paste(Agency_Freq$Agency, " - ", Agency_Freq$Description)
+Agency_Freq <- Agency_Freq[order(-Agency_Freq$Percent_Obli),]
+
+#Add a row representing all other Agency categories
+percent_freq_rest <- 100 - sum(Agency_Freq$Percent_Freq, na.rm = TRUE)
+percent_obli_rest <- 100 - sum(Agency_Freq$Percent_Obli, na.rm = TRUE)
+Agency_Freq[11,] <- c("All Other", "NA", percent_freq_rest, percent_obli_rest, "All Other")
+Agency_Freq[,c(3,4)] <- lapply(Agency_Freq[,c(3,4)], function(x) as.numeric(x))
+Agency_Freq$Description <- factor(Agency_Freq$Description, levels = rev(Agency_Freq$Description))
+
+#Reshape the dataframe to long format for plot
+Agency_Freq <- melt(Agency_Freq, id = c("Agency", "Count_Freq", "Description"))
+
+#Generate the plot and add title manually
+part_grouped_barplot("Agency",Agency_Freq) + 
+  ggtitle("Top 10 of the most frequently appeared Agency")
+
+
+```
+
+##### Office
+```{r Office}
+#############################################
+#Group bar plot for discrete variable: Office
+#############################################
+
+#Add detail description to unique Agency code
+Office_Lookup <- read.delim("https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/office/Office.ContractingOfficeCode.txt")
+fed_dup <- fed
+Total_Obli <- sum(fed_dup$Action.Obligation, na.rm = TRUE)
+memory.limit(56000)
+Office_Lookup <- subset(Office_Lookup, select = c("AgencyID", "ContractingOfficeCode", "ContractingOfficeName"))
+fed_dup <- left_join(fed_dup, Office_Lookup, by = c("Agency" = "AgencyID", "Office" = "ContractingOfficeCode"))
+fed_dup <- subset(fed_dup, select = c("Office", "ContractingOfficeName"))
+Office_Freq <- fed_dup %>% group_by(Office, ContractingOfficeName) %>% summarise(n())
+colnames(Office_Freq) <- c("Office", "Description", "Count_Freq")
+Office_Freq$Percent_Freq <- round(Office_Freq$Count_Freq/sum(Office_Freq$Count_Freq),4)*100
+
+#Add percent Obligation information into dataframe
+Percent_Obli <- c()
+for (i in Office_Freq$Office) {
+  Percent_Obligation <- round(sum(fed$Action.Obligation[fed$Office == i], na.rm = TRUE)/Total_Obli,5)
+  Percent_Obli <- c(Percent_Obli, Percent_Obligation)
+  print(i)
+}
+Office_Freq$Percent_Obli <- Percent_Obli * 100
+#Office_Freq_dup <- Office_Freq
+
+#Get Top 20 most frequently appeared Office
+Office_Freq_top10Freq <- Office_Freq[order(-Office_Freq$Percent_Freq),]
+Office_Freq_top10Freq <- Office_Freq_top10Freq[1:10, ]  #including NULL category
+Office_Freq_top10Obli <- Office_Freq[order(-Office_Freq$Percent_Obli),]
+Office_Freq_top10Obli <- Office_Freq_top10Obli[1:10, ]  #including NULL category
+Office_Freq_TOP <- rbind(Office_Freq_top10Obli, Office_Freq_top10Freq)
+Office_Freq_TOP <- unique(Office_Freq_TOP)  #20 records in total
+Office_Freq_TOP$Description[is.na(Office_Freq_TOP$Description)] <- "NULL"
+Office_Freq_TOP$Description <- paste(Office_Freq_TOP$Office, " - ", Office_Freq_TOP$Description)
+Office_Freq_TOP$Description <- factor(Office_Freq_TOP$Description, levels = rev(Office_Freq_TOP$Description))
+
+#reshape the dataframe into long format for plot
+Office_Freq_TOP <- melt(Office_Freq_TOP, id = c("Office", "Description", "Count_Freq"))
+
+#Generate the plot and add title manually
+part_grouped_barplot("Office", Office_Freq_TOP) + 
+  ggtitle("Top 20 of the most frequently appeared Office")
+
+```
+
+
+#### Scale
+##### Ceiling
+
+
+* cl_Ceil is the natural log of the initial contract cost ceiling, in then-year dollars. 'r centered_log_description(fed$l_Ceil,"dollars")
+NA_stats(fed,"l_Ceil")'
+
+```{r statistical summary table for variable cl_Ceil}
+#The original variable for cl_Ceil is UnmodifiedContractBaseAndAllOptionsValue
+
+statsummary_continuous(("UnmodifiedContractBaseAndAllOptionsValue"), fed)
+
+```
+
+
+##### Duration
+
+
+* cl_Days is the natural log of the initial maximum duration of the contract, in days. The variable is centered, by subtracting its mean ('r centered_log_description(fed$l_Days,"days");
+NA_stats(fed,"l_Days")' 
+
+```{r statistical summary table for variable cl_Days}
+#The original variable for cl_Days is UnmodifiedDays
+
+fed$capped_UnmodifiedDays[fed$UnmodifiedDays > 3650] <- NA
+statsummary_continuous(("capped_UnmodifiedDays"), fed)
+
+```
+
+
 ```{r Duration}
- # summary_data$isUCA<-"Not UCA" 
+
 
 (
 Duration<-  LatticePlotWrapper_csis360(
@@ -977,150 +1222,7 @@ DurationComp<-  LatticePlotWrapper_csis360(
  
 
 ```
-
-# Modeling
-
-
-
-
-
-
-##Prepare Data
-First we load the data. The dataset used is a U.S. Defense Contracting dataset derived from   FPDS.
-
-
-```{r ReadInData, echo = TRUE}
-# load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
-
-# debug(transform_contract)
-# fed<-transform_contract(fed)
-
-# save(fed,file="Data/fed_transformed.Rdata")
-load(file=file.path("..","Data","fed_transformed.Rdata"))
-
-```
-
-Contracts are classified using a mix of numerical and categorical variables. While the changes in numerical variables are easy to grasp and summarize, a contract may have one line item that is competed and another that is not. As is detailed in the exploration on R&D, we are only considering information available prior to contract start. The percentage of contract obligations that were competed is a valuable benchmark, but is highly influenced by factors that occured after contract start..
-
-### Contract Data Summary
-
-Contract terminations and the number of change orders can be calculated for the entire sample.  Contract termination is determined using the *Reason for Modification* field in FPDS.  A contract is considered to be terminated if it has at least one modification with the following values:
-
-* "Terminate for Default (complete or partial)"
-* "Terminate for Convenience (complete or partial)"
-* "Terminate for Cause"
-* "Legal Contract Cancellation"
-
-These four catetegories and the "Close Out" category are used to mark a contract as closed.  Many contracts in FPDS and in the sample are never marked closed.  
-
-
-* b_CBre is a binary variable that has a value of 1 for any contracts that have experienced a partial or complete termination, 0 otherwise. ('r summary(fed$b_CBre)
-NA_stats(fed,"b_CBre")')     "the original variable is CBre(None/Ceiling Breach"
-
-```{r grouped barplot for variable: b_CBre}
-#the original variable for b_CBre is CBre(None/Ceiling Breach)
-
-statsummary_discrete("CBre", fed)
-grouped_barplot("CBre", fed)
-
-```
-
-```{r grouped barplot for variable: b_Term}
-#The original variable for b_Term is Term
-
-statsummary_discrete("Term", fed)
-grouped_barplot("Term", fed)
-
-```
-
-
-* b_Comp is a binary variable based on competition. It has a value of 0 for uncompeted contracts and a value of 1 for competition, regardless of number of offers. 'r  summary(fed$b_Comp);         "the original variable is Comp(No Comp./Comp.)"
-NA_stats(fed,"b_Comp")'
-
-```{r grouped barplot for variable: b_Comp}
-#the original variable for b_Comp is Comp(No Comp./Comp.)
-
-statsummary_discrete("Comp", fed)
-grouped_barplot("Comp", fed)
-
-```
-
-* n_Comp is a numeric variable based on competition and number of offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for multi-offer competition. 'r summary(fed$EffComp);
-NA_stats(fed,"n_Comp")' "the original variable is EffComp(No Comp./1 Offer/2+ offers)"    
-```{r grouped barplot for variable: n_Comp}
-#the original variable for n_Comp is EffComp(No Comp./1 offer/2+ offers)
-
-statsummary_discrete("EffComp", fed)
-grouped_barplot("EffComp", fed)
-
-```
-
-
-* n_Offr is a numeric variable based on competition and with more granularity on number offers. It has a value of 0 for uncompeted contracts and a value of 1 for single-offer competition, and a value of 2 for 2-offers, 3 for 3-4 offers, and 4 for 5+ offers. 'r summary(fed$n_Offr);
-NA_stats(fed,"n_Offr")' 
-
-
-
-* b_Urg is a categorical variable.
-It has a value of 0, stands for "Not Urgency", and 1 stands for "Urgency Except." 
-summary(fed$Urg);
-NA_stats(fed,"b_Urg")' 
-
-```{r grouped barplot for variable: b_Urg}
-#The original variable for b_Urg is Urg(Not Urgency/Urgency Except.)
-
-statsummary_discrete("Urg", fed)
-grouped_barplot("Urg", fed)
-
-```
-
-
-* cl_Offr is the natural log of the number of offers received. Uncompeted contracts are classified as having received one offer. 'r summary(fed$l_Offr)
-NA_stats(fed,"l_Offr")'
-
-```{r statistical summary table for variable cl_Offer}
-#The original variable for cl_Offer is UnmodifiedNumberOfOffersReceived
- 
-statsummary_continuous(("UnmodifiedNumberOfOffersReceived"), fed)
-
-```
-
-
-* cl_Ceil is the natural log of the initial contract cost ceiling, in then-year dollars. 'r centered_log_description(fed$l_Ceil,"dollars")
-NA_stats(fed,"l_Ceil")'
-
-```{r statistical summary table for variable cl_Ceil}
-#The original variable for cl_Ceil is UnmodifiedContractBaseAndAllOptionsValue
-
-statsummary_continuous(("UnmodifiedContractBaseAndAllOptionsValue"), fed)
-
-```
-
-
-* cl_Days is the natural log of the initial maximum duration of the contract, in days. The variable is centered, by subtracting its mean ('r centered_log_description(fed$l_Days,"days");
-NA_stats(fed,"l_Days")' 
-
-```{r statistical summary table for variable cl_Days}
-#The original variable for cl_Days is UnmodifiedDays
-
-fed$capped_UnmodifiedDays[fed$UnmodifiedDays > 3650] <- NA
-statsummary_continuous(("capped_UnmodifiedDays"), fed)
-
-```
-
-
-* SIDV, MIDV, and OIDV are dummy variables based on the contract vehicle. They correspond to Single-Award IDVs, Multi-Award IDVs, and Other IDVs, respectively, having a value of 1 when the task order has that vehicle type, and having a 0 other. The remaining types, definitive contracts and purchase orders, are intentionally left out. ('r summary(fed$SIDV);
-summary(fed$MIDV);
-summary(fed$FSSGWAC);
-summary(fed$BPABOA);
-NA_stats(fed,"Veh")'
-
-```{r grouped bar plot for variable Veh}
-
-statsummary_discrete("Veh", fed)
-grouped_barplot("Veh", fed)
-
-```
+#### Pricing 
 
 
 * n_Fixed is a numeric variable based on contract pricing. It has a value of 0 for cost-based, 0.5 or "combination or other", 1 for any fixed price (excluding fixed-price level of effort which is classified as cost-based). ('r summary(fed$n_Fixed);
@@ -1146,114 +1248,64 @@ grouped_barplot("Fee", fed)
 
 ```
 
+#### Vehicle
 
-* b_UCA is a binary variable with a value of 1 for contracts/task orders that begin as letter contracts or undefinitized contract awards (UCA) and a value of 0 otherwise. 'r
-summary(fed$b_UCA);
-NA_stats(fed,"b_UCA")'
+* SIDV, MIDV, and OIDV are dummy variables based on the contract vehicle. They correspond to Single-Award IDVs, Multi-Award IDVs, and Other IDVs, respectively, having a value of 1 when the task order has that vehicle type, and having a 0 other. The remaining types, definitive contracts and purchase orders, are intentionally left out. ('r summary(fed$SIDV);
+summary(fed$MIDV);
+summary(fed$FSSGWAC);
+summary(fed$BPABOA);
+NA_stats(fed,"Veh")'
 
-```{r grouped bar plot for variable b_UCA}
-#The original variable for b_UCA is UCA
+```{r grouped bar plot for variable Veh}
 
-statsummary_discrete("UCA", fed)
-grouped_barplot("UCA", fed)
-
-```
-
-
-* b_Intl is a binary variable with a value of 1 for contracts/task orders with any transactions performed internationally and a value of 0 otherwise. 'r
-summary(fed$b_Intl);
-NA_stats(fed,"b_Intl")'
-
-
-```{r grouped bar plot for variable b_Intl}
-#The original variable for b_Intl is Intl
-
-statsummary_discrete("Intl", fed)
-grouped_barplot("Intl", fed)
-
-```
-
-```{r c_OffCri}
-#The original variable for c_OffCri is OffCri
-# debug(statsummary_continuous)
-statsummary_continuous("OffCri", fed,log=FALSE)
+statsummary_discrete("Veh", fed)
+grouped_barplot("Veh", fed)
 
 ```
 
 
-In addition, l_Ceil and l_Days are rescaled to have an average value of 0 and a standard deviation of one. This standardizes interpretation and prevents a "very large eigen value" error later when l_Ceil:lDay is introduced.
+#### What
+##### Product Or Service Area
+```{r ProductOrService}
+ # summary_data$isUCA<-"Not UCA" 
 
-```{r grouped bar plot for variable Agency, NAICS, ProdServ, Office, PlaceCountryISO3}
+geom.text.size<-3
+ProductOrServiceArea
+summary_data$ProductOrServiceArea
+(
+ProductOrServiceArea<-  LatticePlotWrapper_csis360(
+  VAR.color.legend.label="Dataset",
+  VAR.main.label=NULL,
+  VAR.X.label="Fiscal Year",
+  VAR.Y.label="Obligations (2017 $, Variable Scale)",
+  VAR.Coloration=labels_and_colors,
+  VAR.long.DF=summary_data %>% filter(DecisionTreeDisplay %in% c("Disaster","ARRA","OCO")),
+  # NA, #VAR.ncol
+  VAR.x.variable="ProductOrServiceArea", #VAR.x.variable
+  VAR.y.variable="Obligation.2017", #VAR.y.variable
+  VAR.y.series="ProductOrServiceArea", #VAR.y.series
+  VAR.facet.primary="DecisionTreeDisplay" #VAR.facet.primary
+  # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
+  # ,MovingAverage=0
+  # ,MovingSides=1
+   ,DataLabels=FALSE
+  #                       ,VAR.override.coloration=NA
+)+
+# +theme(legend.position = "bottom")+
+  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+  theme(strip.text.y = element_text(angle=0))+
+  theme(axis.text.x = element_text(angle=90))+
+  facet_grid(primary ~ ., scales="free_y")
+    # )
+)
+ 
 
-#############################################
-#Group bar plot for discrete variable: Agency
-#############################################
+ 
+ggsave600dpi("Output//ProductService.png", UCAoverall, width=4, height= 5, units="in")
+ggsave("Output//ProductService.eps", device=cairo_pdf, UCAoverall, width=4, height= 5, units="in")
+```
 
-Agency_Freq <- freq_table("Agency", fed)
-#Add detail description to unique Agency code
-Agency_Lookup <- read.csv("https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/Agency_AgencyID.csv")
-Agency_Lookup <- Agency_Lookup[,1:2]
-colnames(Agency_Lookup) <- c("Agency","Description")
-Agency_Freq <- left_join(Agency_Freq, Agency_Lookup, by = "Agency")
-Agency_Freq$Description <- as.character(Agency_Freq$Description)
-
-#Get the top 10 most frequently appeared Agencies
-Agency_Freq <- Agency_Freq[order(-Agency_Freq$Percent_Freq),]
-Agency_Freq <- Agency_Freq[1:10,]
-Agency_Freq$Description <- paste(Agency_Freq$Agency, " - ", Agency_Freq$Description)
-Agency_Freq <- Agency_Freq[order(-Agency_Freq$Percent_Obli),]
-
-#Add a row representing all other Agency categories
-percent_freq_rest <- 100 - sum(Agency_Freq$Percent_Freq, na.rm = TRUE)
-percent_obli_rest <- 100 - sum(Agency_Freq$Percent_Obli, na.rm = TRUE)
-Agency_Freq[11,] <- c("All Other", "NA", percent_freq_rest, percent_obli_rest, "All Other")
-Agency_Freq[,c(3,4)] <- lapply(Agency_Freq[,c(3,4)], function(x) as.numeric(x))
-Agency_Freq$Description <- factor(Agency_Freq$Description, levels = rev(Agency_Freq$Description))
-
-#Reshape the dataframe to long format for plot
-Agency_Freq <- melt(Agency_Freq, id = c("Agency", "Count_Freq", "Description"))
-
-#Generate the plot and add title manually
-part_grouped_barplot("Agency",Agency_Freq) + 
-  ggtitle("Top 10 of the most frequently appeared Agency")
-
-
-
-
-
-############################################
-#Group bar plot for discrete variable: NAICS
-############################################
-
-NAICS_Freq <- freq_table("NAICS", fed)   #need long time to run
-
-#Add detail description to unique Agency code
-NAICS_Lookup <- read.csv(file = "https://raw.githubusercontent.com/CSISdefense/Vendor/master/Lookup/Lookup_NAICS_code.csv")
-colnames(NAICS_Lookup) <- c("NAICS", "Description")
-NAICS_Freq <- left_join(NAICS_Freq, NAICS_Lookup, by = "NAICS")
-NAICS_Freq$Description <- as.character(NAICS_Freq$Description)
-NAICS_Freq$Description <- paste(NAICS_Freq$NAICS, " - ", NAICS_Freq$Description)
-
-#Get the top 19 most frequently appeared NAICS
-NAICS_Freq_top10Freq <- NAICS_Freq[order(-NAICS_Freq$Percent_Freq),]
-NAICS_Freq_top10Freq <- NAICS_Freq_top10Freq[2:11, ]   #THE first records has NA ID nor description
-NAICS_Freq_top10Obli <- NAICS_Freq[order(-NAICS_Freq$Percent_Obli),]
-NAICS_Freq_top10Obli <- NAICS_Freq_top10Obli[1:10, ]
-NAICS_Freq_TOP <- rbind(NAICS_Freq_top10Obli, NAICS_Freq_top10Freq)
-NAICS_Freq_TOP <- unique(NAICS_Freq_TOP)  #19 records in total
-NAICS_Freq_TOP <- NAICS_Freq_TOP[order(-NAICS_Freq_TOP$Percent_Obli),]
-NAICS_Freq_TOP$Description <- factor(NAICS_Freq_TOP$Description, rev(NAICS_Freq_TOP$Description))
-
-#Reshape the dataframe to long format for plot
-NAICS_Freq_TOP <- melt(NAICS_Freq_TOP, id = c("NAICS", "Count_Freq", "Description"))
-
-#Generate the plot and add title manually
-part_grouped_barplot("NAICS", NAICS_Freq_TOP) + 
-  ggtitle("Top 19 of the most frequently appeared NAICS")
-
-
-
-
+```{r ProdServ}
 ###############################################
 #Group bar plot for discrete variable: ProdServ
 ###############################################
@@ -1288,94 +1340,43 @@ part_grouped_barplot("ProdServ", ProdServ_Freq_TOP) +
 
 
 
+```
 
-#############################################
-#Group bar plot for discrete variable: Office
-#############################################
+##### NAICS
+```{r NAICS}
+
+############################################
+#Group bar plot for discrete variable: NAICS
+############################################
+
+NAICS_Freq <- freq_table("NAICS", fed)   #need long time to run
 
 #Add detail description to unique Agency code
-Office_Lookup <- read.delim("https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/office/Office.ContractingOfficeCode.txt")
-fed_dup <- fed
-Total_Obli <- sum(fed_dup$Action.Obligation, na.rm = TRUE)
-memory.limit(56000)
-Office_Lookup <- subset(Office_Lookup, select = c("AgencyID", "ContractingOfficeCode", "ContractingOfficeName"))
-fed_dup <- left_join(fed_dup, Office_Lookup, by = c("Agency" = "AgencyID", "Office" = "ContractingOfficeCode"))
-fed_dup <- subset(fed_dup, select = c("Office", "ContractingOfficeName"))
-Office_Freq <- fed_dup %>% group_by(Office, ContractingOfficeName) %>% summarise(n())
-colnames(Office_Freq) <- c("Office", "Description", "Count_Freq")
-Office_Freq$Percent_Freq <- round(Office_Freq$Count_Freq/sum(Office_Freq$Count_Freq),4)*100
+NAICS_Lookup <- read.csv(file = "https://raw.githubusercontent.com/CSISdefense/Vendor/master/Lookup/Lookup_NAICS_code.csv")
+colnames(NAICS_Lookup) <- c("NAICS", "Description")
+NAICS_Freq <- left_join(NAICS_Freq, NAICS_Lookup, by = "NAICS")
+NAICS_Freq$Description <- as.character(NAICS_Freq$Description)
+NAICS_Freq$Description <- paste(NAICS_Freq$NAICS, " - ", NAICS_Freq$Description)
 
-#Add percent Obligation information into dataframe
-Percent_Obli <- c()
-for (i in Office_Freq$Office) {
-  Percent_Obligation <- round(sum(fed$Action.Obligation[fed$Office == i], na.rm = TRUE)/Total_Obli,5)
-  Percent_Obli <- c(Percent_Obli, Percent_Obligation)
-  print(i)
-}
-Office_Freq$Percent_Obli <- Percent_Obli * 100
-#Office_Freq_dup <- Office_Freq
-
-#Get Top 20 most frequently appeared Office
-Office_Freq_top10Freq <- Office_Freq[order(-Office_Freq$Percent_Freq),]
-Office_Freq_top10Freq <- Office_Freq_top10Freq[1:10, ]  #including NULL category
-Office_Freq_top10Obli <- Office_Freq[order(-Office_Freq$Percent_Obli),]
-Office_Freq_top10Obli <- Office_Freq_top10Obli[1:10, ]  #including NULL category
-Office_Freq_TOP <- rbind(Office_Freq_top10Obli, Office_Freq_top10Freq)
-Office_Freq_TOP <- unique(Office_Freq_TOP)  #20 records in total
-Office_Freq_TOP$Description[is.na(Office_Freq_TOP$Description)] <- "NULL"
-Office_Freq_TOP$Description <- paste(Office_Freq_TOP$Office, " - ", Office_Freq_TOP$Description)
-Office_Freq_TOP$Description <- factor(Office_Freq_TOP$Description, levels = rev(Office_Freq_TOP$Description))
-
-#reshape the dataframe into long format for plot
-Office_Freq_TOP <- melt(Office_Freq_TOP, id = c("Office", "Description", "Count_Freq"))
-
-#Generate the plot and add title manually
-part_grouped_barplot("Office", Office_Freq_TOP) + 
-  ggtitle("Top 20 of the most frequently appeared Office")
-
-
-
-
-#######################################################
-#Group bar plot for discrete variable: PlaceCountryISO3
-#######################################################
-
-Place_Freq <- freq_table("PlaceCountryISO3", fed)
-Place_Freq <- Place_Freq[order(-Place_Freq$Percent_Obli),]
-Place_Freq <- Place_Freq[1:10, ]
-
-#Add a row representing all other PlaceCountry categories
-percent_freq_rest <- 100 - sum(Place_Freq$Percent_Freq, na.rm = TRUE)
-percent_obli_rest <- 100 - sum(Place_Freq$Percent_Obli, na.rm = TRUE)
-Place_Freq$PlaceCountryISO3 <- as.character(Place_Freq$PlaceCountryISO3)
-Place_Freq[11,] <- c("All other", "NA", percent_freq_rest, percent_obli_rest)
-Place_Freq[, c(3,4)] <- lapply(Place_Freq[, c(3,4)], function(x) as.numeric(x))
-Place_Freq$PlaceCountryISO3 <- factor(Place_Freq$PlaceCountryISO3, levels = rev(Place_Freq$PlaceCountryISO3))
+#Get the top 19 most frequently appeared NAICS
+NAICS_Freq_top10Freq <- NAICS_Freq[order(-NAICS_Freq$Percent_Freq),]
+NAICS_Freq_top10Freq <- NAICS_Freq_top10Freq[2:11, ]   #THE first records has NA ID nor description
+NAICS_Freq_top10Obli <- NAICS_Freq[order(-NAICS_Freq$Percent_Obli),]
+NAICS_Freq_top10Obli <- NAICS_Freq_top10Obli[1:10, ]
+NAICS_Freq_TOP <- rbind(NAICS_Freq_top10Obli, NAICS_Freq_top10Freq)
+NAICS_Freq_TOP <- unique(NAICS_Freq_TOP)  #19 records in total
+NAICS_Freq_TOP <- NAICS_Freq_TOP[order(-NAICS_Freq_TOP$Percent_Obli),]
+NAICS_Freq_TOP$Description <- factor(NAICS_Freq_TOP$Description, rev(NAICS_Freq_TOP$Description))
 
 #Reshape the dataframe to long format for plot
-Place_Freq <- melt(Place_Freq, id <- c("PlaceCountryISO3", "Count_Freq"))
+NAICS_Freq_TOP <- melt(NAICS_Freq_TOP, id = c("NAICS", "Count_Freq", "Description"))
 
 #Generate the plot and add title manually
-part_barplot <- ggplot(data = Place_Freq, 
-                       aes(x = PlaceCountryISO3, 
-                           y = value, 
-                           fill=factor(variable))) + 
-                geom_bar(stat = "identity", 
-                         position= "dodge", 
-                         width = 0.8) + 
-                xlab("") + 
-                ylab("") + 
-                coord_flip() + 
-                theme_grey() +
-                scale_fill_grey(labels = c("% of records", "% of obligation"),
-                                guide = guide_legend(reverse = TRUE)) +
-                theme(legend.title = element_blank(),
-                      legend.position = "bottom",
-                      legend.margin = margin(t=-0.8, r=0, b=0.5, l=0, unit = "cm"),
-                      legend.text = element_text(margin = margin(r=0.5, unit = "cm")),
-                      plot.margin = margin(t=0.3, r=0.5, b=0, l=0.5, unit = "cm")) +
-                ggtitle("Top 10 of the most frequently appeared PlaceCountry")
-part_barplot 
+part_grouped_barplot("NAICS", NAICS_Freq_TOP) + 
+  ggtitle("Top 19 of the most frequently appeared NAICS")
+
+
+
 ```
 
 
@@ -1383,181 +1384,30 @@ part_barplot
 
 
 
-Next, we eliminate missing data entries and then draw a sample. The final computation uses all of the data, but as a computation shortcut, only a subset of the data is needed to allow for processing of models in minutes rather than hours.
 
 
-## Sample Creation
-```{r Sample}
+# Modeling
 
-# crisis_all$NoCompOffr2<-factor(crisis_all$NoCompOffr,
-#                                levels=c(  "2-4 offers" ,"Other No",   "Urgency" ,   "1 offer"  ,"5+ offers" ))
-# fed_1m$NoCompOffr2<-factor(fed_1m$NoCompOffr,
-#                            levels=c(  "2-4 offers" ,
-#                                       "Other No",  
-#                                       "Urgency" ,  
-#                                       "1 offer"  ,
-#                                       "5+ offers" ))
-# 
 
+
+
+
+
+### Load in Smples
+First we load the data. The dataset used is a U.S. Defense Contracting dataset derived from   FPDS.
+
+
+```{r ReadInData, echo = TRUE}
 
 load(file.path("..","Data","crisis_smp.Rdata"))
 
-# crisis_smp<-add_col_from_transformed(crisis_smp,fed)
-# crisis_with_na<-add_col_from_transformed(crisis_with_na,fed)
-# large_crisis_smp<-add_col_from_transformed(large_crisis_smp,fed)  
-# large_crisis_with_na<-add_col_from_transformed(large_crisis_with_na,fed)  
-    
-    # large_crisis_with_na<-update_sample_col_CSIScontractID(sample=large_crisis_with_na,full=fed_full,
-#                                  col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
-# crisis_with_na<-update_sample_col_CSIScontractID(sample=crisis_with_na,full=fed_full,
-#                                  col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
-
-#save(fed,file="Data/fed_transformed.Rdata")
-# head(fed)
-
-    
-# crisis_all<-rbind(oco,recovery,disaster)
-# crisis_all_with_na<-rbind(oco_with_na,recovery,disaster)
-# summary(crisis_all$Crisis)
-# crisis_all$Crisis<-factor(crisis_all$Crisis,c("Other","OCO" ,"ARRA",  "Dis"     ))
-
-# colnames(fed)[colnames(fed)=="PlaceCountryISO3"]<-"alpha.3"
-# fed<-csis360::read_and_join( fed, #contract,
-#                                       "Location_CountryCodes.csv",
-#                                       path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-#                                       directory="location\\",
-#                                       by="alpha.3",
-#                                       add_var=c("PlaceIntlPercent","CrisisPercent"),
-#                                       new_var_checked=FALSE)
-# colnames(fed)[colnames(fed)=="alpha.3"]<-"PlaceCountryISO3"
-
-# fed$ProdServ[fed$ProdServ==""]<-NA
-
-
-# fed<-fed[get_complete_list(fed),]
-# fed<-fed[!fed$CSIScontractID %in% fed_1m$CSIScontractID,]
-# count<-1000000-997374
-
-# summary(factor(fed_1m$AgencyID[is.na(fed_1m$Customer)]))
-# summary(factor(fed_1m$ProdServ[is.na(fed_1m$CrisisProductOrServiceArea)]))
-# summary(factor(fed_1m$ProdServ[is.na(fed_1m$CrisisProductOrServiceArea)]))
-# fed_1m$ProdServ[fed_1m$ProdServ==""]<-NA
-fed_1m<-fed_1m[get_complete_list(fed_1m),]
-fed_250k<-fed_250k[get_complete_list(fed_250k),]
-
-
-# fed_1m$Customer<-factor(fed_1m$Customer)
-# fed_1m$CrisisProductOrServiceArea<-factor(fed_1m$CrisisProductOrServiceArea)
-# fed_complete<-fed[get_complete_list(fed),]
-# fed_1m<-fed_complete[sample(nrow(fed_complete),1000000),]
-# fed_250k<-fed_complete[sample(nrow(fed_complete),250000),]
-# save(fed_1m,fed_250k,file="output//fed_sample.rdata")
-load(file="output//fed_sample.rdata")
-#Percent of records incomplete
-nrow(fed[!fed_complete,])/nrow(fed) #0.2760521
-nrow(fed[is.na(fed$UCA),])/nrow(fed) #0.2760521
-#Percent of dollars incomplete
-sum(fed[!fed_complete,]$Action.Obligation,na.rm=TRUE)/
-  sum(fed$Action.Obligation,na.rm=TRUE) #0.1217748
-
-
-
-
-# undebug(get_crisis_sample_with_na)
-crisis_with_na<-get_crisis_sample_with_na(fed)
-crisis_smp<-crisis_with_na[get_complete_list(crisis_with_na),]
-
-
-
-summary(crisis_all$Crisis)
-
-#Percent of records incomplete
-nrow(crisis_with_na[!get_complete_list(crisis_with_na),])/
-  nrow(crisis_with_na)
-#Percent of dollars incomplete
-sum(crisis_with_na[!get_complete_list(crisis_with_na),]$Action.Obligation,na.rm=TRUE)/
-  sum(crisis_with_na$Action.Obligation,na.rm=TRUE)
-
-
-
-# large_crisis_with_na<-get_crisis_sample_with_na(fed,large=TRUE)
-nrow(large_crisis_with_na[!get_complete_list(large_crisis_with_na),])/
-  nrow(large_crisis_with_na)
-# #Percent of dollars incomplete
-  sum(large_crisis_with_na[!get_complete_list(large_crisis_with_na),]$Action.Obligation,na.rm=TRUE)/
-    sum(large_crisis_with_na$Action.Obligation,na.rm=TRUE)
-  # large_crisis_smp<-large_crisis_with_na[get_complete_list(large_crisis_with_na),]
-# 
-# 
-# # 
-#   
-# 
-save(crisis_smp,crisis_with_na,
-     large_crisis_with_na,large_crisis_smp,
-     crisis_all,crisis_all_with_na,file="Data\\crisis_smp.Rdata")
-# 
-
-
-#
-# large_crisis_smp$OffPl99<-Hmisc::cut2(large_crisis_smp$OffIntl,c(0.01,0.50))
-# summary(large_crisis_smp$OffPl99)
-#   levels(large_crisis_smp$OffPl99) <-
-#     list("US99"=c("[0.00,0.01)"),
-#          "Mixed"=c("[0.01,0.50)"),
-#          "Intl"=c("[0.50,1.00]"))
-#   large_crisis_smp$Reach<-factor(paste(large_crisis_smp$OffPl99,large_crisis_smp$Intl,sep="-"))
-#
-#
-#      levels(crisis_smp$Reach) <-
-#     list( "US50-Dom"=c("US99-Just U.S.","Mixed-Just U.S."),
-#          "Mixed-Dom"=c(),
-#          "Intl-Dom"=c("Intl-Just U.S."),
-#          "US50-Intl"=c("Mixed-Any International","US99-Any International"),
-#          "Intl-Intl"=c("Intl-Any International"))
-#
-# large_crisis_smp$PSA<-as.character(large_crisis_smp$ProductOrServiceArea)
-# large_crisis_smp$PSA<-gsub(" & ","+",large_crisis_smp$PSA)
-# load("Data\\large_crisis_smp.Rdata")
-# save(large_crisis_smp,large_crisis_with_na,file="Data\\large_crisis_smp.Rdata")
-# save(fed,file="Data\\transformed_fed.Rdata")
-# load(file="Data\\transformed_fed.Rdata")
-
-# extra_large_crisis_with_na<-fed[fed$Crisis %in% c("ARRA","Dis","OCO"),]
-# other_intl<-fed[fed$Crisis %in% c("Other")&fed$OffIntl>=0.5,]
-# other_dom<-fed[fed$Crisis %in% c("Other")&(fed$OffIntl<0.5
-#                                            |is.na(fed$OffIntl)),]
-# other_dom<-other_dom[sample(nrow(other_dom),1000000),]
-# extra_large_crisis_with_na<-rbind(extra_large_crisis_with_na,other_dom,other_intl)
-# rm(other_dom,other_intl)
-# 
-# extra_large_crisis_with_na<-(extra_large_crisis_with_na)
-# extra_large_complete<-get_complete_list(extra_large_crisis_with_na)
-# extra_large_crisis_smp<-extra_large_crisis_with_na[extra_large_complete,]
-# # # summary(large_crisis_with_na$Crisis)
-# # #
-# #
-# extra_large_crisis_smp$OffPl99<-Hmisc::cut2(extra_large_crisis_smp$OffIntl,c(0.01,0.50))
-# summary(extra_large_crisis_smp$OffPl99)
-#   levels(extra_large_crisis_smp$OffPl99) <-
-#     list("US99"=c("[0.00,0.01)"),
-#          "Mixed"=c("[0.01,0.50)"),
-#          "Intl"=c("[0.50,1.00]"))
-#   extra_large_crisis_smp$Reach<-factor(paste(extra_large_crisis_smp$OffPl99,extra_large_crisis_smp$Intl,sep="-"))
-# 
-# 
-#      levels(extra_large_crisis_smp$Reach) <-
-#     list( "US50-Dom"=c("US99-Just U.S.","Mixed-Just U.S."),
-#          "Mixed-Dom"=c(),
-#          "Intl-Dom"=c("Intl-Just U.S."),
-#          "US50-Intl"=c("Mixed-Any International","US99-Any International"),
-#          "Intl-Intl"=c("Intl-Any International"))
-# 
-# save(extra_large_crisis_smp,extra_large_crisis_with_na,file="Data\\extra_large_crisis_smp.Rdata")
-# load("Data\\extra_large_crisis_smp.Rdata")
 summary(fed_1m)
 ```
 
-## Output: Models
+
+
+
+
 
 ###Federal-Wide 21D Term
 ```{r Model21B}

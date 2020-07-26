@@ -16,7 +16,7 @@ library(csis360)
 library(ggplot2)
 library(arm)
 library(R2WinBUGS)
-source("DIIGstat.r")
+source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/Scripts/DIIGstat.r")
 
 axis.text.size<-10
 strip.text.size<-10
@@ -51,12 +51,8 @@ These four catetegories and the "Close Out" category are used to mark a contract
 ```{r ReadInData, echo = TRUE}
   load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
 
-head(fed)
-# undebug(transform_contract)
-fed<-csis360::transform_contract(fed)
-
-# fed<-decision_tree(fed)
-
+if(!exists("fed"))  load(file="data\\clean\\transformed_fed.rdata")
+if(!exists("fed_smp"))  load(file="data\\clean\\fed_sample.rdata")
 
 ```
 
@@ -94,49 +90,7 @@ summary(fed$b_Intl);
 NA_stats(fed,"b_Intl")'
 
 
-In addition, l_Ceil and l_Days are rescaled to have an average value of 0 and a standard deviation of one. This standardizes interpretation and prevents a "very large eigen value" error later when l_Ceil:lDay is introduced.
-
-
-Next, we eliminate missing data entries and then draw a sample. The final computation uses all of the data, but as a computation shortcut, only a subset of the data is needed to allow for processing of models in minutes rather than hours.
-
-###Computational Sample Creation
-```{r Sample}
-
-# summary(fed_smp$b_Comp )
-# summary(fed_smp$n_Comp )
-# summary(fed_smp$Comp )
-# summary(fed_smp$CompOffr )
-# summary(fed_smp$EffComp )
-
-complete<-!is.na(fed$b_Term)&
-  !is.na(fed$b_Term)&
-  (!is.na(fed$b_Comp) | !is.na(fed$l_Offr))&
-  !is.na(fed$l_Ceil)&
-  !is.na(fed$l_Days)&
-  !is.na(fed$Veh) &
-  !is.na(fed$n_Fixed)&
-  !is.na(fed$b_Intl)&
-  !is.na(fed$b_UCA)&
-  !is.na(fed$ProdServ)&
-  !is.na(fed$ARRA)&
-!is.na(fed$Dis)&
-!is.na(fed$OCO)
-  # !is.na(fed$cl_HHI_lag1)
-
-fed_smp<-fed[complete,]
-fed_smp<-fed_smp[sample(nrow(fed_smp),250000),]
-
-#8818392  to 8818392
-nrow(fed[!complete,])/nrow(fed)
-sum(fed[!complete,]$Action.Obligation,na.rm=TRUE)/sum(fed$Action.Obligation,na.rm=TRUE)
-
-
-
-head(fed_smp)
-
-```
-
-
+In addition, l_Ceil and l_Days are rescaled to have an average value of 0 and a standard deviation of one. 
 
 #Initial Logit Model
 
