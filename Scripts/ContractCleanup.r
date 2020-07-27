@@ -117,14 +117,14 @@ rename_dataset<-function(contract){
   colnames(contract)[colnames(contract)=="UnmodifiedPlaceCountryISO3"]<-"Where"
   colnames(contract)[colnames(contract)=="GrossObligatedAmount"]<-"Gross"
   
-  
+  contract<-transition_variable_names_common(contract)
   if(any(duplicated(colnames(contract)))) stop("Duplicate Contract Name")
   contract
 }
 
 trim_dataset<-function(contract){
   
-  contract<-contract[,colnames(contract) %in% c(
+  keep_list<-c(
     "CSIScontractID",
     # IsIDV,
     "FxCb",
@@ -180,9 +180,22 @@ trim_dataset<-function(contract){
     "IsClosed",
     "MinOfSignedDate",
     "MaxBoostDate"
-  )]
-  # 
+  )
   
+  missing<-keep_list[!keep_list %in% colnames(contract)]
+  
+  #Don't note something as missing if a sufficiently detailed variant is available
+  if("Agency" %in% colnames(contract)) missing<-missing[!missing %in% c("Who")]
+  if("UnmodifiedNumberOfOffersReceived" %in% colnames(contract)) missing<-missing[!missing %in% c("Offr")]
+  if("ProdServ" %in% colnames(contract)) missing<-missing[!missing %in% c("PSR")]
+  if("MinOfSignedDate" %in% colnames(contract)) missing<-missing[!missing %in% c("StartFY","StartCY")]
+  
+  if(length(missing)>1) warning(paste("Missing Cols:",paste(missing,collapse=", ")))
+  
+  
+  contract<-contract[,colnames(contract) %in% keep_list]
+  # 
+  contract
 }
 
 FormatContractModel<-function(dfContract){
@@ -567,6 +580,10 @@ input_sample_criteria<-function(contract=NULL,
       # stringsAsFactors=FALSE
     )
   } else{
+    
+    # Prevent Action_Obligation clashes.
+    colnames(contract)[colnames(contract)=="Action_Obligation"]<-"SumofObligatedAmount"
+    
     contract<-csis360::read_and_join_experiment(data=contract
                                                 ,file
                                                 ,path=""
@@ -582,7 +599,10 @@ input_sample_criteria<-function(contract=NULL,
     contract$MinOfEffectiveDate<-na_nonsense_dates(contract$MinOfEffectiveDate)
   }
   contract$MinOfSignedDate<-na_nonsense_dates(contract$MinOfSignedDate)
-  contract$LastCurrentCompletionDate<-na_nonsense_dates(contract$LastCurrentCompletionDate) 
+  contract$LastCurrentCompletionDate<-na_nonsense_dates(contract$LastCurrentCompletionDate)
+  if("MaxBoostDate" %in% colnames(contract)){
+    contract$MaxBoostDate<-na_nonsense_dates(contract$MaxBoostDate) 
+  } else {paste("Missing MaxBoostDate, redownload please.",file)}
 
   if(!"StartFiscal_Year" %in% colnames(contract)){
     contract$StartFiscal_Year<-year(contract$MinOfSignedDate)+ifelse(month(contract$MinOfSignedDate)>=10,1,0)
@@ -600,7 +620,7 @@ input_sample_criteria<-function(contract=NULL,
                      ]<-1
   
   if(drop_incomplete==TRUE)
-    contract<-contract %>% filter(IsComplete==1)
+    contract<-contract %>% dplyr::filter(IsComplete==1)
 
   
   # if(is.numeric(contract$Term)){
@@ -1080,6 +1100,7 @@ get_complete_list<-function(contract,crisis=FALSE){
 }
 
 #Creating crisis sample
+#I don't believe I use this approach anymore.
 get_crisis_sample_with_na<-function(contract,large=FALSE){
   batch_size<-100000
   if(large==TRUE)

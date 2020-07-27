@@ -34,45 +34,28 @@ source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/Scripts/DIIG
 #Combining Source Files
 ##Sample Criteria
 ```{r DetailCustomer}
-if(!is.null(fed_full)){
-fed_full <-readr::read_delim(
-  "..\\data\\semi_clean\\contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
-  col_names=TRUE, 
-  delim="\t",
-  # , dec=".",
-  trim_ws=TRUE,
-  na=c("NULL","NA")
-  # stringsAsFactors=FALSE
-)
-} else{
-  fed_full<-csis360::read_and_join_experiment(data=fed_full
-  ,"contract_SP_ContractSampleCriteriaDetailsCustomer.txt"
-  ,path=""
-  ,"..\\data\\semi_clean\\"
-  ,by="CSIScontractID"
-  ,new_var_checked=FALSE
-)
-}
 
-fed_full<-csis360::standardize_variable_names(fed_full)
+if(!exists("fed_full") & file.exists("..\\data\\clean\\federal_contract_complete_detail.Rdata")){
+  load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
+} else if(!exists("fed_full")) fed_full<-NULL
 
-#Limit the strt years. Doing this first to get the size down.
+debug(input_sample_criteria)
+
+#Limit the start years to those completed 2007-2015. Doing this first to get the size down.
+fed_full<-input_sample_criteria(fed_full,  
+                               dir="..\\data\\semi_clean\\",
+                      file="Contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
+                      last_date=as.Date("2015-09-30"),
+                      drop_incomplete=TRUE)
+
+
+
 fed_full<-subset(fed_full, StartFiscal_Year>=2007   &
-                   StartFiscal_Year<=2015
-)
-#Limit to completed contracts that start in 2007 or later
-fed_full$LastCurrentCompletionDate<-strptime(fed_full$LastCurrentCompletionDate,"%Y-%m-%d") 
-#Drop contracts  not clearly finished within the study period.
-fed_full<-subset(fed_full,  (LastCurrentCompletionDate<="2016-09-30" | IsClosed==1)
+                   StartFiscal_Year<=2017
 )
 
-# fed_full<-subset(fed_full,select=-c(StartFiscal_Year
-# ,IsClosed
-# ,LastSignedLastDateToOrder
-#                                                       ,LastUltimateCompletionDate
-# ))
-
-fed_full$UnmodifiedLastDateToOrder<-strptime(fed_full$UnmodifiedLastDateToOrder,"%Y-%m-%d")
+# fed_full$LastCurrentCompletionDate<-strptime(fed_full$LastCurrentCompletionDate,"%Y-%m-%d") 
+# fed_full$UnmodifiedLastDateToOrder<-strptime(fed_full$UnmodifiedLastDateToOrder,"%Y-%m-%d")
 
 
 fed_full<-fed_full[,!colnames(fed_full) %in% 
@@ -98,7 +81,7 @@ save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 
 ##Initial Scope
 ```{r Scope}
-# load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
+if(!exists("fed_full")) load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(data=fed_full
   ,"Contract.SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt"
@@ -157,7 +140,7 @@ save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 
 ## ContractingDelta
 ```{r ContractingDelta}
-# load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
+if(!exists("fed_full")) load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(fed_full,
   "contract_SP_ContractModificationDeltaCustomer.txt",
@@ -205,7 +188,7 @@ save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 ```
 ##Location
 ```{r Location}
-# load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
+if(!exists("fed_full")) load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(fed_full,
     "Contract.SP_ContractLocationCustomer.txt"
@@ -1241,53 +1224,9 @@ save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 ```{r DatasetOutput}
 load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 fed<-rename_dataset(fed_full)
-fed<-fed[,colnames(fed) %in% c(
-  "CSIScontractID",
-  # IsIDV,
-  "FxCb",
-  "Fee",
-  "UCA",
-  "Comp",
-  "EffComp",
-  "Urg",
-  # MDAP,
-  # unmodifiedSystemequipmentcode,
-  "Who",
-  "Veh",
-  "PSR",
-  "What",
-  "Where",
-  "Intl",
-  "PlaceCountryISO3",
-  "VendorCountryISO3",
-  "OriginCountryISO3",
-  # "LowCeil",
-  "Ceil",
-  "qDuration",
-  "Offr",
-  # IsIDV,
-  # Soft,
-  "CBre",
-  "CRai",
-  "NChg",
-  "Term",
-  "UnmodifiedNumberOfOffersReceived",
-  "UnmodifiedContractBaseAndAllOptionsValue",
-  "SumOfisChangeOrder",
-  "ChangeOrderBaseAndAllOptionsValue",
-  # pChangeOrderObligated,
-  "UnmodifiedDays",
-  # "MinOfEffectiveDate",
-  "StartFY",
-  "Action.Obligation",
-  "Agency",
-  "Office",
-  "ProdServ",
-  "NAICS",
-  "Crisis",
-  "Gross"
-)]
-# 
+rm(fed_full)
+fed<-trim_dataset(fed)
+
 
 #    
 # write.table(fed
@@ -1301,14 +1240,10 @@ fed<-fed[,colnames(fed) %in% c(
 # )
 
 
-
-
 # summary(fed$Agency[fed$Who=="Uncategorized"])
 # def<-fed[fed$Who!="Civilian",]
  save(fed,file="..\\data\\clean\\federal_contract_complete.rdata")
-  # load("..\\data\\semi_clean\\federal_contract_complete")
-#Strip out the cuts
-
+  
 
 
 ```

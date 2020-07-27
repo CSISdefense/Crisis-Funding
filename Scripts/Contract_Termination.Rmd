@@ -29,11 +29,14 @@ main.text.size<-1
 note.text.size<-1.40
 
 
+if(!exists("fed"))  load(file="data\\clean\\transformed_fed.rdata")
+if(!exists("fed_smp"))  load(file="data\\clean\\fed_sample.rdata")
+
 ```
 
-Contracts are classified using a mix of numerical and categorical variables. While the changes in numerical variables are easy to grasp and summarize, a contract may have one line item that is competed and another that is not. As is detailed in the exploration on R&D, we are only considering information available prior to contract start. The percentage of contract obligations that were competed is a valuable benchmark, but is highly influenced by factors that occured after contract start..
+Contracts are classified using a mix of numerical and categorical variables. While the changes in numerical variables are easy to grasp and summarize, a contract may have one line item that is competed and another that is not. As is detailed in the exploration on R&D, we are only considering information available prior to contract start. The percentage of contract obligations that were competed is a valuable benchmark, but is highly influenced by factors that occured after contract start.
 
-## Contract Terminations
+## Variable Summary
 
 Contract terminations and the number of change orders can be calculated for the entire sample.  Contract termination is determined using the *Reason for Modification* field in FPDS.  A contract is considered to be terminated if it has at least one modification with the following values:
 
@@ -43,19 +46,6 @@ Contract terminations and the number of change orders can be calculated for the 
 * "Legal Contract Cancellation"
 
 These four catetegories and the "Close Out" category are used to mark a contract as closed.  Many contracts in FPDS and in the sample are never marked closed.  
-
-
-
-
-
-```{r ReadInData, echo = TRUE}
-  load(file="Data/Federal_contract_CSIScontractID_detail.Rdata")
-
-if(!exists("fed"))  load(file="data\\clean\\transformed_fed.rdata")
-if(!exists("fed_smp"))  load(file="data\\clean\\fed_sample.rdata")
-
-```
-
 
 
 * b_Term is a binary variable that has a value of 1 for any contracts that have experienced a partial or complete termination, 0 otherwise. ('r summary(fed$b_Term)
