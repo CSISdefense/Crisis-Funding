@@ -590,6 +590,7 @@ input_sample_criteria<-function(contract=NULL,
                                                 ,dir
                                                 ,by="CSIScontractID"
                                                 ,new_var_checked=FALSE
+                                                ,create_lookup_rdata=TRUE
     )
   }
   
@@ -608,6 +609,9 @@ input_sample_criteria<-function(contract=NULL,
     contract$StartFiscal_Year<-year(contract$MinOfSignedDate)+ifelse(month(contract$MinOfSignedDate)>=10,1,0)
   }
   
+  #These two are a bit lazy, ideally we'd fix it. But I think it's not going to come up, so input protection is first.
+  if(!is.numeric(contract$IsTerminated)) stop("Expect IsTerminated to be numeric.")
+  if(!is.numeric(contract$IsClosed)) stop("Expect IsClosed to be numeric.")
   
   contract$IsComplete<-0
     #Limit to completed contracts that start in 2007 or later
@@ -616,26 +620,14 @@ input_sample_criteria<-function(contract=NULL,
                        (contract$MaxBoostDate<=as.Date(last_date)| is.na(contract$MaxBoostDate))&
                        (contract$LastCurrentCompletionDate<=as.Date(last_date)
                         #For closed out it's enough that the boost date is within the range.
-                        | (contract$IsClosed==1 | contract$IsTerminated=="Terminated"))
+                        | (contract$IsClosed==1 | contract$IsTerminated==1))
                      ]<-1
   
-  if(drop_incomplete==TRUE)
+  if(drop_incomplete==TRUE){
     contract<-contract %>% dplyr::filter(IsComplete==1)
-
-  
-  # if(is.numeric(contract$Term)){
-  #   contract$Term<-factor(contract$Term,
-  #                         levels = c(0,1),
-  #                         labels = c("Unterminated", "Terminated")
-  #   )
-  # }
-  
-  # contract<-subset(contract,select=-c(StartFiscal_Year
-  # ,IsClosed
-  # ,LastSignedLastDateToOrder
-  #                                                       ,LastUltimateCompletionDate
-  # ))
-  
+    contract<-contract %>%dplyr::filter(is.na(IsParentCSIScontractID) | IsParentCSIScontractID==0)
+  }
+    
   if(retain_all==FALSE){
     contract<-contract[,!colnames(contract) %in% 
                          c(

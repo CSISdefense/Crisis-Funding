@@ -34,13 +34,12 @@ source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/Scripts/DIIG
 #Combining Source Files
 ##Sample Criteria
 ```{r DetailCustomer}
-
+memory.limit(32000)
 if(!exists("fed_full") & file.exists("..\\data\\clean\\federal_contract_complete_detail.Rdata")){
   load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 } else if(!exists("fed_full")) fed_full<-NULL
 
 debug(input_sample_criteria)
-
 #Limit the start years to those completed 2007-2015. Doing this first to get the size down.
 fed_full<-input_sample_criteria(fed_full,  
                                dir="..\\data\\semi_clean\\",
@@ -48,14 +47,9 @@ fed_full<-input_sample_criteria(fed_full,
                       last_date=as.Date("2015-09-30"),
                       drop_incomplete=TRUE)
 
-
-
 fed_full<-subset(fed_full, StartFiscal_Year>=2007   &
                    StartFiscal_Year<=2017
 )
-
-# fed_full$LastCurrentCompletionDate<-strptime(fed_full$LastCurrentCompletionDate,"%Y-%m-%d") 
-# fed_full$UnmodifiedLastDateToOrder<-strptime(fed_full$UnmodifiedLastDateToOrder,"%Y-%m-%d")
 
 
 fed_full<-fed_full[,!colnames(fed_full) %in% 
@@ -73,6 +67,7 @@ fed_full<-fed_full[,!colnames(fed_full) %in%
 "UnmodifiedContractBaseAndExercisedOptionsValue.1",
 "UnmodifiedContractBaseAndAllOptionsValue.2"
     )]
+
 save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 
 
@@ -104,7 +99,7 @@ if(is.numeric(fed_full$Term)){
 
 #failed here.
 fed_full$UnmodifiedCurrentCompletionDate<-
-  strptime(fed_full$UnmodifiedCurrentCompletionDate,"%Y-%m-%d") 
+  as.POSIXct(strptime(fed_full$UnmodifiedCurrentCompletionDate,"%Y-%m-%d"))
 
 #Calculate the number of days the contract lasts.
 fed_full$UnmodifiedDays<-as.numeric(
@@ -1253,6 +1248,7 @@ fed<-trim_dataset(fed)
 load(file="..\\data\\clean\\federal_contract_complete.rdata")
 # undebug(transform_contract)
 # debug(transform_contract)
+# debug(deflate)
 fed<-transform_contract(fed)
 
 debug(contract_transform_verify)
