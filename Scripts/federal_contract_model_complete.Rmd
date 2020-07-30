@@ -1249,10 +1249,21 @@ load(file="..\\data\\clean\\federal_contract_complete.rdata")
 # undebug(transform_contract)
 # debug(transform_contract)
 # debug(deflate)
+# memory.limit(36000)
 fed<-transform_contract(fed)
 
-debug(contract_transform_verify)
-contract_transform_verify(fed,dollars_suffix="Then_Year")
+
+summary(fed$Agency)
+#Customer isn't added in transform_contract as most of our datasets are just DoD
+debug(read_and_join_experiment)
+ fed<-read_and_join_experiment(fed,
+                                   "Agency_AgencyID",
+                                   by=c("Agency"="AgencyID"),
+                               path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                               dir="",
+                               add_var = "Customer")
+
+contract_transform_verify(fed,dollars_suffix="OMB20_GDP18")
 
 
  save(fed,file="..\\data\\clean\\transformed_fed.rdata")

@@ -32,6 +32,7 @@ main.text.size<-1
 note.text.size<-1.40
 if(!exists("fed"))  load(fed,file="data\\clean\\transformed_fed.rdata")
 if(!exists("fed_smp"))  load(file="data\\clean\\fed_sample.rdata")
+if(!exists("crisis_all"))  load(file="data\\clean\\crisis_population.rdata")
 
 
 ```
@@ -53,9 +54,9 @@ NA_stats(fed,"n_Offr")'
 NA_stats(fed,"b_Urg")' 
 * l_Offr is the natural log of the number of offers received. Uncompeted contracts are classified as having received one offer. 'r summary(fed$l_Offr)
 NA_stats(fed,"l_Offr")'
-* cl_Ceil is the natural log of the initial contract cost ceiling, in then-year dollars. 'r centered_log_description(fed$l_Ceil,"dollars")
+* cln_Ceil is the natural log of the initial contract cost ceiling, in then-year dollars. 'r centered_log_description(fed$l_Ceil,"dollars")
 NA_stats(fed,"l_Ceil")'
-* cl_Days is the natural log of the initial maximum duration of the contract, in days. The variable is centered, by subtracting its mean ('r centered_log_description(fed$l_Days,"days");
+* cln_Days is the natural log of the initial maximum duration of the contract, in days. The variable is centered, by subtracting its mean ('r centered_log_description(fed$l_Days,"days");
 NA_stats(fed,"l_Days")' 
 * SIDV, MIDV, and OIDV are dummy variables based on the contract vehicle. They correspond to Single-Award IDVs, Multi-Award IDVs, and Other IDVs, respectively, having a value of 1 when the task order has that vehicle type, and having a 0 other. The remaining types, definitive contracts and purchase orders, are intentionally left out. ('r summary(fed$SIDV);
 summary(fed$MIDV);
@@ -380,7 +381,7 @@ binned_percent_cbre_plot(fed_smp,"l_Ceil")
 
 #Model
 CBre_03B <- glm (data=fed_smp,
-                 b_CBre ~ ARRA + Dis + OCO + n_Comp + cl_Ceil, family=binomial(link="logit"))
+                 b_CBre ~ ARRA + Dis + OCO + n_Comp + cln_Ceil, family=binomial(link="logit"))
 display(CBre_03B)
 
 
@@ -388,7 +389,7 @@ display(CBre_03B)
 CBre_03B_curve<-function(x, Comp){invlogit(cbind(1,Comp,x) %*%  coef(CBre_03B))}
 
 #Competition curves
-fitted_cbre_model(fed_smp,"cl_Ceil") + stat_function(fun = CBre_03B_curve, 
+fitted_cbre_model(fed_smp,"cln_Ceil") + stat_function(fun = CBre_03B_curve, 
                              args=list(Comp=0),color="blue")+
   stat_function(fun = CBre_03B_curve, 
                              args=list(Comp=2),color="blue")
@@ -402,7 +403,7 @@ binned_fitted_versus_cbre_residuals(CBre_03B)
 residuals_cbre_plot(CBre_03B)+
   labs(x="Estimated  Pr (Termination)")
 
-residuals_cbre_plot(CBre_03B,"cl_Ceil")+
+residuals_cbre_plot(CBre_03B,"cln_Ceil")+
   labs(x="Centered Log(Ceiling)")
   
 
@@ -426,14 +427,14 @@ binned_percent_cbre_plot(fed_smp,"lsqr_Ceil")
 
 #Model
 CBre_03D <- glm (data=fed_smp,
-                 b_CBre ~ ARRA + Dis + OCO + n_Comp + cl_Ceil + clsqr_Ceil, family=binomial(link="logit"))
+                 b_CBre ~ ARRA + Dis + OCO + n_Comp + cln_Ceil + clsqr_Ceil, family=binomial(link="logit"))
 display(CBre_03D)
 
 #Plot the fitted model plot
 CBre_03D_curve<-function(x, Comp){invlogit(cbind(1,Comp,x, x^2) %*%  coef(CBre_03D))}
 
 #Competition curves
-fitted_cbre_model(fed_smp,"cl_Ceil") + stat_function(fun = CBre_03D_curve, 
+fitted_cbre_model(fed_smp,"cln_Ceil") + stat_function(fun = CBre_03D_curve, 
                              args=list(Comp=0),color="blue")+
   stat_function(fun = CBre_03D_curve, 
                              args=list(Comp=2),color="blue")
@@ -445,7 +446,7 @@ binned_fitted_versus_cbre_residuals(CBre_03D)
 residuals_cbre_plot(CBre_03D)+
   labs(x="Estimated  Pr (Termination)")
 
-residuals_cbre_plot(CBre_03D,"cl_Ceil")+
+residuals_cbre_plot(CBre_03D,"cln_Ceil")+
   labs(x="Centered Log(Ceiling)")
 
 ```
@@ -464,13 +465,13 @@ binned_percent_cbre_plot(fed_smp,"l_Ceil","EffComp")
 
 #Create the model
 CBre_03E <- glm (data=fed_smp,
-                 b_CBre ~ ARRA + Dis + OCO + n_Comp + cl_Ceil + clsqr_Ceil + n_Comp:cl_Ceil, family=binomial(link="logit"))
+                 b_CBre ~ ARRA + Dis + OCO + n_Comp + cln_Ceil + clsqr_Ceil + n_Comp:cln_Ceil, family=binomial(link="logit"))
 display(CBre_03E)
 
 CBre_03E_curve<-function(x, Comp){invlogit(cbind(1,Comp,x,x^2,Comp*x) %*%  coef(CBre_03E))}
 
 #Competition Curves
-fitted_cbre_model(fed_smp,"cl_Ceil") + stat_function(fun = CBre_03E_curve, 
+fitted_cbre_model(fed_smp,"cln_Ceil") + stat_function(fun = CBre_03E_curve, 
                              args=list(Comp=0),color="blue")+
   stat_function(fun = CBre_03E_curve, 
                              args=list(Comp=2),color="blue")
@@ -482,7 +483,7 @@ binned_fitted_versus_cbre_residuals(CBre_03E)
 residuals_cbre_plot(CBre_03E)+
   labs(x="Estimated  Pr (Termination)")
 
-residuals_cbre_plot(CBre_03E,"cl_Ceil")+
+residuals_cbre_plot(CBre_03E,"cln_Ceil")+
   labs(x="Centered Log(Ceiling)")
 ```
 The interaction went in the expected direction, but is surprisingly powerful. Competition heightens the importance of contract ceiling, and larger contract ceilings mitigate the importance of competition. The other powerful part of this interaction was the dramatic increase in the coefficient for competition and the comparative reduction in the correlation of ceiling.
@@ -504,21 +505,21 @@ binned_percent_cbre_plot(fed_smp,"l_Days")
 #Model
 CBre_03G <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + clsqr_Ceil + cl_Days + clsqr_Ceil +
-                   n_Comp:cl_Ceil , family=binomial(link="logit"))
+                   cln_Ceil + clsqr_Ceil + cln_Days + clsqr_Ceil +
+                   n_Comp:cln_Ceil , family=binomial(link="logit"))
 display(CBre_03G)
 
 
 CBre_03G_curve<-function(x, Comp,Ceil){invlogit(cbind(1,Comp,Ceil,Ceil^2,x,Comp*Ceil) %*%  coef(CBre_03G))}
 
 #Competition Curves
-fitted_cbre_model(fed_smp,"cl_Days") + stat_function(fun = CBre_03G_curve, 
+fitted_cbre_model(fed_smp,"cln_Days") + stat_function(fun = CBre_03G_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
   stat_function(fun = CBre_03G_curve, 
                              args=list(Comp=2,Ceil=0),color="blue")
 
 #Ceiling Curves
-fitted_cbre_model(fed_smp,"cl_Days") +  stat_function(fun = CBre_03G_curve, 
+fitted_cbre_model(fed_smp,"cln_Days") +  stat_function(fun = CBre_03G_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
   stat_function(fun = CBre_03G_curve, 
                              args=list(Comp=0,Ceil=1),color="blue")
@@ -531,7 +532,7 @@ binned_fitted_versus_cbre_residuals(CBre_03G)
 residuals_cbre_plot(CBre_03G)+
   labs(x="Estimated  Pr (Termination)")
 # debug(binned.resids)
-# residuals_cbre_plot(CBre_03G,"cl_Days")+
+# residuals_cbre_plot(CBre_03G,"cln_Days")+
   # labs(x="Centered Log(Ceiling)")
 
 
@@ -552,8 +553,8 @@ ggplot(data=subset(fed_smp,!is.na(l_Ceil)),
 #Create the model
 CBre_03E <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + clsqr_Ceil + cl_Days+
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days, family=binomial(link="logit"))
+                   cln_Ceil + clsqr_Ceil + cln_Days+
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days, family=binomial(link="logit"))
 display(CBre_03E)
 
 CBre_03E_curve<-function(x, Comp,Ceil){invlogit(
@@ -563,13 +564,13 @@ CBre_03E_curve<-function(x, Comp,Ceil){invlogit(
 
 
 #Competition Curves
-fitted_cbre_model(fed_smp,"cl_Days") + stat_function(fun = CBre_03E_curve, 
+fitted_cbre_model(fed_smp,"cln_Days") + stat_function(fun = CBre_03E_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
   stat_function(fun = CBre_03E_curve, 
                              args=list(Comp=2,Ceil=0),color="blue")
 
 #Ceiling Curves
-fitted_cbre_model(fed_smp,"cl_Days") +  stat_function(fun = CBre_03E_curve, 
+fitted_cbre_model(fed_smp,"cln_Days") +  stat_function(fun = CBre_03E_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
   stat_function(fun = CBre_03E_curve, 
                              args=list(Comp=0,Ceil=1),color="blue")
@@ -582,7 +583,7 @@ binned_fitted_versus_cbre_residuals(CBre_03E)
 residuals_cbre_plot(CBre_03E)+
   labs(x="Estimated  Pr (Termination)")
 # debug(binned.resids)
-# residuals_cbre_plot(CBre_03E,"cl_Days")+
+# residuals_cbre_plot(CBre_03E,"cln_Days")+
   # labs(x="Centered Log(Ceiling)")
 
 
@@ -607,8 +608,8 @@ binned_percent_cbre_plot(fed_smp,"lsqr_Days")
 #Create the model
 CBre_03F <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days, family=binomial(link="logit"))
+                   cln_Ceil + clsqr_Ceil + cln_Days+ clsqr_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days, family=binomial(link="logit"))
 display(CBre_03F)
 
 CBre_03F_curve<-function(x, Comp,Ceil){invlogit(
@@ -616,7 +617,7 @@ CBre_03F_curve<-function(x, Comp,Ceil){invlogit(
         Comp*Ceil,x*Ceil) %*%  coef(CBre_03F))}
 
 #Competition curves
-fitted_cbre_model(fed_smp,"cl_Ceil") + stat_function(fun = CBre_03F_curve, 
+fitted_cbre_model(fed_smp,"cln_Ceil") + stat_function(fun = CBre_03F_curve, 
                              args=list(Comp=0),color="blue")+
   stat_function(fun = CBre_03F_curve, 
                              args=list(Comp=2),color="blue")
@@ -628,11 +629,11 @@ binned_fitted_versus_cbre_residuals(CBre_03F)
 residuals_cbre_plot(CBre_03F)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre_03F,"cl_days")+
+# residuals_cbre_plot(CBre_03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 
-residuals_cbre_plot(CBre_03F,"cl_Ceil")+
+residuals_cbre_plot(CBre_03F,"cln_Ceil")+
   labs(x="Centered Log(Ceiling)")
 
 
@@ -646,8 +647,8 @@ Adding log(initial duration)^2 does seem to address the troubling pattern presen
 #Create the model
 CBre_03G <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ clsqr_Days +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days, family=binomial(link="logit"))
+                   cln_Ceil + cln_Days+ clsqr_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days, family=binomial(link="logit"))
 display(CBre_03G)
 
 CBre_03G_curve<-function(x, Comp,Ceil){invlogit(
@@ -655,7 +656,7 @@ CBre_03G_curve<-function(x, Comp,Ceil){invlogit(
         Comp*Ceil,x*Ceil) %*%  coef(CBre_03E))}
 
 #Competition curves
-fitted_cbre_model(fed_smp,"cl_Ceil") + stat_function(fun = CBre_03G_curve, 
+fitted_cbre_model(fed_smp,"cln_Ceil") + stat_function(fun = CBre_03G_curve, 
                              args=list(Comp=0),color="blue")+
   stat_function(fun = CBre_03G_curve, 
                              args=list(Comp=2),color="blue")
@@ -667,7 +668,7 @@ binned_fitted_versus_cbre_residuals(CBre_03G)
 residuals_cbre_plot(CBre_03G)+
   labs(x="Estimated  Pr (Termination)")
 
-residuals_cbre_plot(CBre_03G,"cl_Ceil")+
+residuals_cbre_plot(CBre_03G,"cln_Ceil")+
   labs(x="Centered Log(Ceiling)")
 
 ```
@@ -686,8 +687,8 @@ binned_percent_cbre_plot(fed_smp,"l_Days","EffComp")
 #Create the model
 CBre_03H <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days, family=binomial(link="logit"))
+                   cln_Ceil + clsqr_Ceil + cln_Days+ clsqr_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days, family=binomial(link="logit"))
 display(CBre_03H)
 
 CBre_03H_curve<-function(x, Comp,Ceil){invlogit(
@@ -695,7 +696,7 @@ CBre_03H_curve<-function(x, Comp,Ceil){invlogit(
         Comp*Ceil,x*Ceil,x*Comp) %*%  coef(CBre_03H))}
 
 #Competition curves
-fitted_cbre_model(fed_smp,"cl_Days") + stat_function(fun = CBre_03H_curve, 
+fitted_cbre_model(fed_smp,"cln_Days") + stat_function(fun = CBre_03H_curve, 
                              args=list(Comp=0,Ceil=0),color="blue")+
   stat_function(fun = CBre_03H_curve, 
                              args=list(Comp=2,Ceil=0),color="blue")
@@ -707,7 +708,7 @@ binned_fitted_versus_cbre_residuals(CBre_03G)
 residuals_cbre_plot(CBre_03G)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre_03F,"cl_days")+
+# residuals_cbre_plot(CBre_03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 
@@ -732,9 +733,9 @@ discrete_percent_cbre_plot(fed_smp,"Veh")
 #Create the model
 CBre_03A <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
+                   cln_Ceil + clsqr_Ceil + cln_Days+ clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days, family=binomial(link="logit"))
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days, family=binomial(link="logit"))
 display(CBre_03A)
 
 #Plot the model and Vehicle for SIDV
@@ -788,7 +789,7 @@ binned_fitted_versus_cbre_residuals(CBre_03A)
 residuals_cbre_plot(CBre_03A)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre_03F,"cl_days")+
+# residuals_cbre_plot(CBre_03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -811,10 +812,10 @@ binned_percent_cbre_plot(fed_smp,"l_Days","Veh")
 #Create the model
 CBre_03B <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
+                   cln_Ceil + clsqr_Ceil + cln_Days+ clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
-                 SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days, family=binomial(link="logit"))
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
+                 SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days, family=binomial(link="logit"))
 display(CBre_03B)
 
 # Plot the model and Vehicle for SIDV
@@ -872,7 +873,7 @@ binned_fitted_versus_cbre_residuals(CBre_03B)
 residuals_cbre_plot(CBre_03B)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -903,10 +904,10 @@ discrete_percent_cbre_plot(fed_smp,"EffComp","Veh")
 #Create the model
 CBre_03C <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
+                   cln_Ceil + clsqr_Ceil + cln_Days+ clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
-                 SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
+                 SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp , family=binomial(link="logit"))
 display(CBre_03C)
 
@@ -969,7 +970,7 @@ binned_fitted_versus_cbre_residuals(CBre_03C)
 residuals_cbre_plot(CBre_03C)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -998,12 +999,12 @@ binned_percent_cbre_plot(fed_smp,"l_Ceil","Veh")
 #Create the model
 CBre_03D <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + clsqr_Ceil + cl_Days+ clsqr_Days +
+                   cln_Ceil + clsqr_Ceil + cln_Days+ clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
-                 SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
+                 SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp +
-                   SIDV:cl_Ceil+MIDV:cl_Ceil+OIDV:cl_Ceil, family=binomial(link="logit"))
+                   SIDV:cln_Ceil+MIDV:cln_Ceil+OIDV:cln_Ceil, family=binomial(link="logit"))
 display(CBre_03D)
 
 # Plot the model and Vehicle for SIDV
@@ -1070,7 +1071,7 @@ residuals_cbre_plot(CBre_03D)+
 
 
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1084,10 +1085,10 @@ The interaction with contract ceiling only has a significant relationship with o
 #Create the model
 CBre_03E <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil  + cl_Days+ clsqr_Days +
+                   cln_Ceil  + cln_Days+ clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
-                 SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
+                 SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp, family=binomial(link="logit"))
 display(CBre_03E)
 
@@ -1100,7 +1101,7 @@ CBre_03E_SIDV_curve<-function(x, Comp,Days,SIDV,MIDV,OIDV){invlogit(
         Comp*SIDV,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_03E))}
 
 #Competition curves
-discrete_fitted_cbre_model(fed_smp,"cl_Ceil") +
+discrete_fitted_cbre_model(fed_smp,"cln_Ceil") +
   stat_function(fun = CBre_03E_SIDV_curve,
                              args=list(Comp=0,Days=0,
                                        MIDV=0,OIDV=0,SIDV=0),color="blue")+
@@ -1116,11 +1117,11 @@ binned_fitted_versus_cbre_residuals(CBre_03E)
 residuals_cbre_plot(CBre_03E)+
   labs(x="Estimated  Pr (Termination)")
 
-residuals_cbre_plot(CBre_03D,"cl_Ceil")+
+residuals_cbre_plot(CBre_03D,"cln_Ceil")+
   labs(x="Centered Log(Ceiling)")
 
 
-residuals_cbre_plot(CBre_03E,"cl_Ceil")+
+residuals_cbre_plot(CBre_03E,"cln_Ceil")+
   labs(x="Centered Log(Ceiling)")
 
 ```
@@ -1134,10 +1135,10 @@ Ceiling squared does little to reduce deviance and only slightly mitigates, rath
 #Create the model
 CBre_03F <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil  + cl_Days+ 
+                   cln_Ceil  + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
-                 SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
+                 SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp, family=binomial(link="logit"))
 display(CBre_03F)
 
@@ -1150,7 +1151,7 @@ CBre_03F_SIDV_curve<-function(x, Comp,Days,SIDV,MIDV,OIDV){invlogit(
         Comp*SIDV,Comp*MIDV,Comp*OIDV) %*%  coef(CBre_03F))}
 
 #Competition curves
-discrete_fitted_cbre_model(fed_smp,"cl_Ceil") +
+discrete_fitted_cbre_model(fed_smp,"cln_Ceil") +
   stat_function(fun = CBre_03F_SIDV_curve,
                              args=list(Comp=0,Days=0,
                                        MIDV=0,OIDV=0,SIDV=0),color="blue")+
@@ -1172,11 +1173,11 @@ residuals_cbre_plot(CBre_03E)+
 residuals_cbre_plot(CBre_03F)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre_03E,"cl_Days")+
+# residuals_cbre_plot(CBre_03E,"cln_Days")+
   # labs(x="Centered Log(Duration)")
 
 
-# residuals_cbre_plot(CBre_03F,"cl_Days")+
+# residuals_cbre_plot(CBre_03F,"cln_Days")+
   # labs(x="Centered Log(Duration)")
 ```
 
@@ -1199,11 +1200,11 @@ discrete_percent_cbre_plot(fed_smp,"FxCb")
 #Create the model
 CBre_14A <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
                    n_Fixed +
-                 SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                 SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp , family=binomial(link="logit"))
 display(CBre_14A)
 
@@ -1232,7 +1233,7 @@ binned_fitted_versus_cbre_residuals(CBre_14A)
 residuals_cbre_plot(CBre_14A)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1254,13 +1255,13 @@ binned_percent_cbre_plot(fed_smp,"l_Days","FxCb")
 #Create the model
 CBre_14B <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
                    n_Fixed +
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp +
-                   cl_Days:n_Fixed , family=binomial(link="logit"))
+                   cln_Days:n_Fixed , family=binomial(link="logit"))
 display(CBre_14B)
 
 # Plot the model and Vehicle 
@@ -1289,7 +1290,7 @@ binned_fitted_versus_cbre_residuals(CBre_14B)
 residuals_cbre_plot(CBre_14B)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1307,11 +1308,11 @@ discrete_percent_cbre_plot(fed_smp,"FxCb","Veh")
 #Create the model
 CBre_14C <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
                    n_Fixed +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
-                 SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
+                 SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp +
                    SIDV:n_Fixed+MIDV:n_Fixed+OIDV:n_Fixed, family=binomial(link="logit"))
 display(CBre_14C)
@@ -1345,7 +1346,7 @@ binned_fitted_versus_cbre_residuals(CBre_14C)
 residuals_cbre_plot(CBre_14C)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1370,11 +1371,11 @@ discrete_percent_cbre_plot(fed_smp,"Fee")
 #Create the model
 CBre_14D <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ clsqr_Ceil + clsqr_Days +
+                   cln_Ceil + cln_Days+ clsqr_Ceil + clsqr_Days +
                    SIDV + MIDV + FSSGWAC + BPABOA + 
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
                    n_Fixed + n_Incent + n_NoFee +
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp 
                     , family=binomial(link="logit"))
 display(CBre_14D)
@@ -1404,7 +1405,7 @@ binned_fitted_versus_cbre_residuals(CBre_14D)
 residuals_cbre_plot(CBre_14D)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1428,11 +1429,11 @@ discrete_percent_cbre_plot(fed_smp,"Fee","FxCb")+
 #Create the model
 CBre_14E <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
                    n_Fixed + n_Incent + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp +
                    n_Fixed:n_Incent
                     , family=binomial(link="logit"))
@@ -1466,7 +1467,7 @@ binned_fitted_versus_cbre_residuals(CBre_14E)
 residuals_cbre_plot(CBre_14E)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1488,11 +1489,11 @@ discrete_percent_cbre_plot(fed_smp,"UCA")
 #Create the model
 CBre_14F <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
                    n_Fixed + b_UCA + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp 
                     , family=binomial(link="logit"))
 display(CBre_14F)
@@ -1524,7 +1525,7 @@ binned_fitted_versus_cbre_residuals(CBre_14F)
 residuals_cbre_plot(CBre_14F)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1544,11 +1545,11 @@ discrete_percent_cbre_plot(fed_smp,"UCA","n_Comp")
 #Create the model
 CBre_14G <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
                    n_Fixed + b_UCA + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp +
                    b_UCA:n_Comp
                  
@@ -1582,7 +1583,7 @@ binned_fitted_versus_cbre_residuals(CBre_14G)
 residuals_cbre_plot(CBre_14G)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
   # labs(x="Centered Log(Days)")
 
 ```
@@ -1603,11 +1604,11 @@ binned_percent_cbre_plot(fed_smp,"l_Days","UCA")
 #Create the model
 CBre_14H <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
                    n_Fixed + b_UCA + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp +
                    b_UCA:n_Comp + 
                   b_UCA:l_Days
@@ -1642,7 +1643,7 @@ binned_fitted_versus_cbre_residuals(CBre_14H)
 residuals_cbre_plot(CBre_14H)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
   # labs(x="Centered Log(Days)")
 
 ```
@@ -1664,12 +1665,12 @@ discrete_percent_cbre_plot(fed_smp,"Intl")
 #Create the model
 CBre_15A <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
                    n_Fixed + b_UCA + 
                    b_Intl + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
                    b_UCA:n_Comp
                     , family=binomial(link="logit"))
@@ -1703,7 +1704,7 @@ binned_fitted_versus_cbre_residuals(CBre_15A)
 residuals_cbre_plot(CBre_15A)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1725,12 +1726,12 @@ discrete_percent_cbre_plot(fed_smp,"Intl","FxCb")
 #Create the model
 CBre_15A <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
                    n_Fixed + b_UCA + 
                    b_Intl + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
                    b_UCA:n_Comp+
                    n_Fixed:b_Intl
@@ -1765,7 +1766,7 @@ binned_fitted_versus_cbre_residuals(CBre_15A)
 residuals_cbre_plot(CBre_15A)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1785,12 +1786,12 @@ discrete_percent_cbre_plot(fed_smp,"Intl","Veh")
 #Create the model
 CBre_15C <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
                    n_Fixed + b_UCA + 
                    b_Intl + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
                    b_UCA:n_Comp+
                    SIDV:b_Intl+MIDV:b_Intl+OIDV:b_Intl
@@ -1825,7 +1826,7 @@ binned_fitted_versus_cbre_residuals(CBre_15C)
 residuals_cbre_plot(CBre_15C)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1856,12 +1857,12 @@ fed_smp$b_ODoD<-as.integer(as.character(fed_smp$b_ODoD))
 #Create the model
 CBre_16A <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
                    n_Fixed + b_UCA + 
                    b_Intl + b_ODoD +
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
                    b_UCA:n_Comp
                     , family=binomial(link="logit"))
@@ -1896,7 +1897,7 @@ binned_fitted_versus_cbre_residuals(CBre_16A)
 residuals_cbre_plot(CBre_16A)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1923,12 +1924,12 @@ fed_smp$b_ODoD<-as.integer(as.character(fed_smp$b_ODoD))
 #Create the model
 CBre_16B <- glm (data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
                    n_Fixed + b_UCA + 
                    b_Intl + b_ODoD +
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
                    b_UCA:n_Comp+
                    b_ODoD:n_Comp
@@ -1964,7 +1965,7 @@ binned_fitted_versus_cbre_residuals(CBre_16B)
 residuals_cbre_plot(CBre_16B)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -1986,12 +1987,12 @@ discrete_percent_cbre_plot(fed_smp,"PSR")
 #Create the model
 CBre_18A <- glmer(data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  + cl_Ceil:cl_Days  + n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  + cln_Ceil:cln_Days  + n_Comp:cln_Days +
                    n_Fixed + b_UCA + 
                    b_Intl + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
                    b_UCA:n_Comp+
                    (1 | PSR)
@@ -2025,7 +2026,7 @@ binned_fitted_versus_cbre_residuals(CBre_18A)
 residuals_cbre_plot(CBre_18A)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -2046,14 +2047,14 @@ discrete_percent_cbre_plot(fed_smp,"PSR_What")+ theme(axis.text.x = element_text
 #Create the model
 CBre_18B <- glmer(data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO + n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  +
-                   # cl_Ceil:cl_Days  + 
-                   n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  +
+                   # cln_Ceil:cln_Days  + 
+                   n_Comp:cln_Days +
                    n_Fixed + b_UCA + 
                    b_Intl + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
                    b_UCA:n_Comp+
                    (1 | PSR) + (1 | PSR_What)
@@ -2086,7 +2087,7 @@ binned_fitted_versus_cbre_residuals(CBre_18B)
 residuals_cbre_plot(CBre_18B)+
   labs(x="Estimated  Pr (Termination)")
 
-# residuals_cbre_plot(CBre03F,"cl_days")+
+# residuals_cbre_plot(CBre03F,"cln_Days")+
 #   labs(x="Centered Log(Days)")
 
 ```
@@ -2131,14 +2132,14 @@ discrete_percent_cbre_plot(fed_smp,"FxCb","PSR_What")+ theme(axis.text.x = eleme
 
 CBre_18C <- glmer(data=fed_smp,
                  b_CBre ~ #n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  +
-                   # cl_Ceil:cl_Days  + 
-                   n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  +
+                   # cln_Ceil:cln_Days  + 
+                   n_Comp:cln_Days +
                    n_Fixed + b_UCA + 
                    b_Intl + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
                    b_UCA:n_Comp+
                    (1 + n_Comp | PSR) + (1 | PSR_What)
@@ -2148,14 +2149,14 @@ display(CBre_18C)
 
 CBre_18D <- glmer(data=fed_smp,
                  b_CBre ~ ARRA + Dis + OCO +n_Comp + 
-                   cl_Ceil + cl_Days+ 
+                   cln_Ceil + cln_Days+ 
                    SIDV + MIDV + FSSGWAC + BPABOA +
-                   n_Comp:cl_Ceil  +
-                   # cl_Ceil:cl_Days  + 
-                   n_Comp:cl_Days +
+                   n_Comp:cln_Ceil  +
+                   # cln_Ceil:cln_Days  + 
+                   n_Comp:cln_Days +
                    n_Fixed + b_UCA + 
                    b_Intl + 
-                   SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+                   SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
                    b_UCA:n_Comp+
                    (1  | PSR) + (1 + n_Comp| PSR_What)
@@ -2173,14 +2174,14 @@ residuals_cbre_plot(CBre_18C)+
 
 # CBre_18E <- glmer(data=fed_smp,
 #                  b_CBre ~ ARRA + Dis + OCO +n_Comp + 
-#                    cl_Ceil + cl_Days+ 
+#                    cln_Ceil + cln_Days+ 
 #                    SIDV + MIDV + FSSGWAC + BPABOA +
-#                    n_Comp:cl_Ceil  +
-#                    # cl_Ceil:cl_Days  + 
-#                    n_Comp:cl_Days +
+#                    n_Comp:cln_Ceil  +
+#                    # cln_Ceil:cln_Days  + 
+#                    n_Comp:cln_Days +
 #                    n_Fixed + b_UCA + 
 #                    b_Intl + 
-#                    SIDV:cl_Days+MIDV:cl_Days+OIDV:cl_Days +
+#                    SIDV:cln_Days+MIDV:cln_Days+OIDV:cln_Days +
 #                    SIDV:n_Comp+MIDV:n_Comp+OIDV:n_Comp+
 #                    b_UCA:n_Comp+
 #                    (1+n_Comp  | PSR) + (1+ n_Comp | PSR_What)

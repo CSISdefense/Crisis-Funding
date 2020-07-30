@@ -171,6 +171,7 @@ trim_dataset<-function(contract){
     "Office",
     "ProdServ",
     "NAICS",
+    "Crisis",
     "MaxOfDecisionTree",
     # "MaxOfDecisionTreeStep4",
     "MinOfDecisionTree",
