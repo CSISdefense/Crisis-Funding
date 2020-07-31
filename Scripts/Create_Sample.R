@@ -95,37 +95,8 @@ summary(fed$CompOffr[is.na(fed$NoCompOffr)]) #Including urgency exception adds N
 
 
 
-complete<-
-  #Dependent Variables
-  !is.na(fed$b_Term)&
-  !is.na(fed$b_CBre)&
-  #Study Variables
-  !is.na(fed$NoCompOffr)&
-  !is.na(fed$UCA)&
-  !is.na(fed$c_OffCri)&
-  !is.na(fed$OffPlace)&
-  !is.na(fed$Crisis)&
-  !is.na(fed$cln_Ceil)&
-  !is.na(fed$cln_Days)&
-  !is.na(fed$Veh) &
-  !is.na(fed$PricingFee)&
-  !is.na(fed$b_Intl)&
-  !is.na(fed$NAICS)&
-  # !is.na(fed$NAICS3)&
-  
-  #Multilevel variables
-  !is.na(fed$CrisisProductOrServiceArea)&
-  !is.na(fed$ProdServ)&
-!is.na(fed$Office)&
-  !is.na(fed$Agency) &
-!is.na(fed$PlaceCountryISO3)
-# !is.na(fed$VendorCountryISO3)&
-# !is.na(fed$OriginCountryISO3)&
-# !is.na(fed$StartCY)&
-# !is.na(fed$cl_def3_ratio_lag1)&
-# !is.na(fed$cl_def6_obl_lag1)&
-# !is.na(fed$cl_def6_ratio_lag1)&
-# !is.na(fed$cl_US6_avg_sal_lag1)
+complete<-get_complete_list(fed)
+ 
 
 summary(complete)
 
@@ -217,10 +188,7 @@ summary(fed$OffPlace)
 # large_crisis_all_with_na<-add_col_from_transformed(large_crisis_all_with_na,fed)  
 
 
-# large_crisis_all_with_na<-update_sample_col_CSIScontractID(sample=large_crisis_all_with_na,full=fed_full,
-#                                  col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
-# crisis_all_with_na<-update_sample_col_CSIScontractID(sample=crisis_all_with_na,full=fed_full,
-#                                  col=c("PlaceCountryISO3","VendorCountryISO3","OriginCountryISO3"))
+
 
 
 ##### Original weighted sample creation, since abandoned

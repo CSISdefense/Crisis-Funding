@@ -142,6 +142,8 @@ trim_dataset<-function(contract){
     "Where",
     "Intl",
     "PlaceCountryISO3",
+    "VendorCountryISO3",
+    "OriginCountryISO3",
     # "LowCeil",
     # "Ceil",
     # "qDuration",
@@ -1046,19 +1048,25 @@ iso3<-function(contract,colname,prefix){
 }
 
 get_complete_list<-function(contract,crisis=FALSE){
-  complete<-!is.na(contract$b_Term)&
+  complete<-  #Dependent Variables
+    !is.na(contract$b_Term)&
     !is.na(contract$b_CBre)&
+    #Study Variables
+    !is.na(fed$Crisis)&
     !is.na(contract$b_Comp)&
     !is.na(contract$b_Urg)&
     !is.na(contract$NoCompOffr)&
-    !is.na(contract$cl_Ceil)&
-    !is.na(contract$cl_Days)&
+    !is.na(contract$UCA)&
+    !is.na(fed$OffPlace)&
+    #Controls
+    !is.na(contract$cln_Ceil)&
+    !is.na(contract$cln_Days)&
     !is.na(contract$Veh) &
-    !is.na(contract$n_Fixed)&
+    !is.na(contract$PricingFee)&
     !is.na(contract$b_Intl)&
-    !is.na(contract$b_UCA)&
     !is.na(contract$ProdServ)&
-    !is.na(contract$Crisis)&
+    #Multilevel variables
+    !is.na(fed$CrisisProductOrServiceArea)&
     !is.na(contract$Office)&
     !is.na(contract$Agency)&
     !is.na(contract$PlaceCountryISO3)&
@@ -1068,7 +1076,11 @@ get_complete_list<-function(contract,crisis=FALSE){
     !is.na(contract$OffIntl)
     # !is.na(contract$Is.Defense)
   # !is.na(contract$cl_HHI_lag1)
-
+    # !is.na(fed$b_Intl)&
+    !is.na(fed$NAICS)&
+    # !is.na(fed$NAICS3)&
+    
+  
   length(which(is.na(contract$b_Term)))/nrow(contract)
   length(which(is.na(contract$b_CBre)))/nrow(contract)
   length(which(is.na(contract$b_Comp)))/nrow(contract)
