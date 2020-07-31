@@ -10,7 +10,9 @@ output:
 Modeling Likelihood of Contract Termination or Ceiling Breach
 ============================================================================
 
-#Setup
+
+#Setup and loading data
+First we load the data. The dataset used is a U.S. federal Contracting dataset derived from   FPDS. The crisis sample is created by including the entirity of the OCO, ARRA, and Disaster datasets.
 ```{r Libraries, echo = FALSE}
 library(csis360)
 library(ggplot2)
@@ -21,7 +23,7 @@ library(Hmisc)
 library(stargazer)
 library(dummies)
 library(optimx)
-source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/DIIGstat.r")
+source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/Scripts/DIIGstat.r")
 
 axis.text.size<-10
 strip.text.size<-10
@@ -34,81 +36,13 @@ main.text.size<-1
 note.text.size<-1.40
 
 
+
+load(file="data//clean//fed_sample.Rdata",fed_smp,fed_1m)
+load(file="data//clean//crisis_population.Rdata",crisis_all,crisis_all_with_na)
 ```
 
 
 
-##Load Data
-First we load the data. The dataset used is a U.S. Defense Contracting dataset derived from   FPDS.
-
-
-```{r ReadInData, echo = TRUE}
-load("Data\\fed_sample.Rdata")
-load("Data\\crisis_smp.Rdata")
-# load("Data\\extra_large_crisis_smp.Rdata")
-# 
-# large_crisis_smp$Reach6<-factor(paste(large_crsis_smp$OffPl99,large_crisis_smp$Intl,sep="-"))
-# summary(large_crisis_smp$Reach)
-# 
-# large_crisis_smp$Reach<-large_crisis_smp$Reach6
-#     levels(large_crisis_smp$Reach) <-
-#     list( "US50-Dom"=c("US99-Just U.S.","Mixed-Just U.S."),
-#          "Mixed-Dom"=c(),
-#          "Intl-Dom"=c("Intl-Just U.S."),
-#          "US50-Intl"=c("Mixed-Any International","US99-Any International"),
-#          "Intl-Intl"=c("Intl-Any International"))
-# 
-#   large_crisis_smp$Reach5<-large_crisis_smp$Reach6
-#     levels(large_crisis_smp$Reach5) <-
-#     list( "US99-Dom"=c("US99-Just U.S.","US99-Any International"),
-#          "Mixed-Dom"=c("Mixed-Just U.S."),
-#          "Intl-Dom"=c("Intl-Just U.S."),
-#          "Mixed-Intl"=c("Mixed-Any International"),
-#          "Intl-Intl"=c("Intl-Any International"))
-# 
-# 
-# summary(large_crisis_smp$NoComp)
-# 
-# 
-# summary(large_crisis_smp$NoCompOffr)
-# 
-# large_crisis_smp$NoCompOffr<-factor(large_crisis_smp$NoCompOffr,
-#       c( "2-4 offers",
-#          "Other No",
-#         "Urgency",
-#         "1 offer",
-#         "5+ offers"
-#       ))
-# 
-# crisis_smp$NoCompOffr<-factor(crisis_smp$NoCompOffr,
-#       c( "2-4 offers",
-#          "Other No",
-#         "Urgency",
-#         "1 offer",
-#         "5+ offers"
-#       ))
-# 
-# 
-# crisis_smp$NoCompOffr<-factor(crisis_smp$NoCompOffr,
-#       c( "2-4 offers",
-#          "Other No",
-#         "Urgency",
-#         "1 offer",
-#         "5+ offers"
-#       ))
-# crisis_with_na$NoCompOffr<-factor(crisis_with_na$NoCompOffr,
-#       c( "2-4 offers",
-#          "Other No",
-#         "Urgency",
-#         "1 offer",
-#         "5+ offers"
-#       ))
-
-# large_crisis_smp$NoComp<-factor(large_crisis_smp$NoComp,c("Any Comp.","Other No","Urgency"))
-```
-
-
-The sample is created by including the entirity of the ARRA and Disaster datasets, as well as 100,000 records each from the OCO datase and another 100,000 from all remaining records.
 
 #Initial Logit Model
 
@@ -654,7 +588,7 @@ Expectation: Crisis-contracting is challenging, and there will be an estimated p
 
 
 corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,
-                                                             c_OffCri,cl_Ceil,
+                                                             c_OffCri,cln_Ceil,
                                                cl_Days,n_Fixed,b_Intl)),
                        dummies::dummy(crisis_smp$Crisis),
                        dummies::dummy(crisis_smp$NoCompOffr))))
@@ -710,7 +644,7 @@ summary_continuous_plot(crisis_smp,"OffIntl",bins=50)
 summary_continuous_plot(crisis_smp,"OffIntl","Crisis",bins=50)
 
 corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(
-  b_UCA,c_OffCri,OffIntl,cl_Ceil,
+  b_UCA,c_OffCri,OffIntl,cln_Ceil,
   cl_Days,n_Fixed,b_Intl)),
   dummies::dummy(crisis_smp$Crisis),
   dummies::dummy(crisis_smp$NoCompOffr))))
@@ -754,7 +688,7 @@ summary_double_continuous(crisis_smp,"OffIntl","c_OffCri")
 summary_continuous_plot(crisis_smp,"OffIntl","Crisis",bins=40)
 
 corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(b_UCA,
-                                                             c_OffCri,OffIntl,cl_Ceil,
+                                                             c_OffCri,OffIntl,cln_Ceil,
                                                cl_Days,n_Fixed,b_Intl)),
                        dummies::dummy(crisis_smp$Crisis),
                        dummies::dummy(crisis_smp$NoCompOffr))))
@@ -815,7 +749,7 @@ summary(crisis_smp$OffPl99)
 
   
 corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(
-  b_UCA,c_OffCri,OffIntl,cl_Ceil,
+  b_UCA,c_OffCri,OffIntl,cln_Ceil,
   cl_Days,n_Fixed,b_Intl)),
   dummies::dummy(crisis_smp$Crisis),
   dummies::dummy(crisis_smp$NoCompOffr),
@@ -1153,7 +1087,7 @@ summary_discrete_plot(crisis_smp,"Intl","OffPl50")
 
 
 corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(crisis_smp, select=c(
-  b_UCA,c_OffCri,OffIntl,cl_Ceil,
+  b_UCA,c_OffCri,OffIntl,cln_Ceil,
   cl_Days,n_Fixed,b_Intl)),
   dummies::dummy(crisis_smp$Crisis),
   dummies::dummy(crisis_smp$NoCompOffr),
@@ -1433,7 +1367,7 @@ CBre_05A <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
+                   cln_Ceil+
                    Crisis:NoCompOffr+
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
@@ -1443,7 +1377,7 @@ Term_05A <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
+                   cln_Ceil+
                    NoCompOffr:Crisis+
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
@@ -1481,7 +1415,7 @@ CBre_05A <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
+                   cln_Ceil+
                    Crisis:NoCompOffr+
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
@@ -1491,7 +1425,7 @@ Term_05A <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
+                   cln_Ceil+
                    NoCompOffr:Crisis+
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
@@ -1524,10 +1458,10 @@ CBre_05B <- glm (data=crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
+                   cln_Ceil+
                   Crisis:NoCompOffr+
                    b_UCA:Crisis+
-                   cl_Ceil:Crisis
+                   cln_Ceil:Crisis
                    , 
                  family=binomial(link="logit"))
 glmer_examine(CBre_05B)
@@ -1537,11 +1471,11 @@ Term_05B <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
+                  cln_Ceil+
                   NoCompOffr:Crisis+
 
                    b_UCA:Crisis+
-                   cl_Ceil:Crisis,
+                   cln_Ceil:Crisis,
                  family=binomial(link="logit"))
 glmer_examine(Term_05B)
 
@@ -1572,10 +1506,10 @@ CBre_05C <- glm (data=large_crisis_smp,
                    b_UCA+
                    OffPl99+ 
                    c_OffCri+
-                   cl_Ceil+
+                   cln_Ceil+
                   NoCompOffr:Crisis+
                    b_UCA:Crisis+
-                   cl_Ceil:b_UCA,
+                   cln_Ceil:b_UCA,
                  family=binomial(link="logit"))
 glmer_examine(CBre_05C)
 
@@ -1583,11 +1517,11 @@ Term_05C <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
+                  cln_Ceil+
                   NoCompOffr:Crisis+
                    b_UCA:Crisis+
                    
-                   cl_Ceil:b_UCA, 
+                   cln_Ceil:b_UCA, 
                  family=binomial(link="logit"))
 glmer_examine(Term_05C)
 
@@ -1620,10 +1554,10 @@ CBre_05D <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
+                   cln_Ceil+
                   NoCompOffr:Crisis+
                    b_UCA:Crisis+
-                   cl_Ceil:OffPl99, 
+                   cln_Ceil:OffPl99, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_05D)
 
@@ -1631,11 +1565,11 @@ Term_05D <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
+                  cln_Ceil+
                   NoCompOffr:Crisis+
                    b_UCA:Crisis+
                    
-                   cl_Ceil:OffPl99, 
+                   cln_Ceil:OffPl99, 
                  family=binomial(link="logit"))
 glmer_examine(Term_05D)
 
@@ -1649,7 +1583,7 @@ summary_residual_compare(CBre_05B,CBre_05D,Term_05B,Term_05D)
 ```
 Expectations are defied, as ceiling breaches prove to have less predictive power for 
 
-For Ceiling breaches, the new relationship is significant but also throws off fitted vs. actual values and increases residuals. For terminations, the coefficients are greater and cl_ceiling gains a larger coefficient. Dropping for both.
+For Ceiling breaches, the new relationship is significant but also throws off fitted vs. actual values and increases residuals. For terminations, the coefficients are greater and cln_Ceiling gains a larger coefficient. Dropping for both.
 
 
 #### 05E: Cost Ceiling and Competition
@@ -1663,10 +1597,10 @@ CBre_05E <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
+                   cln_Ceil+
                   NoCompOffr:Crisis+
                    b_UCA:Crisis+
-                 cl_Ceil:NoCompOffr, 
+                 cln_Ceil:NoCompOffr, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_05E)
 
@@ -1674,11 +1608,11 @@ Term_05E <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
+                  cln_Ceil+
                   NoCompOffr:Crisis+
                    b_UCA:Crisis+
                    
-                 cl_Ceil:NoCompOffr, 
+                 cln_Ceil:NoCompOffr, 
                  family=binomial(link="logit"))
 glmer_examine(Term_05E)
 
@@ -1687,11 +1621,11 @@ Term_05E2 <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
+                  cln_Ceil+
                   # NoCompOffr:Crisis+
                    b_UCA:Crisis+
                    
-                 cl_Ceil:NoCompOffr, 
+                 cln_Ceil:NoCompOffr, 
                  family=binomial(link="logit"))
 glmer_examine(Term_05E2)
 # texreg::texreg(list(CBre_05A,CBre_05B,CBre_05E,Term_05A,Term_05B,Term_05E))
@@ -1721,7 +1655,7 @@ CBre_05F <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+csqrt_ceil+
+                   cln_Ceil+csqrt_ceil+
                    Crisis:NoCompOffr+
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
@@ -1731,7 +1665,7 @@ Term_05F <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+csqrt_ceil+
+                   cln_Ceil+csqrt_ceil+
                    NoCompOffr:Crisis+
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
@@ -1767,7 +1701,7 @@ binned_percent_plot(large_crisis_smp,"l_Ceil","Veh",bins=100)+
   geom_vline(xintercept=log(2500))+
   geom_vline(xintercept=log(150000))
 ```
-Two vertical lines are added to this plot, one for the lowest micro-purchase threshold during this period USD2,500. The other is the low end simplified acquisiton threshold, at USD150,000. Both of these have subsequently been raised and vary situationally. However, for simplicity the model is using the low and generally applicable value for categorization. The next step is to attempt a piecemeal/segmented approach, which allows for different slopes for cl_ceil depending on whether the value is above or below certain thresholds.
+Two vertical lines are added to this plot, one for the lowest micro-purchase threshold during this period USD2,500. The other is the low end simplified acquisiton threshold, at USD150,000. Both of these have subsequently been raised and vary situationally. However, for simplicity the model is using the low and generally applicable value for categorization. The next step is to attempt a piecemeal/segmented approach, which allows for different slopes for cln_Ceil depending on whether the value is above or below certain thresholds.
 
 Expectation: Surpassing the microtransaction threshold and the simplified acquisition threshold mandates additional regulatory requirements and also scrutiny. Contracts that exceed them are thus likely to have a greater irreducible complexity that prevented use of smaller contracting forms. The study team expects that the lower thresholds will negatively estimate the probability of ceiling breaches and terminations.
 
@@ -1788,8 +1722,8 @@ CBre_05G <- glm (data=large_crisis_smp,
                  b_CBre ~  Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+cl_Ceil:thresh+
-                   cl_Ceil:NoCompOffr,  
+                   cln_Ceil+cln_Ceil:thresh+
+                   cln_Ceil:NoCompOffr,  
                  family=binomial(link="logit"))
 glmer_examine(CBre_05G)
 
@@ -1797,11 +1731,11 @@ Term_05G <- glm (data=large_crisis_smp,
                   b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+cl_Ceil:thresh+
+                   cln_Ceil+cln_Ceil:thresh+
                    NoCompOffr:Crisis+
                    b_UCA:Crisis+
                    
-                   cl_Ceil:Crisis, 
+                   cln_Ceil:Crisis, 
                  family=binomial(link="logit"))
 glmer_examine(Term_05G)
 
@@ -1818,7 +1752,7 @@ Term_05G2 <- glm (data=large_crisis_smp,
                   b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+cl_Ceil:thresh+
+                   cln_Ceil+cln_Ceil:thresh+
                    NoCompOffr:Crisis+
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
@@ -1834,12 +1768,12 @@ summary_residual_compare(CBre_05E,CBre_05G,Term_05B,Term_05G2)
 ```
 The results do not aligne with expectations, though the magnitude of the negative coefficient is surprising for threshold150k terminations because it flips the sign on the ceiling. However, while the coefficients make sense, the change is ultimately unsuccessful in its main goal, reducing the size of residuals in the model. As a result, given the increase in complexity and the greater difficulty in interpretability, it will be left out of the model.
 
-This causes cl_Ceil VIF to exceed 2, and thus it must be removed.
+This causes cln_Ceil VIF to exceed 2, and thus it must be removed.
 
 #### 05H: Threshold and ceiling interaction
 
 ```{r Model05H}
-summary_continuous_plot(large_crisis_smp,"cl_ceil","thresh")
+summary_continuous_plot(large_crisis_smp,"cln_Ceil","thresh")
 
 
 
@@ -1848,12 +1782,12 @@ CBre_05H <- glm (data=large_crisis_smp,
                  b_CBre ~  Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+thresh+
-                   cl_Ceil:NoCompOffr+
+                   cln_Ceil+thresh+
+                   cln_Ceil:NoCompOffr+
                    
                   NoCompOffr:Crisis+
                    b_UCA:Crisis+
-                   cl_Ceil:thresh,  
+                   cln_Ceil:thresh,  
                  family=binomial(link="logit"))
 glmer_examine(CBre_05H)
 
@@ -1861,11 +1795,11 @@ Term_05H <- glm (data=large_crisis_smp,
                   b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+thresh+
+                   cln_Ceil+thresh+
                    NoCompOffr:Crisis+
                    b_UCA:Crisis+
                    
-                   cl_Ceil:thresh, 
+                   cln_Ceil:thresh, 
                  family=binomial(link="logit"))
 glmer_examine(Term_05H)
 
@@ -1897,9 +1831,9 @@ CBre_06A <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
-                   cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr, 
+                   cln_Ceil+
+                   cln_Days+
+                   cln_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cln_Ceil:NoCompOffr, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_06A)
 
@@ -1907,8 +1841,8 @@ Term_06A <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
+                   cln_Ceil+
+                   cln_Days+
                    NoCompOffr:Crisis+
                    b_UCA:Crisis, 
                  family=binomial(link="logit"))
@@ -1928,20 +1862,20 @@ Duration has significant correlations with ceiling breaches. The initial model r
 Expectation: All else equal, large ceiling contracts with short time horizons may be higher risk. The interaction of ceiling and day positively estimates the probability of ceiling breaches and terminations.
 ```{r Mode06B}
 
-summary_double_continuous(large_crisis_smp,"capped_cl_Days","cl_Ceil")
+summary_double_continuous(large_crisis_smp,"cln_Days","cln_Ceil")
 
 #Model
 CBre_06B <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
-                  cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+
+                   cln_Ceil+
+                   cln_Days+
+                  cln_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cln_Ceil:NoCompOffr+
 
                    
                    
-                   cl_Ceil:capped_cl_Days, 
+                   cln_Ceil:cln_Days, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_06B)
 
@@ -1949,12 +1883,12 @@ Term_06B <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   capped_cl_Days+
+                  cln_Ceil+
+                   cln_Days+
                   NoCompOffr:Crisis+
                    b_UCA:Crisis+
                    
-                   cl_Ceil:capped_cl_Days, 
+                   cln_Ceil:cln_Days, 
                  family=binomial(link="logit"))
 glmer_examine(Term_06B)
 
@@ -1979,10 +1913,10 @@ CBre_06C <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
-                  cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+
-                   capped_cl_Days:Crisis, 
+                   cln_Ceil+
+                   cln_Days+
+                  cln_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cln_Ceil:NoCompOffr+
+                   cln_Days:Crisis, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_06C)
 
@@ -1990,12 +1924,12 @@ Term_06C <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   capped_cl_Days+
+                  cln_Ceil+
+                   cln_Days+
                   NoCompOffr:Crisis+
                    b_UCA:Crisis+
                    
-                   capped_cl_Days:Crisis, 
+                   cln_Days:Crisis, 
                  family=binomial(link="logit"))
 glmer_examine(Term_06C)
 
@@ -2021,10 +1955,10 @@ CBre_06D <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
-                  cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+
-                   capped_cl_Days:b_UCA, 
+                   cln_Ceil+
+                   cln_Days+
+                  cln_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cln_Ceil:NoCompOffr+
+                   cln_Days:b_UCA, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_06D)
 
@@ -2032,13 +1966,13 @@ Term_06D <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   capped_cl_Days+
+                  cln_Ceil+
+                   cln_Days+
                   NoCompOffr:Crisis+
                    b_UCA:Crisis+
                    
                    
-                   capped_cl_Days:b_UCA, 
+                   cln_Days:b_UCA, 
                  family=binomial(link="logit"))
 glmer_examine(Term_06D)
 
@@ -2070,10 +2004,10 @@ CBre_06E <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
-                  cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+
-                   capped_cl_Days:OffPl99, 
+                   cln_Ceil+
+                   cln_Days+
+                  cln_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cln_Ceil:NoCompOffr+
+                   cln_Days:OffPl99, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_06E)
 
@@ -2081,12 +2015,12 @@ Term_06E <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   capped_cl_Days+
+                  cln_Ceil+
+                   cln_Days+
                   NoCompOffr:Crisis+
                    b_UCA:Crisis+
                    
-                        capped_cl_Days:OffPl99, 
+                        cln_Days:OffPl99, 
                  family=binomial(link="logit"))
 glmer_examine(Term_06E)
 
@@ -2102,7 +2036,7 @@ summary_residual_compare(CBre_06A,CBre_06E,Term_06C,Term_06E,bins=30)
 ```
 The expectation is upheld. The interaction between duration and locations for terminations is shows that in international cases, longer duration estimates greater risks, though not significantly for ceiling breaches. This Interestingly,in mixed cases the risk is reduced significant. This is may be a mechanism to explain reachback contracting, and also occurs with ceiling terminations, bigger contracts may be easier to handle in mixed contracting offices where there is more capacity. 
 
-Unfortunately, VIF knocks out this interaction as in both cases capped_cl_Days goes above 2.0.
+Unfortunately, VIF knocks out this interaction as in both cases cln_Days goes above 2.0.
 
 
 #### 06F: Duration and Competition
@@ -2116,10 +2050,10 @@ CBre_06F <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
-                   cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+
-                   capped_cl_Days:NoCompOffr,
+                   cln_Ceil+
+                   cln_Days+
+                   cln_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cln_Ceil:NoCompOffr+
+                   cln_Days:NoCompOffr,
                  family=binomial(link="logit"))
 glmer_examine(CBre_06F)
 
@@ -2127,12 +2061,12 @@ Term_06F <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
+                   cln_Ceil+
+                   cln_Days+
                    NoCompOffr:Crisis+
                    b_UCA:Crisis+
                    
-                   capped_cl_Days:NoCompOffr, 
+                   cln_Days:NoCompOffr, 
                  family=binomial(link="logit"))
 glmer_examine(Term_06F)
 
@@ -2141,12 +2075,12 @@ Term_06F <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
+                   cln_Ceil+
+                   cln_Days+
                    NoCompOffr:Crisis+
                    b_UCA:Crisis+
                    
-                   capped_cl_Days:NoCompOffr, 
+                   cln_Days:NoCompOffr, 
                  family=binomial(link="logit"))
 glmer_examine(Term_06F)
 
@@ -2177,13 +2111,13 @@ CBre_07A <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
+                   cln_Ceil+
+                   cln_Days+
                    Veh+
-                  cl_Ceil+Crisis:NoCompOffr+
+                  cln_Ceil+Crisis:NoCompOffr+
                    b_UCA:Crisis+
-                   cl_Ceil:NoCompOffr+
-                   capped_cl_Days:NoCompOffr, 
+                   cln_Ceil:NoCompOffr+
+                   cln_Days:NoCompOffr, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_07A)
 
@@ -2191,8 +2125,8 @@ Term_07A <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   capped_cl_Days+
+                  cln_Ceil+
+                   cln_Days+
                    Veh+
                   NoCompOffr:Crisis+
                    b_UCA:Crisis, 
@@ -2211,7 +2145,7 @@ summary_residual_compare(CBre_06F,CBre_07A,Term_06F,Term_07A)
 Expectations were fulfilled with regard to terminations. 
 The first check lumps looks at four categories of IDVs, each associated with a notably rate of negative outcomes. The largest negative coefficient varies by measure. Both single award IDCs (S-IDC) and Blanket Purchase Agreements/Basic Order Agreements (BPA/BOA) have singifcant negative coefficients in both categories. Multiple award IDVs have the largest negative coefficient for terminations but the smalling for breaches. FSS/GWAC on the other hand have the smallest coefficent for terminations, but are associated with a lower rate of breaches only a bit smaller in magnuted to S-IDCs or BPA/BOAs. second, and other IDVs third. The deviance of the both models is notably reduced, the main warning bell though is some signs of flattening out in the fitted versus residuals. The residual pattern around 0.5 for log of cost ceiling is still not explained.
 
-This addition pushes the VIF for cl_Ceil above 2 for terminations. Crisis:cl_Ceil will be removed. After which, the VIF for NoCompOffr exceeded 2. The study team chose to remove b_NoCompOffrTRUE:capped_cl_Days as when examining the descriptive statistics, there was a more noticable difference in pattern for that set of variables and better alignment between the Term and Ceil models is an additional feature.
+This addition pushes the VIF for cln_Ceil above 2 for terminations. Crisis:cln_Ceil will be removed. After which, the VIF for NoCompOffr exceeded 2. The study team chose to remove b_NoCompOffrTRUE:cln_Days as when examining the descriptive statistics, there was a more noticable difference in pattern for that set of variables and better alignment between the Term and Ceil models is an additional feature.
 
 The next step is to check the intersections with duration.
 
@@ -2227,14 +2161,14 @@ CBre_07B <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
+                   cln_Ceil+
+                   cln_Days+
                    Veh+
-                  cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+
-                   capped_cl_Days:NoCompOffr+
+                  cln_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cln_Ceil:NoCompOffr+
+                   cln_Days:NoCompOffr+
                    
                    
-                   capped_cl_Days:Veh, 
+                   cln_Days:Veh, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_07B)
 
@@ -2244,13 +2178,13 @@ Term_07B <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   capped_cl_Days+
+                  cln_Ceil+
+                   cln_Days+
                    Veh+
                   NoCompOffr:Crisis+
                   
                    b_UCA:Crisis+
-                   capped_cl_Days:Veh                   , 
+                   cln_Days:Veh                   , 
                  family=binomial(link="logit"))
 glmer_examine(Term_07B)
 
@@ -2290,18 +2224,18 @@ CBre_07C <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
+                   cln_Ceil+
+                   cln_Days+
                    Veh+
-                  cl_Ceil+Crisis:NoCompOffr+
+                  cln_Ceil+Crisis:NoCompOffr+
                    b_UCA:Crisis+
-                   cl_Ceil:NoCompOffr+
-                   capped_cl_Days:NoCompOffr+
+                   cln_Ceil:NoCompOffr+
+                   cln_Days:NoCompOffr+
                    
                    
                    
                     
-                 cl_Ceil:Veh, 
+                 cln_Ceil:Veh, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_07C)
 
@@ -2309,17 +2243,17 @@ CBre_07C2 <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
+                   cln_Ceil+
+                   cln_Days+
                    Veh+
-                  cl_Ceil+
+                  cln_Ceil+
                    Crisis:NoCompOffr+
                    b_UCA:Crisis+
-                   # cl_Ceil:NoCompOffr+
-                   capped_cl_Days:NoCompOffr+
+                   # cln_Ceil:NoCompOffr+
+                   cln_Days:NoCompOffr+
                    
      
-                 cl_Ceil:Veh, 
+                 cln_Ceil:Veh, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_07C2)
 
@@ -2330,13 +2264,13 @@ Term_07C <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   capped_cl_Days+
+                  cln_Ceil+
+                   cln_Days+
                    Veh+
                   NoCompOffr:Crisis+
                    b_UCA:Crisis+
-                   capped_cl_Days:Veh+ 
-                 cl_Ceil:Veh, 
+                   cln_Days:Veh+ 
+                 cln_Ceil:Veh, 
                  family=binomial(link="logit"))
 glmer_examine(Term_07C)
 
@@ -2367,18 +2301,18 @@ CBre_07D <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
+                   cln_Ceil+
+                   cln_Days+
                    Veh+
-                  cl_Ceil+
+                  cln_Ceil+
                    Crisis:NoCompOffr+
                    b_UCA:Crisis+
-                   cl_Ceil:NoCompOffr+
-                   capped_cl_Days:NoCompOffr+
+                   cln_Ceil:NoCompOffr+
+                   cln_Days:NoCompOffr+
                    
                    
                    
-                   #cl_Ceil:Veh+
+                   #cln_Ceil:Veh+
                  NoCompOffr:Veh, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_07D)
@@ -2387,18 +2321,18 @@ CBre_07D2 <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
+                   cln_Ceil+
+                   cln_Days+
                    Veh+
-                  cl_Ceil+
+                  cln_Ceil+
                    Crisis:NoCompOffr+
                    b_UCA:Crisis+
-                   cl_Ceil:NoCompOffr+
-                   # capped_cl_Days:NoCompOffr+
+                   cln_Ceil:NoCompOffr+
+                   # cln_Days:NoCompOffr+
                    
                    
                    
-                   #cl_Ceil:Veh+
+                   #cln_Ceil:Veh+
                  NoCompOffr:Veh, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_07D2)
@@ -2408,18 +2342,18 @@ CBre_07D3 <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
+                   cln_Ceil+
+                   cln_Days+
                    Veh+
-                  cl_Ceil+
+                  cln_Ceil+
                    Crisis:NoCompOffr+
                    b_UCA:Crisis+
-                   # cl_Ceil:NoCompOffr+
-                   # capped_cl_Days:NoCompOffr+
+                   # cln_Ceil:NoCompOffr+
+                   # cln_Days:NoCompOffr+
                    
                    
-                   # capped_cl_Days:Veh+ 
-                   #cl_Ceil:Veh+
+                   # cln_Days:Veh+ 
+                   #cln_Ceil:Veh+
                  NoCompOffr:Veh, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_07D3)
@@ -2428,15 +2362,15 @@ Term_07D <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   capped_cl_Days+
+                  cln_Ceil+
+                   cln_Days+
                    Veh+
                   NoCompOffr:Crisis+                  
                    b_UCA:Crisis+
 
      
-                   capped_cl_Days:Veh+ 
-                   #cl_Ceil:Veh+
+                   cln_Days:Veh+ 
+                   #cln_Ceil:Veh+
                  NoCompOffr:Veh, 
                  family=binomial(link="logit"))
 glmer_examine(Term_07D)
@@ -2478,16 +2412,16 @@ CBre_08A <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
+                   cln_Ceil+
+                   cln_Days+
                    Veh+
                    n_Fixed +
-                  cl_Ceil+
+                  cln_Ceil+
                    Crisis:NoCompOffr+
                    b_UCA:Crisis+
-                   cl_Ceil:NoCompOffr+
-                   capped_cl_Days:NoCompOffr, 
-                   #cl_Ceil:Veh+
+                   cln_Ceil:NoCompOffr+
+                   cln_Days:NoCompOffr, 
+                   #cln_Ceil:Veh+
                  #NoCompOffr:Veh, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_08A)
@@ -2496,15 +2430,15 @@ Term_08A <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   capped_cl_Days+
+                  cln_Ceil+
+                   cln_Days+
                    Veh+
                    n_Fixed +
                    NoCompOffr:Crisis+                 
                    b_UCA:Crisis+
 
-                   capped_cl_Days:Veh+ 
-                   cl_Ceil:Veh
+                   cln_Days:Veh+ 
+                   cln_Ceil:Veh
                  , 
                  family=binomial(link="logit"))
 glmer_examine(Term_08A)
@@ -2536,17 +2470,17 @@ CBre_08B <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
+                   cln_Ceil+
+                   cln_Days+
                    Veh+
                    n_Fixed +
-                  cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+capped_cl_Days:NoCompOffr+
+                  cln_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cln_Ceil:NoCompOffr+cln_Days:NoCompOffr+
                    
                    
-                   capped_cl_Days:Veh+ 
-                   #cl_Ceil:Veh+
+                   cln_Days:Veh+ 
+                   #cln_Ceil:Veh+
                  #NoCompOffr:Veh+
-                   capped_cl_Days:n_Fixed , 
+                   cln_Days:n_Fixed , 
                  family=binomial(link="logit"))
 glmer_examine(CBre_08B)
 
@@ -2554,8 +2488,8 @@ Term_08B <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   capped_cl_Days+
+                  cln_Ceil+
+                   cln_Days+
                    Veh+
                    n_Fixed +
                   
@@ -2563,10 +2497,10 @@ Term_08B <- glm (data=large_crisis_smp,
                    
                    
                    
-                   capped_cl_Days:Veh+ 
-                   #cl_Ceil:Veh+
+                   cln_Days:Veh+ 
+                   #cln_Ceil:Veh+
                  
-                   capped_cl_Days:n_Fixed, 
+                   cln_Days:n_Fixed, 
                  family=binomial(link="logit"))
 glmer_examine(Term_08B)
 
@@ -2593,15 +2527,15 @@ CBre_08C <- glm (data=large_crisis_smp,
                  b_CBre ~ Crisis +NoCompOffr +
                    b_UCA+
                    OffPl99+ c_OffCri+
-                   cl_Ceil+
-                   capped_cl_Days+
+                   cln_Ceil+
+                   cln_Days+
                    Veh+
                    n_Fixed +
-                  cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+capped_cl_Days:NoCompOffr+
+                  cln_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cln_Ceil:NoCompOffr+cln_Days:NoCompOffr+
                    
                    
-                   capped_cl_Days:Veh+ 
-                   #cl_Ceil:Veh+
+                   cln_Days:Veh+ 
+                   #cln_Ceil:Veh+
                  #NoCompOffr:Veh+
                    
                    Veh:n_Fixed, 
@@ -2612,8 +2546,8 @@ Term_08C <- glm (data=large_crisis_smp,
                  b_Term ~ Crisis +NoCompOffr+
                    b_UCA+
                    OffPl99+ c_OffCri+
-                  cl_Ceil+
-                   capped_cl_Days+
+                  cln_Ceil+
+                   cln_Days+
                    Veh+
                    n_Fixed +
                   
@@ -2621,8 +2555,8 @@ Term_08C <- glm (data=large_crisis_smp,
                    
                    
                    
-                   capped_cl_Days:Veh+ 
-                   #cl_Ceil:Veh+
+                   cln_Days:Veh+ 
+                   #cln_Ceil:Veh+
                  
                    Veh:n_Fixed, 
                  family=binomial(link="logit"))
@@ -2654,15 +2588,15 @@ summary_discrete_plot(large_crisis_smp,"FxCb","Crisis")
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPl99+ c_OffCri+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      n_Fixed +
-                    cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+capped_cl_Days:NoCompOffr+
+                    cln_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cln_Ceil:NoCompOffr+cln_Days:NoCompOffr+
                      
                      
-                     capped_cl_Days:Veh+ 
-                     #cl_Ceil:Veh+
+                     cln_Days:Veh+ 
+                     #cln_Ceil:Veh+
                    #NoCompOffr:Veh+
                      
                      Crisis:n_Fixed, 
@@ -2673,8 +2607,8 @@ summary_discrete_plot(large_crisis_smp,"FxCb","Crisis")
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      OffPl99+ c_OffCri+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      n_Fixed +
                     
@@ -2682,8 +2616,8 @@ summary_discrete_plot(large_crisis_smp,"FxCb","Crisis")
                      
                      
                      
-                     capped_cl_Days:Veh+ 
-                     #cl_Ceil:Veh+
+                     cln_Days:Veh+ 
+                     #cln_Ceil:Veh+
                    
                      Crisis:n_Fixed, 
                    family=binomial(link="logit"))
@@ -2712,17 +2646,17 @@ Estimate: Larger contracts are likely to be more complex, and thus positively es
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPl99+ c_OffCri+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      n_Fixed +
-                    cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+
-                     capped_cl_Days:NoCompOffr+
-                     capped_cl_Days:Veh+ 
-                     #cl_Ceil:Veh+
+                    cln_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cln_Ceil:NoCompOffr+
+                     cln_Days:NoCompOffr+
+                     cln_Days:Veh+ 
+                     #cln_Ceil:Veh+
                    #NoCompOffr:Veh+
                      
-                     cl_Ceil:n_Fixed, 
+                     cln_Ceil:n_Fixed, 
                    family=binomial(link="logit"))
   glmer_examine(CBre_08E)
   
@@ -2730,15 +2664,15 @@ Estimate: Larger contracts are likely to be more complex, and thus positively es
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      OffPl99+ c_OffCri+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      n_Fixed +
                     
                      b_UCA:Crisis+
-                     capped_cl_Days:Veh+ 
-                     #cl_Ceil:Veh+
-                     cl_Ceil:n_Fixed, 
+                     cln_Days:Veh+ 
+                     #cln_Ceil:Veh+
+                     cln_Ceil:n_Fixed, 
                    family=binomial(link="logit"))
   glmer_examine(Term_08E)
   
@@ -2767,15 +2701,15 @@ summary_discrete_plot(large_crisis_smp,"n_Fixed","FxCb")
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPl99+ c_OffCri+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      n_Fixed +
-                    cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+capped_cl_Days:NoCompOffr+
+                    cln_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cln_Ceil:NoCompOffr+cln_Days:NoCompOffr+
                      
                      
-                     capped_cl_Days:Veh+ 
-                     #cl_Ceil:Veh+
+                     cln_Days:Veh+ 
+                     #cln_Ceil:Veh+
                    #NoCompOffr:Veh+
                      
                      NoCompOffr:n_Fixed, 
@@ -2786,8 +2720,8 @@ summary_discrete_plot(large_crisis_smp,"n_Fixed","FxCb")
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      OffPl99+ c_OffCri+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      n_Fixed +
                     
@@ -2795,8 +2729,8 @@ summary_discrete_plot(large_crisis_smp,"n_Fixed","FxCb")
                      
                      
                      
-                     capped_cl_Days:Veh+ 
-                     #cl_Ceil:Veh+
+                     cln_Days:Veh+ 
+                     #cln_Ceil:Veh+
                    
                      NoCompOffr:n_Fixed, 
                    family=binomial(link="logit"))
@@ -2829,19 +2763,19 @@ Expectation Prior CSIS research has found that fixed-price contracts estimate a 
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPl99+ c_OffCri+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      FxCb +
-                    cl_Ceil+
+                    cln_Ceil+
                      Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr+
-                     capped_cl_Days:NoCompOffr,
+                     cln_Ceil:NoCompOffr+
+                     cln_Days:NoCompOffr,
                      
                      
-                     # capped_cl_Days:Veh,
-                     #cl_Ceil:Veh+
+                     # cln_Days:Veh,
+                     #cln_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
   glmer_examine(CBre_08G)
@@ -2850,8 +2784,8 @@ Expectation Prior CSIS research has found that fixed-price contracts estimate a 
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      OffPl99+ c_OffCri+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      FxCb +
 Crisis:NoCompOffr+
@@ -2859,8 +2793,8 @@ Crisis:NoCompOffr+
                      
                      
                      
-                     capped_cl_Days:Veh+ 
-                     cl_Ceil:Veh, 
+                     cln_Days:Veh+ 
+                     cln_Ceil:Veh, 
                    family=binomial(link="logit"))
   glmer_examine(Term_08G)
   
@@ -2895,17 +2829,17 @@ Expectation Prior CSIS research has found that fixed-price contracts estimate a 
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPl99+ c_OffCri+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      Pricing +
-                    cl_Ceil+Crisis:NoCompOffr+
-                     b_UCA:Crisis+cl_Ceil:NoCompOffr+
-                     capped_cl_Days:NoCompOffr,
+                    cln_Ceil+Crisis:NoCompOffr+
+                     b_UCA:Crisis+cln_Ceil:NoCompOffr+
+                     cln_Days:NoCompOffr,
                      
                      
-                    # capped_cl_Days:Veh, 
-                     #cl_Ceil:Veh+
+                    # cln_Days:Veh, 
+                     #cln_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
   glmer_examine(CBre_08H)
@@ -2914,8 +2848,8 @@ Expectation Prior CSIS research has found that fixed-price contracts estimate a 
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      OffPl99+ c_OffCri+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      Pricing +
                      Crisis:NoCompOffr+
@@ -2923,8 +2857,8 @@ Expectation Prior CSIS research has found that fixed-price contracts estimate a 
                      
                      
                      
-                     capped_cl_Days:Veh+ 
-                     cl_Ceil:Veh, 
+                     cln_Days:Veh+ 
+                     cln_Ceil:Veh, 
                    family=binomial(link="logit"))
   glmer_examine(Term_08H)
   
@@ -2956,15 +2890,15 @@ Expectations were largely upheld, with partial exception of combo/other and larg
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPl99+ c_OffCri+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
-                    cl_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cl_Ceil:NoCompOffr+capped_cl_Days:NoCompOffr,
+                    cln_Ceil+Crisis:NoCompOffr+b_UCA:Crisis+cln_Ceil:NoCompOffr+cln_Days:NoCompOffr,
                      
                      
-                     # capped_cl_Days:Veh+ 
-                     #cl_Ceil:Veh+
+                     # cln_Days:Veh+ 
+                     #cln_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
   glmer_examine(CBre_08I)
@@ -2973,8 +2907,8 @@ Expectations were largely upheld, with partial exception of combo/other and larg
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      OffPl99+ c_OffCri+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      Crisis:NoCompOffr+
@@ -2982,8 +2916,8 @@ Expectations were largely upheld, with partial exception of combo/other and larg
                      
                      
                      
-                     capped_cl_Days:Veh+ 
-                     cl_Ceil:Veh, 
+                     cln_Days:Veh+ 
+                     cln_Ceil:Veh, 
                    family=binomial(link="logit"))
   glmer_examine(Term_08I)
   
@@ -3017,17 +2951,17 @@ large_crisis_smp$PricingBasis<-large_crisis_smp$Pricing
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPl99+ c_OffCri+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingBasis +
-                    cl_Ceil+Crisis:NoCompOffr+
-                     b_UCA:Crisis+cl_Ceil:NoCompOffr+
-                     capped_cl_Days:NoCompOffr,
+                    cln_Ceil+Crisis:NoCompOffr+
+                     b_UCA:Crisis+cln_Ceil:NoCompOffr+
+                     cln_Days:NoCompOffr,
                      
                      
-                     # capped_cl_Days:Veh+ 
-                     #cl_Ceil:Veh+
+                     # cln_Days:Veh+ 
+                     #cln_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
   glmer_examine(CBre_08J)
@@ -3036,8 +2970,8 @@ large_crisis_smp$PricingBasis<-large_crisis_smp$Pricing
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      OffPl99+ c_OffCri+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingBasis +
                      Crisis:NoCompOffr+
@@ -3045,8 +2979,8 @@ large_crisis_smp$PricingBasis<-large_crisis_smp$Pricing
                      
                      
                      
-                     capped_cl_Days:Veh+ 
-                     cl_Ceil:Veh, 
+                     cln_Days:Veh+ 
+                     cln_Ceil:Veh, 
                    family=binomial(link="logit"))
   glmer_examine(Term_08J)
   
@@ -3068,8 +3002,8 @@ Because office level and contract level location are highly correlated (specific
 Expectation: The reachback hypothesis suggests that international will postively estimate the probability of terminations and ceiling breaches
 ```{r Model09A}
 corrdisp<-Hmisc::rcorr(as.matrix(cbind(subset(large_crisis_smp, select=c(b_UCA,
-                                                             c_OffCri,cl_Ceil,
-                                               capped_cl_Days,b_Intl)),
+                                                             c_OffCri,cln_Ceil,
+                                               cln_Days,b_Intl)),
                                        dummies::dummy(large_crisis_smp$PricingBasis),
                        dummies::dummy(large_crisis_smp$Crisis),
                        dummies::dummy(large_crisis_smp$NoCompOffr),
@@ -3085,18 +3019,18 @@ corrdisp[[1]]#[,1:9]
                      b_UCA+
                      b_Intl+
                      c_OffCri+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
-                    cl_Ceil+Crisis:NoCompOffr+
+                    cln_Ceil+Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr+
-                     capped_cl_Days:NoCompOffr,
+                     cln_Ceil:NoCompOffr+
+                     cln_Days:NoCompOffr,
                      
                      
-                     # capped_cl_Days:Veh+ 
-                     #cl_Ceil:Veh+
+                     # cln_Days:Veh+ 
+                     #cln_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
   glmer_examine(CBre_09A)
@@ -3106,8 +3040,8 @@ corrdisp[[1]]#[,1:9]
                    b_Term ~ Crisis +NoCompOffr+
                      b_UCA+
                      OffPl99+ c_OffCri+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      Crisis:NoCompOffr+
@@ -3115,8 +3049,8 @@ corrdisp[[1]]#[,1:9]
                      
                      
                      
-                     capped_cl_Days:Veh+ 
-                     cl_Ceil:Veh, 
+                     cln_Days:Veh+ 
+                     cln_Ceil:Veh, 
                    family=binomial(link="logit"))
   glmer_examine(Term_08I)
   
@@ -3125,8 +3059,8 @@ corrdisp[[1]]#[,1:9]
                      b_UCA+
                      c_OffCri+
                      b_Intl+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      Crisis:NoCompOffr+
@@ -3134,8 +3068,8 @@ corrdisp[[1]]#[,1:9]
                      
                      
                      
-                     capped_cl_Days:Veh+ 
-                     cl_Ceil:Veh,
+                     cln_Days:Veh+ 
+                     cln_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_09A)
   
@@ -3178,16 +3112,16 @@ International and Office place have roughly similar deviances, even though inter
                      b_UCA+
                      c_OffCri+
                      Reach6+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
-                    cl_Ceil+Crisis:NoCompOffr+
+                    cln_Ceil+Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr+
-                     capped_cl_Days:NoCompOffr,
+                     cln_Ceil:NoCompOffr+
+                     cln_Days:NoCompOffr,
                       
-                     #cl_Ceil:Veh+
+                     #cln_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
   glmer_examine(CBre_09B)
@@ -3198,8 +3132,8 @@ International and Office place have roughly similar deviances, even though inter
                      b_UCA+
                      c_OffCri+
                      Reach6+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                       Crisis:NoCompOffr+
@@ -3207,8 +3141,8 @@ International and Office place have roughly similar deviances, even though inter
                      
                      
                      
-                     capped_cl_Days:Veh+ 
-                     cl_Ceil:Veh,
+                     cln_Days:Veh+ 
+                     cln_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_09B)
   
@@ -3238,18 +3172,18 @@ Expectations: Unchanged from 6 category. Reachback contracting office negatively
                      b_UCA+
                      c_OffCri+
                      Reach+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
-                    cl_Ceil+Crisis:NoCompOffr+
+                    cln_Ceil+Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr+
-                     capped_cl_Days:NoCompOffr,
+                     cln_Ceil:NoCompOffr+
+                     cln_Days:NoCompOffr,
                      
                      
-                     # capped_cl_Days:Veh+ 
-                     #cl_Ceil:Veh+
+                     # cln_Days:Veh+ 
+                     #cln_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
   glmer_examine(CBre_09C)
@@ -3259,8 +3193,8 @@ Expectations: Unchanged from 6 category. Reachback contracting office negatively
                      b_UCA+
                      c_OffCri+
                      Reach++
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                         Crisis:NoCompOffr+
@@ -3268,8 +3202,8 @@ Expectations: Unchanged from 6 category. Reachback contracting office negatively
                      
                      
                      
-                     capped_cl_Days:Veh+ 
-                     cl_Ceil:Veh,
+                     cln_Days:Veh+ 
+                     cln_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_09C)
   
@@ -3299,18 +3233,18 @@ Expectations: Unchanged from 6 category. Reachback contracting office negatively
                      b_UCA+
                      c_OffCri+
                      Reach5+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
-                   cl_Ceil+Crisis:NoCompOffr+
+                   cln_Ceil+Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr+
-                     capped_cl_Days:NoCompOffr,
+                     cln_Ceil:NoCompOffr+
+                     cln_Days:NoCompOffr,
                      
                      
-                     # capped_cl_Days:Veh+ 
-                     #cl_Ceil:Veh+
+                     # cln_Days:Veh+ 
+                     #cln_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    family=binomial(link="logit"))
   glmer_examine(CBre_09D)
@@ -3320,8 +3254,8 @@ Expectations: Unchanged from 6 category. Reachback contracting office negatively
                      b_UCA+
                      c_OffCri+
                      Reach5++
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                         Crisis:NoCompOffr+
@@ -3329,8 +3263,8 @@ Expectations: Unchanged from 6 category. Reachback contracting office negatively
                      
                      
                      
-                     capped_cl_Days:Veh+ 
-                     cl_Ceil:Veh,
+                     cln_Days:Veh+ 
+                     cln_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_09D)
   
@@ -3358,17 +3292,17 @@ After comparing a few models, the 4 category reach seems most parsimonious and o
                      
                      # c_OffCri+
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee,# +
                      
                      #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     # cl_Ceil:NoCompOffr+
-                     # capped_cl_Days:NoCompOffr,
-                     # capped_cl_Days:Veh+ 
-                     #cl_Ceil:Veh+
+                     # cln_Ceil:NoCompOffr+
+                     # cln_Days:NoCompOffr,
+                     # cln_Days:Veh+ 
+                     #cln_Ceil:Veh+
                    #NoCompOffr:Veh, 
                    
                    family=binomial(link="logit"))
@@ -3379,14 +3313,14 @@ After comparing a few models, the 4 category reach seems most parsimonious and o
                      b_UCA+
                      # c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee, #+
                      #      Crisis:NoCompOffr+            
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh,
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh,
                    
                    family=binomial(link="logit"))
   glmer_examine(Term_10A)
@@ -3410,16 +3344,16 @@ CBre_10B <- glm (data=crisis_all,
                    
                    c_OffCri+
                    OffPlace+
-                   cl_Ceil+
-                   capped_cl_Days+
+                   cln_Ceil+
+                   cln_Days+
                    Veh+
                    PricingFee,# +
                  #Crisis:NoCompOffr+
                  # b_UCA:Crisis+
-                 # cl_Ceil:NoCompOffr+
-                 # capped_cl_Days:NoCompOffr,
-                 # capped_cl_Days:Veh+ 
-                 #cl_Ceil:Veh+
+                 # cln_Ceil:NoCompOffr+
+                 # cln_Days:NoCompOffr,
+                 # cln_Days:Veh+ 
+                 #cln_Ceil:Veh+
                  #NoCompOffr:Veh, 
                  family=binomial(link="logit"))
 glmer_examine(CBre_10B)
@@ -3429,14 +3363,14 @@ glmer_examine(CBre_10B)
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee, #+
                      #      Crisis:NoCompOffr+            
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh,
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_10B)
 # Plot the model and Vehicle 
@@ -3459,16 +3393,16 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      
  
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                       Crisis:NoCompOffr,
                    #   b_UCA:Crisis+
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
-                   #   capped_cl_Days:Veh+ 
-                   #   cl_Ceil:Veh+
+                   #   cln_Ceil:NoCompOffr+
+                   #   cln_Days:NoCompOffr+
+                   #   cln_Days:Veh+ 
+                   #   cln_Ceil:Veh+
                    # NoCompOffr:Veh,
                    
                    family=binomial(link="logit"))
@@ -3480,16 +3414,16 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      
  
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                       Crisis:NoCompOffr2,
                    #   b_UCA:Crisis+
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
-                   #   capped_cl_Days:Veh+ 
-                   #   cl_Ceil:Veh+
+                   #   cln_Ceil:NoCompOffr+
+                   #   cln_Days:NoCompOffr+
+                   #   cln_Days:Veh+ 
+                   #   cln_Ceil:Veh+
                    # NoCompOffr:Veh,
                    
                    family=binomial(link="logit"))
@@ -3501,16 +3435,16 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      
  
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                       Crisis:NoCompOffr,
                    #   b_UCA:Crisis+
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
-                   #   capped_cl_Days:Veh+ 
-                   #   cl_Ceil:Veh+
+                   #   cln_Ceil:NoCompOffr+
+                   #   cln_Days:NoCompOffr+
+                   #   cln_Days:Veh+ 
+                   #   cln_Ceil:Veh+
                    # NoCompOffr:Veh,
                    
                    family=binomial(link="logit"))
@@ -3522,16 +3456,16 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      
  
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                       Crisis:NoCompOffr2,
                    #   b_UCA:Crisis+
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
-                   #   capped_cl_Days:Veh+ 
-                   #   cl_Ceil:Veh+
+                   #   cln_Ceil:NoCompOffr+
+                   #   cln_Days:NoCompOffr+
+                   #   cln_Days:Veh+ 
+                   #   cln_Ceil:Veh+
                    # NoCompOffr:Veh,
                    
                    family=binomial(link="logit"))
@@ -3542,14 +3476,14 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           Crisis:NoCompOffr, #+
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh,
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_10C)
   
@@ -3558,14 +3492,14 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           Crisis:NoCompOffr2, #+
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh,
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_10C2)
   
@@ -3574,14 +3508,14 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           Crisis:NoCompOffr, #+
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh,
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_10C3)
   
@@ -3590,14 +3524,14 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           Crisis:NoCompOffr2, #+
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh,
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_10C4)
   
@@ -3622,16 +3556,16 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      
 
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      # Crisis:NoCompOffr+
                      b_UCA:Crisis,#+
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
-                   #   capped_cl_Days:Veh+ 
-                   #   cl_Ceil:Veh+
+                   #   cln_Ceil:NoCompOffr+
+                   #   cln_Days:NoCompOffr+
+                   #   cln_Days:Veh+ 
+                   #   cln_Ceil:Veh+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10D)
@@ -3641,14 +3575,14 @@ Crisis:NoCompOffr. Expecation is that competition correlates with lower estimate
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           # Crisis:NoCompOffr+
                      b_UCA:Crisis,#+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh,
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_10D)
 # Plot the model and Vehicle 
@@ -3659,7 +3593,7 @@ summary_residual_compare(CBre_10C,CBre_10D,Term_10C,Term_10D)
 ```
 The results are largely contrary to expectations, with the exception of UCAs for OCO being associated with a greater risk of ceiling breaches. That said, the results for OCO and terminations, while doing little to reduce the AIC, are striking with UCA writ large becoming estimating a significant risk of termination for non-crisis contracts but the opposite happening for OCO.
 
-### 10E:  capped_cl_Days:Veh
+### 10E:  cln_Days:Veh
 
 Expectation: Indefinite vehicles allow for disaggregation of larger contracts into smaller task orders. As a result, when the duration on these contracts they may act more like definitive contracts. The interaction of duration and initial contract duration may have the opposite coefficient as the base vehicle coefficients.
 ```{r Model10E}
@@ -3669,16 +3603,16 @@ Expectation: Indefinite vehicles allow for disaggregation of larger contracts in
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      # Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
-                     capped_cl_Days:Veh,
-                   #   cl_Ceil:Veh+
+                   #   cln_Ceil:NoCompOffr+
+                   #   cln_Days:NoCompOffr+
+                     cln_Days:Veh,
+                   #   cln_Ceil:Veh+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10E)
@@ -3688,14 +3622,14 @@ Expectation: Indefinite vehicles allow for disaggregation of larger contracts in
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           # Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     capped_cl_Days:Veh,
-                     # cl_Ceil:Veh,
+                     cln_Days:Veh,
+                     # cln_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_10E)
 # Plot the model and Vehicle 
@@ -3717,15 +3651,15 @@ Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregat
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
-                     cl_Ceil:Veh,
+                   #   cln_Ceil:NoCompOffr+
+                   #   cln_Days:NoCompOffr+
+                     cln_Ceil:Veh,
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10F)
@@ -3735,13 +3669,13 @@ Expectation: Expectations mirror days. Indefinite vehicles allow for disaggregat
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     cl_Ceil:Veh,
+                     cln_Ceil:Veh,
                    family=binomial(link="logit"))
   glmer_examine(Term_10F)
 # Plot the model and Vehicle 
@@ -3764,16 +3698,16 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     Veh:cl_Ceil+
+                     Veh:cln_Ceil+
                      b_UCA:NoCompOffr,
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
+                   #   cln_Ceil:NoCompOffr+
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10G)
@@ -3783,16 +3717,16 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     Veh:cl_Ceil+
+                     Veh:cln_Ceil+
                      b_UCA:NoCompOffr,
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
+                   #   cln_Ceil:NoCompOffr+
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10G2)
@@ -3802,16 +3736,16 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     Veh:cl_Ceil+
+                     Veh:cln_Ceil+
                      b_UCA:NoCompOffr2,
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
+                   #   cln_Ceil:NoCompOffr+
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10G3)
@@ -3822,8 +3756,8 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           #Crisis:NoCompOffr+
@@ -3838,8 +3772,8 @@ Expectation: The literature describes competition as a way to mitigate the risk 
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           #Crisis:NoCompOffr+
@@ -3857,7 +3791,7 @@ summary_residual_compare(CBre_10G,CBre_10G2,bins=50)#,Term_10D,Term_10G
 ```
 Does aid the model some and in line with exceptions aside from urgency. Does bring VIF dangerously high for ceiling breach but still below 2.
 
-### 10H:  cl_Ceil:NoCompOffr
+### 10H:  cln_Ceil:NoCompOffr
 Expectation: This is challenging, as competition for the largest contracts may encourage bidding to win rather than realistic pricing. The primary expectation is that competition will positively estimate a the probability of ceiling breaches and terminations.
 
 
@@ -3868,16 +3802,16 @@ Expectation: This is challenging, as competition for the largest contracts may e
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     Veh:cl_Ceil+
+                     Veh:cln_Ceil+
                      b_UCA:NoCompOffr+
-                     cl_Ceil:NoCompOffr,
-                   #   capped_cl_Days:NoCompOffr+
+                     cln_Ceil:NoCompOffr,
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10H)
@@ -3887,16 +3821,16 @@ Expectation: This is challenging, as competition for the largest contracts may e
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     # Veh:cl_Ceil+
+                     # Veh:cln_Ceil+
                      b_UCA:NoCompOffr+
-                     cl_Ceil:NoCompOffr,
-                   #   capped_cl_Days:NoCompOffr+
+                     cln_Ceil:NoCompOffr,
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10H2)
@@ -3906,16 +3840,16 @@ Expectation: This is challenging, as competition for the largest contracts may e
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     # Veh:cl_Ceil+
+                     # Veh:cln_Ceil+
                      b_UCA:NoCompOffr2+
-                     cl_Ceil:NoCompOffr2,
-                   #   capped_cl_Days:NoCompOffr+
+                     cln_Ceil:NoCompOffr2,
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10H3)
@@ -3925,16 +3859,16 @@ Expectation: This is challenging, as competition for the largest contracts may e
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     Veh:cl_Ceil+
+                     Veh:cln_Ceil+
                      b_UCA:NoCompOffr2+
-                     cl_Ceil:NoCompOffr2,
-                   #   capped_cl_Days:NoCompOffr+
+                     cln_Ceil:NoCompOffr2,
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10H4)
@@ -3944,16 +3878,16 @@ Expectation: This is challenging, as competition for the largest contracts may e
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     Veh:cl_Ceil+
+                     Veh:cln_Ceil+
                      # b_UCA:NoCompOffr2+
-                     cl_Ceil:NoCompOffr2,
-                   #   capped_cl_Days:NoCompOffr+
+                     cln_Ceil:NoCompOffr2,
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10H5)
@@ -3971,7 +3905,7 @@ Results do run in line with expectation, though the urgency result is surprising
 
 
 
-### 10I:  capped_cl_Days:NoCompOffr2
+### 10I:  cln_Days:NoCompOffr2
 
 Expectation: Policy guidance often encourages regular use of competition, which suggests a believe that the results wear off over time. This is disputed by others in the field. Nonetheless, the expectation is that the interaction of the absence of competition and duration negatively estimates a greater probability of terminations and ceiling breaches.
 
@@ -3982,16 +3916,16 @@ CBre_10I <- glm (data=crisis_all,
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     Veh:cl_Ceil+
+                     Veh:cln_Ceil+
                      b_UCA:NoCompOffr2+
-                     # cl_Ceil:NoCompOffr2+
-                     capped_cl_Days:NoCompOffr2,
+                     # cln_Ceil:NoCompOffr2+
+                     cln_Days:NoCompOffr2,
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10I)
@@ -4017,16 +3951,16 @@ CBre_10J <- glm (data=crisis_all,
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     Veh:cl_Ceil+
+                     Veh:cln_Ceil+
                      b_UCA:NoCompOffr2+
-                     # cl_Ceil:NoCompOffr2+
-                     # capped_cl_Days:NoCompOffr2,
+                     # cln_Ceil:NoCompOffr2+
+                     # cln_Days:NoCompOffr2,
                    NoCompOffr2:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10J)
@@ -4038,16 +3972,16 @@ CBre_10J2 <- glm (data=crisis_all,
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     # Veh:cl_Ceil+
+                     # Veh:cln_Ceil+
                      b_UCA:NoCompOffr2+
-                     # cl_Ceil:NoCompOffr2+
-                     # capped_cl_Days:NoCompOffr2,
+                     # cln_Ceil:NoCompOffr2+
+                     # cln_Days:NoCompOffr2,
                    NoCompOffr2:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10J2)
@@ -4074,8 +4008,8 @@ The results are interesting and not out of line with expectations, but do aggrev
                      b_UCA+
                      # c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           #Crisis:NoCompOffr+
@@ -4102,16 +4036,16 @@ summary_residual_compare(Term_10G2,Term_10K,bins=50)
                      
                      OffPlace+
                      OffCri+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     Veh:cl_Ceil+
+                     Veh:cln_Ceil+
                      b_UCA:NoCompOffr2,
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
+                   #   cln_Ceil:NoCompOffr+
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_10L)
@@ -4122,8 +4056,8 @@ summary_residual_compare(Term_10G2,Term_10K,bins=50)
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           #Crisis:NoCompOffr+
@@ -4152,17 +4086,17 @@ if(!exists("CBre_11A"))
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPlace+ 
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                     # Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr,
-                     # capped_cl_Days:NoCompOffr+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     cln_Ceil:NoCompOffr,
+                     # cln_Days:NoCompOffr+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                    # NoCompOffr:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) +                , 
@@ -4175,17 +4109,17 @@ if(!exists("Term_11A"))
                      b_UCA+
                      # c_OffCri+
                      OffPlace+ 
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee ,
                      # Is.Defense +
                                         # Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     # cl_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
+                     # cln_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) +
                    family=binomial(link="logit"))
@@ -4207,17 +4141,17 @@ if(!exists("CBre_11B"))
                    b_CBre ~ Crisis +NoCompOffr2 +
                      b_UCA+
                      OffPlace+ 
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                     # Crisis:NoCompOffr2+
                      # b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr2,
-                     # capped_cl_Days:NoCompOffr2+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     cln_Ceil:NoCompOffr2,
+                     # cln_Days:NoCompOffr2+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                    # NoCompOffr2:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) +                , 
@@ -4230,17 +4164,17 @@ if(!exists("Term_11B"))
                      b_UCA+
                      # c_OffCri+
                      OffPlace+ 
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee ,
                      # Is.Defense +
                                         # Crisis:NoCompOffr2+
                      # b_UCA:Crisis+
-                     # cl_Ceil:NoCompOffr2+ Don't believe this is compaible with Crisis:NoCompOffr2
+                     # cln_Ceil:NoCompOffr2+ Don't believe this is compaible with Crisis:NoCompOffr2
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) +
                    family=binomial(link="logit"))
@@ -4268,16 +4202,16 @@ summary_residual_compare(CBre_11A,CBre_11B,Term_11A,Term_11B,bins=50)
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     Veh:cl_Ceil+
+                     Veh:cln_Ceil+
                      b_UCA:NoCompOffr2,
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
+                   #   cln_Ceil:NoCompOffr+
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_11C)
@@ -4290,8 +4224,8 @@ summary_residual_compare(CBre_11A,CBre_11B,Term_11A,Term_11B,bins=50)
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           #Crisis:NoCompOffr+
@@ -4305,8 +4239,8 @@ summary_residual_compare(CBre_11A,CBre_11B,Term_11A,Term_11B,bins=50)
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           #Crisis:NoCompOffr+
@@ -4321,8 +4255,8 @@ summary_residual_compare(CBre_11A,CBre_11B,Term_11A,Term_11B,bins=50)
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee,
                           #Crisis:NoCompOffr+
@@ -4351,16 +4285,16 @@ Federal doesn't
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     # Veh:cl_Ceil+
+                     # Veh:cln_Ceil+
                      b_UCA:NoCompOffr2+
-                     cl_Ceil:NoCompOffr2,
-                   #   capped_cl_Days:NoCompOffr+
+                     cln_Ceil:NoCompOffr2,
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
                    family=binomial(link="logit"))
   glmer_examine(CBre_11D)
@@ -4389,17 +4323,17 @@ if(!exists("CBre_20A"))
                      b_CBre ~ Crisis +NoComp +
                        b_UCA+
                        Reach+ 
-                       cl_Ceil+
-                       capped_cl_Days+
+                       cln_Ceil+
+                       cln_Days+
                        Veh+
                        PricingFee +
                        # Is.Defense +
                        # Crisis:NoComp+
                        # b_UCA:Crisis+
-                       # cl_Ceil:NoComp+
-                       # capped_cl_Days:NoComp+
-                       # capped_cl_Days:Veh+ 
-                       # cl_Ceil:Veh+
+                       # cln_Ceil:NoComp+
+                       # cln_Days:NoComp+
+                       # cln_Days:Veh+ 
+                       # cln_Ceil:Veh+
                        # NoComp:Veh+
                        # Reach:Crisis+
                        # Crisis:Is.Defense+
@@ -4418,15 +4352,15 @@ if(!exists("Term_20A"))
                        b_UCA+
                        c_OffCri+
                        Reach+ 
-                       cl_Ceil+
-                       capped_cl_Days+
+                       cln_Ceil+
+                       cln_Days+
                        Veh+
                        PricingFee +
                        # Is.Defense +
                        
                        # b_UCA:Crisis+
-                       # capped_cl_Days:Veh+ 
-                       # cl_Ceil:Veh+
+                       # cln_Days:Veh+ 
+                       # cln_Ceil:Veh+
                        # Reach:Crisis+
                        # Crisis:Is.Defense+
                        # (1 | Simple) +
@@ -4462,14 +4396,14 @@ if(!exists("CBre_20B"))
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      OffPl99+#Reach+ 
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
-                    # Crisis:NoComp+b_UCA:Crisis+cl_Ceil:NoComp+capped_cl_Days:NoComp+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                    # Crisis:NoComp+b_UCA:Crisis+cln_Ceil:NoComp+cln_Days:NoComp+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                    # NoComp:Veh+
                      # Reach:Crisis+
                      # Crisis:Is.Defense+
@@ -4489,15 +4423,15 @@ if(!exists("Term_20B"))
                      b_UCA+
                      # c_OffCri+
                      OffPl99+#Reach+ 
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                     
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                      # Reach:Crisis+
                      # Crisis:Is.Defense+
                      # (1 | Simple) +
@@ -4536,15 +4470,15 @@ if(!exists("CBre_20C"))
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      OffPl99+#Reach+ 
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                     Crisis:NoComp+b_UCA:Crisis+
-                     #+cl_Ceil:NoComp+capped_cl_Days:NoComp+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     #+cln_Ceil:NoComp+cln_Days:NoComp+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                    # NoComp:Veh+
                      # Reach:Crisis+
                      # Crisis:Is.Defense+
@@ -4563,15 +4497,15 @@ if(!exists("CBre_20C"))
   #                    b_UCA+
   #                    # c_OffCri+
   #                    Reach+ 
-  #                   cl_Ceil+
-  #                    capped_cl_Days+
+  #                   cln_Ceil+
+  #                    cln_Days+
   #                    Veh+
   #                    PricingFee +
   #                    # Is.Defense +
   #                   
   #                    # b_UCA:Crisis+
-  #                    # capped_cl_Days:Veh+ 
-  #                    # cl_Ceil:Veh+
+  #                    # cln_Days:Veh+ 
+  #                    # cln_Ceil:Veh+
   #                    # Reach:Crisis+
   #                    # Crisis:Is.Defense+
   #                    # (1 | Simple) +
@@ -4610,17 +4544,17 @@ if(!exists("CBre_20D"))
                    b_CBre ~ Crisis +NoComp +
                      b_UCA+
                      Reach+ 
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                     Crisis:NoComp+
                      b_UCA:Crisis+
-                     cl_Ceil:NoComp+
-                     # capped_cl_Days:NoComp+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     cln_Ceil:NoComp+
+                     # cln_Days:NoComp+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                    # NoComp:Veh+
                      # Reach:Crisis+
                      # Crisis:Is.Defense+
@@ -4643,17 +4577,17 @@ if(!exists("Term_20D"))
                      b_UCA+
                      # c_OffCri+
                      Reach+ 
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                                         Crisis:NoComp+
                      b_UCA:Crisis+
-                     cl_Ceil:NoComp+
+                     cln_Ceil:NoComp+
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                      # Reach:Crisis+
                      # Crisis:Is.Defense+
                      # (1 | Simple) +
@@ -4694,17 +4628,17 @@ if(!exists("CBre_20E"))
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      Reach+ 
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                     # Crisis:NoComp+
                      b_UCA:Crisis+
-                     # cl_Ceil:NoComp+
-                     # capped_cl_Days:NoComp+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     # cln_Ceil:NoComp+
+                     # cln_Days:NoComp+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                    # NoComp:Veh+
                      # Reach:Crisis+
                      # Crisis:Is.Defense+
@@ -4727,17 +4661,17 @@ if(!exists("CBre_20E"))
 #                      b_UCA+
 #                      # c_OffCri+
 #                      Reach+ 
-#                     cl_Ceil+
-#                      capped_cl_Days+
+#                     cln_Ceil+
+#                      cln_Days+
 #                      Veh+
 #                      PricingFee +
 #                      # Is.Defense +
 #                                         Crisis:NoComp+
 #                      b_UCA:Crisis+
-#                      cl_Ceil:NoComp+
+#                      cln_Ceil:NoComp+
 #                      # b_UCA:Crisis+
-#                      # capped_cl_Days:Veh+ 
-#                      # cl_Ceil:Veh+
+#                      # cln_Days:Veh+ 
+#                      # cln_Ceil:Veh+
 #                      # Reach:Crisis+
 #                      # Crisis:Is.Defense+
 #                      # (1 | Simple) +
@@ -4776,17 +4710,17 @@ if(!exists("CBre_20F"))
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      Reach+ 
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                     Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr+
-                     # capped_cl_Days:NoCompOffr+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     cln_Ceil:NoCompOffr+
+                     # cln_Days:NoCompOffr+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                    # NoCompOffr:Veh+
                      # Reach:Crisis+
                      # Crisis:Is.Defense+
@@ -4809,17 +4743,17 @@ if(!exists("CBre_20F"))
 #                      b_UCA+
 #                      # c_OffCri+
 #                      Reach+ 
-#                     cl_Ceil+
-#                      capped_cl_Days+
+#                     cln_Ceil+
+#                      cln_Days+
 #                      Veh+
 #                      PricingFee +
 #                      # Is.Defense +
 #                                         Crisis:NoCompOffr+
 #                      b_UCA:Crisis+
-#                      # cl_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
+#                      # cln_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
 #                      # b_UCA:Crisis+
-#                      # capped_cl_Days:Veh+ 
-#                      # cl_Ceil:Veh+
+#                      # cln_Days:Veh+ 
+#                      # cln_Ceil:Veh+
 #                      # Reach:Crisis+
 #                      # Crisis:Is.Defense+
 #                      # (1 | Simple) +
@@ -4864,17 +4798,17 @@ if(!exists("CBre_20G"))
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPlace+ 
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                     Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr+
-                     # capped_cl_Days:NoCompOffr+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     cln_Ceil:NoCompOffr+
+                     # cln_Days:NoCompOffr+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                    # NoCompOffr:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) + 
@@ -4896,17 +4830,17 @@ if(!exists("Term_20G"))
                      b_UCA+
                      # c_OffCri+
                      OffPlace+ 
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                                         Crisis:NoCompOffr+
                      b_UCA:Crisis+
-                     # cl_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
+                     # cln_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) +
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
@@ -4947,17 +4881,17 @@ if(!exists("CBre_21A"))
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPlace+ 
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                     # Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr+
-                     # capped_cl_Days:NoCompOffr+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     cln_Ceil:NoCompOffr+
+                     # cln_Days:NoCompOffr+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                    # NoCompOffr:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) + 
@@ -4977,17 +4911,17 @@ if(!exists("Term_21A"))
                      b_UCA+
                      # c_OffCri+
                      OffPlace+ 
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                                         # Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     # cl_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
+                     # cln_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) +
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
@@ -5030,16 +4964,16 @@ if(!exists("CBre_21B"))
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     Veh:cl_Ceil+
+                     Veh:cln_Ceil+
                      b_UCA:NoCompOffr2+
-                   #   cl_Ceil:NoCompOffr+
-                   #   capped_cl_Days:NoCompOffr+
+                   #   cln_Ceil:NoCompOffr+
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
     
 
@@ -5059,8 +4993,8 @@ if(!exists("Term_21B"))
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           #Crisis:NoCompOffr+
@@ -5100,16 +5034,16 @@ if(!exists("CBre_21C"))
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     # Veh:cl_Ceil+
+                     # Veh:cln_Ceil+
                      b_UCA:NoCompOffr2+
-                     cl_Ceil:NoCompOffr2+
-                   #   capped_cl_Days:NoCompOffr+
+                     cln_Ceil:NoCompOffr2+
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
     
 
@@ -5145,16 +5079,16 @@ if(!exists("CBre_21D"))
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     # Veh:cl_Ceil+
+                     # Veh:cln_Ceil+
                      b_UCA:NoCompOffr2+
-                     cl_Ceil:NoCompOffr2+
-                   #   capped_cl_Days:NoCompOffr+
+                     cln_Ceil:NoCompOffr2+
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
     
 
@@ -5174,8 +5108,8 @@ if(!exists("Term_21D"))
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           #Crisis:NoCompOffr+
@@ -5216,16 +5150,16 @@ if(!exists("CBre_21E"))
                      b_UCA+
                      
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     # Veh:cl_Ceil+
+                     # Veh:cln_Ceil+
                      # b_UCA:NoCompOffr2+
-                     cl_Ceil:NoCompOffr2+
-                   #   capped_cl_Days:NoCompOffr+
+                     cln_Ceil:NoCompOffr2+
+                   #   cln_Days:NoCompOffr+
                    # NoCompOffr:Veh,
     
 
@@ -5236,13 +5170,17 @@ if(!exists("CBre_21E"))
                , 
                    family=binomial(link="logit"),
                 verbose=1)
-  glmer_examine(CBre_21E.restart)
-summary(CBre_21E.restart)
+  glmer_examine(CBre_21E)
+summary(CBre_21E)
+  
+  save(CBre_21E,  file="Output//Model21E_CBre_2020-7-31.RData")
   
 
 pars<-get_pars(CBre_21E)
-if(!exists("CBre_Cons_13B.restart"))
+if(!exists("CBre_21E.restart"))
   CBre_21E.restart <- update(CBre_21E, start=pars)
+    glmer_examine(CBre_21E.restart)
+summary(CBre_21E.restart)
   
   
   save(CBre_21E, CBre_21E.restart, file="Output//Model21E_CBre.RData")
@@ -5269,17 +5207,17 @@ if(!exists("CBre_22A"))
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPlace+ 
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                     # Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr2+
-                     # capped_cl_Days:NoCompOffr+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     cln_Ceil:NoCompOffr2+
+                     # cln_Days:NoCompOffr+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                    # NoCompOffr:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) + 
@@ -5301,17 +5239,17 @@ if(!exists("Term_22A"))
                      b_UCA+
                      # c_OffCri+
                      OffPlace+ 
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                                         # Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     # cl_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
+                     # cln_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) +
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
@@ -5358,17 +5296,17 @@ if(!exists("CBre_22B"))
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPlace+ 
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                     Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr+
-                     # capped_cl_Days:NoCompOffr+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     cln_Ceil:NoCompOffr+
+                     # cln_Days:NoCompOffr+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                    # NoCompOffr:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) + 
@@ -5389,17 +5327,17 @@ if(!exists("Term_22B"))
                      b_UCA+
                      # c_OffCri+
                      OffPlace+ 
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                                         Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     # cl_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
+                     # cln_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) +
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
@@ -5441,17 +5379,17 @@ if(!exists("CBre_22C"))
                    b_CBre ~ Crisis +NoCompOffr +
                      b_UCA+
                      OffPlace+ 
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                     Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr+
-                     # capped_cl_Days:NoCompOffr+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     cln_Ceil:NoCompOffr+
+                     # cln_Days:NoCompOffr+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                    # NoCompOffr:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) + 
@@ -5472,17 +5410,17 @@ if(!exists("Term_22C"))
                      b_UCA+
                      # c_OffCri+
                      OffPlace+ 
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                                         Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     # cl_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
+                     # cln_Ceil:NoCompOffr+ Don't believe this is compaible with Crisis:NoCompOffr
                      # b_UCA:Crisis+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) +
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
@@ -5525,13 +5463,13 @@ if(!exists("CBre_22D"))
                      b_UCA+
                      OffPlace+
                        # c_OffCri+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     Veh:cl_Ceil+ 
+                     Veh:cln_Ceil+ 
                      b_UCA:NoCompOffr2+
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office) + 
@@ -5550,8 +5488,8 @@ if(!exists("Term_22D"))
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           #Crisis:NoCompOffr+
@@ -5598,14 +5536,14 @@ if(!exists("CBre_22E"))
                      b_UCA+
                      OffPlace+
                        c_OffCri+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     # Veh:cl_Ceil+
-                       NoCompOffr2:cl_Ceil+
+                     # Veh:cln_Ceil+
+                       NoCompOffr2:cln_Ceil+
                      b_UCA:NoCompOffr2+
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office) + 
@@ -5624,8 +5562,8 @@ if(!exists("Term_22E"))
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           #Crisis:NoCompOffr+
@@ -5675,14 +5613,14 @@ if(!exists("CBre_22F"))
                      b_CBre ~ Crisis +NoCompOffr2 +
                      b_UCA+
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     # Veh:cl_Ceil+
-                       NoCompOffr2:cl_Ceil+
+                     # Veh:cln_Ceil+
+                       NoCompOffr2:cln_Ceil+
                      b_UCA:NoCompOffr2+
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office) + 
@@ -5734,14 +5672,14 @@ if(!exists("CBre_22G"))
                      b_CBre ~ Crisis +NoCompOffr2 +
                      b_UCA+
                      OffPlace+
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                      #Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     # Veh:cl_Ceil+
-                       NoCompOffr2:cl_Ceil+
+                     # Veh:cln_Ceil+
+                       NoCompOffr2:cln_Ceil+
                      b_UCA:NoCompOffr2+
                      (1 | CrisisProductOrServiceArea/ProdServ) + 
                      (1 | Customer/Office) + 
@@ -5761,8 +5699,8 @@ if(!exists("CBre_22G"))
                      b_UCA+
                      c_OffCri+
                      OffPlace+
-                    cl_Ceil+
-                     capped_cl_Days+
+                    cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee+
                           #Crisis:NoCompOffr+
@@ -5807,17 +5745,17 @@ if(!exists("CBre_22H")){
                    b_CBre ~ Crisis +NoCompOffr2 +
                      b_UCA+
                      OffPlace+ 
-                     cl_Ceil+
-                     capped_cl_Days+
+                     cln_Ceil+
+                     cln_Days+
                      Veh+
                      PricingFee +
                      # Is.Defense +
                     # Crisis:NoCompOffr+
                      # b_UCA:Crisis+
-                     cl_Ceil:NoCompOffr2+
-                     # capped_cl_Days:NoCompOffr+
-                     # capped_cl_Days:Veh+ 
-                     # cl_Ceil:Veh+
+                     cln_Ceil:NoCompOffr2+
+                     # cln_Days:NoCompOffr+
+                     # cln_Days:Veh+ 
+                     # cln_Ceil:Veh+
                    # NoCompOffr:Veh+
                      # Crisis:Is.Defense+
                      # (1 | Simple) + 
