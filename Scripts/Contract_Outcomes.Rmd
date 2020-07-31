@@ -17,11 +17,9 @@ First we load the data. The dataset used is a U.S. federal Contracting dataset d
 library(csis360)
 library(ggplot2)
 library(arm)
-library(R2WinBUGS)
 library(dplyr)
 library(Hmisc)
 library(stargazer)
-library(dummies)
 library(optimx)
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/Scripts/DIIGstat.r")
 
@@ -37,8 +35,8 @@ note.text.size<-1.40
 
 
 
-load(file="data//clean//fed_sample.Rdata",fed_smp,fed_1m)
-load(file="data//clean//crisis_population.Rdata",crisis_all,crisis_all_with_na)
+load(file="..//data//clean//fed_sample.Rdata")
+load(file="..//data//clean//crisis_population.Rdata")
 ```
 
 
@@ -4314,7 +4312,7 @@ summary_residual_compare(CBre_11A,CBre_11D,bins=50)
 ##Weighted Sample
 ### 20A: No interactions
 ```{r Model20A}
-load("Output//Model20A.rdata")
+load("../Output//Model20A.rdata")
 
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
@@ -4379,7 +4377,7 @@ stargazer::stargazer(CBre_10A,CBre_10D,CBre_20A,
 summary_residual_compare(CBre_10A,CBre_20A,Term_10A,Term_20A)
 summary_residual_compare(CBre_10D,CBre_20A,Term_10D,Term_20A)
 
-save(CBre_20A,Term_20A, file="Output//Model20A.RData")
+save(CBre_20A,Term_20A, file="../Output//Model20A.RData")
 ```
 Dropping OffCri for terminations as it is no longer relevant. The changes to pricing mechanism in particular are quite surprising and suggest that it may be worth breaking out additional detail. The customer/office levels may deserve an additional breakout. Finally, for reachback, crisistheater would be a big help.
 
@@ -4389,7 +4387,7 @@ Dropping OffCri for terminations as it is no longer relevant. The changes to pri
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model20B.rdata")
+load("../Output//Model20B.rdata")
 
 if(!exists("CBre_20B"))
   CBre_20B <- glmer (data=large_crisis_smp,
@@ -4415,7 +4413,7 @@ if(!exists("CBre_20B"))
                , 
                    family=binomial(link="logit"))
   glmer_examine(CBre_20B)
-  save(CBre_20B, file="Output//Model20B.RData")
+  save(CBre_20B, file="../Output//Model20B.RData")
   
 if(!exists("Term_20B"))
   Term_20B <- glmer (data=large_crisis_smp,
@@ -4452,7 +4450,7 @@ summary_residual_compare(CBre_10A,CBre_20B,Term_10A,Term_20B,bins=50)
 summary_residual_compare(CBre_20A,CBre_20B,Term_20A,Term_20B,bins=50)
 summary_residual_compare(CBre_20A,CBre_20B,Term_20A,Term_20B,bins=50)
 
-save(CBre_20B,Term_20B, file="Output//Model20B.RData")
+save(CBre_20B,Term_20B, file="../Output//Model20B.RData")
 ```
 
 
@@ -4461,7 +4459,7 @@ save(CBre_20B,Term_20B, file="Output//Model20B.RData")
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model20C.rdata")
+load("../Output//Model20C.rdata")
 
 
   
@@ -4489,7 +4487,7 @@ if(!exists("CBre_20C"))
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(CBre_20C)
-  save(CBre_20C, file="Output//Model20C.RData")
+  save(CBre_20C, file="../Output//Model20C.RData")
 
   # if(!exists("Term_20C"))
   # Term_20C <-  glmer (data=large_crisis_smp,
@@ -4524,7 +4522,7 @@ stargazer::stargazer(CBre_10A,CBre_10D,CBre_20A,CBre_20B,CBre_20C,
                         digits=2)
 # summary_residual_compare(CBre_15B,CBre_20C,Term_15B,Term_20C)
 
-# save(CBre_20C,Term_20C, file="Output//Model20C.RData")
+# save(CBre_20C,Term_20C, file="../Output//Model20C.RData")
 ```
 
 
@@ -4537,7 +4535,7 @@ stargazer::stargazer(CBre_10A,CBre_10D,CBre_20A,CBre_20B,CBre_20C,
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model20D.rdata")
+load("../Output//Model20D.rdata")
 
 if(!exists("CBre_20D"))
   CBre_20D <- glmer (data=large_crisis_smp,
@@ -4569,7 +4567,7 @@ if(!exists("CBre_20D"))
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
   glmer_examine(CBre_20D)
-  # save(CBre_20D, file="Output//Model20D.RData")
+  # save(CBre_20D, file="../Output//Model20D.RData")
   
 if(!exists("Term_20D"))
   Term_20D <- glmer (data=large_crisis_smp,
@@ -4610,7 +4608,7 @@ summary_residual_compare(CBre_20A,CBre_20D,Term_20A,Term_20D,bins=50)
 summary_residual_compare(CBre_20B,CBre_20D,Term_20B,Term_20D,bins=50)
 summary_residual_compare(CBre_20C,CBre_20D,bins=50)#Term_20C,Term_20D,
 
-save(CBre_20D,Term_20D, file="Output//Model20D.RData")
+save(CBre_20D,Term_20D, file="../Output//Model20D.RData")
 ```
 
 
@@ -4621,7 +4619,7 @@ save(CBre_20D,Term_20D, file="Output//Model20D.RData")
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model20E.rdata")
+load("../Output//Model20E.rdata")
 
 if(!exists("CBre_20E"))
   CBre_20E <- glmer (data=large_crisis_smp,
@@ -4653,7 +4651,7 @@ if(!exists("CBre_20E"))
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
   glmer_examine(CBre_20E)
-  save(CBre_20E, file="Output//Model20E.RData")
+  save(CBre_20E, file="../Output//Model20E.RData")
   
 # if(!exists("Term_20E"))
 #   Term_20E <- glmer (data=large_crisis_smp,
@@ -4695,7 +4693,7 @@ summary_residual_compare(CBre_20B,CBre_20E,bins=50)#,Term_20B,Term_20E,bins=50)
 summary_residual_compare(CBre_20C,CBre_20E,bins=50)#,Term_20C,Term_20E,bins=50)
 summary_residual_compare(CBre_20D,CBre_20E,bins=50)#,Term_20D,Term_20E,bins=50)
 
-save(CBre_20E,Term_20E, file="Output//Model20E.RData")
+save(CBre_20E,Term_20E, file="../Output//Model20E.RData")
 ```
 
 ### 20F: NoCompOffr & Interactions
@@ -4703,7 +4701,7 @@ save(CBre_20E,Term_20E, file="Output//Model20E.RData")
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model20F.rdata")
+load("../Output//Model20F.rdata")
 
 if(!exists("CBre_20F"))
   CBre_20F <- glmer (data=large_crisis_smp,
@@ -4735,7 +4733,7 @@ if(!exists("CBre_20F"))
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
   glmer_examine(CBre_20F)
-  # save(CBre_20F, file="Output//Model20F.RData")
+  # save(CBre_20F, file="../Output//Model20F.RData")
   
 # if(!exists("Term_20F"))
 #   Term_20F <- glmer (data=large_crisis_smp,
@@ -4778,7 +4776,7 @@ summary_residual_compare(CBre_20A,CBre_20F,bins=50)#,Term_20A,Term_20F,bins=50)
 summary_residual_compare(CBre_20C,CBre_20F,bins=50)#Term_20C,Term_20F,
 summary_residual_compare(CBre_20B,CBre_20F,bins=50)#,Term_20B,Term_20F,bins=50)
 
-save(CBre_20D,Term_20D, file="Output//Model20D.RData")
+save(CBre_20D,Term_20D, file="../Output//Model20D.RData")
 ```
 
 
@@ -4789,9 +4787,9 @@ save(CBre_20D,Term_20D, file="Output//Model20D.RData")
 
 
 
-load("Output//Model20G.rdata")
+load("../Output//Model20G.rdata")
 
-load("Output//Model20H.rdata")
+load("../Output//Model20H.rdata")
 
 if(!exists("CBre_20G"))
   CBre_20G <- glmer (data=large_crisis_smp,
@@ -4822,7 +4820,7 @@ if(!exists("CBre_20G"))
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
   glmer_examine(CBre_20G)
-  # save(CBre_20G, file="Output//Model20G.RData")
+  # save(CBre_20G, file="../Output//Model20G.RData")
   
 if(!exists("Term_20G"))
   Term_20G <- glmer (data=large_crisis_smp,
@@ -4851,7 +4849,7 @@ if(!exists("Term_20G"))
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_20G)
-  save(Term_20G, file="Output//Model20G.RData")
+  save(Term_20G, file="../Output//Model20G.RData")
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
@@ -4875,7 +4873,7 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 # summary(large_crisis_smp$CPSA)
     
 
-load("Output//Model21A.rdata")
+load("../Output//Model21A.rdata")
 if(!exists("CBre_21A"))
   CBre_21A <- glmer (data=fed_1m,
                    b_CBre ~ Crisis +NoCompOffr +
@@ -4957,7 +4955,7 @@ summary_residual_compare(CBre_20B,CBre_20G,Term_20B,Term_20G,bins=50)
 # summary(large_crisis_smp$CPSA)
     
 
-load("Output//Model21B.rdata")
+load("../Output//Model21B.rdata")
 if(!exists("CBre_21B"))
   CBre_21B <- glmer (data=fed_1m,
                    b_CBre ~ Crisis +NoCompOffr2 +
@@ -5010,7 +5008,7 @@ if(!exists("Term_21B"))
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_21B)
   
-  save(CBre_21B,Term_21B, file="Output//Model21B.RData")
+  save(CBre_21B,Term_21B, file="../Output//Model21B.RData")
   
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_21A,CBre_21B,Term_21A,Term_21B,type="text",#Term_20A,#Term_20C
@@ -5027,7 +5025,7 @@ summary_residual_compare(CBre_21A,CBre_21B,Term_21A,Term_21B,bins=50)
 # summary(large_crisis_smp$CPSA)
     
 
-load("Output//Model21C_CBre.rdata")
+load("../Output//Model21C_CBre.rdata")
 if(!exists("CBre_21C"))
   CBre_21C <- glmer (data=fed_1m,
                    b_CBre ~ Crisis +NoCompOffr2 +
@@ -5057,7 +5055,7 @@ if(!exists("CBre_21C"))
   glmer_examine(CBre_21C)
 
   
-  save(CBre_21C, file="Output//Model21C_CBre.RData")
+  save(CBre_21C, file="../Output//Model21C_CBre.RData")
   
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_21A,CBre_21C,type="text",#Term_20A,#Term_20C
@@ -5072,7 +5070,7 @@ summary_residual_compare(CBre_21A,CBre_21C,Term_21A,Term_21C,bins=50)
 # summary(large_crisis_smp$CPSA)
     
 
-load("Output//Model21D_CBre.rdata")
+load("../Output//Model21D_CBre.rdata")
 if(!exists("CBre_21D"))
   CBre_21D <- glmer (data=fed_1m,
                    b_CBre ~ Crisis +NoCompOffr2 +
@@ -5101,7 +5099,7 @@ if(!exists("CBre_21D"))
                 verbose=1)
   glmer_examine(CBre_21D)
 
-load("Output//Model21D_Term.rdata")
+load("../Output//Model21D_Term.rdata")
 if(!exists("Term_21D"))
   Term_21D <- glmer (data=fed_1m,
                    b_Term ~ Crisis +NoCompOffr2+
@@ -5126,7 +5124,7 @@ if(!exists("Term_21D"))
   glmer_examine(Term_21D)
   
   
-  save(Term_21D, file="Output//Model21D_Term.RData")
+  save(Term_21D, file="../Output//Model21D_Term.RData")
   
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_21C,CBre_21D,type="text",#Term_20A,#Term_20C
@@ -5143,7 +5141,7 @@ summary_residual_compare(CBre_21C,CBre_21D,bins=50)#,Term_21A,Term_21D
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
     
-load("Output//Model21E_CBre.rdata")
+load("../Output//Model21E_CBre.rdata")
 if(!exists("CBre_21E"))
   CBre_21E <- glmer (data=fed_1m,
                    b_CBre ~ Crisis +NoCompOffr2 +
@@ -5173,7 +5171,7 @@ if(!exists("CBre_21E"))
   glmer_examine(CBre_21E)
 summary(CBre_21E)
   
-  save(CBre_21E,  file="Output//Model21E_CBre_2020-7-31.RData")
+  save(CBre_21E,  file="../Output//Model21E_CBre_2020-7-31.RData")
   
 
 pars<-get_pars(CBre_21E)
@@ -5183,7 +5181,7 @@ if(!exists("CBre_21E.restart"))
 summary(CBre_21E.restart)
   
   
-  save(CBre_21E, CBre_21E.restart, file="Output//Model21E_CBre.RData")
+  save(CBre_21E, CBre_21E.restart, file="../Output//Model21E_CBre.RData")
   
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_21A,CBre_21D,CBre_21E,type="text",#Term_20A,#Term_20C
@@ -5200,7 +5198,7 @@ summary_residual_compare(CBre_21D,CBre_21E,bins=50)
 # summary(large_crisis_smp$CPSA)
 
 
-load("Output//Model22A.rdata")
+load("../Output//Model22A.rdata")
 
 if(!exists("CBre_22A"))
   CBre_22A <- glmer (data=crisis_all,
@@ -5230,7 +5228,7 @@ if(!exists("CBre_22A"))
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
-  save(CBre_22A,Term_22A, file="Output//Model22A.RData")
+  save(CBre_22A,Term_22A, file="../Output//Model22A.RData")
   glmer_examine(CBre_22A)
   
 if(!exists("Term_22A"))
@@ -5260,7 +5258,7 @@ if(!exists("Term_22A"))
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_22A)
-  save(CBre_22A,Term_22A, file="Output//Model22A.RData")
+  save(CBre_22A,Term_22A, file="../Output//Model22A.RData")
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
@@ -5289,7 +5287,7 @@ summary_residual_compare(CBre_21B,CBre_22A,Term_21B,Term_22A,bins=50)
 
  
 
-load("Output//Model22B.rdata")
+load("../Output//Model22B.rdata")
 
 if(!exists("CBre_22B"))
   CBre_22B <- glmer (data=crisis_all,
@@ -5348,7 +5346,7 @@ if(!exists("Term_22B"))
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_22B)
-  save(CBre_22B,Term_22B, file="Output//Model22B.RData")
+  save(CBre_22B,Term_22B, file="../Output//Model22B.RData")
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
@@ -5372,7 +5370,7 @@ summary_residual_compare(CBre_22A,CBre_22B,Term_22A,Term_22B,bins=50)
 
  
 
-load("Output//Model22C.rdata")
+load("../Output//Model22C.rdata")
 
 if(!exists("CBre_22C"))
   CBre_22C <- glmer (data=crisis_all,
@@ -5403,7 +5401,7 @@ if(!exists("CBre_22C"))
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
   glmer_examine(CBre_22C)
-save(CBre_22C, file="Output//Model22C.RData")
+save(CBre_22C, file="../Output//Model22C.RData")
 if(!exists("Term_22C"))
   Term_22C <- glmer (data=crisis_all,
                    b_Term ~ Crisis +NoCompOffr+
@@ -5431,7 +5429,7 @@ if(!exists("Term_22C"))
      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_22C)
-  save(CBre_22C,Term_22C, file="Output//Model22C.RData")
+  save(CBre_22C,Term_22C, file="../Output//Model22C.RData")
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
@@ -5455,7 +5453,7 @@ summary_residual_compare(CBre_22A,CBre_22C,Term_22A,Term_22C,bins=50)
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model22D_term.rdata")
+load("../Output//Model22D_term.rdata")
 
 if(!exists("CBre_22D"))
   CBre_22D <- glmer (data=crisis_all,
@@ -5481,7 +5479,7 @@ if(!exists("CBre_22D"))
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
 
   glmer_examine(CBre_22D,display=TRUE)
-  save(CBre_22D,Term_22D, file="Output//Model22D.RData")
+  save(CBre_22D,Term_22D, file="../Output//Model22D.RData")
 if(!exists("Term_22D"))
   Term_22D <- glmer (data=crisis_all,
                    b_Term ~ Crisis +NoCompOffr2+
@@ -5502,7 +5500,7 @@ if(!exists("Term_22D"))
                      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_22D)
-  save(CBre_22D,Term_22D, file="Output//Model22D.RData")
+  save(CBre_22D,Term_22D, file="../Output//Model22D.RData")
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
@@ -5528,7 +5526,7 @@ summary_residual_compare(CBre_22A,CBre_22D,Term_22A,Term_22D,bins=50)
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model22E.rdata")
+load("../Output//Model22E.rdata")
 
 if(!exists("CBre_22E"))
   CBre_22E <- glmer (data=crisis_all,
@@ -5576,7 +5574,7 @@ if(!exists("Term_22E"))
                      control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
      optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
   glmer_examine(Term_22E)
-  save(CBre_22E,Term_22E, file="Output//Model22E.RData")
+  save(CBre_22E,Term_22E, file="../Output//Model22E.RData")
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
@@ -5606,7 +5604,7 @@ summary_residual_compare(Term_22C,Term_22E,bins=50)
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model22F_CBre.RData")
+load("../Output//Model22F_CBre.RData")
 
 if(!exists("CBre_22F"))
   CBre_22F <- glmer (data=crisis_all,
@@ -5634,7 +5632,7 @@ if(!exists("CBre_22F"))
 
   glmer_examine(CBre_22F)
   
-  save(CBre_22F, file="Output//Model22F_CBre.RData")
+  save(CBre_22F, file="../Output//Model22F_CBre.RData")
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
                      Term_10A,Term_10D,Term_20B,Term_20G,type="text",#Term_20A,#Term_20C
@@ -5665,7 +5663,7 @@ summary_residual_compare(Term_22C,Term_22F,bins=50)
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load("Output//Model22G_CBre.RData")
+load("../Output//Model22G_CBre.RData")
 
 if(!exists("CBre_22G"))
   CBre_22G <- glmer (data=crisis_all,
@@ -5692,7 +5690,7 @@ if(!exists("CBre_22G"))
      )
 
   glmer_examine(CBre_22G)
-  save(CBre_22G, file="Output//Model22G_actual_CBre.RData")
+  save(CBre_22G, file="../Output//Model22G_actual_CBre.RData")
   if(!exists("Term_22G"))
   Term_22G <- glmer (data=crisis_all,
                    b_Term ~ Crisis +NoCompOffr2+
@@ -5715,7 +5713,7 @@ if(!exists("CBre_22G"))
   glmer_examine(Term_22G)
 
   
-  save(CBre_22G,Term_22G, file="Output//Model22G_CBre.RData")
+  save(CBre_22G,Term_22G, file="../Output//Model22G_CBre.RData")
 # Plot the model and Vehicle 
 
 stargazer::stargazer(CBre_22F,CBre_22G,Term_22E,Term_22G,type="text",#Term_20A,#Term_20C
@@ -5725,8 +5723,8 @@ stargazer::stargazer(CBre_22F,CBre_22G,Term_22E,Term_22G,type="text",#Term_20A,#
 summary_residual_compare(CBre_22F,CBre_22G,Term_22E,Term_22G,bins=50)
 
 
-  CBre_22G.all<-allFit_save(CBre_22G,filename="output/CBre_22G_allfit.rdata")
-  Term_22G.all<-allFit_save(Term_22G,filename="output/Term_22G_allfit.rdata")
+  CBre_22G.all<-allFit_save(CBre_22G,filename="../Output/CBre_22G_allfit.rdata")
+  Term_22G.all<-allFit_save(Term_22G,filename="../Output/Term_22G_allfit.rdata")
 
 ```
 
@@ -5737,7 +5735,7 @@ summary_residual_compare(CBre_22F,CBre_22G,Term_22E,Term_22G,bins=50)
 # summary(large_crisis_smp$CPSA)
 
 
-load("Output//Model22H.rdata")
+load("../Output//Model22H.rdata")
 
 
 if(!exists("CBre_22H")){
@@ -5771,6 +5769,7 @@ if(!exists("CBre_22H")){
   
 }
   glmer_examine(CBre_22H)
+  save(CBre_22H, file="..//Output//Model22H_2020-07-31.RData")
   
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
@@ -5780,8 +5779,8 @@ stargazer::stargazer(CBre_10A,CBre_10H,CBre_20B,CBre_20B,CBre_20G,#CBre_20A,
 stargazer::stargazer(CBre_21B,CBre_22H,
                         digits=2)
 
-CBre_22H.all<-allFit_save(CBre_22H,filename="output/CBre_22H_allfit.rdata")
-save(CBre_22H,CBre_22H.all, file="Output//Model22H.RData")
+CBre_22H.all<-allFit_save(CBre_22H,filename="../Output/CBre_22H_allfit.rdata")
+save(CBre_22H,CBre_22H.all, file="../Output//Model22H.RData")
 summary_residual_compare(CBre_10A,CBre_20G,bins=50)
 summary_residual_compare(CBre_10D,CBre_20G,bins=50)
 summary_residual_compare(CBre_20A,CBre_20G,bins=50)
@@ -5795,13 +5794,13 @@ summary_residual_compare(CBre_21B,CBre_22H,bins=50)
 # Comparisons
 ## Ceiling Breach
 ```{r CrisisOnlyComparison}
-load("Output//Model21D_CBre.rdata")
+load("../Output//Model21D_CBre.rdata")
 
-load("Output//Model21E_CBre.rdata")
+load("../Output//Model21E_CBre.rdata")
 
 #Ceiling Breach
-load("Output//Model22H.rdata")
-load("Output//Model22G_CBre.RData")
+load("../Output//Model22H.rdata")
+load("../Output//Model22G_CBre.RData")
 
 summary_residual_compare(CBre_22G,CBre_22H,CBre_21D,CBre_21E.restart,bins=50)
 stargazer::stargazer(CBre_22G,CBre_22H,CBre_21D,CBre_21E.restart,type="text",
@@ -5828,7 +5827,7 @@ summary(CBre_22H.all)
  summary(CBre_22H.all)
  stargazer.all(CBre_22H.all)
  
-   load("output/CBre_22G_allfit.rdata")
+   load("../Output/CBre_22G_allfit.rdata")
    CBre_22G.all<-res
    rm(res)
    summary(CBre_22G.all)
@@ -5837,7 +5836,7 @@ summary(CBre_22H.all)
    
   
    #CBre_22F
-   # load("output/CBre_22F_allfit.rdata")
+   # load("../Output/CBre_22F_allfit.rdata")
    # CBre_22F.all<-res
    # rm(res)
    # summary(CBre_22F.all)
@@ -5845,13 +5844,13 @@ summary(CBre_22H.all)
    # stargazer.all(CBre_22F.all)
    # #THis does have more glitches, elimating the const term seemed to help.
  
- # load("output/CBre_21C_allfit.rdata")
+ # load("../Output/CBre_21C_allfit.rdata")
  # CBre_21C.all<-res
  # summary(CBre_21C.all)
  # #Only finished 1st one
  
  
- # load("output/Model21E_CBre.rdata")
+ # load("../Output/Model21E_CBre.rdata")
  #No allfit, just update
  #Only finished 1st one
    
@@ -5867,14 +5866,14 @@ summary(CBre_22H.all)
 ## Termination
 ```{r CopmareTerm}
  
-load("output/Term_22E_allfit.rdata")
+load("../Output/Term_22E_allfit.rdata")
 Term_22E.all<-res
 summary(Term_22E.all)
    stargazer.all(Term_22E.all)
  
    
    #Termination 22G
-  load("output/Term_22G_allfit.rdata")
+  load("../Output/Term_22G_allfit.rdata")
  Term_22G.all<-res
    summary(Term_22G.all)
    stargazer.all(Term_22G.all)
