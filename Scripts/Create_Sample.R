@@ -36,6 +36,14 @@ head(fed)
 contract_transform_verify(fed,dollars_suffix="OMB20_GDP18")
 
 
+fed$NoCompOffr2<-factor(fed$NoCompOffr,
+                               levels=c(  "2-4 offers" ,"Other No",   "Urgency" ,   "1 offer"  ,"5+ offers" ))
+fed$NoCompOffr2<-factor(fed$NoCompOffr,
+                           levels=c(  "2-4 offers" ,
+                                      "Other No",  
+                                      "Urgency" ,  
+                                      "1 offer"  ,
+                                      "5+ offers" ))
 
 #Reordering NoCompOffr to make the most common level the default
 fed$NoCompOffr2<-factor(fed$NoCompOffr,
