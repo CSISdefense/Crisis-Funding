@@ -45,6 +45,15 @@ fed$NoCompOffr2<-factor(fed$NoCompOffr,
                                       "1 offer"  ,
                                       "5+ offers" ))
 
+#Reordering NoCompOffr to make the most common level the default
+fed$NoCompOffr2<-factor(fed$NoCompOffr,
+                        levels=c(  "2-4 offers" ,"Other No",   "Urgency" ,   "1 offer"  ,"5+ offers" ))
+fed$NoCompOffr2<-factor(fed$NoCompOffr,
+                        levels=c(  "2-4 offers" ,
+                                   "Other No",  
+                                   "Urgency" ,  
+                                   "1 offer"  ,
+                                   "5+ offers" ))
 
 
 
@@ -65,8 +74,8 @@ summary(fed$NoCompOffr)
 summary(fed$UCA)
 summary(fed$b_UCA)
 summary(fed$PlaceCountryISO3)
-# summary(fed$VendorCountryISO3)
-# summary(fed$OriginCountryISO3)
+summary(fed$VendorCountryISO3)
+summary(fed$OriginCountryISO3)
 summary(fed$c_OffCri)
 summary(fed$OffPlace)
 summary(fed$Crisis)
@@ -123,16 +132,16 @@ sum(money[!complete],na.rm=TRUE)/sum(money,na.rm=TRUE) #0.04529853
 ## The final computation uses a 1 million row  dataset , but as a computation shortcut, only a 250k subset of the data is needed to
 ## allow for processing of models faster.
 
-crisis_all<-smp_complete[smp_complete$Crisis %in% c("ARRA","Dis","OCO"),]
+crisis_all<-fed[complete&fed$Crisis %in% c("ARRA","Dis","OCO"),]
 crisis_all_with_na<-fed[fed$Crisis %in% c("ARRA","Dis","OCO"),]
 
 
 #Percent of crisis records incomplete
-nrow(crisis_all_with_na[!get_complete_list(crisis_all_with_na),])/
-  nrow(crisis_all_with_na)
+1-nrow(crisis_all)/nrow(crisis_all_with_na) #0.0303168
+  
 #Percent of dollars incomplete
-sum(crisis_all_with_na[!get_complete_list(crisis_all_with_na),]$Action.Obligation,na.rm=TRUE)/
-  sum(crisis_all_with_na$Action.Obligation,na.rm=TRUE)
+1-sum(crisis_all$Action_Obligation_Then_Year,na.rm=TRUE)/ #0.01373789
+  sum(crisis_all_with_na$Action_Obligation_Then_Year,na.rm=TRUE) 
 
 
 
@@ -153,8 +162,8 @@ head(fed_smp)
 
 
 
-crisis_all_with_na<-get_crisis_sample_with_na(fed)
-crisis_smp<-crisis_all_with_na[get_complete_list(crisis_all_with_na),]
+# crisis_all_with_na<-get_crisis_sample_with_na(fed)
+# crisis_smp<-crisis_all_with_na[get_complete_list(crisis_all_with_na),]
 
 
 summary(crisis_all$Crisis)
