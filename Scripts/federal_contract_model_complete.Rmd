@@ -1250,11 +1250,10 @@ load(file="..\\data\\clean\\federal_contract_complete.rdata")
 # undebug(transform_contract)
 # debug(transform_contract)
 # debug(deflate)
-# memory.limit(36000)
+memory.limit(36000)
 fed<-transform_contract(fed)
 
 
-summary(fed$Agency)
 #Customer isn't added in transform_contract as most of our datasets are just DoD
  fed<-read_and_join_experiment(fed,
                                    "Agency_AgencyID.csv",

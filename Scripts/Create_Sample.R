@@ -37,6 +37,15 @@ contract_transform_verify(fed,dollars_suffix="OMB20_GDP18")
 
 
 
+#Reordering NoCompOffr to make the most common level the default
+fed$NoCompOffr2<-factor(fed$NoCompOffr,
+                        levels=c(  "2-4 offers" ,"Other No",   "Urgency" ,   "1 offer"  ,"5+ offers" ))
+fed$NoCompOffr2<-factor(fed$NoCompOffr,
+                        levels=c(  "2-4 offers" ,
+                                   "Other No",  
+                                   "Urgency" ,  
+                                   "1 offer"  ,
+                                   "5+ offers" ))
 
 
 
@@ -57,8 +66,8 @@ summary(fed$NoCompOffr)
 summary(fed$UCA)
 summary(fed$b_UCA)
 summary(fed$PlaceCountryISO3)
-# summary(fed$VendorCountryISO3)
-# summary(fed$OriginCountryISO3)
+summary(fed$VendorCountryISO3)
+summary(fed$OriginCountryISO3)
 summary(fed$c_OffCri)
 summary(fed$OffPlace)
 summary(fed$Crisis)
