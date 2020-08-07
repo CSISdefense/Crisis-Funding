@@ -1,0 +1,459 @@
+---
+title: "UCA"
+author: "Greg Sanders"
+date: "8/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#*************************************Required Libraries******************************************
+require(dplyr)
+require(grid)
+require(reshape2)
+require(stringr)
+require(ggplot2)
+library(Hmisc)
+library(readr)
+library(csis360)
+library(dplyr)
+library(tidyverse)
+#*************************************Options*****************************************************
+options(error=recover)
+options(warn=1)
+
+#*************************************Lookup Files*****************************************************
+
+source(file.path("..","scripts","ContractCleanup.r"))
+source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
+source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
+source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/Scripts/DIIGstat.r")
+
+```
+
+
+
+#Sub Contract and Military Department
+
+```{r aggregate, echo=FALSE}
+def_uca<-read_csv(file.path("..","data","semi_clean","defense_summary_sp_UCAdetail_subcustomer.csv"),na=c("NULL","NA"))
+def_uca<-filter(def_uca,fiscal_year>=2000)
+def_uca<-standardize_variable_names(def_uca )
+def_uca$IsUndefinitizedAction[def_uca$UndefinitizedActionText=="No"]<-0
+def_uca$IsUndefinitizedAction<-factor(def_uca$IsUndefinitizedAction)
+def_uca<-replace_nas_with_unlabeled(def_uca,"IsUndefinitizedAction")
+def_uca<-deflate(def_uca,
+                      money_var = "Action_Obligation",
+                      # deflator_var="OMB.2019",
+                      fy_var="Fiscal.Year"
+    )
+
+  def_uca<-read_and_join_experiment(def_uca,
+      "Lookup_SubCustomer.csv",
+      by=c("Customer","SubCustomer")
+    )
+
+def_uca_LnC<-prepare_labels_and_colors(def_uca)
+
+
+(uca_mildep_overall_plot<-build_plot(data=def_uca %>% filter(SubCustomer.sum!="Unlabeled"),
+           chart_geom="Bar Chart",
+           share=FALSE,
+           x_var="Fiscal.Year",
+           y_var="Action_Obligation_OMB20_GDP18",
+           color_var="IsUndefinitizedAction",
+           facet_var="SubCustomer.sum",
+           labels_and_colors=def_uca_LnC,
+           format=TRUE)+ylab("DoD Obligations (2018 $s)")+
+             xlab("Fiscal Year")+
+    ggtitle("DoD Obligations by Military Department and UCA Status, FY2000-FY2019")
+  )
+
+(uca_sub_plot<-build_plot(data=def_uca %>% filter(IsUndefinitizedAction %in% c("1","Unlabeled")),
+           chart_geom="Bar Chart",
+           share=FALSE,
+           x_var="Fiscal.Year",
+           y_var="Action_Obligation_OMB20_GDP18",
+           color_var="IsUndefinitizedAction",
+           facet_var="SubCustomer",
+           labels_and_colors=def_uca_LnC,
+           format=TRUE)+ylab("DoD Obligations (2018 $s)")+
+             xlab("Fiscal Year")+
+    ggtitle("DoD Obligations for UCA and Unlabeled by Component, FY2000-FY2019")
+)
+
+
+(uca_mildep_stacked<-build_plot(data=def_uca %>% filter(IsUndefinitizedAction %in% c("1","Unlabeled")),
+           chart_geom="Bar Chart",
+           share=FALSE,
+           x_var="Fiscal.Year",
+           y_var="Action_Obligation_OMB20_GDP18",
+           color_var="IsUndefinitizedAction",
+           facet_var="SubCustomer.sum",
+           labels_and_colors=def_uca_LnC,
+           format=TRUE)+ylab("DoD Obligations (2018 $s)")+
+             xlab("Fiscal Year")+
+    ggtitle("DoD Obligations for UCA and Unlabeled by Military Department, FY2000-FY2019")
+)
+
+
+(uca_mildep_stacked<-build_plot(data=def_uca %>% filter(IsUndefinitizedAction=="1"),
+           chart_geom="Bar Chart",
+           share=FALSE,
+           x_var="Fiscal.Year",
+           y_var="Action_Obligation_OMB20_GDP18",
+           color_var="SubCustomer.sum",
+           labels_and_colors=def_uca_LnC,
+           format=TRUE)+ylab("DoD Obligations (2018 $s)")+
+             xlab("Fiscal Year")+
+    ggtitle("DoD Obligations for UCA and by Military Department, FY2000-FY2019")+
+    labs(caption="A significant number of transactions, most notable in FY2005 and FY2007, have unlabeled UCA status and are not shown.\nSource FPDS and CSIS analysis")
+)
+
+(uca_sub_share <- build_plot(data=def_uca %>% filter(SubCustomer.sum!="Unlabeled"),
+           chart_geom="Line Chart",
+           share=TRUE,
+           x_var="Fiscal.Year",
+           y_var="Action_Obligation_OMB20_GDP18",
+           color_var="IsUndefinitizedAction",
+           facet_var="SubCustomer.sum",
+           format=TRUE,
+           labels_and_colors=def_uca_LnC)
+)
+
+write.csv(def_uca,file=file.path("..","output","def_uca_subcustomer.csv"),row.names = FALSE)
+
+ggsave(uca_mildep_overall_plot,file="..//Output\\def_uca_mildep_overall_plot.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_mildep_overall_plot,file="..//Output\\def_uca_mildep_overall_plot.eps",width=10.5,height=5.5)
+
+ggsave(uca_sub_plot,file="..//Output\\def_uca_sub_plot.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_sub_plot,file="..//Output\\def_uca_sub_plot.eps",width=10.5,height=5.5)
+
+ggsave(uca_mildep_stacked,file="..//Output\\def_uca_mildep_stacked_plot.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_mildep_stacked,file="..//Output\\def_uca_mildep_stacked_plot.eps",width=10.5,height=5.5)
+ggsave(uca_sub_share,file="..//Output\\def_uca_sub_share.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_sub_share,file="..//Output\\def_uca_sub_share.eps",width=10.5,height=5.5)
+
+```
+
+## Average UCA Size
+
+You can also embed plots, for example:
+
+```{r aggregate, echo=FALSE}
+def_uca_avg<-read_csv(file.path("..","data","semi_clean","defense_summary_sp_UCAdetail_customer.csv"),na=c("NULL","NA"))
+def_uca_avg$obligatedamount<-text_to_number(def_uca_avg$obligatedamount)
+def_uca_avg<-filter(def_uca_avg,fiscal_year>=2000)
+def_uca_avg<-standardize_variable_names(def_uca_avg )
+def_uca_avg$IsUndefinitizedAction<-factor(def_uca_avg$IsUndefinitizedAction)
+
+def_uca_avg<-replace_nas_with_unlabeled(def_uca_avg,"IsUndefinitizedAction")
+def_uca_avg<-deflate(def_uca_avg,
+                      money_var = "Action_Obligation",
+                      # deflator_var="OMB.2019",
+                      fy_var="Fiscal.Year"
+    )
+def_uca_avg$AverageAnnual<-def_uca_avg$Action_Obligation_OMB20_GDP18/def_uca_avg$contactcount
+def_uca_avg_LnC<-prepare_labels_and_colors(def_uca_avg)
+
+
+(uca_sum_plot_overall<-
+build_plot(data=def_uca_avg,
+           chart_geom="Bar Chart",
+           share=FALSE,
+           x_var="Fiscal.Year",
+           y_var="Action_Obligation_OMB20_GDP18",
+           color_var="IsUndefinitizedAction",
+           labels_and_colors=def_uca_avg_LnC,
+           format=TRUE)+ylab("DoD Obligations (2018 $s)")+
+             xlab("Fiscal Year")+
+    ggtitle("DoD Obligations by UCA Status, FY2000-FY2019")
+)
+
+(uca_sum_plot<-
+build_plot(data=def_uca_avg %>% dplyr::filter(IsUndefinitizedAction %in% c("1","Unlabeled")),
+           chart_geom="Bar Chart",
+           share=FALSE,
+           x_var="Fiscal.Year",
+           y_var="Action_Obligation_OMB20_GDP18",
+           color_var="IsUndefinitizedAction",
+           labels_and_colors=def_uca_avg_LnC,
+           format=TRUE)+ylab("DoD Obligations (2018 $s)")+
+             xlab("Fiscal Year")+
+    ggtitle("DoD Obligations for UCA and Unlabeled, FY2000-FY2019")
+)
+
+(uca_count_plot<-
+build_plot(data=def_uca_avg %>% dplyr::filter(IsUndefinitizedAction %in% c("1","Unlabeled")),
+           chart_geom="Bar Chart",
+           share=FALSE,
+           x_var="Fiscal.Year",
+           y_var="contactcount",
+           color_var="IsUndefinitizedAction",
+           format=TRUE,
+           labels_and_colors=def_uca_avg_LnC)+
+  ylab("Contract Count")+
+             xlab("Fiscal Year")+
+    ggtitle("DoD Contract Count for UCA and Unlabeled, FY2000-FY2019")
+)
+
+
+(uca_avg_plot<-
+    build_plot(data=def_uca_avg,
+           chart_geom="Line Chart",
+           share=FALSE,
+           x_var="Fiscal.Year",
+           y_var="AverageAnnual",
+           color_var="IsUndefinitizedAction",
+           format=TRUE,
+           labels_and_colors=def_uca_avg_LnC
+           )+ylab("Average Annual Contract Obligations (2018 $s)")+
+             xlab("Fiscal Year")+
+    ggtitle("Average Annual Spend for DoD Contracts, FY2000-FY2019")
+)
+
+write.csv(def_uca_avg,file=file.path("..","output","def_uca_avg.csv"),row.names = FALSE)
+
+ggsave(uca_avg_plot,file="..//Output\\def_uca_avg.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_avg_plot,file="..//Output\\def_uca_avg.eps",width=10.5,height=5.5)
+
+ggsave(uca_sum_plot,file="..//Output\\def_uca_sum_plot.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_sum_plot,file="..//Output\\def_uca_sum_plot.eps",width=10.5,height=5.5)
+ggsave(uca_count_plot,file="..//Output\\def_uca_count_plot.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_count_plot,file="..//Output\\def_uca_count_plot.eps",width=10.5,height=5.5)
+ggsave(uca_sum_plot_overall,file="..//Output\\def_uca_sum_plot_overall.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_sum_plot_overall,file="..//Output\\def_uca_sum_plot_overall.eps",width=10.5,height=5.5)
+
+gridExtra::grid.arrange(uca_sum_plot+ggtitle(NULL),
+                        uca_count_plot+ggtitle(NULL),
+                        uca_avg_plot+ggtitle(NULL))
+
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+## Contract Dive
+
+
+```{r fed_uca}
+
+if(file.exists(file.path("..","data","semi_clean","fed_uca.rdata"))){
+  load(file.path("..","data","semi_clean","fed_uca.rdata"))
+} else{
+  fed_full<-input_sample_criteria(NULL,  
+                                  dir="..\\data\\semi_clean\\",
+                                  file="Contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
+                                  last_date=as.Date("2019-09-30"),
+                                  drop_incomplete=FALSE)
+  
+  
+  fed_full<-csis360::read_and_join_experiment(data=fed_full
+                                              ,"Contract.SP_ContractPricingUCA.txt"
+                                              ,path=""
+                                              ,"..\\data\\semi_clean\\"
+                                              ,by="CSIScontractID"
+                                              ,new_var_checked=FALSE
+                                              ,create_lookup_rdata = TRUE
+  )
+  
+  fed_uca<-fed_full %>% dplyr::filter(UnmodifiedIsUCA==1 | IsUCA==1)
+  
+  fed_uca<-input_contract_psc_office_naics(fed_uca,        
+                                           file="Contract.SP_ContractTopPSCofficeNAICS.txt")
+  
+  fed_uca<-csis360::read_and_join_experiment(data=fed_uca
+                                             ,"Contract.sp_ContractUCAdetail.csv"
+                                             ,path=""
+                                             ,"..\\data\\semi_clean\\"
+                                             ,by="CSIScontractID"
+                                             ,new_var_checked=FALSE
+                                             ,create_lookup_rdata = FALSE
+  )
+  
+  fed_uca<-read_and_join_experiment(fed_uca,
+                                    "Agency_AgencyID.csv",
+                                    by=c("topContractingOfficeAgencyID"="AgencyID"),
+                                    # replace_na_var="AgencyID",
+                                    add_var=c("Customer","SubCustomer"),
+                                    skip_check_var = "SubCustomer",
+                                    path = "https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                                    directory = "",
+                                    create_lookup_rdata=FALSE,
+                                    guess_max=1360
+  )
+  fed_uca<-standardize_variable_names(fed_uca)
+  
+  
+  
+  
+  sum(is.na(fed_uca$MinOfDefinitizeDate)&is.na(fed_uca$MinOfNotUCA))/nrow(fed_uca)
+  sum(!is.na(fed_uca$MinOfDefinitizeDate))/nrow(fed_uca)
+  sum(!is.na(fed_uca$MinOfNotUCA))/nrow(fed_uca)
+  sum(!is.na(fed_uca$MinOfDefinitizeDate)|!is.na(fed_uca$MinOfNotUCA))/nrow(fed_uca)
+  sum(!is.na(fed_uca$MinOfDefinitizeDate)&!is.na(fed_uca$MinOfNotUCA))/nrow(fed_uca)
+  
+  
+  sum(!is.na(fed_uca$MinOfDefinitizeDate)&!is.na(fed_uca$MinOfNotUCA)&
+        fed_uca$MinOfDefinitizeDate==fed_uca$MinOfNotUCA)/nrow(fed_uca)
+  sum(!is.na(fed_uca$MinOfDefinitizeDate)&!is.na(fed_uca$MinOfNotUCA)&
+        fed_uca$MinOfDefinitizeDate<fed_uca$MinOfNotUCA)/nrow(fed_uca)
+  sum(!is.na(fed_uca$MinOfDefinitizeDate)&!is.na(fed_uca$MinOfNotUCA)&
+        fed_uca$MinOfDefinitizeDate>fed_uca$MinOfNotUCA)/nrow(fed_uca)
+  
+  fed_uca$MinOfDefinitizeDate[is.na(fed_uca$MinOfDefinitizeDate)]<-
+    fed_uca$MinOfNotUCA[is.na(fed_uca$MinOfDefinitizeDate)]<-
+  
+  
+#Imput UCA unmodified values when consistent for the remainder of the vehicle
+fed_uca$UCA<-fed_uca$UnmodifiedIsUCA
+fed_uca$UCA[is.na(fed_uca$UnmodifiedIsUCA)&
+  !is.na(fed_uca$IsUCA)]<-
+  fed_uca$IsUCA[is.na(fed_uca$UnmodifiedIsUCA)&
+  !is.na(fed_uca$IsUCA)]
+
+
+fed_uca$UCA<-factor(fed_uca$UnmodifiedIsUCA,
+  levels=c(0,1),
+  labels=c("Not UCA","UCA")
+)
+  
+  fed_uca<-deflate(fed_uca,
+                      money_var = "Action_Obligation",
+                      # deflator_var="OMB.2019",
+                      fy_var="StartFiscal_Year"
+    )
+  
+
+    fed_uca$DaysToDefinitize<-as.numeric(
+    difftime(strptime(fed_uca$MinOfDefinitizeDate,"%Y-%m-%d")
+             , strptime(fed_uca$MinOfSignedDate,"%Y-%m-%d")
+             , unit="days"
+    ))+1
+    
+    
+    fed_uca$qToDefinitize<-Hmisc::cut2(fed_uca$DaysToDefinitize,cuts=c(61,214,366,732))
+
+    fed_uca<-replace_nas_with_unlabeled(fed_uca,"qToDefinitize","No Definitize Recorded")
+
+    if (levels(fed_uca$qToDefinitize)[[2]] %in% c("[  61, 214)","[  61, 214)")){
+      levels(fed_uca$qToDefinitize)<- list(
+        "[0 months,~2 months)"=c("[    0,   61)","[   1,  61)"),
+        "[~2 months,~7 months)"=c("[   61,  214)","[  61, 214)"),
+        "[~7 months-~1 year]"=c("[  214,  366)","[ 214, 366)"),
+        "(~1 year,~2 years]"=c("[  366,  732)","[ 366, 732)"),
+        "(~2 years+]"=levels(fed_uca$qToDefinitize)[5],
+      "No Definitize Recorded"="No Definitize Recorded")
+    }
+  
+    
+    ##Contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.txt
+fed_uca<-csis360::read_and_join_experiment(data=fed_uca
+  ,"Contract.SP_ContractUnmodifiedCompetitionvehicleCustomer.txt"
+  ,path=""
+  ,"..\\data\\semi_clean\\"
+  ,by="CSIScontractID"
+  ,new_var_checked=FALSE
+  ,create_lookup_rdata=TRUE
+  ,col_types="dddddddccc"
+)
+
+#Contract.SP_ContractCompetitionVehicleCustomer.txt
+fed_uca<-csis360::read_and_join_experiment(data=fed_uca
+  ,"Contract.SP_ContractCompetitionVehicleCustomer.txt"
+  ,path=""
+  ,"..\\data\\semi_clean\\"
+  ,by="CSIScontractID"
+  ,new_var_checked=FALSE
+  ,create_lookup_rdata=TRUE
+  ,col_types="dddddddddccc"
+)
+
+    
+  save(file=file.path("..","data","semi_clean","fed_uca.rdata"),fed_uca)
+}
+```
+
+
+```{r DefinitizationTime}
+def_uca_contract<-fed_uca %>% dplyr::filter(Customer=="Defense" & StartFiscal_Year<=2017) %>% dplyr::select(-SubCustomer)
+
+def_uca_contract$ContractCount<-1
+def_uca_contract_LnC<-prepare_labels_and_colors(def_uca_contract)
+
+(
+ uca_definitize_stacked<- build_plot(data=def_uca_contract,
+           chart_geom="Bar Chart",
+           share=TRUE,
+           x_var="StartFiscal_Year",
+           y_var="Action_Obligation_OMB20_GDP18",
+           color_var="qToDefinitize",
+           labels_and_colors=def_uca_contract_LnC,
+           format=TRUE)+ylab("Share of Total Obligations for Contracts\nStarting in this Fiscal Year (2018 $s)")+
+             xlab("Start Fiscal Year")+
+    ggtitle("Time to Definitize Weighted by Total Contract Obligations,\n Contracts Starting in FY2000-FY2017")+
+    labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
+)
+  
+(
+ uca_definitize_count_stacked<- build_plot(data=def_uca_contract,
+           chart_geom="Bar Chart",
+           share=TRUE,
+           x_var="StartFiscal_Year",
+           y_var="ContractCount",
+           color_var="qToDefinitize",
+           labels_and_colors=def_uca_contract_LnC,
+           format=TRUE)+ylab("Share of Contracts Count")+
+             xlab("Start Fiscal Year")+
+    ggtitle("Contract Count by Time to Definitize,\n Contracts Starting in FY2000-FY2017")+
+    labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
+)
+
+(
+ uca_definitize_facet<- 
+  build_plot(data=def_uca_contract,
+           chart_geom="Bar Chart",
+           share=FALSE,
+           x_var="StartFiscal_Year",
+           y_var="Action_Obligation_OMB20_GDP18",
+           # color_var="qToDefinitize",
+           facet_var="qToDefinitize",
+           labels_and_colors=def_uca_contract_LnC,
+           format=TRUE)+ylab("Total Obligations for Contracts\nStarting in this Fiscal Year (2018 $s)")+
+             xlab("Start Fiscal Year")+
+    ggtitle("Time to Definitize Weighted by Total Contract Obligations,\n Contracts Starting in FY2000-FY2017")+
+    labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
+)
+  
+(
+ uca_definitize_count_facet<- 
+  build_plot(data=def_uca_contract,
+           chart_geom="Bar Chart",
+           share=FALSE,
+           x_var="StartFiscal_Year",
+           y_var="ContractCount",
+           # color_var="qToDefinitize",
+           facet_var="qToDefinitize",
+           labels_and_colors=def_uca_contract_LnC,
+           format=TRUE)+ylab("Total Obligations for Contracts\nStarting in this Fiscal Year (2018 $s)")+
+             xlab("Start Fiscal Year")+
+    ggtitle("Contract Count by Time to Definitize,\n Contracts Starting in FY2000-FY2017")+
+    labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
+)
+  
+
+ggsave(uca_definitize_stacked,file="..//Output\\def_uca_definitize_stacked.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_definitize_stacked,file="..//Output\\def_uca_definitize_stacked.eps",width=10.5,height=5.5)
+
+ggsave(uca_definitize_count_stacked,file="..//Output\\def_uca_definitize_count_stacked.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_definitize_count_stacked,file="..//Output\\def_uca_definitize_count_stacked.eps",width=10.5,height=5.5)
+ggsave(uca_definitize_facet,file="..//Output\\def_uca_definitize_facet.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_definitize_facet,file="..//Output\\def_uca_definitize_facet.eps",width=10.5,height=5.5)
+ggsave(uca_definitize_count_facet,file="..//Output\\def_uca_definitize_count_facet.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_definitize_count_facet,file="..//Output\\def_uca_definitize_count_facet.eps",width=10.5,height=5.5)
+
+
+summary(factor(def_uca_contract$IsUCA[def_uca_contract$qToDefinitize=="No Definitize Recorded"]))
+
+```

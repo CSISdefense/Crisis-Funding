@@ -1,0 +1,511 @@
+"IsUndefinitizedAction","UndefinitizedActionText","lettercontract","Customer","Fiscal.Year","SubCustomer","Action_Obligation_Then_Year","transactioncount","contactcount","Action_Obligation_OMB20_GDP18","SubCustomer.sum","SubCustomer.detail","SubCustomer.platform","SubCustomer.FMS","SubCustomer.component","Subcustomer.Obsolete"
+"Unlabeled",NA,"","Defense",2011,"DLA",0,645,513,0,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2018,"Air Force",271382892.9,572,523,246040700.725295,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2015,"MDA",18786048.64,20,11,17879555.1917769,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","N","Defense",2007,"Navy",13358336,93,93,14457073.5930736,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2019,"DLA",19055769.02,335,317,16932440.9276702,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2005,"Navy",3945297052,710,237,4526499600.73428,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2017,"Army",346380708.9,14207,9251,320841708.873657,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2007,"MilitaryHealth",9067912506,1002,145,9813758123.37662,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"Unlabeled",NA,"","Defense",2006,"Air Force",0,21,20,0,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2008,"Navy",91704572795,337273,221009,97237379699.9258,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2007,"Other DoD",503757945.2,1084,493,545192581.385281,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2010,"MDA",0,10,3,0,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Other Undefinitized Action","B","Defense",2011,"Air Force",1188030051,567,242,1210546210.51559,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2011,"Navy",51502698.43,2507,562,52478804.1878948,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Other Undefinitized Action","B","Defense",2014,"MDA",84763534.04,128,48,81652571.081784,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2000,"Navy",4546860828,260,69,5829308753.84615,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Other Undefinitized Action","B","Defense",2004,"DLA",0,1,1,0,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2001,"Navy",37988098469,105664,73717,47580283653.5571,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Other Undefinitized Action","B","Defense",2011,"Navy",1711561787,6265,4983,1744000190.54412,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2013,"Navy",85201756172,258046,163101,83662368589.945,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2001,"Army",1196544831,428,212,1498678395.54108,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2019,"MDA",7559711918,3675,1456,6717355534.03234,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2000,NA,0,1,1,0,NA,NA,NA,NA,NA,NA
+"0","No","X","Defense",2006,"Other DoD",11012130726,41843,28730,12242502196.776,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Other Undefinitized Action","B","Defense",2016,"DLA",181476100,1418,1293,171139287.061486,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2012,"Navy",4209311047,3601,1951,4209311047,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2018,"Other DoD",19825974433,86575,53879,17974591507.7063,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2017,"MDA",978953,131,35,906773.805113005,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","N","Defense",2007,"Air Force",2115877,6,6,2289910.17316017,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2014,"Other DoD",51111091.47,81,51,49235229.2361044,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2007,"MDA",3955609801,2074,719,4280962988.09524,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2008,"Air Force",59563663140,165886,96626,63157314325.0981,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2018,"Air Force",3018700280,695,397,2736808957.38894,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2001,"DLA",11342113578,61749,59170,14206054080.6613,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2019,"Army",89946673580,187427,123536,79924181251.1107,"Army","Army","Army","Army","Army",FALSE
+"1","Other Undefinitized Action","B","Defense",2011,"DLA",12177303.75,152,133,12408094.3040554,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Other Undefinitized Action","B","Defense",2004,"Navy",27093.1191,2,2,32032.5361787657,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Other Undefinitized Action","B","Defense",2018,"Other DoD",64866555.55,1252,820,58809207.2076156,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2008,"Army",6586478437,2600,1053,6983860075.28364,"Army","Army","Army","Army","Army",FALSE
+"1","Letter Contract","A","Defense",2005,"DLA",40875777.77,19,13,46897404.5089491,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2013,"Other DoD",156243918.9,551,207,153420972.996858,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2019,"Navy",13388472849,3155,1994,11896634840.0569,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2007,"Army",1.06025e+11,410315,280702,114745670995.671,"Army","Army","Army","Army","Army",FALSE
+"1","Other Undefinitized Action","B","Defense",2016,"Navy",6477380571,7535,5247,6108431319.31347,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2003,"Army",75129.9504,93,84,90956.3564164649,"Army","Army","Army","Army","Army",FALSE
+"1","Other Undefinitized Action","B","Defense",2014,"Army",73663480.6,494,378,70959908.101339,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2018,"Navy",4395971.932,684,639,3985468.66001813,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2000,"MDA",1237942131,309,185,1587105296.15385,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Other Undefinitized Action","B","Defense",2006,"Other DoD",14046749.26,63,56,15616174.8304614,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2018,"DLA",4677877.012,1078,1034,4241048.96826836,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2005,"Air Force",2496594474,617,194,2864380993.57503,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2015,"Air Force",50548919726,128493,75644,48109755140.3826,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2012,"Army",1.05612e+11,356170,227839,1.05612e+11,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2008,"DLA",35587898649,569209,554052,37735021364.6485,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2017,"MilitaryHealth",11934660.63,367,140,11054706.0300111,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2011,"Other DoD",278701367.1,1968,1597,283983459.44569,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2019,"Other DoD",426266687.4,192,136,378769048.693798,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2008,"MDA",446102971,58,13,473017676.810519,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2017,"Air Force",2817135486,402,198,2609425237.12486,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2000,"Army",34319477149,89299,64681,43999329678.2051,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2014,"MilitaryHealth",12703820458,1764,489,12237569076.1969,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"Unlabeled",NA,"","Defense",2006,"Other DoD",0,43,23,0,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Other Undefinitized Action","B","Defense",2017,"MilitaryHealth",197129183.8,48,12,182594649.685069,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2007,"Army",19331.3105,2,1,20921.3317099567,"Army","Army","Army","Army","Army",FALSE
+"0","No","N","Defense",2007,"DLA",25806553,236,236,27929169.9134199,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2005,"MilitaryHealth",27872689,10,2,31978762.0468105,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2000,"Other DoD",15254510,21,15,19557064.1025641,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2018,"MilitaryHealth",59385.59,3,2,53840.063463282,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2000,"DLA",14495003,11,11,18583337.1794872,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2010,"Army",23673586.55,698,354,24603602.7333195,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2002,"Army",44501901546,171537,122289,54859346087.2781,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2010,"MilitaryHealth",0,5,2,0,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"0","No","X","Defense",2015,"DLA",30813759446,2473399,2403407,29326886310.079,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Other Undefinitized Action","B","Defense",2016,"Army",627163230,693,468,591440239.532252,"Army","Army","Army","Army","Army",FALSE
+"1","Letter Contract","Y","Defense",2007,"Army",21295305,3,3,23046866.8831169,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2013,"Navy",92397261.32,2355,1833,90727868.5388845,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2007,"Air Force",6232053752,840,244,6744646917.74892,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2013,"Air Force",50802856973,129171,67079,49884973461.3119,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2013,"Air Force",2007819580,455,240,1971543185.38885,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2011,"MilitaryHealth",2804996.396,30,26,2858158.1373548,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2009,"DLA",116685918.3,189,132,122312283.333333,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Other Undefinitized Action","B","Defense",2009,"MDA",10222852.5,30,17,10715778.3018868,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2019,"Air Force",3141045522,247,155,2791048091.3453,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2008,"Other DoD",13632039119,52032,31000,14454500179.1963,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2003,"Army",2107483713,585,222,2551433066.58596,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2008,"Other DoD",835938,110,47,886372.600996713,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2019,"MilitaryHealth",13212671818,4158,2321,11740422799.0048,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2012,"MilitaryHealth",44674452.59,497,336,44674452.59,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2007,"DLA",42998602.93,53,47,46535284.5562771,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2001,"DLA",-7559.6401,3,3,-9468.4870991984,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2011,"Air Force",1420676231,579,291,1447601621.15345,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2009,"Army",115476306.4,332,247,121044346.331237,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2005,"Army",9013954619,14252,9055,10341847887.7926,"Army","Army","Army","Army","Army",FALSE
+"1","Letter Contract","A","Defense",2002,"Other DoD",142538559.7,48,35,175713214.620316,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2001,"Air Force",36268478256,56412,41094,45426450721.4429,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2013,"DLA",1004299.75,1971,1492,986154.507069914,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2000,"Air Force",3965945267,386,238,5084545214.10256,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2000,"MilitaryHealth",1119073967,115,19,1434710214.10256,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"0","No","N","Defense",2005,"Army",1146071,3,3,1314904.77283157,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2014,"Army",73052591897,261220,169236,70371440031.7888,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2003,"DLA",17668099081,100346,97058,21389950461.2591,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Other Undefinitized Action","B","Defense",2016,"Other DoD",134143910,1528,1079,126503121.463599,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2012,"Air Force",9709248481,412,174,9709248481,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2014,"DLA",7788879.795,18,16,7503014.92630768,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2001,"Other DoD",1285110,9,9,1609606.71342685,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2001,"Other DoD",5088003702,15520,11312,6372750127.75551,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2016,"MilitaryHealth",188917.3985,8,4,178156.731893625,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"Unlabeled",NA,"","Defense",2012,"Army",422960492.4,2114,1244,422960492.4,"Army","Army","Army","Army","Army",FALSE
+"1","Letter Contract","A","Defense",2007,"Navy",4938003263,2343,917,5344159375.54113,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2012,"MilitaryHealth",11821631525,3082,1475,11821631525,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"0","No","X","Defense",2013,"Other DoD",16479601513,65174,40773,16181855374.1163,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2003,"Navy",52109796537,168428,119874,63086920746.9734,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2004,"Air Force",0,21,21,0,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2009,"Other DoD",167592559.6,1860,678,175673542.557652,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2005,"MDA",2754751083,86,11,3160568016.29188,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"Unlabeled",NA,"","Defense",2006,"Navy",43920,72,55,48827.1261812118,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2006,"DLA",0,37,37,0,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2010,"MDA",657952112.7,175,37,683799742.984826,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2002,NA,0,5,5,0,NA,NA,NA,NA,NA,NA
+"0","No","X","Defense",2014,"MDA",5804553505,4234,1109,5591516718.04258,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2014,"Navy",1932309528,1844,1150,1861390548.11675,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2005,"MilitaryHealth",6375622078,618,89,7314848643.87334,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2015,"Army",910279931.7,224,185,866355697.820501,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2012,"MDA",0,22,6,0,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2002,"MDA",2485964871,726,274,3064552355.76923,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Other Undefinitized Action","B","Defense",2006,"Air Force",504.12,1,1,560.444691495275,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2016,"MDA",39312239.95,67,47,37073028.9984911,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Other Undefinitized Action","B","Defense",2009,"Navy",2406784978,1471,1241,2522835406.7086,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2015,"Navy",83540397013,246195,156769,79509276685.0671,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2015,"Other DoD",74721636.74,1472,945,71116052.8599981,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2006,"Air Force",59618151770,131479,93343,66279212640.3558,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2000,"MDA",135937785,111,95,174279211.538462,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2004,"MDA",3359912850,941,405,3972467309.05651,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"Unlabeled",NA,"","Defense",2014,"DLA",1019634.28,4544,3517,982212.002697235,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2011,"Navy",97173662002,313858,196048,99015347464.8461,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2015,"Air Force",117198946.9,3138,2076,111543682.211859,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2002,"DLA",0,5,5,0,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2018,"MDA",1094106272,191,83,991936783.318223,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"Unlabeled",NA,"","Defense",2014,"Army",339339021.7,2601,1525,326884714.093055,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2004,"MilitaryHealth",5122424226,753,94,6056306722.62946,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2010,"Other DoD",199977688.8,268,122,207833806.692995,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2008,"Navy",4563285422,3198,1329,4838601868.30665,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2007,"MDA",378319185,73,18,409436347.402597,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"Unlabeled",NA,"","Defense",2003,"Air Force",0,21,21,0,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2017,"MDA",13424094.16,45,33,12434322.1193034,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Other Undefinitized Action","B","Defense",2008,"Air Force",19888886.61,49,31,21088841.7028947,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2004,"Navy",55587419366,196572,139484,65721706509.8132,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2014,"Navy",165946877.3,7208,2811,159856350.351604,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2003,"Navy",4828088297,489,166,5845143216.70702,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2003,"Other DoD",8581831938,22578,17184,10389627043.5835,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Other Undefinitized Action","B","Defense",2013,"DLA",68991816.05,38,30,67745302.4842891,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2004,"Army",3748755731,604,240,4432201148.02554,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2016,"MDA",5152480079,4199,1184,4858996679.55488,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2015,"Navy",586370115.7,308,237,558075678.785572,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2017,"Air Force",55281054107,121535,71369,51205126071.6932,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2017,"Other DoD",72198683.1,91,65,66875401.1670989,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2002,"Navy",25458183.05,59,58,31383361.7480276,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2015,"Other DoD",15747066845,70442,46573,14987215042.3527,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2004,"MDA",23010100,8,3,27205131.236699,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2004,"DLA",19607923829,128913,126045,23182695470.5604,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2005,"Air Force",48596373536,126778,92648,55755362019.2749,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2005,"Army",572716,1,1,657085.819183112,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2014,"MDA",0,43,9,0,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"Unlabeled",NA,"","Defense",2004,"Other DoD",0,59,59,0,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Other Undefinitized Action","B","Defense",2015,"Air Force",33705094.75,67,47,32078704.4351385,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2001,"Navy",0,2,2,0,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2011,"Army",2845211536,1533,988,2899135455.47178,"Army","Army","Army","Army","Army",FALSE
+"1","Other Undefinitized Action","B","Defense",2015,"Other DoD",146709051,296,270,139629819.168174,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Other Undefinitized Action","B","Defense",2019,"MilitaryHealth",1357166658,88,13,1205941583.437,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"0","No","X","Defense",2004,NA,401586,2,1,474800.189170017,NA,NA,NA,NA,NA,NA
+"Unlabeled",NA,"","Defense",2016,"Other DoD",230307239.3,5583,3081,217189022.350057,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2009,"MDA",4674342020,3248,869,4899729580.71279,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Other Undefinitized Action","B","Defense",2017,"Army",146063685.5,523,379,135294262.226751,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2009,"DLA",4034,321,295,4228.51153039832,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2016,"Army",68981286128,222001,145989,65052137050.1697,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2000,"Army",1863809583,2263,1589,2389499465.38462,"Army","Army","Army","Army","Army",FALSE
+"1","Other Undefinitized Action","B","Defense",2013,"Navy",5742660143,5426,4161,5638904303.8099,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2002,"Air Force",2444698919,367,168,3013682099.35897,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","N","Defense",2006,"Army",3031829,23,23,3370571.42857143,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2011,"DLA",36133580333,541336,500723,36818402621.7648,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2009,"Army",1.44208e+11,435020,287473,151161425576.52,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2012,"Air Force",57696213371,142308,78585,57696213371,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2014,"Air Force",1398442332,282,144,1347117167.9029,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2008,"Other DoD",91466700.43,452,444,96985155.7947195,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2003,"MilitaryHealth",346484,4,3,419472.15496368,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2015,"DLA",914484.2304,28,25,870357.124202912,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2014,"MilitaryHealth",0,68,6,0,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"0","No","X","Defense",2011,"MilitaryHealth",11606045490,1913,378,11826009262.2784,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2011,"MDA",1112809907,189,42,1133900455.47178,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Other Undefinitized Action","B","Defense",2010,"Army",1113731421,1259,684,1157484328.62191,"Army","Army","Army","Army","Army",FALSE
+"1","Letter Contract","Y","Defense",2007,"Navy",394856,1,1,427333.333333333,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2009,"Other DoD",-62299.0204,112,77,-65302.95639413,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2007,"Army",5065936866,13172,8900,5482615655.84416,"Army","Army","Army","Army","Army",FALSE
+"1","Letter Contract","A","Defense",2015,"MilitaryHealth",1114053.544,6,4,1060296.5108975,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2008,"DLA",102305886.5,39,33,108478301.876789,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Other Undefinitized Action","B","Defense",2014,"MilitaryHealth",307014837.9,63,21,295746881.706965,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2003,"DLA",10893611,37,36,13188391.0411622,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2004,"Navy",0,444,66,0,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2018,"DLA",44398541551,3600174,3500898,40252530871.2602,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2004,"Air Force",1939062062,474,162,2292577514.77891,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2019,"Army",253922949.8,665,472,225629065.04354,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2011,"Army",1.2159e+11,408149,261917,123894436519.258,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2007,"MilitaryHealth",1864069.7,3,3,2017391.45021645,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2018,"Navy",2925863436,7636,5283,2652641374.43336,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Other Undefinitized Action","B","Defense",2012,"MDA",86340776.66,182,47,86340776.66,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2010,"Air Force",60502566694,159251,88487,62879408328.8298,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2016,"Air Force",3612953469,335,167,3407160947.75556,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2010,"Air Force",1917511359,496,220,1992840738.93161,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2006,"Army",6906016531,1379,610,7677617043.91329,"Army","Army","Army","Army","Army",FALSE
+"1","Other Undefinitized Action","B","Defense",2018,"DLA",598572500.1,8722,8619,542676790.661831,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2010,"DLA",33998610.63,23,19,35334245.0945749,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2016,"MilitaryHealth",11484511432,5395,3475,10830357819.6907,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"Unlabeled",NA,"","Defense",2011,"Other DoD",-234093.9959,162,87,-238530.666293051,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2004,"DLA",0,3,3,0,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Other Undefinitized Action","B","Defense",2012,"Army",213514716.9,954,622,213514716.9,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2002,"Army",157665.48,69,59,194360.798816568,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2000,"MilitaryHealth",249118594,35,2,319382812.820513,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2005,"Other DoD",150021969.9,137,35,172122498.737953,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2008,"Air Force",8957101,158,71,9497509.27791326,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2006,"DLA",32562917355,543657,505689,36201131022.7904,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2016,"DLA",9492231.719,2211,1192,8951557.63768389,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","N","Defense",2008,"Army",88363271.82,42,42,93694488.1984943,"Army","Army","Army","Army","Army",FALSE
+"1","Letter Contract","A","Defense",2009,"Air Force",3714251421,896,313,3893345305.03145,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2013,"Other DoD",118210212.7,1532,1233,116074442.949725,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2013,"Army",2473424915,964,632,2428736169.48154,"Army","Army","Army","Army","Army",FALSE
+"1","Letter Contract","A","Defense",2006,"MDA",10735610,10,5,11935086.1589772,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"Unlabeled",NA,"","Defense",2009,"Army",26391831.62,545,266,27664393.7316562,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2009,"MilitaryHealth",11819027447,1023,112,12388917659.3291,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2017,"DLA",28385737.62,289,273,26292828.4735087,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2010,"Navy",9706769587,7043,3127,10088099757.8466,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2018,"MDA",7105206114,3884,1076,6441709985.49411,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"Unlabeled",NA,"","Defense",2001,"Air Force",21457.4609,23,23,26875.5772795591,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2013,"MilitaryHealth",13369556.84,20,12,13128001.6103692,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"Unlabeled",NA,"","Defense",2002,"MDA",0,1,1,0,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2012,"Other DoD",41872565.19,47,33,41872565.19,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2010,"Other DoD",16297103795,71670,48900,16937335060.2785,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","N","Defense",2007,"Other DoD",278373,6,6,301269.48051948,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2004,"Army",72173842366,312638,231069,85332043468.9052,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2009,"Navy",29765959.33,2472,341,31201215.230608,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2013,"DLA",33673406445,544178,505509,33065010256.2844,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2012,"MilitaryHealth",0,48,19,0,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2013,"MDA",341830064,122,31,335654029.850746,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2017,"Other DoD",17363886136,81962,53790,16083629247.8696,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2011,"MDA",4128972000,4013,1101,4207226411.24924,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2017,"Navy",20539651778,2360,1256,19025242476.8433,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","N","Defense",2005,"Navy",0,1,1,0,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2002,"MilitaryHealth",4183311129,376,40,5156941727.07101,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2018,"Army",3811491223,872,568,3455567745.24025,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2018,"Army",87289192633,185845,120857,79137980628.2865,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2003,"Air Force",53546167986,80170,58506,64825869232.4455,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2016,"Navy",88142207.04,15181,10089,83121658.8457186,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Other Undefinitized Action","B","Defense",2003,"Air Force",36103.8101,2,1,43709.2131961259,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2019,"MDA",351405143.1,57,21,312249105.295895,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"Unlabeled",NA,"","Defense",2009,"MDA",0,14,5,0,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2006,"Navy",70753449719,285223,207419,78658643378.5436,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Other Undefinitized Action","B","Defense",2006,"Navy",2173193.25,43,16,2416001.38966092,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2018,"Navy",89365567921,205762,127761,81020460490.4805,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2013,"Air Force",160742754.3,1216,603,157838525.43205,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2018,"Other DoD",18212699.35,382,300,16511966.7724388,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2001,"Other DoD",57631875,40,34,72184212.1743487,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2012,"Air Force",3146756430,979,571,3146756430,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2014,"Navy",80710430340,250082,160833,77748223042.0961,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2001,"MDA",1673010902,433,192,2095454536.57315,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2001,"MilitaryHealth",2348736367,338,26,2941804066.88377,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"Unlabeled",NA,"","Defense",2005,"DLA",575043312.1,892,805,659755979.921983,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2016,"MDA",313029.3438,189,55,295199.305733685,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2013,"Other DoD",97966541.51,92,41,96196525.4418696,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2000,"Air Force",767894253,1062,694,984479811.538461,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2017,"DLA",56348610.26,17242,13266,52193970.2297147,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2013,"MilitaryHealth",12073235001,2099,989,11855101140.0236,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"0","No","X","Defense",2005,"Other DoD",9617972925,36655,25596,11034847321.0188,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Other Undefinitized Action","B","Defense",2017,"Navy",4991608617,7754,5335,4623572264.72768,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2005,"Air Force",4494835329,4139,2326,5156993264.11198,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2017,"Navy",156359280.5,18166,10384,144830752.593553,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2006,"Navy",4193216955,917,370,4661719794.33018,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Other Undefinitized Action","B","Defense",2010,"DLA",107151575.2,330,266,111361021.824984,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2000,"Other DoD",4409333187,13768,10493,5652991265.38461,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2007,"Navy",77296103184,315940,213110,83653791324.6753,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2007,"Army",6972833155,2982,1122,7546356228.35498,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2012,"Other DoD",20192156410,81403,49927,20192156410,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Other Undefinitized Action","B","Defense",2017,"Air Force",2336071624,641,316,2163830700.25936,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2013,"MDA",7244862190,4084,1110,7113965229.77219,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2018,"Navy",15569560406,2689,1492,14115648600.1813,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2005,"Navy",6797823128,8806,5424,7799246360.71592,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2019,"MilitaryHealth",203527722.8,28,16,180849229.429536,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2002,"Army",1638118274,459,207,2019376570.51282,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2011,"MDA",0,11,3,0,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Other Undefinitized Action","B","Defense",2017,"DLA",692515439.7,3661,3513,641455575.86143,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2018,"Air Force",6364922751,519,267,5770555531.27833,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2002,"Air Force",44956857570,65957,47281,55420189312.1302,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2014,"Air Force",53354559653,131949,77413,51396358398.0349,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2016,"MilitaryHealth",1536886273,28,12,1449345787.4387,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"Unlabeled",NA,"","Defense",2007,"Other DoD",500368298.7,1209,767,541524132.792208,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2001,NA,0,1,1,0,NA,NA,NA,NA,NA,NA
+"1","Letter Contract","A","Defense",2014,"Army",1743615828,743,488,1679622221.36596,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2019,"Other DoD",22536090750,98208,54546,20024960680.6469,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2018,"MilitaryHealth",0,73,60,0,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"0","No","X","Defense",2006,"MDA",3481891513,1502,524,3870918858.25459,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Other Undefinitized Action","B","Defense",2012,"Other DoD",285085868,1101,919,285085868,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2012,"Navy",101700589.2,2506,957,101700589.2,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2013,"Army",83729019461,288505,183181,82216240633.3464,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2007,"DLA",30034450270,488713,475215,32504816309.5238,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Other Undefinitized Action","B","Defense",2010,"Navy",2692990702,6320,4530,2798784766.16088,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Other Undefinitized Action","B","Defense",2008,"Army",81494415.69,44,35,86411213.7525183,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2014,"DLA",32191815544,594381,543623,31010322265.6777,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2014,"MDA",161530447.8,116,22,155602011.174261,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2011,"Air Force",1576568236,368,157,1606448171.99918,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","N","Defense",2008,"Other DoD",649107.2109,4,4,688269.760258721,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2012,"DLA",17453.9199,1131,857,17453.9199,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2008,"MilitaryHealth",9170886989,1082,106,9724193605.13201,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2005,"Other DoD",18501515.5,30,29,21227071.4777421,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2000,"Other DoD",162190764.2,266,176,207936877.179487,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2002,"DLA",14577185397,80724,77932,17969903102.8106,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2018,"DLA",50808379.77,377,352,46063807.5883953,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2011,"MilitaryHealth",0,29,3,0,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"Unlabeled",NA,"","Defense",2004,"Army",0,79,76,0,"Army","Army","Army","Army","Army",FALSE
+"1","Letter Contract","A","Defense",2006,"DLA",50086200.2,26,20,55682268.1489717,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2009,"Air Force",63975283236,161614,94266,67060045320.7547,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2006,"Army",94633122203,344314,239954,105206361537.521,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2012,"Other DoD",100002380.3,395,194,100002380.3,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2016,"Army",56107675.96,363,209,52911803.0554508,"Army","Army","Army","Army","Army",FALSE
+"1","Letter Contract","A","Defense",2012,"MilitaryHealth",87465.1302,54,44,87465.1302,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"Unlabeled",NA,"","Defense",2016,"MilitaryHealth",0,679,181,0,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"Unlabeled",NA,"","Defense",2007,"Navy",3530986230,7464,4343,3821413668.83117,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2008,"Army",1.46024e+11,443313,295390,154834057894.179,"Army","Army","Army","Army","Army",FALSE
+"1","Other Undefinitized Action","B","Defense",2015,"Navy",393932340.5,1223,1086,374923708.480061,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2007,"Air Force",61922115171,167608,102310,67015276159.0909,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2013,"Air Force",2091071369,377,159,2053290817.94973,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2007,"Air Force",1539887,3,2,1666544.37229437,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2019,"Air Force",70376343574,102260,60306,62534515349.2092,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2002,"Other DoD",2031023.875,23,20,2503727.65655819,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Other Undefinitized Action","B","Defense",2018,"MilitaryHealth",4723009615,135,9,4281967012.69266,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2015,"DLA",23325196.88,140,140,22199673.4367564,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Other Undefinitized Action","B","Defense",2015,"MDA",891000.01,7,6,848006.100694775,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2009,"Army",2388372080,2249,1355,2503534675.05241,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2002,"Navy",43064167046,153660,108151,53086990934.4181,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2013,"DLA",26198054.21,26,20,25724719.3735271,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Other Undefinitized Action","B","Defense",2015,"Army",17519426.68,77,70,16674052.2318454,"Army","Army","Army","Army","Army",FALSE
+"1","Letter Contract","A","Defense",2001,"DLA",83957411,22,19,105157077.905812,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2008,"Other DoD",416909672.8,1717,723,442063060.969144,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2014,"Other DoD",179634846.2,765,421,173041947.98189,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2001,"Army",39310086949,100497,72526,49236080847.9459,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2011,"Army",145754752,1009,550,148517171.387813,"Army","Army","Army","Army","Army",FALSE
+"1","Other Undefinitized Action","B","Defense",2008,"Navy",154240622.3,744,679,163546413.211748,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2017,"MilitaryHealth",8476392.652,6,6,7851419.64801779,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2003,"Army",0,1,1,0,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2009,"DLA",37828366926,500281,482904,39652376232.7044,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2009,"MDA",988857878.3,106,23,1036538656.49895,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2006,"Air Force",3560722333,590,164,3958557346.3035,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2007,"DLA",524051163.3,1415,1332,567154938.636364,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Other Undefinitized Action","B","Defense",2010,"Other DoD",511010113.5,3421,2084,531085131.469549,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2006,"MilitaryHealth",8034190259,584,162,8931840198.99944,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2016,"Army",4373305832,1129,747,4124203915.50358,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2007,"Other DoD",8441432925,39777,25167,9135749918.83117,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2015,"Other DoD",1547729.539,10,8,1473046.10164652,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2018,"MilitaryHealth",9259206493,4207,2413,8394566176.79057,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2012,"Air Force",941126116.5,409,210,941126116.5,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2013,"Navy",2961508524,2514,1524,2908001300.07855,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2015,"MDA",4668822744,4207,1073,4443535494.43228,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Other Undefinitized Action","B","Defense",2010,"MDA",27487520.25,98,49,28567366.7117023,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"Unlabeled",NA,"","Defense",2018,"Army",23788974.82,934,875,21567520.2357208,"Army","Army","Army","Army","Army",FALSE
+"1","Letter Contract","A","Defense",2008,"DLA",34027593.8,52,48,36080578.7297211,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2017,"Air Force",673851407.1,8811,5166,624167661.263431,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2016,"MDA",1396976258,177,64,1317404996.22784,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2016,"DLA",30002414947,2967608,2874537,28293488256.3184,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2016,"Navy",81242058140,220727,141613,76614539928.3289,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2006,"Army",0,164,76,0,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2000,"DLA",345901656,144,129,443463661.538462,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2009,"MilitaryHealth",0,1,1,0,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"0","No","X","Defense",2014,"Other DoD",16129000344,68478,44131,15537039152.2975,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","N","Defense",2008,"Navy",5167238.875,42,42,5478993.61149401,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2018,"MDA",0,13,12,0,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Other Undefinitized Action","B","Defense",2017,"Other DoD",95488242.49,1495,1068,88447797.7862171,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2008,"MDA",5314159900,2853,814,5634778814.54777,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","N","Defense",2008,"Air Force",1168755,4,4,1239269.43060121,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2019,"Air Force",2135824399,480,313,1897835790.82993,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2000,"Navy",2244687015,1991,788,2877803865.38462,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2009,"Navy",87362724162,326977,212785,91575182559.7484,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2000,"Air Force",33224290184,57597,42082,42595243825.641,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2003,"Other DoD",94006006,60,36,113808723.970944,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2010,"Air Force",862318384,306,143,896194537.518187,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2011,"MilitaryHealth",276954473.3,64,34,282203457.611575,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Letter Contract","A","Defense",2001,"Navy",4222382408,344,106,5288555120.24048,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Other Undefinitized Action","B","Defense",2003,"Navy",98077.25,2,2,118737.590799031,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2001,"Navy",453329,41,41,567796.843687375,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2008,"DLA",0,383,371,0,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2001,"Air Force",4383910978,336,168,5490870463.42685,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2001,"Army",145852.2112,65,52,182680.625250501,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2017,"Navy",83808610402,218126,136389,77629316785.8466,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2016,"Other DoD",111284616.6,58,47,104945885.137684,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2016,"DLA",48219361.13,257,235,45472803.7815919,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2013,"MDA",0,27,7,0,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2002,"Other DoD",7017673594,21095,15936,8650978296.35108,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2002,"Navy",4703978182,530,186,5798789672.09073,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2010,"MilitaryHealth",10917540089,1545,128,11346435345.0426,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2018,"MDA",93989250.48,53,28,85212375.7751587,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"Unlabeled",NA,"","Defense",2009,"Air Force",7444266.35,217,94,7803214.2033543,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2004,"Other DoD",103304044.5,62,27,122137673.799953,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2002,"MilitaryHealth",404658,3,1,498838.75739645,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"Unlabeled",NA,"","Defense",2002,"Air Force",455236,24,23,561188.362919132,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2007,"DLA",0,3,2,0,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2011,"Other DoD",44781105.53,100,55,45629820.1854494,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Other Undefinitized Action","B","Defense",2014,"Navy",1318187021,5212,3884,1269807360.56257,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Other Undefinitized Action","B","Defense",2011,"MDA",140364625,108,52,143024887.915223,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2010,"Navy",75624265396,319515,203984,78595162540.0125,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2009,"Other DoD",15034464518,61198,39835,15759396769.392,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2009,"Navy",5954514841,4692,2291,6241629812.36897,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2003,NA,0,1,1,0,NA,NA,NA,NA,NA,NA
+"1","Letter Contract","A","Defense",2010,"Army",4794554067,2521,1397,4982907988.98358,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2010,"MDA",4671512134,3431,923,4855032357.09832,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"Unlabeled",NA,"","Defense",2008,"Navy",0,199,97,0,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Other Undefinitized Action","B","Defense",2014,"Air Force",887780658.2,390,216,855197628.552163,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2014,"DLA",82450527.14,54,44,79424455.3896542,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Other Undefinitized Action","B","Defense",2007,"Navy",5061827.32,104,60,5478168.0952381,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2015,"Air Force",2211375579,69,40,2104668867.42172,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2008,"MDA",0,12,3,0,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2005,"Army",5322704556,1010,348,6106820279.94493,"Army","Army","Army","Army","Army",FALSE
+"1","Other Undefinitized Action","B","Defense",2013,"MilitaryHealth",-15634619.3,70,36,-15352139.9253731,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"0","No","X","Defense",2011,"Air Force",61285976417,156725,85661,62447499915.4269,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2010,"Other DoD",-309345.011,202,151,-321497.621076699,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2017,"Army",5158281724,682,427,4777956394.9611,"Army","Army","Army","Army","Army",FALSE
+"1","Other Undefinitized Action","B","Defense",2009,"Other DoD",84294801.24,837,742,88359330.4402516,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Other Undefinitized Action","B","Defense",2019,"Navy",4598550110,6989,4844,4086147245.42385,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2002,"DLA",13941766,42,39,17186595.1676529,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2016,"Other DoD",15603507633,72714,50101,14714737488.6835,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2015,"MilitaryHealth",0,285,60,0,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"0","No","X","Defense",2003,"MDA",2671495105,901,367,3234255575.06053,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2010,"DLA",34807032928,537462,505053,36174426239.867,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Other Undefinitized Action","B","Defense",2011,"Army",538154971.5,1002,678,548354362.645201,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2010,"Army",1.35022e+11,427939,274888,140326335481.189,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2015,"Navy",362674142.8,7455,4215,345173829.637385,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2017,"MDA",495338646.5,139,56,458816827.06558,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2008,"Air Force",4055253620,936,281,4299919011.7697,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2005,"DLA",27316511053,609374,532078,31340650588.5727,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2005,"MDA",12090033,8,2,13871079.6236806,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"Unlabeled",NA,"","Defense",2015,"DLA",20181564,4315,3450,19207731.9881983,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2018,"Air Force",61946436238,112569,66321,56161773561.1967,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2015,"Army",71157030573,239320,156435,67723451577.9956,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2003,"Other DoD",0,26,26,0,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2009,"DLA",56465433.47,104,73,59188085.3983229,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2017,"MilitaryHealth",13161035940,4380,2650,12190659447.9437,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2004,"Army",0,2,2,0,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2003,"Army",62004450987,245520,177289,75065921291.7676,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2017,"DLA",34571812214,2949220,2860461,32022797530.5669,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"Unlabeled",NA,"","Defense",2013,"Army",287971716.7,2100,1121,282768771.307934,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2016,"Air Force",433068059.9,7569,4347,408400660.033949,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2013,"MilitaryHealth",-35381.32,44,5,-34742.0659858602,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2007,"Other DoD",41585451.58,301,295,45005899.978355,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2012,"DLA",43179326238,547743,507329,43179326238,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2005,"Army",81076066973,308645,227067,93019810662.0009,"Army","Army","Army","Army","Army",FALSE
+"1","Other Undefinitized Action","B","Defense",2013,"Army",314999942.5,574,454,309308663.098979,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2010,"Navy",64850118.88,4440,763,67397753.9804614,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2014,"MilitaryHealth",59738499.74,38,14,57545997.2449668,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2012,"DLA",10689187.93,34,27,10689187.93,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2010,"Air Force",1623289308,699,267,1687060182.91416,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2000,"Army",633427777,448,240,812086893.589744,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2016,"Air Force",59194392416,120826,71990,55822701259.9019,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2005,"Navy",54866093411,295738,214355,62948707447.2235,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2011,"Navy",5112110517,3828,2180,5208997877.52191,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2005,"Other DoD",925633134.6,1655,1040,1061993041.07389,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2017,"MDA",4903522166,3697,1124,4541980516.8581,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2004,"DLA",11690589,35,34,13821930.7164814,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Other Undefinitized Action","B","Defense",2015,"MilitaryHealth",565709.04,11,6,538411.57323689,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"Unlabeled",NA,"","Defense",2017,"Other DoD",-58716238.59,6040,3195,-54387030.9281215,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2004,"Air Force",53117832947,77953,55744,62801883361.3147,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2006,"Army",604022.2695,3,3,671508.915508616,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2014,"Air Force",167669829.5,1782,1125,161516067.334554,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2005,"Navy",3259279,34,8,3739420.60578247,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2008,"Army",1396724,464,210,1480992.47163609,"Army","Army","Army","Army","Army",FALSE
+"1","Other Undefinitized Action","B","Defense",2019,"Other DoD",85249892.39,994,662,75750748.5249689,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Other Undefinitized Action","B","Defense",2019,"DLA",538347271.3,7728,7511,478360823.973698,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","X","Defense",2017,"Army",72760278856,194653,127274,67395589899.963,"Army","Army","Army","Army","Army",FALSE
+"1","Letter Contract","A","Defense",2012,"MDA",1868810595,171,46,1868810595,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","A","Defense",2003,"Air Force",2023161717,395,169,2449348325.66586,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2003,"MilitaryHealth",5883161276,623,69,7122471278.45036,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"0","No","X","Defense",2000,"DLA",9220217505,47718,45789,11820791673.0769,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2019,"Army",4605770528,1007,717,4092563113.55962,"Army","Army","Army","Army","Army",FALSE
+"Unlabeled",NA,"","Defense",2010,"DLA",0,381,314,0,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Other Undefinitized Action","B","Defense",2018,"Army",526619111.1,553,406,477442530.462375,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2004,"Other DoD",9598793561,27098,18736,11348774605.1076,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2011,"DLA",10810425.72,9,8,11015310.4952109,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2004,"Navy",5231310417,768,231,6185044238.59068,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2018,"Other DoD",145090148.1,178,113,131541385.403445,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2007,"MDA",595100597,35,7,644048265.151515,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"Unlabeled",NA,"","Defense",2015,"Army",371077403.5,5604,3967,353171603.216903,"Army","Army","Army","Army","Army",FALSE
+"0","No","X","Defense",2015,"MilitaryHealth",12095464539,5841,3809,11511815493.4805,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"1","Other Undefinitized Action","B","Defense",2013,"MDA",116316577.9,135,39,114215021.504321,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2000,"Navy",33684061995,104399,71943,43184694865.3846,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2016,"Navy",5166600699,2310,1425,4872312994.15315,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Other Undefinitized Action","B","Defense",2009,"Air Force",113320886.8,166,97,118784996.645702,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"0","No","X","Defense",2012,"MDA",4921851062,3984,1081,4921851062,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2019,"DLA",43472941380,3685635,3576254,38628879847.1655,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"1","Letter Contract","A","Defense",2019,"MDA",901373212.7,344,165,800935856.317754,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"0","No","X","Defense",2019,"Navy",1.02121e+11,216022,135170,90741958414.7859,"Navy","Navy","Navy","Navy","Navy",FALSE
+"Unlabeled",NA,"","Defense",2003,"DLA",0,4,4,0,"Other DoD","DLA","DLA","DLA","DLA",FALSE
+"0","No","N","Defense",2007,"Army",103663470,67,67,112189902.597403,"Army","Army","Army","Army","Army",FALSE
+"0","No","N","Defense",2006,"Navy",10242848,12,12,11387268.4824903,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Letter Contract","A","Defense",2012,"Army",2368554292,1362,894,2368554292,"Army","Army","Army","Army","Army",FALSE
+"1","Other Undefinitized Action","B","Defense",2014,"Other DoD",140286057.6,1419,1129,135137325.498507,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"0","No","X","Defense",2011,"Other DoD",19786766027,83137,51424,20161775042.796,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"1","Letter Contract","A","Defense",2000,"MilitaryHealth",1057153,10,1,1355324.35897436,"Other DoD","Other DoD","Other DoD","Other DoD","MilitaryHealth",FALSE
+"0","No","X","Defense",2005,"MDA",1074905186,977,434,1233255146.85636,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"Unlabeled",NA,"","Defense",2003,"Navy",2165163.38,62,60,2621263.17191283,"Navy","Navy","Navy","Navy","Navy",FALSE
+"1","Other Undefinitized Action","B","Defense",2016,"Air Force",1848345386,555,294,1743064302.15013,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"Unlabeled",NA,"","Defense",2015,"MDA",0,47,21,0,"Other DoD","Other DoD","MDA","MDA","MDA",FALSE
+"1","Letter Contract","Y","Defense",2007,"Air Force",4996,1,1,5406.92640692641,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Letter Contract","A","Defense",2006,"Other DoD",236788658.1,171,62,263244756.086715,"Other DoD","Other DoD","Other DoD","Other DoD","Additional DoD Components",FALSE
+"Unlabeled",NA,"","Defense",2007,"Air Force",1722760887,3409,2095,1864459834.41558,"Air Force","Air Force","Air Force","Air Force","Air Force",FALSE
+"1","Other Undefinitized Action","B","Defense",2012,"Navy",3558497391,5951,4554,3558497391,"Navy","Navy","Navy","Navy","Navy",FALSE
+"0","No","X","Defense",2012,"Navy",86742620655,286148,183709,86742620655,"Navy","Navy","Navy","Navy","Navy",FALSE
