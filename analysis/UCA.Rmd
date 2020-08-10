@@ -47,6 +47,7 @@ def_uca<-deflate(def_uca,
                       fy_var="Fiscal.Year"
     )
 
+
   def_uca<-read_and_join_experiment(def_uca,
       "Lookup_SubCustomer.csv",
       by=c("Customer","SubCustomer")
@@ -208,7 +209,9 @@ build_plot(data=def_uca_avg %>% dplyr::filter(IsUndefinitizedAction %in% c("1","
            labels_and_colors=def_uca_avg_LnC
            )+ylab("Average Annual Contract Obligations (2018 $s)")+
              xlab("Fiscal Year")+
-    ggtitle("Average Annual Spend for DoD Contracts, FY2000-FY2019")
+    ggtitle("Average Annual Spend for DoD Contracts \nby UCA Status, FY2000-FY2019")+
+    labs(caption="UCA spending average includes only transactions that are marked as undefinitized\nThus the year a contract is definitized, it likely appears in both the undefinitized and all other averages.\n
+         Source: FPDS, CSIS analysis.")
 )
 
 write.csv(def_uca_avg,file=file.path("..","output","def_uca_avg.csv"),row.names = FALSE)
@@ -236,7 +239,7 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 
 ## Contract Dive
 
-
+### UCA dataset
 ```{r fed_uca}
 
 if(file.exists(file.path("..","data","semi_clean","fed_uca.rdata"))){
@@ -284,9 +287,9 @@ if(file.exists(file.path("..","data","semi_clean","fed_uca.rdata"))){
                                     guess_max=1360
   )
   fed_uca<-standardize_variable_names(fed_uca)
-  
-  
-  
+    sum(fed_uca$Action_Obligation_OMB20_GDP18) 
+  sum(fed_uca$Action_Obligation_OMB20_GDP18[is.na(fed_uca$MinOfDefinitizeDate)]) /
+    sum(fed_uca$Action_Obligation_OMB20_GDP18) 
   
   sum(is.na(fed_uca$MinOfDefinitizeDate)&is.na(fed_uca$MinOfNotUCA))/nrow(fed_uca)
   sum(!is.na(fed_uca$MinOfDefinitizeDate))/nrow(fed_uca)
@@ -303,7 +306,7 @@ if(file.exists(file.path("..","data","semi_clean","fed_uca.rdata"))){
         fed_uca$MinOfDefinitizeDate>fed_uca$MinOfNotUCA)/nrow(fed_uca)
   
   fed_uca$MinOfDefinitizeDate[is.na(fed_uca$MinOfDefinitizeDate)]<-
-    fed_uca$MinOfNotUCA[is.na(fed_uca$MinOfDefinitizeDate)]<-
+    fed_uca$MinOfNotUCA[is.na(fed_uca$MinOfDefinitizeDate)]
   
   
 #Imput UCA unmodified values when consistent for the remainder of the vehicle
@@ -326,6 +329,13 @@ fed_uca$UCA<-factor(fed_uca$UnmodifiedIsUCA,
     )
   
 
+    fed_uca<-deflate(fed_uca,
+                      money_var = "ObligatedAmountIsUCA",
+                      # deflator_var="OMB.2019",
+                      fy_var="StartFiscal_Year"
+    )
+  
+  
     fed_uca$DaysToDefinitize<-as.numeric(
     difftime(strptime(fed_uca$MinOfDefinitizeDate,"%Y-%m-%d")
              , strptime(fed_uca$MinOfSignedDate,"%Y-%m-%d")
@@ -371,11 +381,103 @@ fed_uca<-csis360::read_and_join_experiment(data=fed_uca
 )
 
     
+#Vehicle
+#Award_Type_Code Impute missing values when labeled entries have a consistent value.
+fed_uca$unmodifiedaward_type_code<-impute_unmodified(
+  fed_uca$unmodifiedaward_type_code,
+  fed_uca$Award_Type_Code
+)
+
+#idv_type_code Impute missing values when labeled entries have a consistent value.
+fed_uca$unmodifiedidv_type_code<-impute_unmodified(
+  fed_uca$unmodifiedidv_type_code,
+  fed_uca$IDV_Type_Code
+)
+
+
+#Unmodifiedmultipleorsingleawardidc Impute missing values when labeled entries have a consistent value.
+fed_uca$Unmodifiedmultipleorsingleawardidc<-impute_unmodified(
+  fed_uca$Unmodifiedmultipleorsingleawardidc,
+  fed_uca$multipleorsingleawardidc
+)
+
+#Assign Is IDV
+#A = BPA Call, C = Delivery Order
+fed_uca$IsIDV[!is.na(fed_uca$unmodifiedaward_type_code) &
+                               fed_uca$unmodifiedaward_type_code %in% c("A","C")]<-1
+#B = Purchase Order, D = Definitive Contract
+fed_uca$IsIDV[!is.na(fed_uca$unmodifiedaward_type_code) &
+                               fed_uca$unmodifiedaward_type_code %in% c("B","D")]<-0
+fed_uca$IsIDV[!is.na(fed_uca$unmodifiedidv_type_code)]<-1
+
+if(is.numeric(fed_uca$IsIDV)){
+  fed_uca$IsIDV<-factor(fed_uca$IsIDV,levels=c(0,1),labels=c("fed_uca/Pur","IDV"))
+}
+
+
+#Simple Vehicle, which consolidates IDV and award types
+fed_uca$Veh<-NA
+fed_uca$Veh[
+  !is.na(fed_uca$unmodifiedaward_type_code) &
+    fed_uca$unmodifiedaward_type_code %in% c("B","D")]<-"Def/Pur"
+
+
+fed_uca$Veh[
+  !is.na(fed_uca$unmodifiedidv_type_code) &
+    fed_uca$unmodifiedidv_type_code %in% c("B") &
+    !is.na(fed_uca$Unmodifiedmultipleorsingleawardidc)]<-
+  paste(fed_uca$Unmodifiedmultipleorsingleawardidc[
+     !is.na(fed_uca$unmodifiedidv_type_code) &
+    fed_uca$unmodifiedidv_type_code %in% c("B") &
+    !is.na(fed_uca$Unmodifiedmultipleorsingleawardidc)
+  ],"IDC")
+
+#IDV_type_Code D = BOA, E=BPA, Award_Type_code A=BPA Call
+fed_uca$Veh[
+  !is.na(fed_uca$unmodifiedidv_type_code) &
+    fed_uca$unmodifiedidv_type_code %in% c("D","E") |
+  !is.na(fed_uca$unmodifiedaward_type_code) &
+    fed_uca$unmodifiedaward_type_code %in% c("A") 
+    ]<-
+  "BPA/BOA"
+#IDV_type_cde A=GWAC C=FSS
+fed_uca$Veh[
+  !is.na(fed_uca$unmodifiedidv_type_code)
+  & fed_uca$unmodifiedidv_type_code 
+  %in% c('A','C')]<-"FSS/GWAC"
+
+#Imputing that when Multiple Award/Single Award is known, but IDV_type_code is not
+#that the vehicle type is an IDC
+fed_uca$Veh[
+  is.na(fed_uca$Veh)&
+  is.na(fed_uca$unmodifiedidv_type_code) &
+    !is.na(fed_uca$Unmodifiedmultipleorsingleawardidc)]<-
+  paste(fed_uca$Unmodifiedmultipleorsingleawardidc[
+  is.na(fed_uca$Veh)&
+  is.na(fed_uca$unmodifiedidv_type_code) &
+    !is.na(fed_uca$Unmodifiedmultipleorsingleawardidc)],"IDC")
+
+fed_uca$Veh<-factor(fed_uca$Veh)
+summary(fed_uca$Veh)
+#Imputing that when the simple vehicle is a kind of IDV, IsIDV should follow as well
+fed_uca$IsIDV[
+  is.na(fed_uca$IsIDV)&
+    fed_uca$Veh %in% c(
+      'BPA/BOA','FSS/GWAC','MULTIPLE AWARD IDC','SINGLE AWARD IDC'
+    )]<-"IDV"
+
+
+summary(fed_uca$Veh[is.na(fed_uca$MinOfNotUCA)])
+summary(fed_uca$Veh[!is.na(fed_uca$MinOfNotUCA)])
+
+fed_uca$p_OblUCA<-fed_uca$ObligatedAmountIsUCA_OMB20_GDP18/fed_uca$Action_Obligation_OMB20_GDP18
+
+
   save(file=file.path("..","data","semi_clean","fed_uca.rdata"),fed_uca)
 }
 ```
 
-
+### Percent of total obligations
 ```{r DefinitizationTime}
 def_uca_contract<-fed_uca %>% dplyr::filter(Customer=="Defense" & StartFiscal_Year<=2017) %>% dplyr::select(-SubCustomer)
 
@@ -387,15 +489,16 @@ def_uca_contract_LnC<-prepare_labels_and_colors(def_uca_contract)
            chart_geom="Bar Chart",
            share=TRUE,
            x_var="StartFiscal_Year",
-           y_var="Action_Obligation_OMB20_GDP18",
+           y_var="ObligatedAmountIsUCA_OMB20_GDP18",
            color_var="qToDefinitize",
            labels_and_colors=def_uca_contract_LnC,
-           format=TRUE)+ylab("Share of Total Obligations for Contracts\nStarting in this Fiscal Year (2018 $s)")+
+           format=TRUE)+ylab("Share of Undefinitized Contract Obligations\nFor Contrats Starting in this Fiscal Year (2018 Start Year $s)")+
              xlab("Start Fiscal Year")+
-    ggtitle("Time to Definitize Weighted by Total Contract Obligations,\n Contracts Starting in FY2000-FY2017")+
+    ggtitle("Time to Definitize Weighted by Undefinitized Contract Obligations,\n Contracts Starting in FY2000-FY2017")+
     labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
 )
   
+
 (
  uca_definitize_count_stacked<- build_plot(data=def_uca_contract,
            chart_geom="Bar Chart",
@@ -410,22 +513,24 @@ def_uca_contract_LnC<-prepare_labels_and_colors(def_uca_contract)
     labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
 )
 
+
 (
  uca_definitize_facet<- 
   build_plot(data=def_uca_contract,
            chart_geom="Bar Chart",
            share=FALSE,
            x_var="StartFiscal_Year",
-           y_var="Action_Obligation_OMB20_GDP18",
-           # color_var="qToDefinitize",
+           y_var="ObligatedAmountIsUCA_OMB20_GDP18",
+           color_var="qToDefinitize",
            facet_var="qToDefinitize",
            labels_and_colors=def_uca_contract_LnC,
-           format=TRUE)+ylab("Total Obligations for Contracts\nStarting in this Fiscal Year (2018 $s)")+
+           format=TRUE)+ylab("Undefinitized Contract Obligations\nStarting in this Fiscal Year (2018 Start Year $s)")+
              xlab("Start Fiscal Year")+
-    ggtitle("Time to Definitize Weighted by Total Contract Obligations,\n Contracts Starting in FY2000-FY2017")+
+    ggtitle("Undefinitized Contract Obligations by Time to Definitize,\n Contracts Starting in FY2000-FY2017")+
     labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
 )
-  
+
+
 (
  uca_definitize_count_facet<- 
   build_plot(data=def_uca_contract,
@@ -433,10 +538,10 @@ def_uca_contract_LnC<-prepare_labels_and_colors(def_uca_contract)
            share=FALSE,
            x_var="StartFiscal_Year",
            y_var="ContractCount",
-           # color_var="qToDefinitize",
+           color_var="qToDefinitize",
            facet_var="qToDefinitize",
            labels_and_colors=def_uca_contract_LnC,
-           format=TRUE)+ylab("Total Obligations for Contracts\nStarting in this Fiscal Year (2018 $s)")+
+           format=TRUE)+ylab("Undefinitized Number of Contracts\nStarting in this Fiscal Year (2018 Start Year$s)")+
              xlab("Start Fiscal Year")+
     ggtitle("Contract Count by Time to Definitize,\n Contracts Starting in FY2000-FY2017")+
     labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
@@ -455,5 +560,196 @@ ggsave(uca_definitize_count_facet,file="..//Output\\def_uca_definitize_count_fac
 
 
 summary(factor(def_uca_contract$IsUCA[def_uca_contract$qToDefinitize=="No Definitize Recorded"]))
+# View(def_uca_contract[is.na(def_uca_contract$MinOfDefinitizeDate),])
+```
+
+```{r ProportionUCA}
+
+
+prop_uca_dur<-def_uca_contract %>% filter(IsComplete==1) %>%
+  group_by(qToDefinitize,StartFiscal_Year) %>%
+    dplyr::summarise(ObligatedAmountIsUCA_OMB20_GDP18=sum(ObligatedAmountIsUCA_OMB20_GDP18,na.rm=TRUE),
+                     Action_Obligation_OMB20_GDP18=sum(Action_Obligation_OMB20_GDP18,na.rm=TRUE),
+                     n=length(CSIScontractID)) %>%
+  mutate(nr_UCA=ObligatedAmountIsUCA_OMB20_GDP18/Action_Obligation_OMB20_GDP18)
+
+(
+prop_uca_dur_plot<- 
+  build_plot(data=prop_uca_dur,
+           chart_geom="Line Chart",
+           share=FALSE,
+           x_var="StartFiscal_Year",
+           y_var="nr_UCA",
+           color_var="qToDefinitize",
+           facet_var="qToDefinitize",
+           labels_and_colors=prepare_labels_and_colors(prop_uca_dur),
+           format=FALSE)+ylab("Portion of Obligations for Complete UCA Contracts\nObligated with UCA status")+
+             xlab("Start Fiscal Year")+
+    ggtitle("Portion of Obligations with UCA status\n Complete UCA Contracts Starting in FY2000-FY2017")+
+    labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
+)
+
+
+prop_uca<-prop_uca_dur %>%
+  group_by(StartFiscal_Year) %>%
+    dplyr::summarise(ObligatedAmountIsUCA_OMB20_GDP18=sum(ObligatedAmountIsUCA_OMB20_GDP18,na.rm=TRUE),
+                     Action_Obligation_OMB20_GDP18=sum(Action_Obligation_OMB20_GDP18,na.rm=TRUE),
+                     n=sum(n)) %>%
+  mutate(nr_UCA=ObligatedAmountIsUCA_OMB20_GDP18/Action_Obligation_OMB20_GDP18)
+
+(
+prop_uca_plot<- 
+  build_plot(data=prop_uca,
+           chart_geom="Line Chart",
+           share=FALSE,
+           x_var="StartFiscal_Year",
+           y_var="nr_UCA",
+           # color_var="qToDefinitize",
+           # facet_var="qToDefinitize",
+           # labels_and_colors=prepare_labels_and_colors(prop_uca),
+           format=FALSE)+ylab("Portion of Obligations for Complete UCA Contracts\nObligated with UCA status")+
+             xlab("Start Fiscal Year")+
+    ggtitle("Portion of Obligations with UCA status\n Complete UCA Contracts Starting in FY2000-FY2017")+
+    labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
+)
+
+```
+
+
+### Percent of ceiling
+```{r DefinitizationTime}
+def_uca_contract<-fed_uca %>% dplyr::filter(Customer=="Defense" & StartFiscal_Year<=2017) %>% dplyr::select(-SubCustomer)
+
+def_uca_contract$ContractCount<-1
+def_uca_contract_LnC<-prepare_labels_and_colors(def_uca_contract)
+
+(
+ uca_definitize_stacked<- build_plot(data=def_uca_contract,
+           chart_geom="Bar Chart",
+           share=TRUE,
+           x_var="StartFiscal_Year",
+           y_var="ObligatedAmountIsUCA_OMB20_GDP18",
+           color_var="qToDefinitize",
+           labels_and_colors=def_uca_contract_LnC,
+           format=TRUE)+ylab("Share of Undefinitized Contract Obligations\nFor Contrats Starting in this Fiscal Year (2018 Start Year $s)")+
+             xlab("Start Fiscal Year")+
+    ggtitle("Time to Definitize Weighted by Undefinitized Contract Obligations,\n Contracts Starting in FY2000-FY2017")+
+    labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
+)
+  
+
+(
+ uca_definitize_count_stacked<- build_plot(data=def_uca_contract,
+           chart_geom="Bar Chart",
+           share=TRUE,
+           x_var="StartFiscal_Year",
+           y_var="ContractCount",
+           color_var="qToDefinitize",
+           labels_and_colors=def_uca_contract_LnC,
+           format=TRUE)+ylab("Share of Contracts Count")+
+             xlab("Start Fiscal Year")+
+    ggtitle("Contract Count by Time to Definitize,\n Contracts Starting in FY2000-FY2017")+
+    labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
+)
+
+
+(
+ uca_definitize_facet<- 
+  build_plot(data=def_uca_contract,
+           chart_geom="Bar Chart",
+           share=FALSE,
+           x_var="StartFiscal_Year",
+           y_var="ObligatedAmountIsUCA_OMB20_GDP18",
+           color_var="qToDefinitize",
+           facet_var="qToDefinitize",
+           labels_and_colors=def_uca_contract_LnC,
+           format=TRUE)+ylab("Undefinitized Contract Obligations\nStarting in this Fiscal Year (2018 Start Year $s)")+
+             xlab("Start Fiscal Year")+
+    ggtitle("Undefinitized Contract Obligations by Time to Definitize,\n Contracts Starting in FY2000-FY2017")+
+    labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
+)
+
+
+(
+ uca_definitize_count_facet<- 
+  build_plot(data=def_uca_contract,
+           chart_geom="Bar Chart",
+           share=FALSE,
+           x_var="StartFiscal_Year",
+           y_var="ContractCount",
+           color_var="qToDefinitize",
+           facet_var="qToDefinitize",
+           labels_and_colors=def_uca_contract_LnC,
+           format=TRUE)+ylab("Undefinitized Number of Contracts\nStarting in this Fiscal Year (2018 Start Year$s)")+
+             xlab("Start Fiscal Year")+
+    ggtitle("Contract Count by Time to Definitize,\n Contracts Starting in FY2000-FY2017")+
+    labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
+)
+  
+
+ggsave(uca_definitize_stacked,file="..//Output\\def_uca_definitize_stacked.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_definitize_stacked,file="..//Output\\def_uca_definitize_stacked.eps",width=10.5,height=5.5)
+
+ggsave(uca_definitize_count_stacked,file="..//Output\\def_uca_definitize_count_stacked.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_definitize_count_stacked,file="..//Output\\def_uca_definitize_count_stacked.eps",width=10.5,height=5.5)
+ggsave(uca_definitize_facet,file="..//Output\\def_uca_definitize_facet.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_definitize_facet,file="..//Output\\def_uca_definitize_facet.eps",width=10.5,height=5.5)
+ggsave(uca_definitize_count_facet,file="..//Output\\def_uca_definitize_count_facet.png",width=10.5,height=5.5,dpi=600)
+ggsave(uca_definitize_count_facet,file="..//Output\\def_uca_definitize_count_facet.eps",width=10.5,height=5.5)
+
+
+summary(factor(def_uca_contract$IsUCA[def_uca_contract$qToDefinitize=="No Definitize Recorded"]))
+# View(def_uca_contract[is.na(def_uca_contract$MinOfDefinitizeDate),])
+```
+
+```{r ProportionUCA}
+
+
+prop_uca_dur<-def_uca_contract %>% filter(IsComplete==1) %>%
+  group_by(qToDefinitize,StartFiscal_Year) %>%
+    dplyr::summarise(ObligatedAmountIsUCA_OMB20_GDP18=sum(ObligatedAmountIsUCA_OMB20_GDP18,na.rm=TRUE),
+                     Action_Obligation_OMB20_GDP18=sum(Action_Obligation_OMB20_GDP18,na.rm=TRUE),
+                     n=length(CSIScontractID)) %>%
+  mutate(nr_UCA=ObligatedAmountIsUCA_OMB20_GDP18/Action_Obligation_OMB20_GDP18)
+
+(
+prop_uca_dur_plot<- 
+  build_plot(data=prop_uca_dur,
+           chart_geom="Line Chart",
+           share=FALSE,
+           x_var="StartFiscal_Year",
+           y_var="nr_UCA",
+           color_var="qToDefinitize",
+           facet_var="qToDefinitize",
+           labels_and_colors=prepare_labels_and_colors(prop_uca_dur),
+           format=FALSE)+ylab("Portion of Obligations for Complete UCA Contracts\nObligated with UCA status")+
+             xlab("Start Fiscal Year")+
+    ggtitle("Portion of Obligations with UCA status\n Complete UCA Contracts Starting in FY2000-FY2017")+
+    labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
+)
+
+
+prop_uca<-prop_uca_dur %>%
+  group_by(StartFiscal_Year) %>%
+    dplyr::summarise(ObligatedAmountIsUCA_OMB20_GDP18=sum(ObligatedAmountIsUCA_OMB20_GDP18,na.rm=TRUE),
+                     Action_Obligation_OMB20_GDP18=sum(Action_Obligation_OMB20_GDP18,na.rm=TRUE),
+                     n=sum(n)) %>%
+  mutate(nr_UCA=ObligatedAmountIsUCA_OMB20_GDP18/Action_Obligation_OMB20_GDP18)
+
+(
+prop_uca_plot<- 
+  build_plot(data=prop_uca,
+           chart_geom="Line Chart",
+           share=FALSE,
+           x_var="StartFiscal_Year",
+           y_var="nr_UCA",
+           # color_var="qToDefinitize",
+           # facet_var="qToDefinitize",
+           # labels_and_colors=prepare_labels_and_colors(prop_uca),
+           format=FALSE)+ylab("Portion of Obligations for Complete UCA Contracts\nObligated with UCA status")+
+             xlab("Start Fiscal Year")+
+    ggtitle("Portion of Obligations with UCA status\n Complete UCA Contracts Starting in FY2000-FY2017")+
+    labs(caption="Includes ongoing contracts, which may yet definitize and increase in value.\nSource: CSIS and FPDS analysis.")
+)
 
 ```
