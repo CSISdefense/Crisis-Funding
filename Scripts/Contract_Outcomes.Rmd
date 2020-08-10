@@ -5708,12 +5708,13 @@ if(!exists("CBre_22G"))
                      (1 | Customer/Office)+
                      (0 + OffPlace| PlaceCountryISO3), 
                    family=binomial(link="logit"),
-                     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
-     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+                     # control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     # optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE))
+     verbose = 1)
   glmer_examine(Term_22G)
 
   
-  save(CBre_22G,Term_22G, file="../Output//Model22G_CBre.RData")
+  save(Term_22G, file="../Output//Model22G_Term.RData")
 # Plot the model and Vehicle 
 
 stargazer::stargazer(CBre_22F,CBre_22G,Term_22E,Term_22G,type="text",#Term_20A,#Term_20C
@@ -5762,9 +5763,11 @@ if(!exists("CBre_22H")){
                      (0 + OffPlace | PlaceCountryISO3) + 
                      (1 | StartFY)
                , 
-                   family=binomial(link="logit"),
-     control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
-     optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE)))
+                   family=binomial(link="logit")
+               # ,
+     # control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,
+     # optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE))
+     )
 
   
 }
@@ -5780,7 +5783,7 @@ stargazer::stargazer(CBre_21B,CBre_22H,
                         digits=2)
 
 CBre_22H.all<-allFit_save(CBre_22H,filename="../Output/CBre_22H_allfit.rdata")
-save(CBre_22H,CBre_22H.all, file="../Output//Model22H.RData")
+save(CBre_22H,CBre_22H.all, file="../Output//Model22H_2020-07-31")
 summary_residual_compare(CBre_10A,CBre_20G,bins=50)
 summary_residual_compare(CBre_10D,CBre_20G,bins=50)
 summary_residual_compare(CBre_20A,CBre_20G,bins=50)
