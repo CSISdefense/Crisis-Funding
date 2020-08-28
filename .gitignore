@@ -105,3 +105,11 @@ data/semi_clean/Contract.SP_ContractCompetitionVehicleCustomer.rda
 data/semi_clean/Contract.SP_ContractUnmodifiedCompetitionvehicleCustomer.rda
 
 data/semi_clean/Contract.SP_ContractUnmodifiedCompetitionVehicleCustomer.txt
+
+data_raw/FPDS_Reports/COVID-19_Report.xls
+
+data_raw/FPDS_Reports/katrina_contracts.xls
+
+data_raw/FPDS_Reports/other_disaster_contracts.xls
+
+data_raw/FPDS_Reports/TAS_Report.xls
