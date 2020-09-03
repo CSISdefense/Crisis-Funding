@@ -267,7 +267,7 @@ if(file.exists(file.path("..","data","semi_clean","fed_uca.rdata"))){
                                            file="Contract.SP_ContractTopPSCofficeNAICS.txt")
   
   fed_uca<-csis360::read_and_join_experiment(data=fed_uca
-                                             ,"Contract.sp_ContractUCAdetail.csv"
+                                             ,"Contract.sp_ContractUCAdetail.txt"
                                              ,path=""
                                              ,"..\\data\\semi_clean\\"
                                              ,by="CSIScontractID"
@@ -298,6 +298,26 @@ if(file.exists(file.path("..","data","semi_clean","fed_uca.rdata"))){
   sum(!is.na(fed_uca$MinOfDefinitizeDate)&!is.na(fed_uca$MinOfNotUCA))/nrow(fed_uca)
   
   
+  
+  sum(!is.na(fed_uca$MinOfDefinitizeDate[fed_uca$Action_Obligation_Then_Year>25000]))/
+    nrow(fed_uca[fed_uca$Action_Obligation_Then_Year>25000,])
+  
+  
+    
+  
+  sum(!is.na(fed_uca$MinOfDefinitizeDate[fed_uca$Action_Obligation_Then_Year>100000]))/
+    nrow(fed_uca[fed_uca$Action_Obligation_Then_Year>100000,])
+  
+  sum(!is.na(fed_uca$MinOfDefinitizeDate[fed_uca$Action_Obligation_Then_Year>5000000]))/
+    nrow(fed_uca[fed_uca$Action_Obligation_Then_Year>5000000,])
+  
+  
+  sum(fed_uca$ObligatedAmountIsUCA_Then_Year[fed_uca$ObligatedAmountIsUCA>5000000],na.rm=TRUE)/
+    sum(fed_uca$ObligatedAmountIsUCA_Then_Year,na.rm=TRUE)
+  
+  sum(!is.na(fed_uca$MinOfDefinitizeDate[fed_uca$ObligatedAmountIsUCA>5000000]))/
+    nrow(fed_uca[fed_uca$ObligatedAmountIsUCA>5000000,])
+  
   sum(!is.na(fed_uca$MinOfDefinitizeDate)&!is.na(fed_uca$MinOfNotUCA)&
         fed_uca$MinOfDefinitizeDate==fed_uca$MinOfNotUCA)/nrow(fed_uca)
   sum(!is.na(fed_uca$MinOfDefinitizeDate)&!is.na(fed_uca$MinOfNotUCA)&
@@ -305,9 +325,7 @@ if(file.exists(file.path("..","data","semi_clean","fed_uca.rdata"))){
   sum(!is.na(fed_uca$MinOfDefinitizeDate)&!is.na(fed_uca$MinOfNotUCA)&
         fed_uca$MinOfDefinitizeDate>fed_uca$MinOfNotUCA)/nrow(fed_uca)
   
-  fed_uca$MinOfDefinitizeDate[is.na(fed_uca$MinOfDefinitizeDate)]<-
-    fed_uca$MinOfNotUCA[is.na(fed_uca$MinOfDefinitizeDate)]
-  
+
   
 #Imput UCA unmodified values when consistent for the remainder of the vehicle
 fed_uca$UCA<-fed_uca$UnmodifiedIsUCA
@@ -474,12 +492,37 @@ fed_uca$p_OblUCA<-fed_uca$ObligatedAmountIsUCA_OMB20_GDP18/fed_uca$Action_Obliga
 
 
   save(file=file.path("..","data","semi_clean","fed_uca.rdata"),fed_uca)
+  write.csv(file=file.path("..","data","semi_clean","fed_uca.csv"),fed_uca,row.names = FALSE)
 }
 ```
+
+### Appendix B Matchup
+```{r AppendixB}
+
+
+app_b<-readxl::read_excel(file.path("..","data","semi_clean","DODIG-2020-084-Appendix_B.xlsx"),
+                                              # sheet = sheet,
+                                              # skip=skip,
+                                              trim_ws = FALSE,
+                                        guess_max=1000)
+app_b$IDVpiid[is.na(app_b$IDVpiid)]<-""
+app_b<-left_join(app_b,fed_uca)
+
+write.csv(file=file.path("..","data","semi_clean","DODIG-2020-084-Matchup.csv"),app_b)
+
+
+
+
+```
+
 
 ### Percent of total obligations
 ```{r DefinitizationTime}
 def_uca_contract<-fed_uca %>% dplyr::filter(Customer=="Defense" & StartFiscal_Year<=2017) %>% dplyr::select(-SubCustomer)
+
+
+sum(def_uca_contract$ObligatedAmountIsUCA_Then_Year[def_uca_contract$ObligatedAmountIsUCA>5000000],na.rm=TRUE)/
+    sum(def_uca_contract$ObligatedAmountIsUCA_Then_Year,na.rm=TRUE)
 
 def_uca_contract$ContractCount<-1
 def_uca_contract_LnC<-prepare_labels_and_colors(def_uca_contract)
