@@ -99,3 +99,9 @@ data/clean/federal_contract_compete_detail.csv
 data/clean/Federal_contract_CSIScontractID_complete_with_pricing.Rdata
 
 data/semi_clean/Contract.SP_ContractSampleCriteriaDetailsCustomer.rda
+
+data/semi_clean/Contract.SP_ContractCompetitionVehicleCustomer.rda
+
+data/semi_clean/Contract.SP_ContractUnmodifiedCompetitionvehicleCustomer.rda
+
+data/semi_clean/Contract.SP_ContractUnmodifiedCompetitionVehicleCustomer.txt
