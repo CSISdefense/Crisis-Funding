@@ -15,7 +15,6 @@ Modeling Likelihood of Contract Termination or Ceiling Breach
 library(csis360)
 library(ggplot2)
 library(arm)
-library(R2WinBUGS)
 library(dplyr)
 library(Hmisc)
 library(texreg)
@@ -37,7 +36,7 @@ source(file.path("..","scripts","ContractCleanup.r"))
 source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
 source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
 
-source(system.file("utils", "allFit.R", package="lme4"))
+# source(system.file("utils", "allFit.R", package="lme4"))
 
 
 axis.text.size<-10
@@ -129,7 +128,6 @@ summary_data<-full_data%>%
     ProductOrServiceArea, 
     # Reachback,            #Swap in OffPlace
     Dur.Simple,
-    OMBtheater,
     UnmodifiedUltimateDurationCategory,
     dFYear,
     PlaceCountryText,
@@ -272,13 +270,21 @@ summary_data<-replace_nas_with_unlabeled(summary_data,"Theater")
 summary_data<-replace_nas_with_unlabeled(summary_data,"International")
 # summary_data<-replace_nas_with_unlabeled(summary_data,"Reachback")
 # undebug(prepare_labels_and_colors)
+
+summary_data$Competition.sum<-summary_data$NoCompOffr
+levels(summary_data$Competition.sum)<-(
+  list(
+  "No Comp."=c("Other No","Urgency"),
+  "Competition" = c("1 Offer","2-4 Offers","5+ Offers"),
+  "Unlabeled"="Unlabeled" )
+)
 labels_and_colors<-prepare_labels_and_colors(summary_data,na_replaced=TRUE)
 column_key<-csis360::get_column_key(summary_data)
 
 complete_summary_data<-summary_data 
 summary_data<-subset(summary_data,DecisionTreeDisplay != "Not in Sample")
 
-save(labels_and_colors,column_key,complete_summary_data,file="Shiny/Crisis_Funding.RData")
+save(labels_and_colors,column_key,complete_summary_data,file="../scripts/Shiny/Crisis_Funding.RData")
 ```
 
 
@@ -322,14 +328,14 @@ disaster_summary<-full_data %>%  filter(CrisisDisplay=="Disaster") %>%
   dplyr::mutate(disaster_share=round(obligations/sum(obligations),3)) 
 
 disaster_summary<-disaster_summary[order(disaster_summary$Fiscal.Year),]
-write.csv(disaster_summary,file="Output//disaster_summary.csv")
+write.csv(disaster_summary,file="..//Output//disaster_summary.csv")
 chapter4topline$data %>%  group_by(primary,x.variable) %>%
   dplyr::summarise(obligations=sum(y.variable))
 
 
-ggsave600dpi("Output//Figure14_topline.png", chapter4topline, width=6.5, height= 4, units="in")
+ggsave600dpi("..//Output//Figure14_topline.png", chapter4topline, width=6.5, height= 4, units="in")
 
-ggsave("Output//Figure14_topline.eps", device=cairo_pdf, chapter4topline, width=6.5, height= 4, units="in")
+ggsave("..//Output//Figure14_topline.eps", device=cairo_pdf, chapter4topline, width=6.5, height= 4, units="in")
 
 ```
 
@@ -425,50 +431,99 @@ statsummary_continuous(("UnmodifiedNumberOfOffersReceived"), fed)
 ```{r Competition}
 
 # undebug(LatticePlotWrapper_csis360)
-(
-CompOverall<-  LatticePlotWrapper_csis360(
-  VAR.color.legend.label="Competition",
-  VAR.main.label=NULL,
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
-  VAR.Coloration=labels_and_colors,
-  VAR.long.DF=subset(summary_data,
-                     DecisionTreeDisplay!="Not in Sample"),
-  # NA, #VAR.ncol
-  VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
-  VAR.y.variable="pDatasetObligation", #VAR.y.variable
-  VAR.y.series="NoCompOffr", #VAR.y.series
-  VAR.facet.primary="Competition.multisum" #VAR.facet.primary
-  # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-   ,DataLabels=TRUE
-  ,geom.text.size=2.5
-  #                       ,VAR.override.coloration=NA
-)+
-  theme(legend.position = "bottom")+
-  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-  theme(strip.text.y = element_text(angle=0))+
-  theme(axis.text.x = element_text(angle=90))+
-    scale_y_continuous( labels = percent_format())+
-      facet_grid(primary ~ .#,scales="free_y", space="free_y"
-             )
-    )
 
-CompOverall$data
+
+summary_data<-summary_data %>% group_by(DecisionTreeDisplay,NoCompOffr) %>%
+          mutate(
+          ytextposition=cumsum(pDatasetObligation)-0.5*pDatasetObligation)
+
+undebug(build_plot)
+(
+CompOverall<-build_plot(
+  data=subset(summary_data,
+                     DecisionTreeDisplay!="Not in Sample"),
+  chart_geom = "Bar Chart",
+  share = FALSE,
+  labels_and_colors=labels_and_colors,
+  # NA, #VAR.ncol
+  x_var="DecisionTreeDisplay", #x_var
+  y_var="pDatasetObligation", #VAR.y.variable
+  color_var="NoCompOffr", #color_var
+  facet_var="Competition.sum", #facet_var
+  column_key=column_key,
+  format=TRUE,
+  add_numbers=TRUE
+)+
+  # theme(strip.text.y = element_text(angle=0))+
+ theme(axis.text.x = element_text(angle=90))+
+    scale_y_continuous("Percent of Obligations", labels = percent_format(accuracy=1))+
+      facet_grid(.~Competition.sum ,scales="free_x", space="free_x"
+             )+labs(title=NULL,
+  # xlab="Fiscal Year",
+  # ylab="Percent of Obligations",
+  color="Competition")+
+  theme(legend.position = "bottom")+
+  coord_flip()+
+  expand_limits(y = c(0,0.2))+
+        geom_text(aes(label=format(round(pDatasetObligation,3),  scientific=FALSE, trim=TRUE, big.mark=","),
+                      x=DecisionTreeDisplay,
+          #                     format(round(y.variable,3),  scientific=FALSE, trim=TRUE, big.mark=",")
+          #                   format(y.variable, digits=1, drop0trailing=TRUE, trim=TRUE, big.mark=",")
+          #apply(y.variable,VariableNumericalFormat)
+          y=ytextposition
+        ),
+          size=geom.text.size,       
+          hjust=0.5,
+          vjust=0.5
+          #,color=color.list This doesn't work yet
+        )
+)
+
+  
+  
+# CompOverall<-  LatticePlotWrapper_csis360(
+#   VAR.color.legend.label="Competition",
+#   VAR.main.label=NULL,
+#   VAR.X.label="Fiscal Year",
+#   VAR.Y.label="Percent of Obligations",
+#   VAR.Coloration=labels_and_colors,
+#   VAR.long.DF=subset(summary_data,
+#                      DecisionTreeDisplay!="Not in Sample"),
+  # NA, #VAR.ncol
+#   VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
+#   VAR.y.variable="pDatasetObligation", #VAR.y.variable
+#   VAR.y.series="NoCompOffr", #VAR.y.series
+#   VAR.facet.primary="Competition.multisum" #VAR.facet.primary
+#   # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
+#   # ,MovingAverage=0
+#   # ,MovingSides=1
+#    ,DataLabels=TRUE
+#   ,geom.text.size=2.5
+#   #                       ,VAR.override.coloration=NA
+# )+
+#   theme(legend.position = "bottom")+
+#   #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
+#   theme(strip.text.y = element_text(angle=0))+
+#   theme(axis.text.x = element_text(angle=90))+
+#     scale_y_continuous( labels = percent_format())+
+#       facet_grid(primary ~ .,scales="free_y", space="free_y"
+#              )
+#     )
+
+# CompOverall$data
 
 CompOverall$data %>%  group_by(primary,x.variable) %>%
   dplyr::summarise(obligations=sum(y.variable))
 
 
-ggsave600dpi("Output//Figure15_CompOverall.png", CompOverall, 
+ggsave600dpi("..//Output//Figure15_CompOverall.png", CompOverall, 
              width=4.5, height= 6, units="in",size=11
              )
 
 
 
 
-ggsave("Output//Figure15_CompOverall.eps", device=cairo_pdf, CompOverall, 
+ggsave("..//Output//Figure15_CompOverall.eps", device=cairo_pdf, CompOverall, 
              width=4.5, height= 6, units="in"
              )
 
@@ -501,10 +556,9 @@ comp_summary<-CompAnnual$data %>%  group_by(dFYear,DecisionTreeDisplay,NoCompOff
   dplyr::summarise(obligations=sum(Obligation.2017))%>%  
   group_by(dFYear,DecisionTreeDisplay) %>%
   dplyr::mutate(share=obligations/sum(obligations))
-write.csv(comp_summary,file="output/compsummary.csv")
+write.csv(comp_summary,file="..//Output/compsummary.csv")
 
 
-undebug(format_data_for_plot)
 (
 CompAnnualShare<-build_plot(
   data=summary_data %>% filter(DecisionTreeDisplay %in% c("Disaster","ARRA","OCO")),
@@ -533,12 +587,12 @@ CompAnnualShare<-build_plot(
 
 
 
-ggsave("Output//Figure16_CompAnnual.png", CompAnnual, 
+ggsave("..//Output//Figure16_CompAnnual.png", CompAnnual, 
              width=2.75, height= 4.5, units="in"
              )
 
 
-ggsave("Output//Figure16_CompAnnual.eps", device=cairo_pdf, CompAnnual, 
+ggsave("..//Output//Figure16_CompAnnual.eps", device=cairo_pdf, CompAnnual, 
              width=2.75, height= 4.5, units="in"
              )
 
@@ -594,7 +648,7 @@ UCAoverall<-  LatticePlotWrapper_csis360(
     # )
 )
   
-ggsave600dpi("Output//UCAoverall.png", UCAoverall, width=4, height= 5, units="in")
+ggsave600dpi("..//Output//UCAoverall.png", UCAoverall, width=4, height= 5, units="in")
 
 
 (
@@ -624,7 +678,7 @@ UCAannual<-build_plot(
     scale_y_continuous(labels = scales::percent)+coord_cartesian(ylim=c(0,0.3))+
   theme(strip.text.y = element_text(angle=270))
 )
-ggsave600dpi("Output//UCAannual.png", UCAannual, width=4.5, height= 2, units="in")
+ggsave600dpi("..//Output//UCAannual.png", UCAannual, width=4.5, height= 2, units="in")
 
 
 
@@ -800,9 +854,9 @@ complete_summary_data %>% filter(Is.Defense ==FALSE & OMBtheater!="Domestic") %>
   group_by(Is.Defense,CrisisDisplay)%>%dplyr::mutate(offplace_share=round(obligations/sum(obligations),3))
   
   
-ggsave("Output//figure19_offplace.png", OMBtheater, width=6.5, height= 4, units="in")
+ggsave("..//Output//figure19_offplace.png", OMBtheater, width=6.5, height= 4, units="in")
 
-ggsave("Output//figure19_offplace.eps", device=cairo_pdf, OMBtheater, width=6.5, height= 4, units="in")
+ggsave("..//Output//figure19_offplace.eps", device=cairo_pdf, OMBtheater, width=6.5, height= 4, units="in")
 
 
 (
@@ -876,7 +930,7 @@ ReachbackCrisisHistory<-LatticePlotWrapper_csis360(
 # )
 # ReachbackComp
 
-ggsave("Output//ReachbackComp.png", ReachbackComp, width=4.5, height= 8, units="in")
+ggsave("..//Output//ReachbackComp.png", ReachbackComp, width=4.5, height= 8, units="in")
 
 
 
@@ -949,7 +1003,7 @@ Country<-ddply(summary_data,
                 Obligation.2017=sum(Obligation.2017)
                 )
 
-write.csv(Country,file.path("Output","Country.csv"))
+write.csv(Country,file.path("..//Output","Country.csv"))
 
 
 (
@@ -977,7 +1031,7 @@ CountryOffPlace<-LatticePlotWrapper_csis360(
     scale_x_date("Fiscal Year",labels = date_format("'%y"), date_breaks="4 years")
 )
 
-ggsave("Output//Figure20_CountryOffPlace.png", CountryOffPlace, width=4.5, height= 8, units="in")
+ggsave("..//Output//Figure20_CountryOffPlace.png", CountryOffPlace, width=4.5, height= 8, units="in")
 2413719774 -1262213240.3	
 1010956482.9	-1986585571.2	
 summary(CountryOffPlace$data$category)
@@ -1032,8 +1086,8 @@ Customer<-  LatticePlotWrapper_csis360(
  
 
  
-ggsave600dpi("Output//Customer.png", Customer, width=4, height= 5, units="in")
-ggsave("Output//Customer.eps", device=cairo_pdf, Customer, width=4, height= 5, units="in")
+ggsave600dpi("..//Output//Customer.png", Customer, width=4, height= 5, units="in")
+ggsave("..//Output//Customer.eps", device=cairo_pdf, Customer, width=4, height= 5, units="in")
 ```
 
 ##### Agency
@@ -1186,8 +1240,8 @@ Duration<-  LatticePlotWrapper_csis360(
              )
     )
  
-ggsave600dpi("Output//Duration.png", Duration, width=4, height= 5, units="in")
-ggsave("Output//Duration.eps", device=cairo_pdf, Duration, width=4, height= 5, units="in")
+ggsave600dpi("..//Output//Duration.png", Duration, width=4, height= 5, units="in")
+ggsave("..//Output//Duration.eps", device=cairo_pdf, Duration, width=4, height= 5, units="in")
 
 
 
@@ -1301,8 +1355,8 @@ ProductOrServiceArea<-  LatticePlotWrapper_csis360(
  
 
  
-ggsave600dpi("Output//ProductService.png", UCAoverall, width=4, height= 5, units="in")
-ggsave("Output//ProductService.eps", device=cairo_pdf, UCAoverall, width=4, height= 5, units="in")
+ggsave600dpi("..//Output//ProductService.png", UCAoverall, width=4, height= 5, units="in")
+ggsave("..//Output//ProductService.eps", device=cairo_pdf, UCAoverall, width=4, height= 5, units="in")
 ```
 
 ```{r ProdServ}
@@ -1415,7 +1469,7 @@ summary(fed_1m)
 # summary(large_crisis_smp$CPSA)
     
 
-load(file.path("..","Output","Model21D_Term.rdata"))
+load(file.path("..","..//Output","Model21D_Term.rdata"))
 
 # if(!exists("Term_21D"))
 #   Term_21D <- glmer (data=fed_1m,
@@ -1445,7 +1499,7 @@ stargazer::stargazer(Term_21D,type="text",#Term_20A,#Term_20C
 
 summary_residual_compare(Term_21D,bins=50)
 
-  # CBre_22H.all<-allFit_save(CBre_22H,filename="output/CBre_22H_allfit.rdata")
+  # CBre_22H.all<-allFit_save(CBre_22H,filename="..//Output/CBre_22H_allfit.rdata")
 ```
 
 
@@ -1453,7 +1507,7 @@ summary_residual_compare(Term_21D,bins=50)
 ```{r Model21E}
 
 
-load(file.path("..","Output","Model21E_CBre.rdata"))
+load(file.path("..","..//Output","Model21E_CBre.rdata"))
 
   glmer_examine(CBre_21E.restart)
 
@@ -1465,7 +1519,7 @@ stargazer::stargazer(CBre_21E.restart,type="text",#Term_20A,#Term_20C
 summary_residual_compare(CBre_21E.restart,bins=50)
 
 
-  # CBre_21E.all<-allFit_save(CBre_21E.restart,filename="output/CBre_21E_allfit.rdata")
+  # CBre_21E.all<-allFit_save(CBre_21E.restart,filename="..//Output/CBre_21E_allfit.rdata")
 ```
 
 
@@ -1474,14 +1528,14 @@ summary_residual_compare(CBre_21E.restart,bins=50)
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load(file.path("..","output","Model22G.RData"))
+load(file.path("..","..//Output","Model22G.RData"))
 
   glmer_examine(Term_22G)
   
   
   
   
-  # Term_22G.all<-allFit_save(Term_22G,filename="output/Term_22G_allfit.rdata")
+  # Term_22G.all<-allFit_save(Term_22G,filename="..//Output/Term_22G_allfit.rdata")
   # Term_22G_ss_cons <- summary(Term_22G.all) 
   # 
   #   structure(res, class = "allfit", fit = m, sessionInfo =  sessionInfo(),
@@ -1512,7 +1566,7 @@ summary_residual_compare(Term_22G,bins=50)
 # summary(large_crisis_smp$ServCommCons)
 # summary(large_crisis_smp$CPSA)
 
-load(file.path("..","Output","Model22H.RData"))
+load(file.path("..","..//Output","Model22H.RData"))
 
 
 fed_1m$ProdServ<-factor(fed_1m$ProdServ)
@@ -1543,7 +1597,7 @@ summary(fed_1m[,colnames(fed_1m) %in%
 
 
   glmer_examine(CBre_22H)
-  load("Output//CBre_22H_allfit.rdata")
+  load("..//Output//CBre_22H_allfit.rdata")
 
 # Plot the model and Vehicle 
 stargazer::stargazer(CBre_22H,res[1],res[2],res[3],#res[4],
@@ -1557,7 +1611,7 @@ res[[5]]
 summary_residual_compare(CBre_22H,bins=50)
 
 
-  # CBre_22H.all<-allFit_save(CBre_22H,filename="output/CBre_22H_allfit.rdata")
+  # CBre_22H.all<-allFit_save(CBre_22H,filename="..//Output/CBre_22H_allfit.rdata")
 ```
 
 # Figures for Paper
@@ -1628,7 +1682,7 @@ stargazer::stargazer(CBre_21E.restart,CBre_22H,Term_21D,Term_22G,type="text",
 summary_residual_compare(CBre_21E.restart,CBre_22H,Term_21D,Term_22G,bins=50)
 
 
-texreg::htmlreg(list(CBre_21E.restart,CBre_22H,Term_21D,Term_22G),file=file.path("..","Output","Both_Model.html"),
+texreg::htmlreg(list(CBre_21E.restart,CBre_22H,Term_21D,Term_22G),file=file.path("..","..//Output","Both_Model.html"),
                 single.row = TRUE,
                 custom.model.name=c("Federal-Wide<br>Ceiling Breach",
                                     "Crisis-Only<br>Ceiling Breach",
@@ -1721,7 +1775,7 @@ comp.or<-rbind(or_cbre_overall,or_cbre_crisis)
 
 
 write.csv(get_study_variables_odds_ratio(comp.or,study="crisis"),file=
-            file.path("..","Output","ceiling_breach_study_odds_ratio.csv"),row.names=FALSE)
+            file.path("..","..//Output","ceiling_breach_study_odds_ratio.csv"),row.names=FALSE)
 
 
 
@@ -1732,7 +1786,7 @@ or_term_crisis<-odds_ratio(Term_22G,"Term_22G","Crisis","Terminations",
 term.or<-rbind(or_term_overall,or_term_crisis)
 
 write.csv(get_study_variables_odds_ratio(term.or,study="crisis"),file=
-            file.path("..","Output","terminations_study_odds_ratio.csv"),row.names=FALSE)
+            file.path("..","..//Output","terminations_study_odds_ratio.csv"),row.names=FALSE)
 
 
 
@@ -1759,7 +1813,7 @@ write.csv(get_study_variables_odds_ratio(term.or,study="crisis"),file=
                                               x="Estimated Pr(Breach)",y="Residuals")
   )
 )
-ggsave(ceiling_breach_residual,file=file.path("..","output","cbre_residual.png"),width=6.5*1.2, height=8*1.2)
+ggsave(ceiling_breach_residual,file=file.path("..","..//Output","cbre_residual.png"),width=6.5*1.2, height=8*1.2)
 
 
 
@@ -1776,7 +1830,7 @@ ggsave(ceiling_breach_residual,file=file.path("..","output","cbre_residual.png")
     ncol=2
     )
 )
-  ggsave(terminations_residual,file=file.path("..","output","term_residual.png"),width=6.5*1.2, height=8*1.2)
+  ggsave(terminations_residual,file=file.path("..","..//Output","term_residual.png"),width=6.5*1.2, height=8*1.2)
 
  
 
