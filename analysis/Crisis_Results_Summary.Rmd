@@ -1429,7 +1429,7 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 ```{r ReadInData, echo = TRUE}
 
 load(file.path("..","data","clean","fed_sample.Rdata"))
-load(file.path("..","data","clean","large_crisis_smp.Rdata"))
+load(file.path("..","data","clean","crisis_population.rdta"))
 
 summary(fed_1m)
 ```

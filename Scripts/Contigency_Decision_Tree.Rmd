@@ -18,7 +18,6 @@ library(Hmisc)
 library(csis360)
 library(scales)
 library(showtext)
-source("https://raw.githubusercontent.com/CSISdefense/csis360/master/R/Plot_Style.R")
 font_add_google("Open Sans")
 # diigtheme1:::diiggraph()
 
@@ -33,9 +32,8 @@ geom.text.size<-1
 main.text.size<-1
 note.text.size<-1.40
 
-
-load(
-     file="Data//budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
+full_data<-read_tsv(file.path("..","data","semi_clean",
+                              "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.txt"))
 
 ```
 

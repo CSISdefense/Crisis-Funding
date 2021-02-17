@@ -43,7 +43,7 @@ debug(input_sample_criteria)
 #Limit the start years to those completed 2007-2015. Doing this first to get the size down.
 fed_full<-input_sample_criteria(fed_full,  
                                dir="..\\data\\semi_clean\\",
-                      file="Contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
+                      file="Contract_SP_ContractSampleCriteriaDetailsCustomer.txt",
                       last_date=as.Date("2015-09-30"),
                       drop_incomplete=TRUE)
 
@@ -79,7 +79,7 @@ save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 if(!exists("fed_full")) load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(data=fed_full
-  ,"Contract.SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt"
+  ,"Contract_SP_ContractUnmodifiedAndOutcomeDetailsCustomer.txt"
   ,path=""
   ,"..\\data\\semi_clean\\"
   ,by="CSIScontractID"
@@ -186,12 +186,12 @@ save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 if(!exists("fed_full")) load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(fed_full,
-    "Contract.SP_ContractLocationCustomer.txt"
+    "Contract_SP_ContractLocationCustomer.txt"
   ,path=""
   ,dir="..\\data\\semi_clean\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
-  # ,zip_file="Contract.SP_ContractLocationCustomer.zip"
+  # ,zip_file="Contract_SP_ContractLocationCustomer.zip"
 )
 
 fed_full<-csis360::standardize_variable_names(fed_full)
@@ -302,12 +302,12 @@ save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 # load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(fed_full,
-    "Contract.SP_ContractFundingAccount.txt"
+    "Contract_SP_ContractFundingAccount.txt"
   ,path=""
   ,dir="..\\data\\semi_clean\\"
   ,by="CSIScontractID"
   ,new_var_checked=FALSE
-  # ,zip_file="Contract.SP_ContractFundingAccount.zip"
+  # ,zip_file="Contract_SP_ContractFundingAccount.zip"
 )
 
 fed_full<-csis360::standardize_variable_names(fed_full)
@@ -386,7 +386,7 @@ save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 # # load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 # #Note to identify is.defense here.
 # fed_full<-csis360::read_and_join_experiment(data=fed_full
-#   ,"Contract.SP_ContractBucketPlatformCustomer.txt"
+#   ,"Contract_SP_ContractBucketPlatformCustomer.txt"
 #   ,path=""
 #   ,"..\\data\\semi_clean\\"
 #   ,by="CSIScontractID"
@@ -542,7 +542,7 @@ save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 
 ##Contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.txt
 fed_full<-csis360::read_and_join_experiment(data=fed_full
-  ,"Contract.SP_ContractUnmodifiedCompetitionvehicleCustomer.txt"
+  ,"Contract_SP_ContractUnmodifiedCompetitionvehicleCustomer.txt"
   ,path=""
   ,"..\\data\\semi_clean\\"
   ,by="CSIScontractID"
@@ -552,7 +552,7 @@ fed_full<-csis360::read_and_join_experiment(data=fed_full
 
 #Contract.SP_ContractCompetitionVehicleCustomer.txt
 fed_full<-csis360::read_and_join_experiment(data=fed_full
-  ,"Contract.SP_ContractCompetitionVehicleCustomer.txt"
+  ,"Contract_SP_ContractCompetitionVehicleCustomer.txt"
   ,path=""
   ,"..\\data\\semi_clean\\"
   ,by="CSIScontractID"
@@ -767,7 +767,7 @@ save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 # load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(data=fed_full
-  ,"Contract.SP_ContractPricingCustomer.txt"
+  ,"Contract_SP_ContractPricingCustomer.txt"
   ,path=""
   ,"..\\data\\semi_clean\\"
   ,by="CSIScontractID"
@@ -886,7 +886,7 @@ summary(fed_full$FxCb)
 
 
 fed_full<-csis360::read_and_join_experiment(data=fed_full
-  ,"Contract.SP_ContractPricingUCA.txt"
+  ,"Contract_SP_ContractPricingUCA.txt"
   ,path=""
   ,"..\\data\\semi_clean\\"
   ,by="CSIScontractID"
@@ -996,7 +996,7 @@ test<-read_delim("..\\data\\semi_clean\\Contract.SP_ContractTopPSCofficeNAICS.tx
                    #   col_character(),
                    #   col_double()))
 fed_full<-csis360::read_and_join_experiment(data=fed_full
-  ,"Contract.SP_ContractTopPSCofficeNAICS.txt"
+  ,"Contract_SP_ContractTopPSCofficeNAICS.txt"
   ,path=""
   ,"..\\data\\semi_clean\\"
   ,by="CSIScontractID"
@@ -1038,7 +1038,7 @@ save(file="..\\data\\clean\\federal_contract_complete_detail.Rdata",fed_full)
 # load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 
 fed_full<-csis360::read_and_join_experiment(data=fed_full,
-    lookup_file="Contract.SP_ContractBudgetDecisionTree.txt",
+    lookup_file="Contract_SP_ContractBudgetDecisionTree.txt",
   path="",
   directory = "Data/",
   by="CSIScontractID",
