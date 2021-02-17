@@ -33,8 +33,8 @@ loadfonts(device="postscript")
 
 source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/Scripts/DIIGstat.r")
 source(file.path("..","scripts","ContractCleanup.r"))
-source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
-source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
+# source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/lookups.r")
+# source("https://raw.githubusercontent.com/CSISdefense/R-scripts-and-data/master/helper.r")
 
 # source(system.file("utils", "allFit.R", package="lme4"))
 
@@ -61,6 +61,8 @@ note.text.size<-1.40
 ```{r Import}
 # read in data    
 
+
+load(file.path("..","data","clean","fed_transformed.Rdata"))
 load(file="..//Data//semi_clean//full_data_after_step_6.Rdata")
 full_data$CrisisDisplay<-as.character(full_data$CrisisFunding)
 full_data$CrisisDisplay[full_data$CrisisDisplay  %in% c("Unlabeled","Excluded")]<-"All Other"
@@ -430,14 +432,6 @@ statsummary_continuous(("UnmodifiedNumberOfOffersReceived"), fed)
 
 ```{r Competition}
 
-# undebug(LatticePlotWrapper_csis360)
-
-
-summary_data<-summary_data %>% group_by(DecisionTreeDisplay,NoCompOffr) %>%
-          mutate(
-          ytextposition=cumsum(pDatasetObligation)-0.5*pDatasetObligation)
-
-undebug(build_plot)
 (
 CompOverall<-build_plot(
   data=subset(summary_data,
@@ -452,7 +446,7 @@ CompOverall<-build_plot(
   facet_var="Competition.sum", #facet_var
   column_key=column_key,
   format=TRUE,
-  add_numbers=TRUE
+  ytextposition=TRUE
 )+
   # theme(strip.text.y = element_text(angle=0))+
  theme(axis.text.x = element_text(angle=90))+
@@ -465,59 +459,27 @@ CompOverall<-build_plot(
   theme(legend.position = "bottom")+
   coord_flip()+
   expand_limits(y = c(0,0.2))+
-        geom_text(aes(label=format(round(pDatasetObligation,3),  scientific=FALSE, trim=TRUE, big.mark=","),
+        geom_text(aes(label=ifelse(pDatasetObligation<=0.015,round(pDatasetObligation,3)*100,round(pDatasetObligation,2)*100),
                       x=DecisionTreeDisplay,
           #                     format(round(y.variable,3),  scientific=FALSE, trim=TRUE, big.mark=",")
           #                   format(y.variable, digits=1, drop0trailing=TRUE, trim=TRUE, big.mark=",")
           #apply(y.variable,VariableNumericalFormat)
           y=ytextposition
         ),
-          size=geom.text.size,       
-          hjust=0.5,
+          size=2.75,
+          hjust=0.25,
           vjust=0.5
-          #,color=color.list This doesn't work yet
         )
 )
 
   
-  
-# CompOverall<-  LatticePlotWrapper_csis360(
-#   VAR.color.legend.label="Competition",
-#   VAR.main.label=NULL,
-#   VAR.X.label="Fiscal Year",
-#   VAR.Y.label="Percent of Obligations",
-#   VAR.Coloration=labels_and_colors,
-#   VAR.long.DF=subset(summary_data,
-#                      DecisionTreeDisplay!="Not in Sample"),
-  # NA, #VAR.ncol
-#   VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
-#   VAR.y.variable="pDatasetObligation", #VAR.y.variable
-#   VAR.y.series="NoCompOffr", #VAR.y.series
-#   VAR.facet.primary="Competition.multisum" #VAR.facet.primary
-#   # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
-#   # ,MovingAverage=0
-#   # ,MovingSides=1
-#    ,DataLabels=TRUE
-#   ,geom.text.size=2.5
-#   #                       ,VAR.override.coloration=NA
-# )+
-#   theme(legend.position = "bottom")+
-#   #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-#   theme(strip.text.y = element_text(angle=0))+
-#   theme(axis.text.x = element_text(angle=90))+
-#     scale_y_continuous( labels = percent_format())+
-#       facet_grid(primary ~ .,scales="free_y", space="free_y"
-#              )
-#     )
-
-# CompOverall$data
 
 CompOverall$data %>%  group_by(primary,x.variable) %>%
   dplyr::summarise(obligations=sum(y.variable))
 
 
 ggsave600dpi("..//Output//Figure15_CompOverall.png", CompOverall, 
-             width=4.5, height= 6, units="in",size=11
+             width=8, height= 3, units="in",size=11
              )
 
 
@@ -620,35 +582,48 @@ grouped_barplot("UCA", fed)
 
 geom.text.size<-3
 (
-UCAoverall<-  LatticePlotWrapper_csis360(
-  VAR.color.legend.label="Dataset",
-  VAR.main.label=NULL,
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Percent of Obligations",
-  VAR.Coloration=labels_and_colors,
-  VAR.long.DF=subset(summary_data,
+UCAoverall<- build_plot(
+  data=subset(summary_data,
                      DecisionTreeDisplay!="Not in Sample"),
+  chart_geom = "Bar Chart",
+  share = FALSE,
+  labels_and_colors=labels_and_colors,
   # NA, #VAR.ncol
-  VAR.x.variable="DecisionTreeDisplay", #VAR.x.variable
-  VAR.y.variable="pDatasetObligation", #VAR.y.variable
-  VAR.y.series="DecisionTreeDisplay", #VAR.y.series
-  VAR.facet.primary="isUCA" #VAR.facet.primary
-  # VAR.facet.secondary="SupplyServiceERS" # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-   ,DataLabels=TRUE
-  #                       ,VAR.override.coloration=NA
+  x_var="DecisionTreeDisplay", #x_var
+  y_var="pDatasetObligation", #VAR.y.variable
+  color_var="isUCA", #color_var
+  facet_var="isUCA", #facet_var
+  column_key=column_key,
+  format=TRUE,
+  ytextposition=TRUE
 )+
-# +theme(legend.position = "bottom")+
-  #  scale_x_date("Fiscal Year",labels = date_format("'%y"))+
-  theme(strip.text.y = element_text(angle=0))+
-  theme(axis.text.x = element_text(angle=90))+
-    scale_y_continuous( labels = percent_format())+
-  facet_grid(primary ~ .)
-    # )
+  # theme(strip.text.y = element_text(angle=0))+
+ theme(axis.text.x = element_text(angle=90))+
+    scale_y_continuous("Percent of Obligations", labels = percent_format(accuracy=1))+
+      facet_grid(.~isUCA ,scales="free_x", space="free_x"
+             )+labs(title=NULL,
+  # xlab="Fiscal Year",
+  # ylab="Percent of Obligations",
+  color="Competition")+
+  theme(legend.position = "none")+
+  coord_flip()+
+  expand_limits(y = c(0,0.2))+
+        geom_text(aes(label=ifelse(pDatasetObligation<=0.015,round(pDatasetObligation,3)*100,round(pDatasetObligation,2)*100),
+                      x=DecisionTreeDisplay,
+          #                     format(round(y.variable,3),  scientific=FALSE, trim=TRUE, big.mark=",")
+          #                   format(y.variable, digits=1, drop0trailing=TRUE, trim=TRUE, big.mark=",")
+          #apply(y.variable,VariableNumericalFormat)
+          y=ytextposition
+        ),
+          size=2.75,
+          hjust=0.25,
+          vjust=0.5
+        )
 )
   
-ggsave600dpi("..//Output//UCAoverall.png", UCAoverall, width=4, height= 5, units="in")
+  
+ggsave600dpi("..//Output//UCAoverall.png", UCAoverall, width=8, height= 2.75, units="in",size=11)
+
 
 
 (
@@ -1453,7 +1428,8 @@ First we load the data. The dataset used is a U.S. Defense Contracting dataset d
 
 ```{r ReadInData, echo = TRUE}
 
-load(file.path("..","Data","crisis_smp.Rdata"))
+load(file.path("..","data","clean","fed_sample.Rdata"))
+load(file.path("..","data","clean","large_crisis_smp.Rdata"))
 
 summary(fed_1m)
 ```

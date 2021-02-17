@@ -28,7 +28,7 @@ source("https://raw.githubusercontent.com/CSISdefense/Vendor/master/Scripts/DIIG
 ###Data Transformations and Summary
 #### ReadInData 
 
-if(!exists("fed"))  load(file="data\\clean\\transformed_fed.rdata")
+if(!exists("fed"))  load(file="data\\clean\\fed_transformed.rdata")
 
 head(fed)
 ## Verify data transformations
