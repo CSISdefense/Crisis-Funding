@@ -11,14 +11,13 @@ pdf_document: default
 #Setup
 ```{r setup, include=FALSE}
 
-
+library(readr)
 library(tidyverse)
 library(reshape2)
 library(Hmisc)
 library(csis360)
 library(scales)
 library(showtext)
-source("https://raw.githubusercontent.com/CSISdefense/csis360/master/R/Plot_Style.R")
 font_add_google("Open Sans")
 # diigtheme1:::diiggraph()
 
@@ -33,9 +32,67 @@ geom.text.size<-1
 main.text.size<-1
 note.text.size<-1.40
 
+#This file is quite large, use the rda by default.
+#When updating with new data, 
+if(file.exists(file.path("..","data","semi_clean",
+                         "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.rdata"))){
+  
+  load(file.path("..","data","semi_clean",
+                 "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.rdata"))
+} else{
+  
+  full_data<-read_tsv(file.path("..","data","semi_clean",
+                                "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.txt"),
+                      na = c("", "NA","NULL"),
+                      guess_max = 10000000)
+  
+  #Dropping time to complete
+  if(all(is.na((full_data[nrow(full_data),]))))
+    full_data<-full_data[1:(nrow(full_data)-1),]
+  
+  full_data<-apply_lookups(Path,fed_full)
+  
+  full_data$Is.Defense<-ifelse(full_data$ContractingCustomer=="Defense","Defense","Civilian")
+   # full_data<-read_and_join_experiment(full_data,
+   #                                 "Agency_AgencyID.csv",
+   #                                 by=c("Agency"="AgencyID"),
+   #                             path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+   #                             dir="",
+   #                             add_var = "Is.Defense")
+  
+  full_data<-read_and_join_experiment(full_data,
+                                  "ContingencyHumanitarianPeacekeepingOperation.csv",
+                                  by="ContingencyHumanitarianPeacekeepingOperation",
+                              path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                              dir="assistance//",
+                              add_var = "ContingencyHumanitarianPeacekeepingOperationText")
 
-load(
-     file="Data//budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.Rdata")
+  full_data<-read_and_join_experiment(full_data,
+                                  "NationalInterestActionCode.csv",
+                                  by=c("nationalinterestactioncode"="NationalInterestActionCode"),
+                              path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+                              dir="assistance//",skip_check_var = c('national_interest_action_name',	'IsHurricane',	'CrisisFunding'
+))
+  
+    # full_data<-read_and_join_experiment(full_data,
+    #                               "Location_CountryCodes.csv",
+    #                               by=c("ContingencyHumanitarianPeacekeepingOperation"="alpha-3"),
+    #                           path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
+    #                           dir="location//",
+    #                           add_var = "CrisisFundingTheater")
+  full_data<-deflate(full_data,
+                     money_var = "obligatedAmount",
+                     fy_var = "fiscal_year",
+                     deflator_var="GDPdeflator2017"
+  )
+  full_data$dFYear<-as.Date(paste("1/1/",as.character(full_data$fiscal_year),sep=""),"%m/%d/%Y")
+  colnames(full_data)[colnames(full_data)=="obligatedAmount_GDPdeflator2017"]<-"Obligation.2017"
+  
+  save(full_data,file=file.path("..","data","semi_clean",
+                                "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.rdata"))
+}
+
+
 
 ```
 
@@ -51,37 +108,39 @@ full_data$CrisisFunding1A[full_data$CrisisFunding1A=="Unlabeled" & !is.na(full_d
   full_data$ContractCrisisFunding[full_data$CrisisFunding1A=="Unlabeled" & !is.na(full_data$ContractCrisisFunding)]
 full_data$CrisisFunding1A[full_data$CrisisFunding1A=="Unlabeled" & full_data$IsARRAcrisisFunding==1]<-
   "ARRA"
+
 full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
 full_column_key<-get_column_key(full_data)
 
 
 (
-Tree1A<-LatticePlotWrapper_csis360(
-  VAR.color.legend.label="ARRA/CSIS Labeled Contract",
-  VAR.main.label=NULL,
-  VAR.X.label="Fiscal Year",
-  VAR.Y.label="Obligations (2017 $)",
-  VAR.Coloration=full_labels_and_colors,
-  VAR.long.DF=full_data,
+Tree1A<-build_plot(
+  data=full_data %>% filter(!is.na(Is.Defense)),
+  chart_geom = "Bar Chart",
+  share = FALSE,
+  labels_and_colors=full_labels_and_colors,
   # NA, #VAR.ncol
-  VAR.x.variable="dFYear", #VAR.x.variable
-  VAR.y.variable="Obligation.2017", #VAR.y.variable
-  VAR.y.series="CrisisFunding1A", #VAR.y.series
-  VAR.facet.primary= "ContractCrisisFunding", #VAR.facet.primary
-  VAR.facet.secondary="Is.Defense", # VAR.facet.secondary=NA
-  # ,MovingAverage=0
-  # ,MovingSides=1
-  DataLabels=FALSE,
-  caption=TRUE
-  #                       ,VAR.override.coloration=NA
-)+facet_grid(primary ~ secondary
+  x_var="dFYear", #x_var
+  y_var="Obligation.2017", #VAR.y.variable
+  color_var="CrisisFunding1A", #color_var
+  facet_var="ContractCrisisFunding", #facet_var
+  second_var="Is.Defense", #facet_var
+  column_key=full_column_key,
+  format=TRUE,
+  legend = FALSE
+) +theme(legend.title =element_text())
+  +facet_grid(ContractCrisisFunding ~ Is.Defense
               , scales="free_y" #The scales actually do stay fixed
-              , space="fixed") +
-  scale_x_date(
-            # breaks=date_breaks("5 years"),
-            labels=date_format("'%y"))
+              , space="fixed")+labs(
+  x="Fiscal Year",
+  y="Obligations (2017 $)",
+  fill="ARRA/CSIS Labeled Contract",
+  color="ARRA/CSIS Labeled Contract"
 )
-
+  # scale_x_date(
+  #           # breaks=date_breaks("5 years"),
+  #           labels=date_format("'%y"))
+)
 
 
 summary(full_data$DecisionTree)
@@ -91,59 +150,43 @@ summary(full_data$CrisisFunding1A)
 
 windowsFonts()
 
-Tree1A
-ggsave600dpi("Output//Figure01_Tree1A.png", Tree1A, width=6.5, height= 3, units="in",size=12)
-ggsave("Output//Figure01_Tree1A.eps", Tree1A, width=6.5, height= 3, units="in")
+ggsave600dpi("..//Output//Figure01_Tree1A.png", Tree1A, width=6.5, height= 3, units="in",size=12)
+ggsave("..//Output//Figure01_Tree1A.eps", Tree1A, width=6.5, height= 3, units="in")
 ```
 
 ##Step 1B: Contingency or Humanitarian Peaclaekeeping Operation
 ```{r Step1B}
-full_data$contingencyhumanitarianpeacekeepingoperationText[
-  full_data$contingencyhumanitarianpeacekeepingoperationText=="Not Applicable"]<-"Unlabeled"
+full_data$ContingencyHumanitarianPeacekeepingOperationText[
+  toupper(full_data$ContingencyHumanitarianPeacekeepingOperationText)=="NOT APPLICABLE" |
+    is.na(full_data$ContingencyHumanitarianPeacekeepingOperationText)]<-"Unlabeled"
 
 # ConHumIsOCOcrisisFunding=1
 # ,[ContingencyHumanitarianPeacekeepingOperation]
-
-  share_data <- format_data_for_plot(data=subset(full_data,Theater!="Unlabeled"),
-                                              share=TRUE,
-                                              fy_var="dFYear",
-                                              # start_fy=start_fy,
-                                              # end_fy=end_fy,
-                                              y_var="Obligation.2017",
-                                              color_var="contingencyhumanitarianpeacekeepingoperationText",
-                                              facet_var="Theater",
-                                              labels_and_colors=full_labels_and_colors)
-
-
-  (
-    Tree1B<-build_plot(
-      data=share_data,
-      chart_geom = "Line Chart",
-      share = TRUE,
-      x_var="dFYear",
-      y_var="Obligation.2017",
-      color_var="contingencyhumanitarianpeacekeepingoperationText",
-      facet_var="Theater",
-      legend=TRUE, #Include a legend
-      caption=TRUE, #Include a source caption
-      labels_and_colors=full_labels_and_colors,
-      column_key=full_column_key
-    )+labs(x="Fiscal Year",
-           y="Percent of Obligations",
-           legend.title="Operation Type")+
-      scale_x_date(
-        # breaks=date_breaks("5 years"),
-        labels=date_format("'%y"))+
-      facet_wrap(~Theater,nrow=1)
-  )
-  
-  
-# )+theme(legend.position="bottom")
-  
-# +facet_grid(primary ~ secondary
-#               , scales="free_y" #The scales actually do stay fixed
-#               , space="fixed")
-  
+(
+Tree1B<-build_plot(
+  data=subset(full_data,CrisisFundingTheater!="Unlabeled"),
+  chart_geom = "Line Chart",
+  share = TRUE,
+  labels_and_colors=full_labels_and_colors,
+  # NA, #VAR.ncol
+  x_var="dFYear", #x_var
+  y_var="Obligation.2017", #VAR.y.variable
+  color_var="ContingencyHumanitarianPeacekeepingOperationText", #color_var
+  facet_var="CrisisFundingTheater", #facet_var
+  # second_var="Is.Defense", #facet_var
+  column_key=full_column_key,
+  format=TRUE,
+)# +theme(legend.title =element_text())
+  +facet_wrap(~CrisisFundingTheater,nrow=1)+labs(
+  x="Fiscal Year",
+  y="Percent of Obligations"
+  # color="Operation Type"
+)
+  # scale_x_date(
+  #           # breaks=date_breaks("5 years"),
+  #           labels=date_format("'%y"))
+)
+ 
   
   
   (
@@ -153,13 +196,13 @@ full_data$contingencyhumanitarianpeacekeepingoperationText[
       VAR.X.label="Fiscal Year",
       VAR.Y.label="Obligations (2017 $)",
       VAR.Coloration=full_labels_and_colors,
-      VAR.long.DF=subset(full_data,Theater!="Unlabeled"),
+      VAR.long.DF=subset(full_data,CrisisFundingTheater!="Unlabeled"),
       # NA, #VAR.ncol
       VAR.x.variable="dFYear", #VAR.x.variable
       VAR.y.variable="Obligation.2017", #VAR.y.variable
       VAR.y.series="CrisisFunding1A", #VAR.y.series
-      VAR.facet.primary="contingencyhumanitarianpeacekeepingoperationText", #VAR.facet.primary
-      VAR.facet.secondary= "Theater", # VAR.facet.secondary=NA
+      VAR.facet.primary="ContingencyHumanitarianPeacekeepingOperationText", #VAR.facet.primary
+      VAR.facet.secondary= "CrisisFundingTheater", # VAR.facet.secondary=NA
       # ,MovingAverage=0
       # ,MovingSides=1
       DataLabels=FALSE
@@ -171,9 +214,9 @@ full_data$contingencyhumanitarianpeacekeepingoperationText[
   )
 
 
-ggsave600dpi("Output//Figure02_Tree1B.png", Tree1B, width=6.5, height= 3, units="in",size=12)
-ggsave("Output//Figure02_Tree1B.eps", Tree1B, width=6.5, height= 3, units="in")
-ggsave600dpi("Output//Tree1Bcontradictions.png", Contradictions1B, width=6.5, height= 4.5, units="in",size=12)
+ggsave600dpi("..//Output//Figure02_Tree1B.png", Tree1B, width=6.5, height= 3, units="in",size=12)
+ggsave("..//Output//Figure02_Tree1B.eps", Tree1B, width=6.5, height= 3, units="in")
+ggsave600dpi("..//Output//Tree1Bcontradictions.png", Contradictions1B, width=6.5, height= 4.5, units="in",size=12)
 
 full_data$CrisisFunding1B<-full_data$CrisisFunding1A
 full_data$CrisisFunding1B[full_data$CrisisFunding1B=="Unlabeled" & full_data$ConHumIsOCOcrisisFunding==1]<-"OCO"
@@ -192,17 +235,23 @@ summary(full_data$CrisisFunding1B)
 ##Step 1C: National Action Interest Code
 ```{r Step1C}
 
-summary(full_data$nationalinterestactioncodeText)
+summary(full_data$national_interest_action_name)
 
-full_data %>% group_by(nationalinterestactioncodeText) %>% dplyr::summarise(Obligation.2017=sum(Obligation.2017))
+full_data %>% group_by(national_interest_action_name) %>% dplyr::summarise(Obligation.2017=sum(Obligation.2017))
+
+
+full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
+full_column_key<-get_column_key(full_data)
+
+
 
 (
 Tree1CdetailIsDefense<-build_plot(
-  data=subset(full_data,!nationalinterestactioncodeText %in% c("Unlabeled","None")
-                     | nationalinterestactioncodeText=="Inauguration 2009"),
+  data=subset(full_data,!national_interest_action_name %in% c("Unlabeled","None")
+                     | national_interest_action_name=="Inauguration 2009"),
   chart_geom = "Bar Chart",
   share = FALSE,
-  x_var="nationalinterestactioncodeText",
+  x_var="national_interest_action_name",
   y_var="Obligation.2017",
   color_var="Is.Defense",
   # facet_var="None",
@@ -218,12 +267,12 @@ Tree1CdetailIsDefense<-build_plot(
   coord_flip()+theme(legend.position="bottom")
 )
 
-write.csv(subset(full_data, nationalinterestactioncodeText=="California Wildfires 2008") ,"Output//CaliforniaWildfires.csv")
+write.csv(subset(full_data, national_interest_action_name=="California Wildfires 2008") ,"..//Output//CaliforniaWildfires.csv")
 
 
-#Remove the premature Californnia Wildfire 
+#Remove the premature California Wildfire 
 full_data$NIAcrisisFunding[
-  full_data$nationalinterestactioncodeText=="California Wildfires 2008" &
+  full_data$national_interest_action_name=="California Wildfires 2008" &
     full_data$dFYear<as.Date("2008-01-01")
 ]<-"Unlabeled"
 
@@ -231,14 +280,14 @@ full_data$NIAcrisisFunding[
 #Facet by theater
 Tree1Ctheater<-build_plot(
   data=subset(full_data,(!NIAcrisisFunding %in% c("Unlabeled","None")
-                     | nationalinterestactioncodeText=="Inauguration 2009") &
-                       Theater != "Unlabeled"),
+                     | national_interest_action_name=="Inauguration 2009") &
+                       CrisisFundingTheater != "Unlabeled"),
   chart_geom = "Bar Chart",
   share = FALSE,
-  x_var="nationalinterestactioncodeText",
+  x_var="national_interest_action_name",
   y_var="Obligation.2017",
   color_var="Is.Defense",
-  facet_var="Theater",
+  facet_var="CrisisFundingTheater",
   legend=TRUE, #Include a legend
   caption=TRUE, #Include a source caption
   labels_and_colors=full_labels_and_colors,
@@ -250,7 +299,7 @@ Tree1Ctheater<-build_plot(
   scale_y_continuous(label = unit_format(unit = "B", scale = 1e-9)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   coord_flip()+theme(legend.position="bottom")+
-  facet_wrap(~Theater,nrow=1)
+  facet_wrap(~CrisisFundingTheater,nrow=1)
 )
 
 full_data$NIAcontradictions<-full_data$NIAcrisisFunding
@@ -271,7 +320,7 @@ full_column_key<-get_column_key(full_data)
 summary(full_data$NIAcontradictions)
 
 unique(subset(full_data,NIAcontradictions!="Unlabeled"
-              & dFYear<=as.Date("2008-01-01"))$nationalinterestactioncodeText)
+              & dFYear<=as.Date("2008-01-01"))$national_interest_action_name)
 
 
 
@@ -311,13 +360,13 @@ Tree1Coco<-LatticePlotWrapper_csis360(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2017 $)",
   VAR.Coloration=full_labels_and_colors,
-  VAR.long.DF=subset(full_data,NIAcrisisFunding=="OCO" | (CrisisFunding1B=="OCO" & nationalinterestactioncodeText %in% c("None","Unlabeled"))),
+  VAR.long.DF=subset(full_data,NIAcrisisFunding=="OCO" | (CrisisFunding1B=="OCO" & national_interest_action_name %in% c("None","Unlabeled"))),
   # NA, #VAR.ncol
   VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding1B", #VAR.y.series
-  VAR.facet.primary= "nationalinterestactioncodeText", #VAR.facet.primary
-  # VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
+  VAR.facet.primary= "national_interest_action_name", #VAR.facet.primary
+  # VAR.facet.secondary="CrisisFundingTheater", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   DataLabels=FALSE
@@ -330,16 +379,16 @@ Tree1Coco<-LatticePlotWrapper_csis360(
 
   #NIAcrisisFunding
 
-ggsave600dpi("Output//Figure03_Tree1CdetailIsDefense.png", Tree1CdetailIsDefense, width=4, height= 6, units="in", size=12)
+ggsave600dpi("..//Output//Figure03_Tree1CdetailIsDefense.png", Tree1CdetailIsDefense, width=4, height= 6, units="in", size=12)
 
-ggsave("Output//Figure03_Tree1CdetailIsDefense.eps", Tree1CdetailIsDefense, width=4, height= 6, units="in")
+ggsave("..//Output//Figure03_Tree1CdetailIsDefense.eps", Tree1CdetailIsDefense, width=4, height= 6, units="in")
 
-ggsave600dpi("Output//Figure04_Tree1CisDefense.png", Tree1CisDefense, width=6.5, height= 3, units="in", size=12)
+ggsave600dpi("..//Output//Figure04_Tree1CisDefense.png", Tree1CisDefense, width=6.5, height= 3, units="in", size=12)
 
-ggsave("Output//Figure04_Tree1CisDefense.eps", Tree1CisDefense, width=6.5, height= 3, units="in")
+ggsave("..//Output//Figure04_Tree1CisDefense.eps", Tree1CisDefense, width=6.5, height= 3, units="in")
 
 
-ggsave600dpi("Output//Tree1Coco.png", Tree1Coco, width=6.5, height= 3, units="in",size=12)
+ggsave600dpi("..//Output//Tree1Coco.png", Tree1Coco, width=6.5, height= 3, units="in",size=12)
 
 #Apply decisions
 full_data$CrisisFunding1C<-full_data$CrisisFunding1B
@@ -417,7 +466,7 @@ Tree2isDefense<-LatticePlotWrapper_csis360(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2017 $)",
   VAR.Coloration=full_labels_and_colors,
-  VAR.long.DF=subset(full_data,Theater=="Afghanistan and Iraq"),
+  VAR.long.DF=subset(full_data,CrisisFundingTheater=="Afghanistan and Iraq"),
   # NA, #VAR.ncol
   VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
@@ -438,11 +487,11 @@ Tree2isDefense<-LatticePlotWrapper_csis360(
 # 
 
 
-ggsave600dpi("Output//Figure05_Tree2.png", Tree2isDefense, width=6.5, height= 3, units="in",size=12)
-ggsave("Output//Figure05_Tree2.eps", Tree2isDefense, width=6.5, height= 3, units="in")
+ggsave600dpi("..//Output//Figure05_Tree2.png", Tree2isDefense, width=6.5, height= 3, units="in",size=12)
+ggsave("..//Output//Figure05_Tree2.eps", Tree2isDefense, width=6.5, height= 3, units="in")
 
 full_data$CrisisFunding2<-full_data$CrisisFunding1C
-full_data$CrisisFunding2[full_data$CrisisFunding2=="Unlabeled" & full_data$Theater=="Afghanistan and Iraq"]<-"OCO"
+full_data$CrisisFunding2[full_data$CrisisFunding2=="Unlabeled" & full_data$CrisisFundingTheater=="Afghanistan and Iraq"]<-"OCO"
 
 
 summary(full_data$DecisionTree)
@@ -484,8 +533,8 @@ Tree3<-LatticePlotWrapper_csis360(
 # 
 )
 
-ggsave600dpi("Output//Figure06_Tree3.png", Tree3, width=4, height= 4.25, units="in", size=12)
-ggsave("Output//Figure06_Tree3.eps", Tree3, width=4, height= 4, units="in")
+ggsave600dpi("..//Output//Figure06_Tree3.png", Tree3, width=4, height= 4.25, units="in", size=12)
+ggsave("..//Output//Figure06_Tree3.eps", Tree3, width=4, height= 4, units="in")
 sum(full_data$Obligation.2017[full_data$Customer=="Defense" &
       full_data$dFYear>=as.Date("2011-01-01") & full_data$Dur.Simple=="Unlabeled"])
 
@@ -542,8 +591,8 @@ Tree4a<-LatticePlotWrapper_csis360(
 )
 
   Tree4a
-ggsave600dpi("Output//Figure07_Tree4a.png", Tree4a, width=6, height= 3.5, units="in", size=12)
-ggsave("Output//Figure07_Tree4a.eps", Tree4a, width=6, height= 3.5, units="in")
+ggsave600dpi("..//Output//Figure07_Tree4a.png", Tree4a, width=6, height= 3.5, units="in", size=12)
+ggsave("..//Output//Figure07_Tree4a.eps", Tree4a, width=6, height= 3.5, units="in")
 
 full_data$CrisisFunding4A<-full_data$CrisisFunding3
 full_data$CrisisFunding4A[full_data$CrisisFunding4A=="Unlabeled" & full_data$IsExcludedPSC=="Excluded"]<-"Excluded"
@@ -594,8 +643,8 @@ Tree4b<-LatticePlotWrapper_csis360(
 # # 
 )
 
-ggsave600dpi("Output//Figure08_Tree4b.png", Tree4b, width=6.5, height= 4, units="in", size=12)
-ggsave("Output//Figure08_Tree4b.eps", Tree4b, width=6.5, height= 4, units="in")
+ggsave600dpi("..//Output//Figure08_Tree4b.png", Tree4b, width=6.5, height= 4, units="in", size=12)
+ggsave("..//Output//Figure08_Tree4b.eps", Tree4b, width=6.5, height= 4, units="in")
 
 full_data$CrisisFunding4B<-full_data$CrisisFunding4A
 full_data$CrisisFunding4B[full_data$CrisisFunding4B=="Unlabeled" & full_data$IsExcludedCO==1]<-"Excluded"
@@ -613,13 +662,13 @@ full_column_key<-get_column_key(full_data)
 
 (
 Tree5<-build_plot(
-  data=subset(full_data,Theater!="Unlabeled" & full_data$IsOMBocoList==1),
+  data=subset(full_data,CrisisFundingTheater!="Unlabeled" & full_data$IsOMBocoList==1),
   chart_geom = "Line Chart",
   share = TRUE,
   x_var="dFYear",
   y_var="Obligation.2017",
   color_var="CrisisFunding4B",
-  facet_var="Theater",
+  facet_var="CrisisFundingTheater",
   legend=TRUE, #Include a legend
   caption=TRUE, #Include a source caption
   labels_and_colors=full_labels_and_colors,
@@ -631,7 +680,7 @@ Tree5<-build_plot(
   scale_x_date(
             # breaks=date_breaks("5 years"),
             labels=date_format("'%y"))+
-facet_wrap(~Theater,nrow=1)+labs(
+facet_wrap(~CrisisFundingTheater,nrow=1)+labs(
   y="Percent of Obligations",
   line="Classification\nAfter Step 4B"
 )+theme(legend.position="bottom")
@@ -644,13 +693,13 @@ facet_wrap(~Theater,nrow=1)+labs(
   # VAR.X.label="Fiscal Year",
   # VAR.Y.label="Percent of Obligations",
   # VAR.Coloration=full_labels_and_colors,
-  # VAR.long.DF=subset(full_data,Theater!="Unlabeled" & full_data$IsOMBocoList==1),
+  # VAR.long.DF=subset(full_data,CrisisFundingTheater!="Unlabeled" & full_data$IsOMBocoList==1),
   # NA, #VAR.ncol
   # VAR.x.variable="dFYear", #VAR.x.variable
   # VAR.y.variable="Obligation.2017", #VAR.y.variable
   # VAR.y.series="CrisisFunding4B", #VAR.y.series
-  # VAR.facet.primary= "Theater", #VAR.facet.primary
-  # VAR.facet.secondary="contingencyhumanitarianpeacekeepingoperationText", # VAR.facet.secondary=NA
+  # VAR.facet.primary= "CrisisFundingTheater", #VAR.facet.primary
+  # VAR.facet.secondary="ContingencyHumanitarianPeacekeepingOperationText", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   # DataLabels=FALSE
@@ -687,7 +736,7 @@ Tree5A<-LatticePlotWrapper_csis360(
   VAR.Coloration=full_labels_and_colors,
   VAR.long.DF=subset(full_data,Customer=="Defense" &
       CrisisFunding4B %in% c("OCO","Unlabeled","Excluded" ) & 
-      Fiscal.Year >=2012),
+      fiscal_year >=2012),
   # NA, #VAR.ncol
   VAR.x.variable="PercentFundingAccountOCORound1", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
@@ -705,29 +754,29 @@ Tree5A<-LatticePlotWrapper_csis360(
   scale_x_continuous(labels = percent_format())+geom_vline(aes(xintercept=0.25))  
 )
 
-ggsave600dpi("Output//Figure09_Tree5A.png", Tree5A, width=6.5, height= 2.5, units="in", size=12)
-ggsave("Output//Figure09_Tree5A.eps", Tree5A, width=6.5, height= 2.5, units="in")
+ggsave600dpi("..//Output//Figure09_Tree5A.png", Tree5A, width=6.5, height= 2.5, units="in", size=12)
+ggsave("..//Output//Figure09_Tree5A.eps", Tree5A, width=6.5, height= 2.5, units="in")
 sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
       full_data$Customer=="Defense"& 
-      full_data$Fiscal.Year >=2012&
+      full_data$fiscal_year >=2012&
     full_data$PercentFundingAccountOCORound1>=0.25],na.rm=TRUE)/
   sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
       full_data$Customer=="Defense"& 
-      full_data$Fiscal.Year >=2012],na.rm=TRUE)
+      full_data$fiscal_year >=2012],na.rm=TRUE)
 sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Excluded"&
       full_data$Customer=="Defense"& 
-      full_data$Fiscal.Year >=2012&
+      full_data$fiscal_year >=2012&
     full_data$PercentFundingAccountOCORound1>=0.25],na.rm=TRUE)/
   sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Excluded"&
       full_data$Customer=="Defense"& 
-      full_data$Fiscal.Year >=2012],na.rm=TRUE)
+      full_data$fiscal_year >=2012],na.rm=TRUE)
 sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Unlabeled"&
       full_data$Customer=="Defense"& 
-      full_data$Fiscal.Year >=2012&
+      full_data$fiscal_year >=2012&
     full_data$PercentFundingAccountOCORound1>=0.25],na.rm=TRUE)/
   sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="Unlabeled"&
       full_data$Customer=="Defense"& 
-      full_data$Fiscal.Year >=2012],na.rm=TRUE)
+      full_data$fiscal_year >=2012],na.rm=TRUE)
 
 
 ```
@@ -789,8 +838,8 @@ sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
       full_data$Customer=="Defense"])
 
 
-ggsave600dpi("Output//Figure10_Tree5B.png", Tree5B, width=6.5, height= 2.75, units="in",size=12)
-ggsave("Output//Figure10_Tree5B.eps", Tree5B, width=6.5, height= 2.75, units="in")
+ggsave600dpi("..//Output//Figure10_Tree5B.png", Tree5B, width=6.5, height= 2.75, units="in",size=12)
+ggsave("..//Output//Figure10_Tree5B.eps", Tree5B, width=6.5, height= 2.75, units="in")
 
 
 ```
@@ -832,8 +881,8 @@ Tree5C<-LatticePlotWrapper_csis360(
   scale_x_continuous(labels = percent_format())+geom_vline(aes(xintercept=0.25))  
 )
 
-ggsave600dpi("Output//Figure11_Tree5C.png", Tree5C, width=6.5, height= 2.5, units="in",size=12)
-ggsave("Output//Figure11_Tree5C.eps", Tree5C, width=6.5, height= 2.5, units="in")
+ggsave600dpi("..//Output//Figure11_Tree5C.png", Tree5C, width=6.5, height= 2.5, units="in",size=12)
+ggsave("..//Output//Figure11_Tree5C.eps", Tree5C, width=6.5, height= 2.5, units="in")
 sum(full_data$Obligation.2017[full_data$CrisisFunding4B=="OCO"&
       full_data$Customer=="Defense"& 
     full_data$OfficeOCOcrisisPercentRound1>=0.25],na.rm=TRUE)/
@@ -881,7 +930,7 @@ full_data$CrisisPointsOnly<-factor(full_data$CrisisPointsOnly)
 levels(factor(full_data$CrisisPointsOnly))
 
 
-full_data$OMBtheater<-as.character(full_data$Theater)
+full_data$OMBtheater<-as.character(full_data$CrisisFundingTheater)
 full_data$OMBtheater[full_data$IsOMBocoList==1 & 
     full_data$OMBtheater!="Afghanistan and Iraq"]<-"Other OMB OCO list"
 full_data$OMBtheater<-factor(full_data$OMBtheater)
@@ -894,7 +943,7 @@ full_column_key<-get_column_key(full_data)
 
 (
 Tree6percent<-build_plot(
-  data=subset(full_data,!Theater %in% c("Unlabeled")),
+  data=subset(full_data,!CrisisFundingTheater %in% c("Unlabeled")),
   chart_geom = "Bar Chart",
   share = TRUE,
   x_var="dFYear",
@@ -924,7 +973,7 @@ Tree6final<-LatticePlotWrapper_csis360(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2017 $)",
   VAR.Coloration=subset(full_labels_and_colors,column!="CrisisPointsOnly" | variable !='Unlabeled'), #Dropping unlabeled from legend.
-  VAR.long.DF=subset(full_data,!Theater %in% c("Unlabeled") &
+  VAR.long.DF=subset(full_data,!CrisisFundingTheater %in% c("Unlabeled") &
                        DecisionTree %in% c("OCO","Unlabeled") &
       !is.na(CrisisPointsOnly)),
   # NA, #VAR.ncol
@@ -952,11 +1001,11 @@ Tree6final<-LatticePlotWrapper_csis360(
 
 levels(full_data$CrisisPointsOnly)
 
-ggsave600dpi("Output//Figure12_Tree6percent.png", Tree6percent, width=6.5, height= 2.5, units="in",size=12)
-ggsave("Output//Figure12_Tree6percent.eps", Tree6percent, width=6.5, height= 2.5, units="in")
+ggsave600dpi("..//Output//Figure12_Tree6percent.png", Tree6percent, width=6.5, height= 2.5, units="in",size=12)
+ggsave("..//Output//Figure12_Tree6percent.eps", Tree6percent, width=6.5, height= 2.5, units="in")
 
-ggsave600dpi("Output//Figure13_Tree6final.png", Tree6final, width=4, height= 7.5, units="in",size=12)
-ggsave("Output//Figure13_Tree6final.eps", Tree6final, width=4, height= 7.5, units="in")
+ggsave600dpi("..//Output//Figure13_Tree6final.png", Tree6final, width=4, height= 7.5, units="in",size=12)
+ggsave("..//Output//Figure13_Tree6final.eps", Tree6final, width=4, height= 7.5, units="in")
 
 full_data$CrisisFunding<-full_data$CrisisFunding4B
 full_data$CrisisFunding[full_data$CrisisFunding=="Unlabeled" & full_data$DecisionTree=="OCO"]<-"OCO"

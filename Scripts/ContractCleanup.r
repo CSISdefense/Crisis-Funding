@@ -562,7 +562,7 @@ impute_unmodified<-function(unmodified,
 
 
 input_sample_criteria<-function(contract=NULL,
-                                file="contract.SP_ContractSampleCriteriaDetailsCustomer.txt",
+                                file="Contract_SP_ContractSampleCriteriaDetailsCustomer.txt",
                                 dir="..\\data\\semi_clean\\",
                                 drop_incomplete=TRUE,
                                 last_date="2016-12-31",
@@ -652,7 +652,7 @@ input_sample_criteria<-function(contract=NULL,
 
 
 input_initial_scope<-function(contract,
-                              file="Contract.SP_ContractUnmodifiedScope.txt",
+                              file="Contract_SP_ContractUnmodifiedScope.txt",
                               dir="..\\data\\semi_clean\\",
                               retain_all=FALSE,
                               col_types="idddDDDl"
@@ -887,7 +887,7 @@ input_contract_ceiling_breach<-function(contract,
 }
 
 input_contract_psc_office_naics<-function(contract,
-                                          file="Contract.SP_ContractTopPSCofficeNAICS.txt",
+                                          file="Contract_SP_ContractTopPSCofficeNAICS.txt",
                                           dir="..\\data\\semi_clean\\",
                                           retain_all=FALSE
                                           ){
