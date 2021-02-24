@@ -32,67 +32,9 @@ geom.text.size<-1
 main.text.size<-1
 note.text.size<-1.40
 
-#This file is quite large, use the rda by default.
-#When updating with new data, 
-if(file.exists(file.path("..","data","semi_clean",
-                         "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.rdata"))){
-  
+if(!exists("full_data"))
   load(file.path("..","data","semi_clean",
                  "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.rdata"))
-} else{
-  
-  full_data<-read_tsv(file.path("..","data","semi_clean",
-                                "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.txt"),
-                      na = c("", "NA","NULL"),
-                      guess_max = 10000000)
-  
-  #Dropping time to complete
-  if(all(is.na((full_data[nrow(full_data),]))))
-    full_data<-full_data[1:(nrow(full_data)-1),]
-  
-  full_data<-apply_lookups(Path,fed_full)
-  
-  full_data$Is.Defense<-ifelse(full_data$ContractingCustomer=="Defense","Defense","Civilian")
-   # full_data<-read_and_join_experiment(full_data,
-   #                                 "Agency_AgencyID.csv",
-   #                                 by=c("Agency"="AgencyID"),
-   #                             path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-   #                             dir="",
-   #                             add_var = "Is.Defense")
-  
-  full_data<-read_and_join_experiment(full_data,
-                                  "ContingencyHumanitarianPeacekeepingOperation.csv",
-                                  by="ContingencyHumanitarianPeacekeepingOperation",
-                              path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-                              dir="assistance//",
-                              add_var = "ContingencyHumanitarianPeacekeepingOperationText")
-
-  full_data<-read_and_join_experiment(full_data,
-                                  "NationalInterestActionCode.csv",
-                                  by=c("nationalinterestactioncode"="NationalInterestActionCode"),
-                              path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-                              dir="assistance//",skip_check_var = c('national_interest_action_name',	'IsHurricane',	'CrisisFunding'
-))
-  
-    # full_data<-read_and_join_experiment(full_data,
-    #                               "Location_CountryCodes.csv",
-    #                               by=c("ContingencyHumanitarianPeacekeepingOperation"="alpha-3"),
-    #                           path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-    #                           dir="location//",
-    #                           add_var = "CrisisFundingTheater")
-  full_data<-deflate(full_data,
-                     money_var = "obligatedAmount",
-                     fy_var = "fiscal_year",
-                     deflator_var="GDPdeflator2017"
-  )
-  full_data$dFYear<-as.Date(paste("1/1/",as.character(full_data$fiscal_year),sep=""),"%m/%d/%Y")
-  colnames(full_data)[colnames(full_data)=="obligatedAmount_GDPdeflator2017"]<-"Obligation.2017"
-  
-  save(full_data,file=file.path("..","data","semi_clean",
-                                "budget_SP_LocationVendorCrisisFundingHistoryBucketCustomerDetail.rdata"))
-}
-
-
 
 ```
 
@@ -164,7 +106,7 @@ full_data$ContingencyHumanitarianPeacekeepingOperationText[
 # ,[ContingencyHumanitarianPeacekeepingOperation]
 (
 Tree1B<-build_plot(
-  data=subset(full_data,CrisisFundingTheater!="Unlabeled"),
+  data=subset(full_data,Theater!="Unlabeled"),
   chart_geom = "Line Chart",
   share = TRUE,
   labels_and_colors=full_labels_and_colors,
@@ -172,12 +114,12 @@ Tree1B<-build_plot(
   x_var="dFYear", #x_var
   y_var="Obligation.2017", #VAR.y.variable
   color_var="ContingencyHumanitarianPeacekeepingOperationText", #color_var
-  facet_var="CrisisFundingTheater", #facet_var
+  facet_var="Theater", #facet_var
   # second_var="Is.Defense", #facet_var
   column_key=full_column_key,
   format=TRUE,
 )# +theme(legend.title =element_text())
-  +facet_wrap(~CrisisFundingTheater,nrow=1)+labs(
+  +facet_wrap(~Theater,nrow=1)+labs(
   x="Fiscal Year",
   y="Percent of Obligations"
   # color="Operation Type"
@@ -196,13 +138,13 @@ Tree1B<-build_plot(
       VAR.X.label="Fiscal Year",
       VAR.Y.label="Obligations (2017 $)",
       VAR.Coloration=full_labels_and_colors,
-      VAR.long.DF=subset(full_data,CrisisFundingTheater!="Unlabeled"),
+      VAR.long.DF=subset(full_data,Theater!="Unlabeled"),
       # NA, #VAR.ncol
       VAR.x.variable="dFYear", #VAR.x.variable
       VAR.y.variable="Obligation.2017", #VAR.y.variable
       VAR.y.series="CrisisFunding1A", #VAR.y.series
       VAR.facet.primary="ContingencyHumanitarianPeacekeepingOperationText", #VAR.facet.primary
-      VAR.facet.secondary= "CrisisFundingTheater", # VAR.facet.secondary=NA
+      VAR.facet.secondary= "Theater", # VAR.facet.secondary=NA
       # ,MovingAverage=0
       # ,MovingSides=1
       DataLabels=FALSE
@@ -281,13 +223,13 @@ full_data$NIAcrisisFunding[
 Tree1Ctheater<-build_plot(
   data=subset(full_data,(!NIAcrisisFunding %in% c("Unlabeled","None")
                      | national_interest_action_name=="Inauguration 2009") &
-                       CrisisFundingTheater != "Unlabeled"),
+                       Theater != "Unlabeled"),
   chart_geom = "Bar Chart",
   share = FALSE,
   x_var="national_interest_action_name",
   y_var="Obligation.2017",
   color_var="Is.Defense",
-  facet_var="CrisisFundingTheater",
+  facet_var="Theater",
   legend=TRUE, #Include a legend
   caption=TRUE, #Include a source caption
   labels_and_colors=full_labels_and_colors,
@@ -299,7 +241,7 @@ Tree1Ctheater<-build_plot(
   scale_y_continuous(label = unit_format(unit = "B", scale = 1e-9)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   coord_flip()+theme(legend.position="bottom")+
-  facet_wrap(~CrisisFundingTheater,nrow=1)
+  facet_wrap(~Theater,nrow=1)
 )
 
 full_data$NIAcontradictions<-full_data$NIAcrisisFunding
@@ -366,7 +308,7 @@ Tree1Coco<-LatticePlotWrapper_csis360(
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding1B", #VAR.y.series
   VAR.facet.primary= "national_interest_action_name", #VAR.facet.primary
-  # VAR.facet.secondary="CrisisFundingTheater", # VAR.facet.secondary=NA
+  # VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   DataLabels=FALSE
@@ -466,13 +408,13 @@ Tree2isDefense<-LatticePlotWrapper_csis360(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2017 $)",
   VAR.Coloration=full_labels_and_colors,
-  VAR.long.DF=subset(full_data,CrisisFundingTheater=="Afghanistan and Iraq"),
+  VAR.long.DF=subset(full_data,Theater=="Afghanistan and Iraq"),
   # NA, #VAR.ncol
   VAR.x.variable="dFYear", #VAR.x.variable
   VAR.y.variable="Obligation.2017", #VAR.y.variable
   VAR.y.series="CrisisFunding1C", #VAR.y.series
   VAR.facet.primary= "Is.Defense", #VAR.facet.primary
-  VAR.facet.secondary="CrisisFundingTheater", # VAR.facet.secondary=NA
+  VAR.facet.secondary="Theater", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
   DataLabels=FALSE,
@@ -491,7 +433,7 @@ ggsave600dpi("..//Output//Figure05_Tree2.png", Tree2isDefense, width=6.5, height
 ggsave("..//Output//Figure05_Tree2.eps", Tree2isDefense, width=6.5, height= 3, units="in")
 
 full_data$CrisisFunding2<-full_data$CrisisFunding1C
-full_data$CrisisFunding2[full_data$CrisisFunding2=="Unlabeled" & full_data$CrisisFundingTheater=="Afghanistan and Iraq"]<-"OCO"
+full_data$CrisisFunding2[full_data$CrisisFunding2=="Unlabeled" & full_data$Theater=="Afghanistan and Iraq"]<-"OCO"
 
 
 summary(full_data$DecisionTree)
@@ -662,13 +604,13 @@ full_column_key<-get_column_key(full_data)
 
 (
 Tree5<-build_plot(
-  data=subset(full_data,CrisisFundingTheater!="Unlabeled" & full_data$IsOMBocoList==1),
+  data=subset(full_data,Theater!="Unlabeled" & full_data$IsOMBocoList==1),
   chart_geom = "Line Chart",
   share = TRUE,
   x_var="dFYear",
   y_var="Obligation.2017",
   color_var="CrisisFunding4B",
-  facet_var="CrisisFundingTheater",
+  facet_var="Theater",
   legend=TRUE, #Include a legend
   caption=TRUE, #Include a source caption
   labels_and_colors=full_labels_and_colors,
@@ -680,7 +622,7 @@ Tree5<-build_plot(
   scale_x_date(
             # breaks=date_breaks("5 years"),
             labels=date_format("'%y"))+
-facet_wrap(~CrisisFundingTheater,nrow=1)+labs(
+facet_wrap(~Theater,nrow=1)+labs(
   y="Percent of Obligations",
   line="Classification\nAfter Step 4B"
 )+theme(legend.position="bottom")
@@ -693,12 +635,12 @@ facet_wrap(~CrisisFundingTheater,nrow=1)+labs(
   # VAR.X.label="Fiscal Year",
   # VAR.Y.label="Percent of Obligations",
   # VAR.Coloration=full_labels_and_colors,
-  # VAR.long.DF=subset(full_data,CrisisFundingTheater!="Unlabeled" & full_data$IsOMBocoList==1),
+  # VAR.long.DF=subset(full_data,Theater!="Unlabeled" & full_data$IsOMBocoList==1),
   # NA, #VAR.ncol
   # VAR.x.variable="dFYear", #VAR.x.variable
   # VAR.y.variable="Obligation.2017", #VAR.y.variable
   # VAR.y.series="CrisisFunding4B", #VAR.y.series
-  # VAR.facet.primary= "CrisisFundingTheater", #VAR.facet.primary
+  # VAR.facet.primary= "Theater", #VAR.facet.primary
   # VAR.facet.secondary="ContingencyHumanitarianPeacekeepingOperationText", # VAR.facet.secondary=NA
   # ,MovingAverage=0
   # ,MovingSides=1
@@ -930,7 +872,7 @@ full_data$CrisisPointsOnly<-factor(full_data$CrisisPointsOnly)
 levels(factor(full_data$CrisisPointsOnly))
 
 
-full_data$OMBtheater<-as.character(full_data$CrisisFundingTheater)
+full_data$OMBtheater<-as.character(full_data$Theater)
 full_data$OMBtheater[full_data$IsOMBocoList==1 & 
     full_data$OMBtheater!="Afghanistan and Iraq"]<-"Other OMB OCO list"
 full_data$OMBtheater<-factor(full_data$OMBtheater)
@@ -943,7 +885,7 @@ full_column_key<-get_column_key(full_data)
 
 (
 Tree6percent<-build_plot(
-  data=subset(full_data,!CrisisFundingTheater %in% c("Unlabeled")),
+  data=subset(full_data,!Theater %in% c("Unlabeled")),
   chart_geom = "Bar Chart",
   share = TRUE,
   x_var="dFYear",
@@ -973,7 +915,7 @@ Tree6final<-LatticePlotWrapper_csis360(
   VAR.X.label="Fiscal Year",
   VAR.Y.label="Obligations (2017 $)",
   VAR.Coloration=subset(full_labels_and_colors,column!="CrisisPointsOnly" | variable !='Unlabeled'), #Dropping unlabeled from legend.
-  VAR.long.DF=subset(full_data,!CrisisFundingTheater %in% c("Unlabeled") &
+  VAR.long.DF=subset(full_data,!Theater %in% c("Unlabeled") &
                        DecisionTree %in% c("OCO","Unlabeled") &
       !is.na(CrisisPointsOnly)),
   # NA, #VAR.ncol
