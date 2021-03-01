@@ -57,7 +57,7 @@ full_column_key<-get_column_key(full_data)
 
 (
 Tree1A<-build_plot(
-  data=full_data %>% filter(!is.na(Is.Defense)),
+  data=full_data %>% filter(Is.Defense!="Unlabeled"),
   chart_geom = "Bar Chart",
   share = FALSE,
   labels_and_colors=full_labels_and_colors,

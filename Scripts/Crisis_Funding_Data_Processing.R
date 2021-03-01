@@ -194,7 +194,7 @@ full_data$NoCompOffr<-factor(full_data$NoCompOffr,c(
   ))
 full_data %>% group_by(NoCompOffr) %>% dplyr::summarise(Obligation.2017=sum(Obligation.2017,na.rm=TRUE))
 
-full_data$dFYear<-as.Date(paste("1/1/",as.character(full_data$Fiscal.Year),sep=""),"%m/%d/%Y")
+full_data$dFYear<-as.Date(paste("1/1/",as.character(full_data$fiscal_year),sep=""),"%m/%d/%Y")
 
 for(i in 1:ncol(full_data))
   if (typeof(full_data[,i])=="character")

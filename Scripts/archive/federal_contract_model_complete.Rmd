@@ -39,7 +39,7 @@ if(!exists("fed_full") & file.exists("..\\data\\clean\\federal_contract_complete
   load(file="..\\data\\clean\\federal_contract_complete_detail.Rdata")
 } else if(!exists("fed_full")) fed_full<-NULL
 
-debug(input_sample_criteria)
+# debug(input_sample_criteria)
 #Limit the start years to those completed 2007-2015. Doing this first to get the size down.
 fed_full<-input_sample_criteria(fed_full,  
                                dir="..\\data\\semi_clean\\",
