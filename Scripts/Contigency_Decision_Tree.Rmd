@@ -13,11 +13,12 @@ pdf_document: default
 
 library(readr)
 library(tidyverse)
-library(reshape2)
+# library(reshape2)
 library(Hmisc)
 library(csis360)
 library(scales)
-library(showtext)
+library(sysfonts)
+# library(showtext)
 font_add_google("Open Sans")
 # diigtheme1:::diiggraph()
 
@@ -352,6 +353,8 @@ summary(full_data$CrisisFunding1C)
 ##Step 1D: Revealing Waivers to the CCR Reporting Requirement
 ```{r Step1D}
 # CCRexception 
+full_labels_and_colors<-prepare_labels_and_colors(full_data,na_replaced=TRUE)
+full_column_key<-get_column_key(full_data)
 
 Tree1DisDefense<-LatticePlotWrapper_csis360(
   VAR.color.legend.label="Classification\nAfter Step 1C",
