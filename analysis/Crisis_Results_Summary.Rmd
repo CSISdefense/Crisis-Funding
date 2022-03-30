@@ -317,7 +317,7 @@ chapter4topline<-LatticePlotWrapper_csis360(
 )+  facet_grid(primary ~ secondary
               , scales="free_y" 
               , space="fixed")+theme(legend.position = 'bottom')+get_caption()+
-  scale_x_date("Fiscal Year",labels = date_format("'%y"), date_breaks="3 years")+
+  scale_x_date("Fiscal Year",labels = scales::date_format("'%y"), date_breaks="3 years")+
   geom_vline(xintercept=as.numeric(as.Date("2006-07-01")))
 )
 
@@ -338,7 +338,7 @@ chapter4topline$data %>%  group_by(primary,x.variable) %>%
 ggsave600dpi("..//Output//Figure14_topline.png", chapter4topline, width=6.5, height= 4, units="in")
 
 ggsave("..//Output//Figure14_topline.eps", device=cairo_pdf, chapter4topline, width=6.5, height= 4, units="in")
-
+write.csv(chapter4topline$data,file="..//Output//Figure14_topline.csv")
 ```
 
 
