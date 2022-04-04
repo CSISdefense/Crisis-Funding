@@ -565,7 +565,7 @@ input_sample_criteria<-function(contract=NULL,
                                 file="Contract_SP_ContractSampleCriteriaDetailsCustomer.txt",
                                 dir="..\\data\\semi_clean\\",
                                 drop_incomplete=TRUE,
-                                last_date="2016-12-31",
+                                last_date="2019-12-31",
                                 retain_all=FALSE
 ){
   
@@ -607,7 +607,15 @@ input_sample_criteria<-function(contract=NULL,
   if("MaxBoostDate" %in% colnames(contract)){
     contract$MaxBoostDate<-na_nonsense_dates(contract$MaxBoostDate) 
   } else {paste("Missing MaxBoostDate, redownload please.",file)}
-
+  if("MinOfSolicitation_Date" %in% colnames(contract)){
+    contract$MinOfSolicitation_Date<-na_nonsense_dates(contract$MinOfSolicitation_Date)
+    contract$PALT<-as.numeric(
+      difftime(strptime(contract$MinOfSignedDate,"%Y-%m-%d")
+               , strptime(contract$MinOfSolicitation_Date,"%Y-%m-%d")
+               , unit="days"
+      ))+1
+  } else {paste("Missing MinOfSolicitation_Date, redownload please.",file)}
+  
   if(!"StartFiscal_Year" %in% colnames(contract)){
     contract$StartFiscal_Year<-year(contract$MinOfSignedDate)+ifelse(month(contract$MinOfSignedDate)>=10,1,0)
   }
