@@ -685,57 +685,58 @@ input_initial_scope<-function(contract,
   contract$UnmodifiedUltimateCompletionDate<-na_nonsense_dates(contract$UnmodifiedUltimateCompletionDate)
   contract$UnmodifiedLastDateToOrder<-na_nonsense_dates(contract$UnmodifiedLastDateToOrder)
   
-  
-  #Calculate the number of days the contract lasts.
-  contract$UnmodifiedDays<-as.numeric(
-    difftime(strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")
-             , strptime(contract$MinOfSignedDate,"%Y-%m-%d")
-             , unit="days"
-    ))+1
-  #Remove negative durations and century-plus durations.
-  contract$UnmodifiedDays[contract$UnmodifiedDays<1 |
-                            contract$UnmodifiedDays>36524]<-NA
-  # 
-  # CDuration<-as.duration(strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")-
-  #                 strptime(contract$MinOfSignedDate,"%Y-%m-%d"))
-  # 
-  # CPeriod<-as.period(
-  #     CInterval<-new_interval(ymd(contract$UnmodifiedCurrentCompletionDate),
-  #                 ymd(contract$MinOfSignedDate))
-  # 
-  # 
-  # 
-  # summary(dYears)
-  
-  #Break the count of days into four categories.
-  contract$qDuration<-cut2(contract$UnmodifiedDays,cuts=c(61,214,366,732))
-  
-  
-  
-  if ( 
-    gsub(" ","",levels(contract$qDuration)[[2]]) =="[61,214)"&
-    gsub(" ","",levels(contract$qDuration)[[3]]) =="[214,366)"&
-    gsub(" ","",levels(contract$qDuration)[[4]]) =="[366,732)"
-  ){
-    contract$qDuration<-factor(contract$qDuration, 
-                               
-                               levels=levels(contract$qDuration),
-                               # "[    0,   61)",
-                               # "[   61,  214)",
-                               # "[  214,  366)",
-                               # "[  366,  732)",
-                               # "[  732,33192]"),
-                               labels=c("[0 months,~2 months)",
-                                        "[~2 months,~7 months)",
-                                        "[~7 months-~1 year]",
-                                        "(~1 year,~2 years]",
-                                        "(~2 years+]"),
-                               ordered=TRUE
-    )
+  if(!all(is.na(contract$UnmodifiedCurrentCompletionDate))){
+    #Calculate the number of days the contract lasts.
+    contract$UnmodifiedDays<-as.numeric(
+      difftime(strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")
+               , strptime(contract$MinOfSignedDate,"%Y-%m-%d")
+               , unit="days"
+      ))+1
+    #Remove negative durations and century-plus durations.
+    contract$UnmodifiedDays[contract$UnmodifiedDays<1 |
+                              contract$UnmodifiedDays>36524]<-NA
+    # 
+    # CDuration<-as.duration(strptime(contract$UnmodifiedCurrentCompletionDate,"%Y-%m-%d")-
+    #                 strptime(contract$MinOfSignedDate,"%Y-%m-%d"))
+    # 
+    # CPeriod<-as.period(
+    #     CInterval<-new_interval(ymd(contract$UnmodifiedCurrentCompletionDate),
+    #                 ymd(contract$MinOfSignedDate))
+    # 
+    # 
+    # 
+    # summary(dYears)
+    
+    #Break the count of days into four categories.
+    contract$qDuration<-cut2(contract$UnmodifiedDays,cuts=c(61,214,366,732))
+    
+    
+    
+    if ( 
+      gsub(" ","",levels(contract$qDuration)[[2]]) =="[61,214)"&
+      gsub(" ","",levels(contract$qDuration)[[3]]) =="[214,366)"&
+      gsub(" ","",levels(contract$qDuration)[[4]]) =="[366,732)"
+    ){
+      contract$qDuration<-factor(contract$qDuration, 
+                                 
+                                 levels=levels(contract$qDuration),
+                                 # "[    0,   61)",
+                                 # "[   61,  214)",
+                                 # "[  214,  366)",
+                                 # "[  366,  732)",
+                                 # "[  732,33192]"),
+                                 labels=c("[0 months,~2 months)",
+                                          "[~2 months,~7 months)",
+                                          "[~7 months-~1 year]",
+                                          "(~1 year,~2 years]",
+                                          "(~2 years+]"),
+                                 ordered=TRUE
+      )
+    }
+    
+    
   }
-  
-  
-  
+  else(warning("Failed date import"))
   
   lowroundedcutoffs<-c(15000,100000,1000000,30000000)
   highroundedcutoffs<-c(15000,100000,1000000,10000000,75000000)
