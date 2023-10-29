@@ -2,7 +2,9 @@ library(lubridate)
 library(csis360)
 library(Hmisc)
 library(readr)
-
+library(odbc)
+library(askpass)
+library(DBI)
 
 #This function generates some derived figures for a contrat sample that's been augmented
 #by extra column on closed out and/or terminated contracts.
@@ -523,8 +525,8 @@ percent_obligated<-function(data,
                             denom_col,
                             unmodified_col=NA,
                             overall_col=NA){
-  data$p_obligated<-as.double(unlist(csis360::text_to_number(data[,num_col])))/
-    as.double(unlist(csis360::text_to_number(data[,denom_col])))
+  data$p_obligated<-as.double(unlist(text_to_number(data[,num_col])))/
+    as.double(unlist(text_to_number(data[,denom_col])))
   data$p_obligated[data$p_obligated>1]<-1
   data$p_obligated[data$p_obligated<0]<-NA
   if(!is.na(overall_col)&is.na(unmodified_col)){
@@ -562,59 +564,73 @@ impute_unmodified<-function(unmodified,
 
 
 input_sample_criteria<-function(contract=NULL,
-                                file="Contract_SP_ContractSampleCriteriaDetailsCustomer.txt",
+                                schema="Contract",
+                                sp="SP_ContractSampleCriteriaDetailsCustomer",
                                 dir="..\\data\\semi_clean\\",
                                 drop_incomplete=TRUE,
-                                last_date="2019-12-31",
-                                retain_all=FALSE
+                                last_date="2021-09-30",
+                                retain_all=FALSE,
+                                login,
+                                password
 ){
   
+  con <- dbConnect(odbc(),
+                   Driver = "SQL Server",
+                   Server = "vmsqldiig.database.windows.net",
+                   Database = "CSIS360",
+                   UID = login,
+                   PWD =pwd)
   
+  rda_file<-paste(schema,".",sp,".rda",sep = "")
+  
+  if(!file.exists(file.path(dir,rda_file))){
+    lookup<-dbGetQuery(con,  
+                            paste("EXEC ",schema,".",sp," @IsDefense=NULL",sep=""))
+    lookup<-standardize_variable_names(lookup)
+    #11:51 #Finished by 4:50
+    #67 million rows.
+    
+    if("MinOfEffectiveDate" %in% colnames(lookup)){
+      lookup$MinOfEffectiveDate<-na_nonsense_dates(lookup$MinOfEffectiveDate)
+    }
+    lookup$MinOfSignedDate<-na_nonsense_dates(lookup$MinOfSignedDate)
+    lookup$LastCurrentCompletionDate<-na_nonsense_dates(lookup$LastCurrentCompletionDate)
+    if("MaxBoostDate" %in% colnames(lookup)){
+      lookup$MaxBoostDate<-na_nonsense_dates(lookup$MaxBoostDate) 
+    } else {paste("Missing MaxBoostDate, redownload please.",file)}
+    if("MinOfSolicitation_Date" %in% colnames(lookup)){
+      lookup$MinOfSolicitation_Date<-na_nonsense_dates(lookup$MinOfSolicitation_Date)
+    } else {paste("Missing MinOfSolicitation_Date, redownload please.",file)}
+    save(lookup,file=file.path(dir,rda_file))
+  }
   
   if(!exists("contract") | is.null(contract)){
-    # swap_in_zip(file,"",dir)
-    contract <-readr::read_delim(
-      paste(dir,file,sep=""),
-      col_names=TRUE, 
-      delim=get_delim(file),
-      # , dec=".",
-      trim_ws=TRUE,
-      na=c("NULL","NA")
-      # stringsAsFactors=FALSE
-    )
+    load(file=file.path(dir,rda_file))
+    contract<-lookup
+    rm(lookup)
   } else{
+    rm(lookup) #This is admittedly inefficient
     
     # Prevent Action_Obligation clashes.
     colnames(contract)[colnames(contract)=="Action_Obligation"]<-"SumofObligatedAmount"
     
-    contract<-csis360::read_and_join_experiment(data=contract
-                                                ,file
+    
+    contract<-read_and_join_experiment(data=contract
+                                                ,rda_file
                                                 ,path=""
                                                 ,dir
                                                 ,by="CSIScontractID"
                                                 ,new_var_checked=FALSE
-                                                ,create_lookup_rdata=TRUE
     )
   }
   
-  contract<-csis360::standardize_variable_names(contract)
+  contract<-standardize_variable_names(contract)
   
-  if("MinOfEffectiveDate" %in% colnames(contract)){
-    contract$MinOfEffectiveDate<-na_nonsense_dates(contract$MinOfEffectiveDate)
-  }
-  contract$MinOfSignedDate<-na_nonsense_dates(contract$MinOfSignedDate)
-  contract$LastCurrentCompletionDate<-na_nonsense_dates(contract$LastCurrentCompletionDate)
-  if("MaxBoostDate" %in% colnames(contract)){
-    contract$MaxBoostDate<-na_nonsense_dates(contract$MaxBoostDate) 
-  } else {paste("Missing MaxBoostDate, redownload please.",file)}
-  if("MinOfSolicitation_Date" %in% colnames(contract)){
-    contract$MinOfSolicitation_Date<-na_nonsense_dates(contract$MinOfSolicitation_Date)
-    contract$PALT<-as.numeric(
-      difftime(strptime(contract$MinOfSignedDate,"%Y-%m-%d")
-               , strptime(contract$MinOfSolicitation_Date,"%Y-%m-%d")
-               , unit="days"
-      ))+1
-  } else {paste("Missing MinOfSolicitation_Date, redownload please.",file)}
+  contract$PALT<-as.numeric(
+    difftime(strptime(contract$MinOfSignedDate,"%Y-%m-%d")
+             , strptime(contract$MinOfSolicitation_Date,"%Y-%m-%d")
+             , unit="days"
+    ))+1
   
   if(!"StartFiscal_Year" %in% colnames(contract)){
     contract$StartFiscal_Year<-year(contract$MinOfSignedDate)+ifelse(month(contract$MinOfSignedDate)>=10,1,0)
@@ -627,7 +643,7 @@ input_sample_criteria<-function(contract=NULL,
   contract$IsComplete<-0
     #Limit to completed contracts that start in 2007 or later
     contract$IsComplete[contract$StartFiscal_Year>=2007 & 
-                       #For unclosed out contracts both current completion and last signed should before  2016
+                       #For unclosed out contracts both current completion and last signed should before 2021
                        (contract$MaxBoostDate<=as.Date(last_date)| is.na(contract$MaxBoostDate))&
                        (contract$LastCurrentCompletionDate<=as.Date(last_date)
                         #For closed out it's enough that the boost date is within the range.
@@ -660,14 +676,42 @@ input_sample_criteria<-function(contract=NULL,
 
 
 input_initial_scope<-function(contract,
-                              file="Contract_SP_ContractUnmodifiedScope.txt",
+                              schema="Contract",
+                              sp="SP_ContractUnmodifiedScope",
                               dir="..\\data\\semi_clean\\",
                               retain_all=FALSE,
-                              col_types="idddDDDl"
+                              col_types="idddDDDl",
+                              login,
+                              password
 ){
+  rda_file<-paste(schema,".",sp,".rda",sep = "")
   
-  contract<-csis360::read_and_join_experiment(data=contract
-                                              ,file
+  if(!file.exists(file.path(dir,rda_file))){
+    
+    con <- dbConnect(odbc(),
+                     Driver = "SQL Server",
+                     Server = "vmsqldiig.database.windows.net",
+                     Database = "CSIS360",
+                     UID = login,
+                     PWD =pwd)
+    lookup<-dbGetQuery(con,  
+                       paste("EXEC ",schema,".",sp," @IsDefense=NULL",sep=""))
+    rm(con)
+    lookup<-standardize_variable_names(lookup)
+    #8:30 pm 10/28/2023 start
+    #8:37 PM FILE UPDATED
+    
+    lookup<-lookup %>% mutate(UnmodifiedCurrentCompletionDate=na_nonsense_dates(UnmodifiedCurrentCompletionDate)) %>%
+      mutate(UnmodifiedUltimateCompletionDate=na_nonsense_dates(UnmodifiedUltimateCompletionDate))%>%
+      mutate(UnmodifiedLastDateToOrder=na_nonsense_dates(UnmodifiedLastDateToOrder))
+    
+    save(lookup,file=file.path(dir,rda_file))
+    rm(lookup) #This is admittedly inefficient
+  }
+  
+  
+  contract<-read_and_join_experiment(data=contract
+                                              ,rda_file
                                               ,path=""
                                               ,dir
                                               ,by="CSIScontractID"
@@ -676,15 +720,13 @@ input_initial_scope<-function(contract,
                                               ,create_lookup_rdata=TRUE
   )
   
-  contract<-csis360::standardize_variable_names(contract)
+  contract<-standardize_variable_names(contract)
   
+  
+  contract<-contract %>% mutate(UnmodifiedCurrentCompletionDate=na_nonsense_dates(UnmodifiedCurrentCompletionDate)) %>%
+    mutate(UnmodifiedUltimateCompletionDate=na_nonsense_dates(UnmodifiedUltimateCompletionDate))%>%
+    mutate(UnmodifiedLastDateToOrder=na_nonsense_dates(UnmodifiedLastDateToOrder))
 
-  
-
-  contract$UnmodifiedCurrentCompletionDate<-na_nonsense_dates(contract$UnmodifiedCurrentCompletionDate)
-  contract$UnmodifiedUltimateCompletionDate<-na_nonsense_dates(contract$UnmodifiedUltimateCompletionDate)
-  contract$UnmodifiedLastDateToOrder<-na_nonsense_dates(contract$UnmodifiedLastDateToOrder)
-  
   if(!all(is.na(contract$UnmodifiedCurrentCompletionDate))){
     #Calculate the number of days the contract lasts.
     contract$UnmodifiedDays<-as.numeric(
@@ -803,8 +845,34 @@ input_initial_scope<-function(contract,
 input_contract_ceiling_breach<-function(contract,
                                file="contract_SP_ContractCeilingBreachCustomer.txt",
                                dir="..\\data\\semi_clean\\",
-                               retain_all=FALSE
+                               retain_all=FALSE,
+                               login,
+                               password
 ){
+  
+  
+  #Started running around 10/29/2023 ~7:30a-9:22 am
+  if(!file.exists(file.path(dir,rda_file))){
+    
+    con <- dbConnect(odbc(),
+                     Driver = "SQL Server",
+                     Server = "vmsqldiig.database.windows.net",
+                     Database = "CSIS360",
+                     UID = login,
+                     PWD =pwd)
+    lookup<-dbGetQuery(con,  
+                       paste("EXEC ",schema,".",sp," @IsDefense=NULL",sep=""))
+    rm(con)
+    lookup<-standardize_variable_names(lookup)
+
+    lookup <- lookup %>% mutate(ChangeOrderCeilingGrowth=text_to_number(ChangeOrderCeilingGrowth)) %>%
+      mutate(ChangeOrderCeilingRescision=text_to_number(ChangeOrderCeilingRescision)) %>%
+      mutate(AdminCeilingModification=text_to_number(AdminCeilingModification))
+    
+    save(lookup,file=file.path(dir,rda_file))
+    rm(lookup) #This is admittedly inefficient
+  }
+  
   
   # load(file="..\\data\\semi_clean\\Federal_contract_CSIScontractID_complete.Rdata")
   if(!"UnmodifiedCeiling" %in% colnames(contract)) stop("UnmodifiedCeiling is missing from the data frame.")
@@ -820,12 +888,12 @@ input_contract_ceiling_breach<-function(contract,
                                      create_lookup_rdata=TRUE
   )
   
-  contract<-csis360::standardize_variable_names(contract)
+  contract<-standardize_variable_names(contract)
   
-  # contract$ChangeOrderObligatedAmount<-csis360::text_to_number(contract$ChangeOrderObligatedAmount)
-  contract$ChangeOrderCeilingGrowth<-csis360::text_to_number(contract$ChangeOrderCeilingGrowth)
-  contract$ChangeOrderCeilingRescision<-csis360::text_to_number(contract$ChangeOrderCeilingRescision)
-  contract$AdminCeilingModification<-csis360::text_to_number(contract$AdminCeilingModification)
+  # contract$ChangeOrderObligatedAmount<-text_to_number(contract$ChangeOrderObligatedAmount)
+  contract <- contract %>% mutate(ChangeOrderCeilingGrowth=text_to_number(ChangeOrderCeilingGrowth)) %>%
+    mutate(ChangeOrderCeilingRescision=text_to_number(ChangeOrderCeilingRescision)) %>%
+    mutate(AdminCeilingModification=text_to_number(AdminCeilingModification))
   
   summary(subset(contract$qCRais,contract$SumOfisChangeOrder>0    ))
   
@@ -896,9 +964,12 @@ input_contract_ceiling_breach<-function(contract,
 }
 
 input_contract_psc_office_naics<-function(contract,
-                                          file="Contract_SP_ContractTopPSCofficeNAICS.txt",
+                                          schema="Contract",
+                                          sp="SP_ContractTopPSCofficeNAICS",
                                           dir="..\\data\\semi_clean\\",
-                                          retain_all=FALSE
+                                          retain_all=FALSE,
+                                          login,
+                                          password
                                           ){
   
   # contract<-plyr::join(contract,test)
@@ -916,29 +987,51 @@ input_contract_psc_office_naics<-function(contract,
   #   col_double()))
 
   
-  contract<-read_and_join_experiment(data=contract,
-                                             file,
-                                             "",
-                                             dir,
-                                             by="CSIScontractID",
-                                             new_var_checked=FALSE,
-                                             col_types="icdcdcdcd"
-  )
+  rda_file<-paste(schema,".",sp,".rda",sep = "")
   
-  contract$topContractingOfficeAgencyID<-factor(
-    contract$topContractingOfficeAgencyID
-  )
-  contract$topContractingOfficeID<-factor(
-    contract$topContractingOfficeID
-  )
-  contract$topProductOrServiceCode<-factor(
-    contract$topProductOrServiceCode
-  )
-  contract$topPrincipalNAICScode<-factor(
-    contract$topPrincipalNAICScode
-  )
+  if(!file.exists(file.path(dir,rda_file))){
+    
+    con <- dbConnect(odbc(),
+                     Driver = "SQL Server",
+                     Server = "vmsqldiig.database.windows.net",
+                     Database = "CSIS360",
+                     UID = login,
+                     PWD =pwd)
+    lookup<-dbGetQuery(con,  
+                       paste("EXEC ",schema,".",sp," @IsDefense=NULL",sep=""))
+    rm(con)
+    lookup<-standardize_variable_names(lookup)
+    #8:30 pm 10/28/2023 start
+    #8:37 PM FILE UPDATED
+    
+    lookup<-lookup %>% mutate(topContractingOfficeAgencyID=factor(topContractingOfficeAgencyID)) %>%
+      mutate(topContractingOfficeID=factor(topContractingOfficeID))%>%
+      mutate(topProductOrServiceCode=factor(topProductOrServiceCode))%>%
+      mutate(topPrincipalNAICScode=factor(topPrincipalNAICScode))
+    
+    save(lookup,file=file.path(dir,rda_file))
+    rm(lookup) #This is admittedly inefficient
+  }
+  
+    # Prevent Action_Obligation clashes.
+    colnames(contract)[colnames(contract)=="Action_Obligation"]<-"SumofObligatedAmount"
+    
+    
+    contract<-read_and_join_experiment(data=contract
+                                                ,rda_file
+                                                ,path=""
+                                                ,dir
+                                                ,by="CSIScontractID"
+                                                ,new_var_checked=FALSE
+                                                # col_types="icdcdcdcd"
+    )
   
   
+  contract<-contract %>% mutate(topContractingOfficeAgencyID=factor(topContractingOfficeAgencyID)) %>%
+                        mutate(topContractingOfficeID=factor(topContractingOfficeID))%>%
+                        mutate(topProductOrServiceCode=factor(topProductOrServiceCode))%>%
+                        mutate(topPrincipalNAICScode=factor(topPrincipalNAICScode))
+
   contract<-contract[,!colnames(contract) %in% 
                      c(
                        # "topContractingOfficeAgencyID",
@@ -958,7 +1051,7 @@ sample_prep<-function(contract){
   #What - Product Or Service Code
   colnames(contract)[colnames(contract)=="ProdServ"]<-"ProductOrServiceCode"
   contract$ProductOrServiceCode<-as.character(contract$ProductOrServiceCode)
-  contract<-csis360::read_and_join( contract,
+  contract<-read_and_join( contract,
                                 "ProductOrServiceCodes.csv",
                                 path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
                                 directory="",
@@ -991,7 +1084,7 @@ sample_prep<-function(contract){
   
   #Who - Agency
   colnames(contract)[colnames(contract)=="Agency"]<-"AgencyID"
-  contract<-csis360::read_and_join( contract,
+  contract<-read_and_join( contract,
                                     "Agency_AgencyID.csv",
                                     path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
                                     directory="",
@@ -1027,7 +1120,7 @@ sample_prep<-function(contract){
 
 iso3<-function(contract,colname,prefix){
   colnames(contract)[colnames(contract)==colname]<-"alpha.3"
-  contract<-csis360::read_and_join( contract,
+  contract<-read_and_join( contract,
                                     "Location_CountryCodes.csv",
                                     path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
                                     directory="location/",
@@ -1157,7 +1250,7 @@ place_compare<-function(contract,comparecol,newcol,comparename,placecol="PlaceCo
 
 
 add_col_from_transformed<-function(sample,transformed,col=NULL){
-  warning("add_col_from_transformed is deprecated, use csis360::update_sample_col_CSIScontractID isntead")
+  warning("add_col_from_transformed is deprecated, use update_sample_col_CSIScontractID isntead")
   update_sample_col_CSIScontractID(sample,
                                              transformed,
                                              col=col, 
