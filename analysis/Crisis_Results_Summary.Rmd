@@ -85,7 +85,7 @@ if(! "PlaceIntlPercent" %in% colnames(full_data) & !"CrisisPercent"  %in% colnam
   full_data<-csis360::read_and_join( full_data,
                                         "Office.ContractingOfficeCode.txt",
                                         path="https://raw.githubusercontent.com/CSISdefense/Lookup-Tables/master/",
-                                        directory="office\\",
+                                        directory="office//",
                                         by="ContractingOfficeCode",
                                         add_var=c("PlaceIntlPercent","CrisisPercent"),
                                         new_var_checked=FALSE)
