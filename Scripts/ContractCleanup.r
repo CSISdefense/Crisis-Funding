@@ -843,17 +843,19 @@ input_initial_scope<-function(contract,
 }
 
 input_contract_ceiling_breach<-function(contract,
-                               file="contract_SP_ContractCeilingBreachCustomer.txt",
+                               schema="contract",
+                               sp="SP_ContractCeilingBreachCustomer.txt",
                                dir="..\\data\\semi_clean\\",
                                retain_all=FALSE,
                                login,
                                password
 ){
   
+  rda_file<-paste(schema,".",sp,".rda",sep = "")
   
   #Started running around 10/29/2023 ~7:30a-9:22 am
   if(!file.exists(file.path(dir,rda_file))){
-    
+    #2h23m start 10/29/2023
     con <- dbConnect(odbc(),
                      Driver = "SQL Server",
                      Server = "vmsqldiig.database.windows.net",
@@ -861,7 +863,7 @@ input_contract_ceiling_breach<-function(contract,
                      UID = login,
                      PWD =pwd)
     lookup<-dbGetQuery(con,  
-                       paste("EXEC ",schema,".",sp," @IsDefense=NULL",sep=""))
+                       paste("EXEC ",schema,".",sp," @Customer=NULL",sep=""))
     rm(con)
     lookup<-standardize_variable_names(lookup)
 
@@ -880,7 +882,7 @@ input_contract_ceiling_breach<-function(contract,
   #Drop ContractBaseAndAllOptionsValue as it ends up duplicated after  being incorporated by a different name then standardized.
   if("ContractBaseAndAllOptionsValue" %in% colnames(contract)) contract <- contract %>% dplyr::select(-ContractBaseAndAllOptionsValue)
   contract<-read_and_join_experiment(contract,
-                                              file,
+                                     rda_file,
                                               "",
                                               dir,
                                               by="CSIScontractID",
