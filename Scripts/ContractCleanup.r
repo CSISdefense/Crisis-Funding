@@ -571,7 +571,8 @@ input_sample_criteria<-function(contract=NULL,
                                 last_date="2021-09-30",
                                 retain_all=FALSE,
                                 login,
-                                password
+                                password,
+                                IsDefense=NULL
 ){
   
   con <- dbConnect(odbc(),
@@ -581,11 +582,15 @@ input_sample_criteria<-function(contract=NULL,
                    UID = login,
                    PWD =pwd)
   
-  rda_file<-paste(schema,".",sp,".rda",sep = "")
+  if(IsDefense==1){
+    rda_file<-paste("Defense_",schema,".",sp,".rda",sep = "")
+  } else if (IsDefense==0){
+    rda_file<-paste("Defense_",schema,".",sp,".rda",sep = "")
+  } else  rda_file<-paste(schema,".",sp,".rda",sep = "")
   
   if(!file.exists(file.path(dir,rda_file))){
     lookup<-dbGetQuery(con,  
-                            paste("EXEC ",schema,".",sp," @IsDefense=NULL",sep=""))
+                            paste("EXEC ",schema,".",sp," @IsDefense=",IsDefense,sep=""))
     lookup<-standardize_variable_names(lookup)
     #11:51 #Finished by 4:50
     #67 million rows.
